@@ -46,8 +46,13 @@ class View:
         def __init__(self, master, listener):
             super().__init__(master, listener)
 
+
+
             self.backButton = tkinter.Button(self.frame, text='back', fg='black', command=self.backButton)
             self.backButton.grid(row=0, column=0, sticky='wens')
+
+            self.title = tkinter.Label(self.frame, text='Select an Environment:')
+            self.title.grid(row=1, column=4, columnspan=2, sticky='wens')
 
             self.frozenLakeButton = tkinter.Button(self.frame, text='Frozen Lake', fg='black', command=self.chooseFrozenLake)
             self.frozenLakeButton.grid(row=2, column=4, columnspan=2, sticky='wens')
