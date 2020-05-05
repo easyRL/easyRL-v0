@@ -67,12 +67,12 @@ class View:
             self.frame.lift()
 
         def chooseFrozenLake(self):
-            self.listener.setEnvironment('frozenlake')
+            self.listener.setFrozenLakeEnv()
             View.ProjectWindow(self.master, self.listener)
             self.frame.destroy()
 
         def chooseCartPole(self):
-            self.listener.setEnvironment('cartpole')
+            self.listener.setCartPoleEnv()
             View.ProjectWindow(self.master, self.listener)
             self.frame.destroy()
 
@@ -87,8 +87,9 @@ class View:
             self.backButton.grid(row=0, column=0)
 
             self.tab = ttk.Notebook(self.frame)
+            self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
-            self.qlearningTab = tkinter.Frame(self.tab)
+            self.qlearningTab = View.QLearningTab(self.tab, listener)
             self.deepQTab = tkinter.Frame(self.tab)
             self.deepSarsaTab = tkinter.Frame(self.tab)
             self.tab.add(self.qlearningTab, text='Q Learning')
@@ -99,6 +100,65 @@ class View:
 
             self.frame.grid(row=0, column=0)
             self.frame.lift()
+
+        def tabChange(self, event):
+            tabIndex = event.widget.index('current')
+            if tabIndex == 0:
+                self.listener.setQLearningAgent()
+            elif tabIndex == 1:
+                self.listener.setDeepQLearningAgent()
+            elif tabIndex == 2:
+                self.listener.setDeepSarsaAgent()
+
+    class QLearningTab(tkinter.Frame):
+        def __init__(self, tab, listener):
+            super().__init__(tab)
+            self.listener = listener
+
+            tkinter.Label(self, text='Number of Episodes: ').grid(row=0, column=0)
+            self.numEps = tkinter.Entry(self).grid(row=0, column=1)
+
+            tkinter.Label(self, text='Learning Rate: ').grid(row=1, column=0)
+            self.learningRate = tkinter.Scale(self, from_=0.01, to=1, resolution=0.01, orient=tkinter.HORIZONTAL).grid(row=1, column=1)
+
+            tkinter.Label(self, text='Max Steps: ').grid(row=2, column=0)
+            self.maxSteps = tkinter.Entry(self).grid(row=2, column=1)
+
+            tkinter.Label(self, text='Gamma: ').grid(row=3, column=0)
+            self.gamma = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL).grid(row=3, column=1)
+
+            tkinter.Label(self, text='Max Epsilon: ').grid(row=4, column=0)
+            self.maxEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL).grid(row=4, column=1)
+
+            tkinter.Label(self, text='Min Epsilon: ').grid(row=5, column=0)
+            self.minEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL).grid(row=5, column=1)
+
+            tkinter.Label(self, text='Decay Rate: ').grid(row=6, column=0)
+            self.decayRate = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL).grid(row=6, column=1)
+
+            self.trainButton = tkinter.Button(self, text='Train', fg='black', command=self.train)
+            self.trainButton.grid(row=7, column=0)
+
+        def train(self):
+            total_episodes = int(self.numEps.get())
+            learning_rate = self.learningRate.get()
+            max_steps = int(self.maxSteps.get())
+            gamma = self.gamma.get()
+            max_epsilon = self.maxEpsilon.get()
+            min_epsilon = self.minEpsilon.get()
+            decay_rate = self.decayRate.get()
+
+            self.listener.startTraining(total_episodes,
+                                        learning_rate,
+                                        max_steps,
+                                        gamma,
+                                        max_epsilon,
+                                        min_epsilon,
+                                        decay_rate)
+
+        def checkMessages(self):
+            self.listener
+            self.master.after(150, self.checkMessages)
 
     class GraphicsArea:
         def __init__(self, view):

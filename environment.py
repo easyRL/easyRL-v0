@@ -1,3 +1,5 @@
+import gym
+
 class Environment:
     def __init__(self):
         pass
@@ -6,6 +8,9 @@ class Environment:
         pass
 
     def reset(self):
+        pass
+
+    def sample_action(self):
         pass
 
     def render(self, mode, close):
