@@ -25,7 +25,7 @@ class CartPoleEnv(environment.Environment):
         self.total_rewards = None
 
     def step(self, action):
-        observation, reward, done, info = self.env.step(action)
+        observation, reward, self.done, info = self.env.step(action)
         cart_position, pole_angle, cart_velocity, angle_rate_of_change = observation
         self.state = self.build_state([self.to_bin(cart_position, self.cart_position_bins),
                              self.to_bin(pole_angle, self.pole_angle_bins),

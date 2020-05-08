@@ -41,6 +41,9 @@ class Controller:
         def startTraining(self, *args):
             threading.Thread(target=self.controller.model.run_learning, args=(self.messageQueue,)+args).start()
 
+        def halt(self):
+            self.controller.model.halt_learning()
+
 def main():
     Controller()
 

@@ -1,6 +1,7 @@
 import tkinter
 from tkinter import ttk
 from PIL import Image, ImageTk
+from model import Model
 
 class View:
     """
@@ -115,6 +116,12 @@ class View:
         def __init__(self, tab, listener):
             super().__init__(tab)
             self.image = None
+            self.imageQueues = ([], [])
+            self.imageQueuesInd = 0
+            self.curImageIndDisplayed = 0
+            self.isDisplayingEpisode = False
+            self.waitCount = 0
+            self.canvasImage = None
 
             self.listener = listener
 
@@ -146,11 +153,22 @@ class View:
             self.decayRate = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
             self.decayRate.grid(row=6, column=1)
 
+            self.slowLabel = tkinter.Label(self, text='Displayed episode speed')
+            self.slowLabel.grid(row=7, column=0)
+            self.slowSlider = tkinter.Scale(self, from_=1, to=20, resolution=1, orient=tkinter.HORIZONTAL)
+            self.slowSlider.grid(row=7, column=1)
+
             self.trainButton = tkinter.Button(self, text='Train', fg='black', command=self.train)
-            self.trainButton.grid(row=7, column=0)
+            self.trainButton.grid(row=8, column=0)
+
+            self.haltButton = tkinter.Button(self, text='Halt', fg='black', command=self.halt)
+            self.haltButton.grid(row=8, column=1)
 
             self.canvas = tkinter.Canvas(self)
             self.canvas.grid(row=0, column=2, rowspan=9, columnspan=8, sticky='wens')
+
+        def halt(self):
+            self.listener.halt()
 
         def train(self):
             try:
@@ -175,19 +193,52 @@ class View:
                 print('Bad Hyperparameters')
 
         def checkMessages(self):
-            message = None
-            finished = False
             while self.listener.messageQueue.qsize():
                 message = self.listener.messageQueue.get(timeout=0)
-            if message:
-                if message.image:
-                    tempImage = message.image.resize((self.canvas.winfo_width(), self.canvas.winfo_height()))
-                    self.image = ImageTk.PhotoImage(tempImage)
-                    self.canvas.create_image(0, 0, anchor='nw', image=self.image)
-                if message.done:
-                    finished = True
-            if not finished:
-                self.master.after(20, self.checkMessages)
+                if message.type == Model.Message.EVENT:
+                    if message.data == Model.Message.EPISODE:
+                        if self.isDisplayingEpisode:
+                            self.imageQueues[self.imageQueuesInd].clear()
+                        else:
+                            self.imageQueuesInd = 1 - self.imageQueuesInd
+                            self.imageQueues[self.imageQueuesInd].clear()
+                            self.isDisplayingEpisode = True
+                    elif message.data == Model.Message.FINISHED:
+                        self.imageQueues[0].clear()
+                        self.imageQueues[1].clear()
+                        self.imageQueuesInd = 0
+                        self.curImageIndDisplayed = 0
+                        self.isDisplayingEpisode = False
+                        self.waitCount = 0
+                        return
+                elif message.type == Model.Message.IMAGE:
+                    self.imageQueues[self.imageQueuesInd].append(message.data)
+
+            self.updateEpisodeRender()
+            self.master.after(20, self.checkMessages)
+
+        def updateEpisodeRender(self):
+            displayQueue = self.imageQueues[1 - self.imageQueuesInd]
+            if displayQueue:
+                if self.waitCount >= 21 - self.slowSlider.get():
+                    self.waitCount = 0
+                    tempImage = displayQueue[self.curImageIndDisplayed]
+                    self.curImageIndDisplayed = self.curImageIndDisplayed+1
+                    if self.curImageIndDisplayed == len(displayQueue):
+                        self.curImageIndDisplayed = 0
+                        self.isDisplayingEpisode = False
+
+                    tempImage = tempImage.resize((self.canvas.winfo_width(), self.canvas.winfo_height()))
+                    self.image = ImageTk.PhotoImage(tempImage) # must maintain a reference to this image in self: otherwise will be garbage collected
+                    if self.canvasImage:
+                        self.canvas.delete(self.canvasImage)
+                    self.canvasImage = self.canvas.create_image(0, 0, anchor='nw', image=self.image)
+                self.waitCount += 1
+
+
+        def processModelState(self, state):
+            pass
+
 
 
     class GraphicsArea:

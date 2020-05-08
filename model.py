@@ -23,7 +23,7 @@ class Model:
                 else:
                     action = self.environment.sample_action()
 
-                message = Model.Message(self.environment.render())
+                message = Model.Message(Model.Message.IMAGE, self.environment.render())
                 messageQueue.put(message)
 
                 reward = self.environment.step(action)
@@ -33,12 +33,15 @@ class Model:
                 if self.environment.done or self.isHalted:
                     break
 
+            message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
+            messageQueue.put(message)
+
             epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
             #print(step, epsilon)
             if self.isHalted:
                 self.isHalted = False
                 break
-        message = Model.Message(None, True)
+        message = Model.Message(Model.Message.EVENT, Model.Message.FINISHED)
         messageQueue.put(message)
         print('learning done')
 
@@ -46,6 +49,12 @@ class Model:
         self.isHalted = True
 
     class Message:
-        def __init__(self, image, done=False):
-            self.image = image
-            self.done = done
+        IMAGE = 0
+        EVENT = 1
+
+        FINISHED = 0
+        EPISODE = 1
+
+        def __init__(self, type, data):
+            self.type = type
+            self.data = data
