@@ -44,6 +44,10 @@ class Controller:
         def halt(self):
             self.controller.model.halt_learning()
 
+        def reset(self):
+            if self.controller.model.agent.reset and not self.controller.model.isRunning:
+                self.controller.model.agent.reset()
+
 def main():
     Controller()
 

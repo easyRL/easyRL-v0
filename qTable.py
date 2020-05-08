@@ -10,4 +10,4 @@ class QTable(modelFreeAgent.ModelFreeAgent):
         return self.qtable.get((state, action), 0.0)
 
     def reset(self):
-        super().reset()
+        self.qtable.clear()

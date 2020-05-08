@@ -122,6 +122,8 @@ class View:
             self.isDisplayingEpisode = False
             self.waitCount = 0
             self.canvasImage = None
+            self.trainingEpisodes = 0
+            self.prevDisplayedEpisode = None
 
             self.listener = listener
 
@@ -164,11 +166,26 @@ class View:
             self.haltButton = tkinter.Button(self, text='Halt', fg='black', command=self.halt)
             self.haltButton.grid(row=8, column=1)
 
+            self.resetButton = tkinter.Button(self, text='Reset Agent', fg='black', command=self.reset)
+            self.resetButton.grid(row=9, column=0, columnspan=2)
+
             self.canvas = tkinter.Canvas(self)
             self.canvas.grid(row=0, column=2, rowspan=9, columnspan=8, sticky='wens')
 
+            self.displayedEpisodeNum = tkinter.Label(self, text='')
+            self.displayedEpisodeNum.grid(row=9, column=2)
+
+            self.curEpisodeNum = tkinter.Label(self, text='')
+            self.curEpisodeNum.grid(row=9, column=3)
+
         def halt(self):
             self.listener.halt()
+
+        def reset(self):
+            self.trainingEpisodes = 0
+            self.listener.reset()
+            self.curEpisodeNum.configure(text='')
+            self.displayedEpisodeNum.configure(text='')
 
         def train(self):
             try:
@@ -197,12 +214,15 @@ class View:
                 message = self.listener.messageQueue.get(timeout=0)
                 if message.type == Model.Message.EVENT:
                     if message.data == Model.Message.EPISODE:
+                        self.trainingEpisodes += 1
+                        self.curEpisodeNum.configure(text='Episodes completed: '+str(self.trainingEpisodes))
                         if self.isDisplayingEpisode:
                             self.imageQueues[self.imageQueuesInd].clear()
                         else:
                             self.imageQueuesInd = 1 - self.imageQueuesInd
                             self.imageQueues[self.imageQueuesInd].clear()
                             self.isDisplayingEpisode = True
+                            self.displayedEpisodeNum.configure(text='Showing episode '+str(self.trainingEpisodes))
                     elif message.data == Model.Message.FINISHED:
                         self.imageQueues[0].clear()
                         self.imageQueues[1].clear()
@@ -227,7 +247,6 @@ class View:
                     if self.curImageIndDisplayed == len(displayQueue):
                         self.curImageIndDisplayed = 0
                         self.isDisplayingEpisode = False
-
                     tempImage = tempImage.resize((self.canvas.winfo_width(), self.canvas.winfo_height()))
                     self.image = ImageTk.PhotoImage(tempImage) # must maintain a reference to this image in self: otherwise will be garbage collected
                     if self.canvasImage:

@@ -7,8 +7,10 @@ class Model:
         self.environment = None
         self.agent = None
         self.isHalted = False
+        self.isRunning = False
 
     def run_learning(self, messageQueue, total_episodes, learning_rate, max_steps, gamma, max_epsilon, min_epsilon, decay_rate):
+        self.isRunning = True
         epsilon = max_epsilon
 
         for episode in range(total_episodes):
@@ -43,10 +45,14 @@ class Model:
                 break
         message = Model.Message(Model.Message.EVENT, Model.Message.FINISHED)
         messageQueue.put(message)
+        self.isRunning = False
         print('learning done')
 
     def halt_learning(self):
         self.isHalted = True
+
+    def isRunning(self):
+        return self.isRunning
 
     class Message:
         IMAGE = 0
