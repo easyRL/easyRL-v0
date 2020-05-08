@@ -1,5 +1,6 @@
 import tkinter
 from tkinter import ttk
+from PIL import Image, ImageTk
 
 class View:
     """
@@ -113,57 +114,84 @@ class View:
     class QLearningTab(tkinter.Frame):
         def __init__(self, tab, listener):
             super().__init__(tab)
+            self.image = None
+
             self.listener = listener
 
             tkinter.Label(self, text='Number of Episodes: ').grid(row=0, column=0)
-            self.numEps = tkinter.Entry(self).grid(row=0, column=1)
+            self.numEps = tkinter.Entry(self)
+            self.numEps.grid(row=0, column=1)
 
             tkinter.Label(self, text='Learning Rate: ').grid(row=1, column=0)
-            self.learningRate = tkinter.Scale(self, from_=0.01, to=1, resolution=0.01, orient=tkinter.HORIZONTAL).grid(row=1, column=1)
+            self.learningRate = tkinter.Scale(self, from_=0.01, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            self.learningRate.grid(row=1, column=1)
 
             tkinter.Label(self, text='Max Steps: ').grid(row=2, column=0)
-            self.maxSteps = tkinter.Entry(self).grid(row=2, column=1)
+            self.maxSteps = tkinter.Entry(self)
+            self.maxSteps.grid(row=2, column=1)
 
             tkinter.Label(self, text='Gamma: ').grid(row=3, column=0)
-            self.gamma = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL).grid(row=3, column=1)
+            self.gamma = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            self.gamma.grid(row=3, column=1)
 
             tkinter.Label(self, text='Max Epsilon: ').grid(row=4, column=0)
-            self.maxEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL).grid(row=4, column=1)
+            self.maxEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            self.maxEpsilon.grid(row=4, column=1)
 
             tkinter.Label(self, text='Min Epsilon: ').grid(row=5, column=0)
-            self.minEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL).grid(row=5, column=1)
+            self.minEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            self.minEpsilon.grid(row=5, column=1)
 
             tkinter.Label(self, text='Decay Rate: ').grid(row=6, column=0)
-            self.decayRate = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL).grid(row=6, column=1)
+            self.decayRate = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            self.decayRate.grid(row=6, column=1)
 
             self.trainButton = tkinter.Button(self, text='Train', fg='black', command=self.train)
             self.trainButton.grid(row=7, column=0)
 
-        def train(self):
-            total_episodes = int(self.numEps.get())
-            learning_rate = self.learningRate.get()
-            max_steps = int(self.maxSteps.get())
-            gamma = self.gamma.get()
-            max_epsilon = self.maxEpsilon.get()
-            min_epsilon = self.minEpsilon.get()
-            decay_rate = self.decayRate.get()
+            self.canvas = tkinter.Canvas(self)
+            self.canvas.grid(row=0, column=2, rowspan=9, columnspan=8, sticky='wens')
 
-            self.listener.startTraining(total_episodes,
-                                        learning_rate,
-                                        max_steps,
-                                        gamma,
-                                        max_epsilon,
-                                        min_epsilon,
-                                        decay_rate)
+        def train(self):
+            try:
+                total_episodes = int(self.numEps.get())
+                learning_rate = self.learningRate.get()
+                max_steps = int(self.maxSteps.get())
+                gamma = self.gamma.get()
+                max_epsilon = self.maxEpsilon.get()
+                min_epsilon = self.minEpsilon.get()
+                decay_rate = self.decayRate.get()
+
+                self.listener.startTraining(total_episodes,
+                                            learning_rate,
+                                            max_steps,
+                                            gamma,
+                                            max_epsilon,
+                                            min_epsilon,
+                                            decay_rate)
+
+                self.checkMessages()
+            except ValueError:
+                print('Bad Hyperparameters')
 
         def checkMessages(self):
-            self.listener
-            self.master.after(150, self.checkMessages)
+            message = None
+            finished = False
+            while self.listener.messageQueue.qsize():
+                message = self.listener.messageQueue.get(timeout=0)
+            if message:
+                if message.image:
+                    tempImage = message.image.resize((self.canvas.winfo_width(), self.canvas.winfo_height()))
+                    self.image = ImageTk.PhotoImage(tempImage)
+                    self.canvas.create_image(0, 0, anchor='nw', image=self.image)
+                if message.done:
+                    finished = True
+            if not finished:
+                self.master.after(20, self.checkMessages)
+
 
     class GraphicsArea:
         def __init__(self, view):
-            self.width = 800
-            self.height = 400
             self.canvas = tkinter.Canvas(view.frame, width=self.width, height=self.height)
             self.canvas.grid(row=0, column=0, columnspan=10)
             self.backgroundId = self.canvas.create_rectangle(0, 0, self.width, self.height, fill='white')

@@ -10,7 +10,6 @@ import queue
 class Controller:
     def __init__(self):
         self.model = model.Model()
-        self.messageQueue = queue.Queue()
         self.viewListener = self.ViewListener(self)
         root = tkinter.Tk(className='rl framework')
         self.view = view.View(root, self.viewListener)
@@ -19,6 +18,8 @@ class Controller:
     class ViewListener:
         def __init__(self, controller):
             self.controller = controller
+            self.messageQueue = queue.Queue()
+            self.messageQueue.get
 
         def setFrozenLakeEnv(self):
             self.controller.model.environment = frozenLakeEnv.FrozenLakeEnv()
@@ -38,8 +39,7 @@ class Controller:
             pass
 
         def startTraining(self, *args):
-            threading.Thread(target=self.controller.model.run_learning, args=[self.messageQueue]+args).start()
-
+            threading.Thread(target=self.controller.model.run_learning, args=(self.messageQueue,)+args).start()
 
 def main():
     Controller()
