@@ -77,10 +77,10 @@ class CartPoleEnv(environment.Environment):
         polePoints = [(l,b), (l,t), (r,t), (r,b)]
         for i, (x, y) in enumerate(polePoints):
             x -= cartx
-            y -= carty
+            y -= carty+axleoffset
             x, y = x*math.cos(state[2])+y*math.sin(state[2]), -x*math.sin(state[2])+y*math.cos(state[2])
             x += cartx
-            y += carty
+            y += carty+axleoffset
             polePoints[i] = x, y
         draw.polygon(polePoints, fill=(204, 153, 102))
         draw.chord([cartx-polewidth/2, carty+axleoffset-polewidth/2, cartx+polewidth/2, carty+axleoffset+polewidth/2], 0, 360, fill=(127,127,284))
