@@ -4,6 +4,7 @@ import numpy as np
 import random
 from PIL import Image, ImageDraw
 import math
+import sys
 
 class FrozenLakeEnv(environment.Environment):
 
@@ -32,6 +33,4 @@ class FrozenLakeEnv(environment.Environment):
         return self.env.action_space.sample()
 
     def render(self, mode='human'):
-        pass
-
-    
+        self.env.render()
