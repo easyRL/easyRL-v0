@@ -10,7 +10,7 @@ class FrozenLakeEnv(environment.Environment):
     def __init__(self):
         self.env = gym.make('FrozenLake-v0')
         self.action_size = self.env.action_space.n
-        self.state_size = env.observation_space.n
+        self.state_size = self.env.observation_space.n
         print(self.env.action_space, self.env.observation_space)
         print(self.action_size, self.state_size)
 
@@ -24,11 +24,14 @@ class FrozenLakeEnv(environment.Environment):
         return reward
 
     def reset(self):
-        self.state = env.reset()
+        self.state = self.env.reset()
         self.done = False
         self.total_rewards = 0
 
     def sample_action(self):
         return self.env.action_space.sample()
+
+    def render(self, mode='human'):
+        pass
 
     
