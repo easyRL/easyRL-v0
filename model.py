@@ -1,17 +1,21 @@
 import random
 import numpy as np
 
+
 class Model:
     def __init__(self):
         # these can be set directly from the Controller based on user input from the View
         self.environment = None
-        self.agent = None
+        self.agent_class = None
         self.isHalted = False
         self.isRunning = False
+        self.agent = None
 
     def run_learning(self, messageQueue, total_episodes, learning_rate, max_steps, gamma, max_epsilon, min_epsilon, decay_rate):
         self.isRunning = True
         epsilon = max_epsilon
+
+        self.agent = self.agent_class(self.environment.action_size, learning_rate, gamma)
 
         for episode in range(total_episodes):
             self.environment.reset()
@@ -30,7 +34,7 @@ class Model:
 
                 reward = self.environment.step(action)
 
-                self.agent.remember(old_state, action, reward, self.environment.state, learning_rate, gamma)
+                self.agent.remember(old_state, action, reward, self.environment.state)
 
                 if self.environment.done or self.isHalted:
                     break

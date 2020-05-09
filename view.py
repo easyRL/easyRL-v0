@@ -3,6 +3,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 from model import Model
 
+
 class View:
     """
     :param master: the top level widget of Tk

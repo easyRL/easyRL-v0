@@ -1,5 +1,6 @@
 import modelFreeAgent
 
+
 class DeepQ(modelFreeAgent.ModelFreeAgent):
     def __init__(self):
         super().__init__()

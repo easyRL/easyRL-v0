@@ -7,6 +7,7 @@ import qLearning
 import threading
 import queue
 
+
 class Controller:
     def __init__(self):
         self.model = model.Model()
@@ -30,7 +31,7 @@ class Controller:
             print('loaded cartpole')
 
         def setQLearningAgent(self):
-            self.controller.model.agent = qLearning.QLearning(self.controller.model.environment.action_size)
+            self.controller.model.agent_class = qLearning.QLearning
 
         def setDeepQLearningAgent(self):
             pass
@@ -48,7 +49,8 @@ class Controller:
             if self.controller.model.agent.reset and not self.controller.model.isRunning:
                 self.controller.model.agent.reset()
 
-def main():
+
+# Conventional way to write the main method
+if __name__ == "__main__":
     Controller()
 
-main()
