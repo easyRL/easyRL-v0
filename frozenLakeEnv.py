@@ -5,6 +5,7 @@ import random
 from PIL import Image, ImageDraw
 import math
 import sys
+from gym import utils
 
 class FrozenLakeEnv(environment.Environment):
 
@@ -33,4 +34,22 @@ class FrozenLakeEnv(environment.Environment):
         return self.env.action_space.sample()
 
     def render(self, mode='human'):
-        self.env.render()
+        # Output to console
+        # self.env.render()
+
+        # Render method from environment, change to output in window
+        outfile = StringIO() if mode == 'ansi' else sys.stdout
+
+        row, col = self.env.s // self.env.ncol, self.env.s % self.env.ncol
+        desc = self.env.desc.tolist()
+        desc = [[c.decode('utf-8') for c in line] for line in desc]
+        desc[row][col] = utils.colorize(desc[row][col], "red", highlight=True)
+        if self.env.lastaction is not None:
+            outfile.write("  ({})\n".format(["Left","Down","Right","Up"][self.env.lastaction]))
+        else:
+            outfile.write("\n")
+        outfile.write("\n".join(''.join(line) for line in desc)+"\n")
+
+        if mode != 'human':
+            with closing(outfile):
+                return outfile.getvalue()
