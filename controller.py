@@ -34,7 +34,7 @@ class Controller:
             print('loaded cartpole')
 
         def setQLearningAgent(self):
-            self.controller.model.agent = qLearning.QLearning(self.controller.model.environment.action_size)
+            self.controller.model.agent_class = qLearning.QLearning
 
         def setDeepQLearningAgent(self):
             pass
@@ -54,7 +54,8 @@ class Controller:
                 return True
             return False
 
-def main():
+
+# Conventional way to write the main method
+if __name__ == "__main__":
     Controller()
 
-main()

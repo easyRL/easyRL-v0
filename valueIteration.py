@@ -1,5 +1,6 @@
 import modelBasedAgent
 
+
 class ValueIteration(modelBasedAgent.ModelBasedAgent):
     def __init__(self):
         super().__init__()

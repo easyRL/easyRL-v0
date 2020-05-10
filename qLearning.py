@@ -1,15 +1,15 @@
 import qTable
 
-class QLearning(qTable.QTable):
-    def __init__(self, action_size):
-        super().__init__(action_size)
 
-    def remember(self, state, action, reward, new_state, learning_rate, gamma):
+class QLearning(qTable.QTable):
+    def __init__(self, action_size, learning_rate, gamma):
+        super().__init__(action_size, learning_rate, gamma)
+
+    def remember(self, state, action, reward, new_state):
         prevQValue = self.getQvalue(state, action)
         newQValue = self.getQvalue(new_state, self.choose_action(new_state))
-        loss = reward + gamma * newQValue - prevQValue
-        self.qtable[(state, action)] = prevQValue + learning_rate * loss
-        return loss**2
+        self.qtable[(state, action)] = prevQValue + self.learning_rate * (
+                    reward + self.gamma * newQValue - prevQValue)
 
     def choose_action(self, state):
         q = [self.getQvalue(state, a) for a in range(self.action_size)]
