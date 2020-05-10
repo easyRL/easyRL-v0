@@ -48,8 +48,6 @@ class View:
         def __init__(self, master, listener):
             super().__init__(master, listener)
 
-
-
             self.backButton = tkinter.Button(self.frame, text='back', fg='black', command=self.backButton)
             self.backButton.grid(row=0, column=0, sticky='wens')
 
@@ -96,7 +94,7 @@ class View:
             self.deepSarsaTab = tkinter.Frame(self.tab)
             self.tab.add(self.qlearningTab, text='Q Learning')
             self.tab.add(self.deepQTab, text='Deep Q Learning')
-            self.tab.add(self.deepSarsaTab, text='Deep SARSA')
+            self.tab.add(self.deepSarsaTab, text='Etc.')
 
             self.tab.grid(row=1, column=0, rowspan=9, columnspan=10, sticky='wens')
 
@@ -121,9 +119,18 @@ class View:
             self.curImageIndDisplayed = 0
             self.isDisplayingEpisode = False
             self.waitCount = 0
-            self.canvasImage = None
+            self.renderImage = None
             self.trainingEpisodes = 0
             self.prevDisplayedEpisode = None
+
+            self.curTotalEpisodes = None
+            self.graphDataPoints = []
+            self.curLossAccum = 0
+            self.curRewardAccum = 0
+            self.curEpisodeSteps = 0
+            self.episodeAccLoss = 0
+            self.episodeAccReward = 0
+            self.episodeAccEpsilon = 0
 
             self.listener = listener
 
@@ -152,7 +159,7 @@ class View:
             self.minEpsilon.grid(row=5, column=1)
 
             tkinter.Label(self, text='Decay Rate: ').grid(row=6, column=0)
-            self.decayRate = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            self.decayRate = tkinter.Scale(self, from_=0.0, to=0.2, resolution=0.001, orient=tkinter.HORIZONTAL)
             self.decayRate.grid(row=6, column=1)
 
             self.slowLabel = tkinter.Label(self, text='Displayed episode speed')
@@ -169,8 +176,8 @@ class View:
             self.resetButton = tkinter.Button(self, text='Reset Agent', fg='black', command=self.reset)
             self.resetButton.grid(row=9, column=0, columnspan=2)
 
-            self.canvas = tkinter.Canvas(self)
-            self.canvas.grid(row=0, column=2, rowspan=9, columnspan=8, sticky='wens')
+            self.render = tkinter.Canvas(self)
+            self.render.grid(row=0, column=2, rowspan=9, columnspan=8, sticky='wens')
 
             self.displayedEpisodeNum = tkinter.Label(self, text='')
             self.displayedEpisodeNum.grid(row=9, column=2)
@@ -178,16 +185,39 @@ class View:
             self.curEpisodeNum = tkinter.Label(self, text='')
             self.curEpisodeNum.grid(row=9, column=3)
 
+            self.graph = tkinter.Canvas(self)
+            self.graph.grid(row=10, column=2, rowspan=4, columnspan=8, sticky='wens')
+
         def halt(self):
             self.listener.halt()
 
         def reset(self):
-            self.trainingEpisodes = 0
-            self.listener.reset()
-            self.curEpisodeNum.configure(text='')
-            self.displayedEpisodeNum.configure(text='')
+            if self.listener.reset():
+                self.trainingEpisodes = 0
+                self.curEpisodeNum.configure(text='')
+                self.displayedEpisodeNum.configure(text='')
+
+                self.curTotalEpisodes = None
+                self.graphDataPoints.clear()
+                self.curLossAccum = 0
+                self.curRewardAccum = 0
+                self.curEpisodeSteps = 0
+                self.episodeAccLoss = 0
+                self.episodeAccReward = 0
+                self.episodeAccEpsilon = 0
+                self.graph.delete('all')
 
         def train(self):
+            self.curTotalEpisodes = None
+            self.graphDataPoints.clear()
+            self.curLossAccum = 0
+            self.curRewardAccum = 0
+            self.curEpisodeSteps = 0
+            self.episodeAccLoss = 0
+            self.episodeAccReward = 0
+            self.episodeAccEpsilon = 0
+            self.graph.delete('all')
+
             try:
                 total_episodes = int(self.numEps.get())
                 learning_rate = self.learningRate.get()
@@ -197,6 +227,7 @@ class View:
                 min_epsilon = self.minEpsilon.get()
                 decay_rate = self.decayRate.get()
 
+                self.curTotalEpisodes = total_episodes
                 self.listener.startTraining(total_episodes,
                                             learning_rate,
                                             max_steps,
@@ -214,6 +245,7 @@ class View:
                 message = self.listener.messageQueue.get(timeout=0)
                 if message.type == Model.Message.EVENT:
                     if message.data == Model.Message.EPISODE:
+                        self.addEpisodeToGraph()
                         self.trainingEpisodes += 1
                         self.curEpisodeNum.configure(text='Episodes completed: '+str(self.trainingEpisodes))
                         if self.isDisplayingEpisode:
@@ -231,11 +263,69 @@ class View:
                         self.isDisplayingEpisode = False
                         self.waitCount = 0
                         return
-                elif message.type == Model.Message.IMAGE:
-                    self.imageQueues[self.imageQueuesInd].append(message.data)
+                elif message.type == Model.Message.STATE:
+                    self.imageQueues[self.imageQueuesInd].append(message.data.image)
+                    self.accumulateState(message.data)
 
             self.updateEpisodeRender()
             self.master.after(20, self.checkMessages)
+
+        def addEpisodeToGraph(self):
+            avgLoss = self.episodeAccLoss/self.curEpisodeSteps
+            totalReward = self.episodeAccReward
+            avgEpsilon = self.episodeAccEpsilon/self.curEpisodeSteps
+
+            avgState = (avgLoss, totalReward, avgEpsilon)
+            self.graphDataPoints.append(avgState)
+
+            smoothAmt = 50
+
+            w = self.graph.winfo_width()
+            h = self.graph.winfo_height()
+
+            oldX = w * (len(self.graphDataPoints) - 1) / self.curTotalEpisodes
+            newX = w * (len(self.graphDataPoints)) / self.curTotalEpisodes
+
+            if len(self.graphDataPoints) > 1:
+                _, _, prevEpsilon = self.graphDataPoints[-2]
+                oldY = h * (1 - prevEpsilon)
+                newY = h * (1 - avgEpsilon)
+                self.graph.create_line(oldX, oldY, newX, newY, fill='green')
+
+            if len(self.graphDataPoints) > smoothAmt:
+
+                prevLoss, prevReward = self.curLossAccum/smoothAmt, self.curRewardAccum/smoothAmt
+                (obsLoss, obsReward, _) = self.graphDataPoints[-smoothAmt-1]
+
+                self.curLossAccum -= obsLoss
+                self.curRewardAccum -= obsReward
+                self.curLossAccum += avgLoss
+                self.curRewardAccum += totalReward
+
+                curReward = self.curRewardAccum/smoothAmt
+                curLoss = self.curLossAccum/smoothAmt
+
+                oldY = h - prevReward*2
+                newY = h - curReward*2
+                self.graph.create_line(oldX, oldY, newX, newY, fill='red')
+
+                oldY = h*(1 - prevLoss/40)
+                newY = h*(1 - curLoss/40)
+                self.graph.create_line(oldX, oldY, newX, newY, fill='blue')
+            else:
+                self.curLossAccum += avgLoss
+                self.curRewardAccum += totalReward
+
+            self.curEpisodeSteps = 0
+            self.episodeAccLoss = 0
+            self.episodeAccReward = 0
+            self.episodeAccEpsilon = 0
+
+        def accumulateState(self, state):
+            self.episodeAccEpsilon += state.epsilon
+            self.episodeAccReward += state.reward
+            self.episodeAccLoss += state.loss
+            self.curEpisodeSteps += 1
 
         def updateEpisodeRender(self):
             displayQueue = self.imageQueues[1 - self.imageQueuesInd]
@@ -247,28 +337,9 @@ class View:
                     if self.curImageIndDisplayed == len(displayQueue):
                         self.curImageIndDisplayed = 0
                         self.isDisplayingEpisode = False
-                    tempImage = tempImage.resize((self.canvas.winfo_width(), self.canvas.winfo_height()))
+                    tempImage = tempImage.resize((self.render.winfo_width(), self.render.winfo_height()))
                     self.image = ImageTk.PhotoImage(tempImage) # must maintain a reference to this image in self: otherwise will be garbage collected
-                    if self.canvasImage:
-                        self.canvas.delete(self.canvasImage)
-                    self.canvasImage = self.canvas.create_image(0, 0, anchor='nw', image=self.image)
+                    if self.renderImage:
+                        self.render.delete(self.renderImage)
+                    self.renderImage = self.render.create_image(0, 0, anchor='nw', image=self.image)
                 self.waitCount += 1
-
-
-        def processModelState(self, state):
-            pass
-
-
-
-    class GraphicsArea:
-        def __init__(self, view):
-            self.canvas = tkinter.Canvas(view.frame, width=self.width, height=self.height)
-            self.canvas.grid(row=0, column=0, columnspan=10)
-            self.backgroundId = self.canvas.create_rectangle(0, 0, self.width, self.height, fill='white')
-            self.canvas.tag_bind(self.backgroundId, '<ButtonPress-1>', self.canvasClick)
-            self.nodeMap = {}
-            self.origin = None
-            self.clickFlag = 'none'
-
-        def canvasClick(self, event):
-            pass

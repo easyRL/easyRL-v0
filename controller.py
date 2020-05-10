@@ -7,6 +7,11 @@ import qLearning
 import threading
 import queue
 
+# pip install pillow
+# pip install gym
+# pip install pandas
+# pip install numpy
+
 class Controller:
     def __init__(self):
         self.model = model.Model()
@@ -19,7 +24,6 @@ class Controller:
         def __init__(self, controller):
             self.controller = controller
             self.messageQueue = queue.Queue()
-            self.messageQueue.get
 
         def setFrozenLakeEnv(self):
             self.controller.model.environment = frozenLakeEnv.FrozenLakeEnv()
@@ -47,6 +51,8 @@ class Controller:
         def reset(self):
             if self.controller.model.agent.reset and not self.controller.model.isRunning:
                 self.controller.model.agent.reset()
+                return True
+            return False
 
 def main():
     Controller()

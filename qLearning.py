@@ -7,8 +7,9 @@ class QLearning(qTable.QTable):
     def remember(self, state, action, reward, new_state, learning_rate, gamma):
         prevQValue = self.getQvalue(state, action)
         newQValue = self.getQvalue(new_state, self.choose_action(new_state))
-        self.qtable[(state, action)] = prevQValue + learning_rate * (
-                    reward + gamma * newQValue - prevQValue)
+        loss = reward + gamma * newQValue - prevQValue
+        self.qtable[(state, action)] = prevQValue + learning_rate * loss
+        return loss**2
 
     def choose_action(self, state):
         q = [self.getQvalue(state, a) for a in range(self.action_size)]

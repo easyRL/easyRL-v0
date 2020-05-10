@@ -48,7 +48,7 @@ class CartPoleEnv(environment.Environment):
     def sample_action(self):
         return self.env.action_space.sample()
 
-    def render(self, mode='human'):
+    def render(self, mode='RGB'):
         if self.env.state is None: return None
 
         screen_width = 600
