@@ -8,7 +8,7 @@ class ModelFreeAgent(agent.Agent, ABC):
         super().__init__()
 
     @abstractmethod
-    def remember(self, state, action, reward, new_state, learning_rate, gamma):
+    def remember(self, state, action, reward, new_state):
         pass
 
     @abstractmethod
