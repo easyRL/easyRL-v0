@@ -126,6 +126,7 @@ class View:
 
             self.curTotalEpisodes = None
             self.graphDataPoints = []
+            self.smoothedDataPoints = []
             self.curLossAccum = 0
             self.curRewardAccum = 0
             self.curEpisodeSteps = 0
@@ -133,39 +134,50 @@ class View:
             self.episodeAccReward = 0
             self.episodeAccEpsilon = 0
 
+            self.smoothAmt = 50
             self.listener = listener
 
             tkinter.Label(self, text='Number of Episodes: ').grid(row=0, column=0)
-            self.numEps = tkinter.Entry(self)
+            numEpsVar = tkinter.StringVar()
+            self.numEps = tkinter.Entry(self, textvariable=numEpsVar)
+            numEpsVar.set('1000')
             self.numEps.grid(row=0, column=1)
 
-            tkinter.Label(self, text='Learning Rate: ').grid(row=1, column=0)
-            self.learningRate = tkinter.Scale(self, from_=0.01, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
-            self.learningRate.grid(row=1, column=1)
+            tkinter.Label(self, text='Max Steps: ').grid(row=1, column=0)
+            maxStepsVar = tkinter.StringVar()
+            self.maxSteps = tkinter.Entry(self, textvariable=maxStepsVar)
+            maxStepsVar.set('200')
+            self.maxSteps.grid(row=1, column=1)
 
-            tkinter.Label(self, text='Max Steps: ').grid(row=2, column=0)
-            self.maxSteps = tkinter.Entry(self)
-            self.maxSteps.grid(row=2, column=1)
+            tkinter.Label(self, text='Learning Rate: ').grid(row=2, column=0)
+            self.learningRate = tkinter.Scale(self, from_=0.01, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            self.learningRate.set(0.18)
+            self.learningRate.grid(row=2, column=1)
 
             tkinter.Label(self, text='Gamma: ').grid(row=3, column=0)
             self.gamma = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            self.gamma.set(0.97)
             self.gamma.grid(row=3, column=1)
 
             tkinter.Label(self, text='Max Epsilon: ').grid(row=4, column=0)
             self.maxEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            self.maxEpsilon.set(1.0)
             self.maxEpsilon.grid(row=4, column=1)
 
             tkinter.Label(self, text='Min Epsilon: ').grid(row=5, column=0)
             self.minEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            self.minEpsilon.set(0.1)
             self.minEpsilon.grid(row=5, column=1)
 
             tkinter.Label(self, text='Decay Rate: ').grid(row=6, column=0)
             self.decayRate = tkinter.Scale(self, from_=0.0, to=0.2, resolution=0.001, orient=tkinter.HORIZONTAL)
+            self.decayRate.set(0.008)
             self.decayRate.grid(row=6, column=1)
 
             self.slowLabel = tkinter.Label(self, text='Displayed episode speed')
             self.slowLabel.grid(row=7, column=0)
             self.slowSlider = tkinter.Scale(self, from_=1, to=20, resolution=1, orient=tkinter.HORIZONTAL)
+            self.slowSlider.set(10)
             self.slowSlider.grid(row=7, column=1)
 
             self.trainButton = tkinter.Button(self, text='Train', fg='black', command=self.train)
@@ -188,18 +200,60 @@ class View:
 
             self.graph = tkinter.Canvas(self)
             self.graph.grid(row=10, column=2, rowspan=4, columnspan=8, sticky='wens')
+            self.graphLine = self.graph.create_line(0,0,0,0, fill='black')
+            self.graph.bind("<Motion>", self.updateGraphLine)
+
+            self.legend = tkinter.Canvas(self)
+            self.legend.grid(row=10, column=0, rowspan=4, columnspan=2, sticky='wens')
+            self.legend.bind('<Configure>', self.legendResize)
+
+        def legendResize(self, evt):
+            self.legend.delete('all')
+            h = evt.height
+            p1, p2, p3 = h/4, 2*h/4, 3*h/4
+            self.legend.create_line(40, p1, 90, p1, fill='blue')
+            self.legend.create_line(40, p2, 90, p2, fill='red')
+            self.legend.create_line(40, p3, 90, p3, fill='green')
+            self.lossLegend = self.legend.create_text(100, p1, text='MSE Episode Loss:', anchor='w')
+            self.rewardLegend = self.legend.create_text(100, p2, text='Episode Reward:', anchor='w')
+            self.epsilonLegend = self.legend.create_text(100, p3, text='Epsilon:', anchor='w')
+
+        def updateGraphLine(self, evt):
+            xVal = evt.x
+            height = self.graph.winfo_height()
+            self.graph.coords(self.graphLine, [xVal, 0, xVal, height])
+
+            if self.curTotalEpisodes:
+                smoothIndex = (int)(self.curTotalEpisodes*xVal/self.graph.winfo_width())-self.smoothAmt
+                if len(self.smoothedDataPoints) > smoothIndex >= 0:
+                    loss, reward, epsilon = self.smoothedDataPoints[smoothIndex]
+                    self.legend.itemconfig(self.lossLegend, text='MSE Episode Loss: '+str(loss))
+                    self.legend.itemconfig(self.rewardLegend, text='Episode Reward: '+str(reward))
+                    self.legend.itemconfig(self.epsilonLegend, text='Epsilon: '+str(epsilon))
+                else:
+                    self.legend.itemconfig(self.lossLegend, text='MSE Episode Loss:')
+                    self.legend.itemconfig(self.rewardLegend, text='Episode Reward:')
+                    self.legend.itemconfig(self.epsilonLegend, text='Epsilon:')
 
         def halt(self):
             self.listener.halt()
+            self.imageQueues[0].clear()
+            self.imageQueues[1].clear()
+            self.imageQueuesInd = 0
+            self.curImageIndDisplayed = 0
+            self.isDisplayingEpisode = False
+            self.waitCount = 0
 
         def reset(self):
-            if self.listener.reset():
+            if not self.listener.modelIsRunning():
+                self.listener.reset()
                 self.trainingEpisodes = 0
                 self.curEpisodeNum.configure(text='')
                 self.displayedEpisodeNum.configure(text='')
 
                 self.curTotalEpisodes = None
                 self.graphDataPoints.clear()
+                self.smoothedDataPoints.clear()
                 self.curLossAccum = 0
                 self.curRewardAccum = 0
                 self.curEpisodeSteps = 0
@@ -207,39 +261,41 @@ class View:
                 self.episodeAccReward = 0
                 self.episodeAccEpsilon = 0
                 self.graph.delete('all')
+                self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
 
         def train(self):
-            self.curTotalEpisodes = None
-            self.graphDataPoints.clear()
-            self.curLossAccum = 0
-            self.curRewardAccum = 0
-            self.curEpisodeSteps = 0
-            self.episodeAccLoss = 0
-            self.episodeAccReward = 0
-            self.episodeAccEpsilon = 0
-            self.graph.delete('all')
+            if not self.listener.modelIsRunning():
+                try:
+                    total_episodes = int(self.numEps.get())
+                    learning_rate = self.learningRate.get()
+                    max_steps = int(self.maxSteps.get())
+                    gamma = self.gamma.get()
+                    max_epsilon = self.maxEpsilon.get()
+                    min_epsilon = self.minEpsilon.get()
+                    decay_rate = self.decayRate.get()
 
-            try:
-                total_episodes = int(self.numEps.get())
-                learning_rate = self.learningRate.get()
-                max_steps = int(self.maxSteps.get())
-                gamma = self.gamma.get()
-                max_epsilon = self.maxEpsilon.get()
-                min_epsilon = self.minEpsilon.get()
-                decay_rate = self.decayRate.get()
-
-                self.curTotalEpisodes = total_episodes
-                self.listener.startTraining(total_episodes,
+                    self.listener.startTraining(total_episodes,
                                             learning_rate,
                                             max_steps,
                                             gamma,
                                             max_epsilon,
                                             min_epsilon,
                                             decay_rate)
-
-                self.checkMessages()
-            except ValueError:
-                print('Bad Hyperparameters')
+                    self.trainingEpisodes = 0
+                    self.curTotalEpisodes = total_episodes
+                    self.graphDataPoints.clear()
+                    self.smoothedDataPoints.clear()
+                    self.curLossAccum = 0
+                    self.curRewardAccum = 0
+                    self.curEpisodeSteps = 0
+                    self.episodeAccLoss = 0
+                    self.episodeAccReward = 0
+                    self.episodeAccEpsilon = 0
+                    self.graph.delete('all')
+                    self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
+                    self.checkMessages()
+                except ValueError:
+                    print('Bad Hyperparameters')
 
         def checkMessages(self):
             while self.listener.messageQueue.qsize():
@@ -279,8 +335,6 @@ class View:
             avgState = (avgLoss, totalReward, avgEpsilon)
             self.graphDataPoints.append(avgState)
 
-            smoothAmt = 50
-
             w = self.graph.winfo_width()
             h = self.graph.winfo_height()
 
@@ -293,18 +347,18 @@ class View:
                 newY = h * (1 - avgEpsilon)
                 self.graph.create_line(oldX, oldY, newX, newY, fill='green')
 
-            if len(self.graphDataPoints) > smoothAmt:
-
-                prevLoss, prevReward = self.curLossAccum/smoothAmt, self.curRewardAccum/smoothAmt
-                (obsLoss, obsReward, _) = self.graphDataPoints[-smoothAmt-1]
+            if len(self.graphDataPoints) > self.smoothAmt:
+                prevLoss, prevReward = self.curLossAccum/self.smoothAmt, self.curRewardAccum/self.smoothAmt
+                (obsLoss, obsReward, _) = self.graphDataPoints[-self.smoothAmt-1]
 
                 self.curLossAccum -= obsLoss
                 self.curRewardAccum -= obsReward
                 self.curLossAccum += avgLoss
                 self.curRewardAccum += totalReward
 
-                curReward = self.curRewardAccum/smoothAmt
-                curLoss = self.curLossAccum/smoothAmt
+                curReward = self.curRewardAccum/self.smoothAmt
+                curLoss = self.curLossAccum/self.smoothAmt
+                self.smoothedDataPoints.append((curLoss, curReward, avgEpsilon))
 
                 oldY = h - prevReward*2
                 newY = h - curReward*2
