@@ -10,6 +10,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.python.keras import utils
 
+
 class DeepQ(modelFreeAgent.ModelFreeAgent):
     def __init__(self, input_size, output_size, learning_rate, gamma):
         super().__init__()
@@ -25,7 +26,7 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         self.target_update_interval = 20
 
     def choose_action(self, state):
-        qval = self.model.predict(np.reshape(state,(1, self.input_size)))
+        qval = self.model.predict(np.reshape(state, (1, self.input_size)))
         action = np.argmax(qval)
         return action
 

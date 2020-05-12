@@ -50,10 +50,10 @@ class Controller:
         def setDeepSarsaAgent(self):
             pass
 
-        def startTraining(self, *args):
+        def startTraining(self, args):
             threading.Thread(target=self.controller.model.run_learning, args=(self.messageQueue,)+args).start()
 
-        def startTesting(self, *args):
+        def startTesting(self, args):
             threading.Thread(target=self.controller.model.run_testing, args=(self.messageQueue,)+args).start()
 
         def modelIsRunning(self):
