@@ -167,7 +167,7 @@ class View:
 
             # Add model parameters here
             self.modelFrame = model.ParameterProfile(self)
-            self.modelFrame.grid(row=1, column=0)
+            self.modelFrame.grid(row=2, column=0)
             # x = agent.Agent.ParameterProfile(self)
             # x.grid(row=0, column=0)
 
