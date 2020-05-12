@@ -1,6 +1,7 @@
 import random
 import numpy as np
 
+
 class Model:
     def __init__(self):
         # these can be set directly from the Controller based on user input from the View

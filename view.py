@@ -1,6 +1,8 @@
 import tkinter
 from tkinter import ttk
 from PIL import Image, ImageTk
+
+import agent
 from model import Model
 
 
@@ -145,6 +147,9 @@ class View:
             self.smoothAmt = 20
             self.listener = listener
 
+            x = agent.Agent.ParameterProfile(self)
+            x.grid(row=3, column=0)
+
             tkinter.Label(self, text='Number of Episodes: ').grid(row=0, column=0)
             numEpsVar = tkinter.StringVar()
             self.numEps = tkinter.Entry(self, textvariable=numEpsVar)
@@ -162,10 +167,10 @@ class View:
             self.learningRate.set(0.18)
             self.learningRate.grid(row=2, column=1)
 
-            tkinter.Label(self, text='Gamma: ').grid(row=3, column=0)
-            self.gamma = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
-            self.gamma.set(0.97)
-            self.gamma.grid(row=3, column=1)
+            # tkinter.Label(self, text='Gamma: ').grid(row=3, column=0)
+            # self.gamma = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            # self.gamma.set(0.97)
+            # self.gamma.grid(row=3, column=1)
 
             tkinter.Label(self, text='Max Epsilon: ').grid(row=4, column=0)
             self.maxEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
@@ -260,7 +265,6 @@ class View:
                     total_episodes = int(self.numEps.get())
                     learning_rate = self.learningRate.get()
                     max_steps = int(self.maxSteps.get())
-                    gamma = self.gamma.get()
                     max_epsilon = self.maxEpsilon.get()
                     min_epsilon = self.minEpsilon.get()
                     decay_rate = self.decayRate.get()
@@ -268,7 +272,7 @@ class View:
                     self.listener.startTraining(total_episodes,
                                             learning_rate,
                                             max_steps,
-                                            gamma,
+                                            1,  # Change this to gammma later
                                             max_epsilon,
                                             min_epsilon,
                                             decay_rate)
