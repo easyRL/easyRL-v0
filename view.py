@@ -30,13 +30,13 @@ class View:
         def __init__(self, master, listener):
             super().__init__(master, listener)
 
-            self.projectsButton = tkinter.Button(self.frame, text='Projects', fg='black')
+            self.projectsButton = tkinter.Button(self.frame, text='Load Agent', fg='black')
             self.projectsButton.grid(row=2, column=2, rowspan=2, columnspan = 2, sticky='wens')
 
-            self.examplesButton = tkinter.Button(self.frame, text='Examples', fg='black')
+            self.examplesButton = tkinter.Button(self.frame, text='Example Agents', fg='black')
             self.examplesButton.grid(row=2, column=6, rowspan=2, columnspan = 2, sticky='wens')
 
-            self.newButton = tkinter.Button(self.frame, text='New', fg='black', command=self.handleButton)
+            self.newButton = tkinter.Button(self.frame, text='New Agent', fg='black', command=self.handleButton)
             self.newButton.grid(row=6, column=4, rowspan=2, columnspan = 2, sticky='wens')
 
             self.frame.grid(row=0, column=0)

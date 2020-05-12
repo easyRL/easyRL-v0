@@ -13,6 +13,7 @@ import queue
 # pip install gym
 # pip install pandas
 # pip install numpy
+# pip install tensorflow
 
 class Controller:
     def __init__(self):
