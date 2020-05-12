@@ -58,11 +58,14 @@ class View:
             self.frozenLakeButton = tkinter.Button(self.frame, text='Frozen Lake', fg='black', command=self.chooseFrozenLake)
             self.frozenLakeButton.grid(row=2, column=4, columnspan=2, sticky='wens')
 
-            self.cartPoleButton = tkinter.Button(self.frame, text='Cart Pole', fg='black', command=self.chooseCartPole)
-            self.cartPoleButton.grid(row=4, column=4, columnspan=2, sticky='wens')
+            self.cartPoleButton = tkinter.Button(self.frame, text='Cart Pole', fg='black', command=self.chooseCartPoleEnv)
+            self.cartPoleButton.grid(row=3, column=4, columnspan=2, sticky='wens')
+
+            self.cartPoleDiscreteButton = tkinter.Button(self.frame, text='Cart Pole Discretized', fg='black', command=self.chooseCartPoleDiscreteEnv)
+            self.cartPoleDiscreteButton.grid(row=4, column=4, columnspan=2, sticky='wens')
 
             self.customButton = tkinter.Button(self.frame, text='Custom Environment', fg='black', command=self.chooseCustom)
-            self.customButton.grid(row=6, column=4, columnspan=2, sticky='wens')
+            self.customButton.grid(row=5, column=4, columnspan=2, sticky='wens')
 
             self.frame.grid(row=0, column=0)
             self.frame.lift()
@@ -72,8 +75,13 @@ class View:
             View.ProjectWindow(self.master, self.listener)
             self.frame.destroy()
 
-        def chooseCartPole(self):
+        def chooseCartPoleEnv(self):
             self.listener.setCartPoleEnv()
+            View.ProjectWindow(self.master, self.listener)
+            self.frame.destroy()
+
+        def chooseCartPoleDiscreteEnv(self):
+            self.listener.setCartPoleDiscreteEnv()
             View.ProjectWindow(self.master, self.listener)
             self.frame.destroy()
 
@@ -91,7 +99,7 @@ class View:
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
             self.qlearningTab = View.QLearningTab(self.tab, listener)
-            self.deepQTab = tkinter.Frame(self.tab)
+            self.deepQTab = View.QLearningTab(self.tab, listener)
             self.deepSarsaTab = tkinter.Frame(self.tab)
             self.tab.add(self.qlearningTab, text='Q Learning')
             self.tab.add(self.deepQTab, text='Deep Q Learning')
@@ -134,7 +142,7 @@ class View:
             self.episodeAccReward = 0
             self.episodeAccEpsilon = 0
 
-            self.smoothAmt = 50
+            self.smoothAmt = 20
             self.listener = listener
 
             tkinter.Label(self, text='Number of Episodes: ').grid(row=0, column=0)
@@ -171,7 +179,7 @@ class View:
 
             tkinter.Label(self, text='Decay Rate: ').grid(row=6, column=0)
             self.decayRate = tkinter.Scale(self, from_=0.0, to=0.2, resolution=0.001, orient=tkinter.HORIZONTAL)
-            self.decayRate.set(0.008)
+            self.decayRate.set(0.018)
             self.decayRate.grid(row=6, column=1)
 
             self.slowLabel = tkinter.Label(self, text='Displayed episode speed')
@@ -186,8 +194,8 @@ class View:
             self.haltButton = tkinter.Button(self, text='Halt', fg='black', command=self.halt)
             self.haltButton.grid(row=8, column=1)
 
-            self.resetButton = tkinter.Button(self, text='Reset Agent', fg='black', command=self.reset)
-            self.resetButton.grid(row=9, column=0, columnspan=2)
+            self.resetButton = tkinter.Button(self, text='Test', fg='black', command=self.test)
+            self.resetButton.grid(row=9, column=0)
 
             self.render = tkinter.Canvas(self)
             self.render.grid(row=0, column=2, rowspan=9, columnspan=8, sticky='wens')
@@ -210,13 +218,15 @@ class View:
         def legendResize(self, evt):
             self.legend.delete('all')
             h = evt.height
-            p1, p2, p3 = h/4, 2*h/4, 3*h/4
+            p1, p2, p3, p4, p5 = h/5, 2*h/5, 3*h/5, 4*h/5, 9*h/10
             self.legend.create_line(40, p1, 90, p1, fill='blue')
             self.legend.create_line(40, p2, 90, p2, fill='red')
             self.legend.create_line(40, p3, 90, p3, fill='green')
             self.lossLegend = self.legend.create_text(100, p1, text='MSE Episode Loss:', anchor='w')
             self.rewardLegend = self.legend.create_text(100, p2, text='Episode Reward:', anchor='w')
             self.epsilonLegend = self.legend.create_text(100, p3, text='Epsilon:', anchor='w')
+            self.testResult1 = self.legend.create_text(100,p4, text='', anchor='w')
+            self.testResult2 = self.legend.create_text(100,p5, text='', anchor='w')
 
         def updateGraphLine(self, evt):
             xVal = evt.x
@@ -244,25 +254,6 @@ class View:
             self.isDisplayingEpisode = False
             self.waitCount = 0
 
-        def reset(self):
-            if not self.listener.modelIsRunning():
-                self.listener.reset()
-                self.trainingEpisodes = 0
-                self.curEpisodeNum.configure(text='')
-                self.displayedEpisodeNum.configure(text='')
-
-                self.curTotalEpisodes = None
-                self.graphDataPoints.clear()
-                self.smoothedDataPoints.clear()
-                self.curLossAccum = 0
-                self.curRewardAccum = 0
-                self.curEpisodeSteps = 0
-                self.episodeAccLoss = 0
-                self.episodeAccReward = 0
-                self.episodeAccEpsilon = 0
-                self.graph.delete('all')
-                self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
-
         def train(self):
             if not self.listener.modelIsRunning():
                 try:
@@ -283,19 +274,40 @@ class View:
                                             decay_rate)
                     self.trainingEpisodes = 0
                     self.curTotalEpisodes = total_episodes
-                    self.graphDataPoints.clear()
-                    self.smoothedDataPoints.clear()
-                    self.curLossAccum = 0
-                    self.curRewardAccum = 0
-                    self.curEpisodeSteps = 0
-                    self.episodeAccLoss = 0
-                    self.episodeAccReward = 0
-                    self.episodeAccEpsilon = 0
-                    self.graph.delete('all')
-                    self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
+                    self.resetGraph()
                     self.checkMessages()
+                    self.legend.itemconfig(self.testResult1, text='')
+                    self.legend.itemconfig(self.testResult2, text='')
                 except ValueError:
                     print('Bad Hyperparameters')
+
+        def test(self):
+            if not self.listener.modelIsRunning():
+                try:
+                    total_episodes = int(self.numEps.get())
+                    max_steps = int(self.maxSteps.get())
+
+                    self.listener.startTesting(total_episodes, max_steps)
+                    self.trainingEpisodes = 0
+                    self.curTotalEpisodes = total_episodes
+                    self.resetGraph()
+                    self.checkMessages()
+                    self.legend.itemconfig(self.testResult1, text='')
+                    self.legend.itemconfig(self.testResult2, text='')
+                except ValueError:
+                    print('Bad Hyperparameters')
+
+        def resetGraph(self):
+            self.graphDataPoints.clear()
+            self.smoothedDataPoints.clear()
+            self.curLossAccum = 0
+            self.curRewardAccum = 0
+            self.curEpisodeSteps = 0
+            self.episodeAccLoss = 0
+            self.episodeAccReward = 0
+            self.episodeAccEpsilon = 0
+            self.graph.delete('all')
+            self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
 
         def checkMessages(self):
             while self.listener.messageQueue.qsize():
@@ -311,21 +323,38 @@ class View:
                             self.imageQueuesInd = 1 - self.imageQueuesInd
                             self.imageQueues[self.imageQueuesInd].clear()
                             self.isDisplayingEpisode = True
+                            self.curImageIndDisplayed = 0
                             self.displayedEpisodeNum.configure(text='Showing episode '+str(self.trainingEpisodes))
-                    elif message.data == Model.Message.FINISHED:
+                    elif message.data == Model.Message.TRAIN_FINISHED:
                         self.imageQueues[0].clear()
                         self.imageQueues[1].clear()
                         self.imageQueuesInd = 0
                         self.curImageIndDisplayed = 0
                         self.isDisplayingEpisode = False
                         self.waitCount = 0
+                        totalReward = sum([reward for _, reward, _ in self.graphDataPoints])
+                        avgReward = totalReward/len(self.graphDataPoints)
+                        self.legend.itemconfig(self.testResult1, text='Total Training Reward: '+str(totalReward))
+                        self.legend.itemconfig(self.testResult2, text='Reward/Episode: '+str(avgReward))
+                        return
+                    elif message.data == Model.Message.TEST_FINISHED:
+                        self.imageQueues[0].clear()
+                        self.imageQueues[1].clear()
+                        self.imageQueuesInd = 0
+                        self.curImageIndDisplayed = 0
+                        self.isDisplayingEpisode = False
+                        self.waitCount = 0
+                        totalReward = sum([reward for _, reward, _ in self.graphDataPoints])
+                        avgReward = totalReward/len(self.graphDataPoints)
+                        self.legend.itemconfig(self.testResult1, text='Total Test Reward: '+str(totalReward))
+                        self.legend.itemconfig(self.testResult2, text='Reward/Episode: '+str(avgReward))
                         return
                 elif message.type == Model.Message.STATE:
                     self.imageQueues[self.imageQueuesInd].append(message.data.image)
                     self.accumulateState(message.data)
 
             self.updateEpisodeRender()
-            self.master.after(20, self.checkMessages)
+            self.master.after(10, self.checkMessages)
 
         def addEpisodeToGraph(self):
             avgLoss = self.episodeAccLoss/self.curEpisodeSteps
@@ -377,9 +406,12 @@ class View:
             self.episodeAccEpsilon = 0
 
         def accumulateState(self, state):
-            self.episodeAccEpsilon += state.epsilon
-            self.episodeAccReward += state.reward
-            self.episodeAccLoss += state.loss
+            if state.epsilon:
+                self.episodeAccEpsilon += state.epsilon
+            if state.reward:
+                self.episodeAccReward += state.reward
+            if state.loss:
+                self.episodeAccLoss += state.loss
             self.curEpisodeSteps += 1
 
         def updateEpisodeRender(self):

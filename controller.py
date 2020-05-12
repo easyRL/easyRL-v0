@@ -2,8 +2,10 @@ import view
 import model
 import tkinter
 import cartPoleEnv
+import cartPoleEnvDiscrete
 import frozenLakeEnv
 import qLearning
+import deepQ
 import threading
 import queue
 
@@ -34,17 +36,24 @@ class Controller:
             self.controller.model.environment = cartPoleEnv.CartPoleEnv()
             print('loaded cartpole')
 
+        def setCartPoleDiscreteEnv(self):
+            self.controller.model.environment = cartPoleEnvDiscrete.CartPoleEnvDiscrete()
+            print('loaded cartpole discrete')
+
         def setQLearningAgent(self):
             self.controller.model.agent_class = qLearning.QLearning
 
         def setDeepQLearningAgent(self):
-            pass
+            self.controller.model.agent_class = deepQ.DeepQ
 
         def setDeepSarsaAgent(self):
             pass
 
         def startTraining(self, *args):
             threading.Thread(target=self.controller.model.run_learning, args=(self.messageQueue,)+args).start()
+
+        def startTesting(self, *args):
+            threading.Thread(target=self.controller.model.run_testing, args=(self.messageQueue,)+args).start()
 
         def modelIsRunning(self):
             return self.controller.model.isRunning

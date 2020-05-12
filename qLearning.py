@@ -2,7 +2,7 @@ import qTable
 
 
 class QLearning(qTable.QTable):
-    def __init__(self, action_size, learning_rate, gamma):
+    def __init__(self, input_size, action_size, learning_rate, gamma):
         super().__init__(action_size, learning_rate, gamma)
 
     def remember(self, state, action, reward, new_state):

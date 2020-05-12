@@ -14,7 +14,7 @@ class Model:
         self.isRunning = True
         epsilon = max_epsilon
 
-        self.agent = self.agent_class(self.environment.action_size, learning_rate, gamma)
+        self.agent = self.agent_class(self.environment.state_size, self.environment.action_size, learning_rate, gamma)
 
         for episode in range(total_episodes):
             self.environment.reset()
@@ -47,10 +47,42 @@ class Model:
             if self.isHalted:
                 self.isHalted = False
                 break
-        message = Model.Message(Model.Message.EVENT, Model.Message.FINISHED)
+        message = Model.Message(Model.Message.EVENT, Model.Message.TRAIN_FINISHED)
         messageQueue.put(message)
         self.isRunning = False
         print('learning done')
+
+    def run_testing(self, messageQueue, total_episodes, max_steps):
+        self.isRunning = True
+
+        if self.agent:
+            for episode in range(total_episodes):
+                self.environment.reset()
+
+                for step in range(max_steps):
+                    old_state = self.environment.state
+
+                    action = self.agent.choose_action(old_state)
+
+                    reward = self.environment.step(action)
+
+                    modelState = Model.State(self.environment.render(), None, reward, None)
+                    message = Model.Message(Model.Message.STATE, modelState)
+                    messageQueue.put(message)
+
+                    if self.environment.done or self.isHalted:
+                        break
+
+                message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
+                messageQueue.put(message)
+
+                if self.isHalted:
+                    self.isHalted = False
+                    break
+            message = Model.Message(Model.Message.EVENT, Model.Message.TEST_FINISHED)
+            messageQueue.put(message)
+            self.isRunning = False
+            print('testing done')
 
     def halt_learning(self):
         if self.isRunning:
@@ -62,8 +94,9 @@ class Model:
         EVENT = 1
 
         # event types
-        FINISHED = 0
-        EPISODE = 1
+        TRAIN_FINISHED = 0
+        TEST_FINISHED = 1
+        EPISODE = 2
 
         def __init__(self, type, data):
             self.type = type
