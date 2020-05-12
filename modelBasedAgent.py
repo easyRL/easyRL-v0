@@ -1,8 +1,6 @@
 import tkinter
 from abc import ABC
 
-import self as self
-
 import agent
 
 
@@ -15,8 +13,6 @@ class ModelBasedAgent(agent.Agent, ABC):
             self.theta.set(0.97)
             self.theta.grid(row=1, column=1)
 
-        # def getParameters(self):
-        #     return (self.gamma.get(),)
 
         def getParameters(self):
             return super().getParameters() + (self.theta.get(),)

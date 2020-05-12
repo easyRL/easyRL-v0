@@ -10,6 +10,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.python.keras import utils
 
+
 class DeepQ(modelFreeAgent.ModelFreeAgent):
     def __init__(self, input_size, output_size, learning_rate, gamma):
         super().__init__()

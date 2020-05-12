@@ -3,7 +3,11 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 
 import agent
+import deepQ
+import qLearning
+import valueIteration
 from model import Model
+from sarsa import sarsa
 
 
 class View:
@@ -100,12 +104,14 @@ class View:
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
-            self.qlearningTab = View.QLearningTab(self.tab, listener)
-            self.deepQTab = View.QLearningTab(self.tab, listener)
-            self.deepSarsaTab = tkinter.Frame(self.tab)
+            self.qlearningTab = View.GeneralTab(self.tab, listener, qLearning.QLearning)
+            self.deepQTab = View.GeneralTab(self.tab, listener, deepQ.DeepQ)
+            self.valueIteration = View.GeneralTab(self.tab, listener, valueIteration.ValueIteration)
+            self.etc = tkinter.Frame(self.tab)
             self.tab.add(self.qlearningTab, text='Q Learning')
             self.tab.add(self.deepQTab, text='Deep Q Learning')
-            self.tab.add(self.deepSarsaTab, text='Etc.')
+            self.tab.add(self.valueIteration, text='Value Iteration')
+            self.tab.add(self.etc, text='Etc.')
 
             self.tab.grid(row=1, column=0, rowspan=9, columnspan=10, sticky='wens')
 
@@ -121,8 +127,8 @@ class View:
             elif tabIndex == 2:
                 self.listener.setDeepSarsaAgent()
 
-    class QLearningTab(tkinter.Frame):
-        def __init__(self, tab, listener):
+    class GeneralTab(tkinter.Frame):
+        def __init__(self, tab, listener, model):
             super().__init__(tab)
             self.image = None
             self.imageQueues = ([], [])
@@ -147,45 +153,48 @@ class View:
             self.smoothAmt = 20
             self.listener = listener
 
-            x = agent.Agent.ParameterProfile(self)
-            x.grid(row=3, column=0)
-
             tkinter.Label(self, text='Number of Episodes: ').grid(row=0, column=0)
             numEpsVar = tkinter.StringVar()
             self.numEps = tkinter.Entry(self, textvariable=numEpsVar)
             numEpsVar.set('1000')
             self.numEps.grid(row=0, column=1)
 
-            tkinter.Label(self, text='Max Steps: ').grid(row=1, column=0)
-            maxStepsVar = tkinter.StringVar()
-            self.maxSteps = tkinter.Entry(self, textvariable=maxStepsVar)
-            maxStepsVar.set('200')
-            self.maxSteps.grid(row=1, column=1)
+            # Add model parameters here
+            self.modelFrame = model.ParameterProfile(self)
+            self.modelFrame.grid(row=1, column=0)
+            # x = agent.Agent.ParameterProfile(self)
+            # x.grid(row=0, column=0)
 
-            tkinter.Label(self, text='Learning Rate: ').grid(row=2, column=0)
-            self.learningRate = tkinter.Scale(self, from_=0.01, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
-            self.learningRate.set(0.18)
-            self.learningRate.grid(row=2, column=1)
+            # tkinter.Label(self, text='Max Steps: ').grid(row=1, column=0)
+            # maxStepsVar = tkinter.StringVar()
+            # self.maxSteps = tkinter.Entry(self, textvariable=maxStepsVar)
+            # maxStepsVar.set('200')
+            # self.maxSteps.grid(row=1, column=1)
+
+            # tkinter.Label(self, text='Learning Rate: ').grid(row=2, column=0)
+            # self.learningRate = tkinter.Scale(self, from_=0.01, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            # self.learningRate.set(0.18)
+            # self.learningRate.grid(row=2, column=1)
 
             # tkinter.Label(self, text='Gamma: ').grid(row=3, column=0)
             # self.gamma = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
             # self.gamma.set(0.97)
             # self.gamma.grid(row=3, column=1)
 
-            tkinter.Label(self, text='Max Epsilon: ').grid(row=4, column=0)
-            self.maxEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
-            self.maxEpsilon.set(1.0)
-            self.maxEpsilon.grid(row=4, column=1)
+            # tkinter.Label(self, text='Max Epsilon: ').grid(row=4, column=0)
+            # self.maxEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            # self.maxEpsilon.set(1.0)
+            # self.maxEpsilon.grid(row=4, column=1)
 
-            tkinter.Label(self, text='Min Epsilon: ').grid(row=5, column=0)
-            self.minEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
-            self.minEpsilon.set(0.1)
-            self.minEpsilon.grid(row=5, column=1)
+            # tkinter.Label(self, text='Min Epsilon: ').grid(row=5, column=0)
+            # self.minEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
+            # self.minEpsilon.set(0.1)
+            # self.minEpsilon.grid(row=5, column=1)
 
-            tkinter.Label(self, text='Decay Rate: ').grid(row=6, column=0)
-            self.decayRate = tkinter.Scale(self, from_=0.0, to=0.2, resolution=0.001, orient=tkinter.HORIZONTAL)
-            self.decayRate.set(0.018)
-            self.decayRate.grid(row=6, column=1)
+            # tkinter.Label(self, text='Decay Rate: ').grid(row=6, column=0)
+            # self.decayRate = tkinter.Scale(self, from_=0.0, to=0.2, resolution=0.001, orient=tkinter.HORIZONTAL)
+            # self.decayRate.set(0.018)
+            # self.decayRate.grid(row=6, column=1)
 
             self.slowLabel = tkinter.Label(self, text='Displayed episode speed')
             self.slowLabel.grid(row=7, column=0)
