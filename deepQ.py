@@ -26,7 +26,7 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         self.target_update_interval = 20
 
     def choose_action(self, state):
-        qval = self.model.predict(np.reshape(state,(1, self.input_size)))
+        qval = self.model.predict(np.reshape(state, (1, self.input_size)))
         action = np.argmax(qval)
         return action
 

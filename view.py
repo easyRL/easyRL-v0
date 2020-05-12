@@ -159,17 +159,17 @@ class View:
             numEpsVar.set('1000')
             self.numEps.grid(row=0, column=1)
 
+            tkinter.Label(self, text='Max Steps: ').grid(row=1, column=0)
+            maxStepsVar = tkinter.StringVar()
+            self.maxSteps = tkinter.Entry(self, textvariable=maxStepsVar)
+            maxStepsVar.set('200')
+            self.maxSteps.grid(row=1, column=1)
+
             # Add model parameters here
             self.modelFrame = model.ParameterProfile(self)
             self.modelFrame.grid(row=1, column=0)
             # x = agent.Agent.ParameterProfile(self)
             # x.grid(row=0, column=0)
-
-            # tkinter.Label(self, text='Max Steps: ').grid(row=1, column=0)
-            # maxStepsVar = tkinter.StringVar()
-            # self.maxSteps = tkinter.Entry(self, textvariable=maxStepsVar)
-            # maxStepsVar.set('200')
-            # self.maxSteps.grid(row=1, column=1)
 
             # tkinter.Label(self, text='Learning Rate: ').grid(row=2, column=0)
             # self.learningRate = tkinter.Scale(self, from_=0.01, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
@@ -272,19 +272,9 @@ class View:
             if not self.listener.modelIsRunning():
                 try:
                     total_episodes = int(self.numEps.get())
-                    learning_rate = self.learningRate.get()
                     max_steps = int(self.maxSteps.get())
-                    max_epsilon = self.maxEpsilon.get()
-                    min_epsilon = self.minEpsilon.get()
-                    decay_rate = self.decayRate.get()
 
-                    self.listener.startTraining(total_episodes,
-                                            learning_rate,
-                                            max_steps,
-                                            1,  # Change this to gammma later
-                                            max_epsilon,
-                                            min_epsilon,
-                                            decay_rate)
+                    self.listener.startTraining((total_episodes, max_steps) + self.modelFrame.getParameters())
                     self.trainingEpisodes = 0
                     self.curTotalEpisodes = total_episodes
                     self.resetGraph()
@@ -300,7 +290,7 @@ class View:
                     total_episodes = int(self.numEps.get())
                     max_steps = int(self.maxSteps.get())
 
-                    self.listener.startTesting(total_episodes, max_steps)
+                    self.listener.startTesting((total_episodes, max_steps))
                     self.trainingEpisodes = 0
                     self.curTotalEpisodes = total_episodes
                     self.resetGraph()

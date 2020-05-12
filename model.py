@@ -11,7 +11,7 @@ class Model:
         self.isRunning = False
         self.agent = None
 
-    def run_learning(self, messageQueue, total_episodes, learning_rate, max_steps, gamma, max_epsilon, min_epsilon, decay_rate):
+    def run_learning(self, messageQueue, total_episodes, max_steps, learning_rate, gamma, max_epsilon, min_epsilon, decay_rate):
         self.isRunning = True
         epsilon = max_epsilon
 
