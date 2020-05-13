@@ -11,7 +11,7 @@ class ModelFreeAgent(agent.Agent, ABC):
             # alpha
             tkinter.Label(self, text='Alpha: ').grid(row=1, column=0)
             self.alpha = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
-            self.alpha.set(0.97)
+            self.alpha.set(0.18)
             self.alpha.grid(row=1, column=1)
 
             # epsilon
