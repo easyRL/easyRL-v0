@@ -5,6 +5,13 @@ import agent
 
 
 class ModelFreeAgent(agent.Agent, ABC):
+    def __init__(self, state_size, action_size, gamma, alpha, min_epsilon, max_epsilon, decay_rate):
+        super().__init__(state_size, action_size, gamma)
+        self.alpha = alpha
+        self.min_epsilon = min_epsilon
+        self.max_epsilon = max_epsilon
+        self.decay_rate = decay_rate
+
     class ParameterProfile(agent.Agent.ParameterProfile, ABC):
         def __init__(self, parent):
             super().__init__(parent)

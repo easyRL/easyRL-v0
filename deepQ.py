@@ -12,13 +12,9 @@ from tensorflow.python.keras import utils
 
 
 class DeepQ(modelFreeAgent.ModelFreeAgent):
-    def __init__(self, input_size, output_size, learning_rate, gamma):
-        super().__init__()
-        self.input_size = input_size
-        self.output_size = output_size
+    def __init__(self, state_size, output_size, gamma, alpha, min_epsilon, max_epsilon, decay_rate):
+        super().__init__(state_size, output_size , gamma, alpha, min_epsilon, max_epsilon, decay_rate)
         self.batch_size = 16
-        self.learning_rate = learning_rate
-        self.gamma = gamma
         self.model = self.buildQNetwork()
         self.target = self.buildQNetwork()
         self.memory = deque(maxlen=2000)
@@ -26,14 +22,14 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         self.target_update_interval = 20
 
     def choose_action(self, state):
-        qval = self.model.predict(np.reshape(state, (1, self.input_size)))
+        qval = self.model.predict(np.reshape(state, (1, self.state_size)))
         action = np.argmax(qval)
         return action
 
     def remember(self, state, action, reward, new_state, done=False):
         self.memory.append((state, action, reward, new_state, done))
-        X_train = np.zeros((self.batch_size, self.input_size))
-        Y_train = np.zeros((self.batch_size, self.output_size))
+        X_train = np.zeros((self.batch_size, self.state_size))
+        Y_train = np.zeros((self.batch_size, self.action_size))
         loss = 0
         if len(self.memory) < self.batch_size:
             #print("memory insufficient for training")
@@ -61,14 +57,14 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
 
     def buildQNetwork(self):
         model = Sequential()
-        model.add(Dense(10, input_dim=self.input_size, activation='relu'))  # fully connected
+        model.add(Dense(10, input_dim=self.state_size, activation='relu'))  # fully connected
         model.add(Dense(10, activation='relu'))
-        model.add(Dense(self.output_size))
+        model.add(Dense(self.action_size))
         model.compile(loss='mse', optimizer=Adam(lr=0.001))
         return model
 
     def calculateTargetValue(self, reward, next_state, isDone):
-        qnext = self.target.predict(np.reshape(next_state, (1, self.input_size)))
+        qnext = self.target.predict(np.reshape(next_state, (1, self.state_size)))
         maxqval = max(qnext)
 
         if isDone:

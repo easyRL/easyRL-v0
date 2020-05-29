@@ -11,11 +11,12 @@ class Model:
         self.isRunning = False
         self.agent = None
 
-    def run_learning(self, messageQueue, total_episodes, max_steps, gamma, learning_rate, max_epsilon, min_epsilon, decay_rate):
+    def run_learning(self, messageQueue, total_episodes, max_steps, *model_args):
         self.isRunning = True
-        epsilon = max_epsilon
 
-        self.agent = self.agent_class(self.environment.state_size, self.environment.action_size, learning_rate, gamma)
+        print("(self.environment.state_size, self.environment.action_size) + model_args: " + str((self.environment.state_size, self.environment.action_size) + model_args))
+
+        self.agent = self.agent_class(*(self.environment.state_size, self.environment.action_size) + model_args)
 
         for episode in range(total_episodes):
             self.environment.reset()
