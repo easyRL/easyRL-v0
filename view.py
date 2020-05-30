@@ -134,6 +134,10 @@ class View:
             self.episodeAccEpsilon = 0
 
             self.smoothAmt = 20
+            self.rewardGraphMax = 100
+            self.lossGraphMax = 100
+            self.graphLineCoords = None
+
             self.listener = listener
 
             tkinter.Label(self, text='Number of Episodes: ').grid(row=0, column=0)
@@ -193,7 +197,7 @@ class View:
         def updateGraphLine(self, evt):
             xVal = evt.x
             height = self.graph.winfo_height()
-            self.graph.coords(self.graphLine, [xVal, 0, xVal, height])
+            self.graphLineCoords = [xVal, 0, xVal, height]
 
             if self.curTotalEpisodes:
                 smoothIndex = (int)(self.curTotalEpisodes*xVal/self.graph.winfo_width())-self.smoothAmt
@@ -233,12 +237,12 @@ class View:
                     print('Bad Hyperparameters')
 
         def test(self):
-            if not self.listener.modelIsRunning():
+            if not self.listener.modelIsRunning(self.tabID):
                 try:
                     total_episodes = int(self.numEps.get())
                     max_steps = int(self.maxSteps.get())
 
-                    self.listener.startTesting((total_episodes, max_steps))
+                    self.listener.startTesting(self.tabID, [total_episodes, max_steps])
                     self.trainingEpisodes = 0
                     self.curTotalEpisodes = total_episodes
                     self.resetGraph()
@@ -305,6 +309,8 @@ class View:
                     self.accumulateState(message.data)
 
             self.updateEpisodeRender()
+            if self.graphLineCoords:
+                self.graph.coords(self.graphLine, self.graphLineCoords)
             self.master.after(10, self.checkMessages)
 
         def addEpisodeToGraph(self):
@@ -315,46 +321,66 @@ class View:
             avgState = (avgLoss, totalReward, avgEpsilon)
             self.graphDataPoints.append(avgState)
 
-            w = self.graph.winfo_width()
-            h = self.graph.winfo_height()
-
-            oldX = w * (len(self.graphDataPoints) - 1) / self.curTotalEpisodes
-            newX = w * (len(self.graphDataPoints)) / self.curTotalEpisodes
-
-            if len(self.graphDataPoints) > 1:
-                _, _, prevEpsilon = self.graphDataPoints[-2]
-                oldY = h * (1 - prevEpsilon)
-                newY = h * (1 - avgEpsilon)
-                self.graph.create_line(oldX, oldY, newX, newY, fill='green')
-
-            if len(self.graphDataPoints) > self.smoothAmt:
-                prevLoss, prevReward = self.curLossAccum/self.smoothAmt, self.curRewardAccum/self.smoothAmt
-                (obsLoss, obsReward, _) = self.graphDataPoints[-self.smoothAmt-1]
-
-                self.curLossAccum -= obsLoss
-                self.curRewardAccum -= obsReward
-                self.curLossAccum += avgLoss
-                self.curRewardAccum += totalReward
-
-                curReward = self.curRewardAccum/self.smoothAmt
-                curLoss = self.curLossAccum/self.smoothAmt
-                self.smoothedDataPoints.append((curLoss, curReward, avgEpsilon))
-
-                oldY = h - prevReward*2
-                newY = h - curReward*2
-                self.graph.create_line(oldX, oldY, newX, newY, fill='red')
-
-                oldY = h*(1 - prevLoss/40)
-                newY = h*(1 - curLoss/40)
-                self.graph.create_line(oldX, oldY, newX, newY, fill='blue')
-            else:
-                self.curLossAccum += avgLoss
-                self.curRewardAccum += totalReward
+            self.redrawGraph(len(self.graphDataPoints)%20 == 0)
 
             self.curEpisodeSteps = 0
             self.episodeAccLoss = 0
             self.episodeAccReward = 0
             self.episodeAccEpsilon = 0
+
+        def redrawGraph(self, full):
+            if full:
+                lastN = len(self.graphDataPoints)
+                self.curLossAccum = 0
+                self.curRewardAccum = 0
+                self.smoothedDataPoints.clear()
+                self.lossGraphMax = max(0.0000000000001, sorted([loss for loss, _, _ in self.graphDataPoints])[int((len(self.graphDataPoints)-1)*0.95)]*1.1)
+                self.rewardGraphMax = max(0.0000000000001, sorted([reward for _, reward, _ in self.graphDataPoints])[int((len(self.graphDataPoints)-1)*0.95)]*1.1)
+
+                print('loss graph max:', self.lossGraphMax)
+                print('reward graph max:', self.rewardGraphMax)
+                self.graph.delete('all')
+                self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
+            else:
+                lastN = 1
+
+            w = self.graph.winfo_width()
+            h = self.graph.winfo_height()
+
+            offset = len(self.graphDataPoints) - lastN
+            for ind in range(max(0,offset), len(self.graphDataPoints)):
+                oldX = w * (ind / self.curTotalEpisodes)
+                newX = w * ((ind+1) / self.curTotalEpisodes)
+                avgLoss, totalReward, avgEpsilon = self.graphDataPoints[ind]
+                if ind > 0:
+                    _, _, prevEpsilon = self.graphDataPoints[ind-1]
+                    oldY = h * (1 - prevEpsilon)
+                    newY = h * (1 - avgEpsilon)
+                    self.graph.create_line(oldX, oldY, newX, newY, fill='green')
+
+                if ind >= self.smoothAmt:
+                    prevLoss, prevReward = self.curLossAccum/self.smoothAmt, self.curRewardAccum/self.smoothAmt
+                    (obsLoss, obsReward, _) = self.graphDataPoints[ind-self.smoothAmt]
+
+                    self.curLossAccum -= obsLoss
+                    self.curRewardAccum -= obsReward
+                    self.curLossAccum += avgLoss
+                    self.curRewardAccum += totalReward
+
+                    curReward = self.curRewardAccum/self.smoothAmt
+                    curLoss = self.curLossAccum/self.smoothAmt
+                    self.smoothedDataPoints.append((curLoss, curReward, avgEpsilon))
+
+                    oldY = h*(1 - prevReward/self.rewardGraphMax)
+                    newY = h*(1 - curReward/self.rewardGraphMax)
+                    self.graph.create_line(oldX, oldY, newX, newY, fill='red')
+
+                    oldY = h*(1 - prevLoss/self.lossGraphMax)
+                    newY = h*(1 - curLoss/self.lossGraphMax)
+                    self.graph.create_line(oldX, oldY, newX, newY, fill='blue')
+                else:
+                    self.curLossAccum += avgLoss
+                    self.curRewardAccum += totalReward
 
         def accumulateState(self, state):
             if state.epsilon:

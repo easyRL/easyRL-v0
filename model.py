@@ -16,7 +16,7 @@ class Model:
         self.isRunning = True
 
         self.environment = self.environment_class()
-        self.agent = self.agent_class(*(self.environment.state_size, self.environment.action_size) + model_args)
+        self.agent = self.agent_class(self.environment.state_size, self.environment.action_size, *model_args)
 
         min_epsilon, max_epsilon, decay_rate = self.agent.min_epsilon, self.agent.max_epsilon, self.agent.decay_rate
         epsilon = max_epsilon

@@ -24,7 +24,6 @@ class CartPoleEnv(environment.Environment):
 
     def reset(self):
         self.state = self.env.reset()
-        print(self.state)
         self.done = False
         self.total_rewards = 0
 
