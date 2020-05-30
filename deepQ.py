@@ -13,13 +13,9 @@ from tensorflow.python.keras import utils
 class DeepQ(modelFreeAgent.ModelFreeAgent):
     displayName = 'Deep Q'
 
-    def __init__(self, input_size, output_size, learning_rate, gamma):
-        super().__init__()
-        self.input_size = input_size
-        self.output_size = output_size
+    def __init__(self, *args):
+        super().__init__(*args)
         self.batch_size = 128
-        self.learning_rate = learning_rate
-        self.gamma = gamma
         self.model, self.inputs, self.outputs = self.buildQNetwork()
         self.outputModels = self.buildOutputNetworks(self.inputs, self.outputs)
         self.target, _, _ = self.buildQNetwork()
@@ -28,8 +24,13 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         self.target_update_interval = 100
 
     def choose_action(self, state):
-        qval = self.model.predict(np.reshape(state, (1, self.input_size)))
+        qval = self.model.predict(np.reshape(state, (1, self.state_size)))
+        epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * self.time_steps)
+        # TODO: Put epsilon at a level near this
+        # if random.random() > epsilon:
         action = np.argmax(qval)
+        # else:
+            # action = self.state_size.sample()
         return action
 
     def remember(self, state, action, reward, new_state, done=False):
@@ -37,13 +38,13 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         loss = 0
         if len(self.memory) < self.batch_size:
             #print("memory insufficient for training")
-            return loss*400
+            return loss
         mini_batch = random.sample(self.memory, self.batch_size)
 
         X_train, Y_train = self.calculateTargetValues(mini_batch)
         loss = self.model.train_on_batch(X_train, Y_train)
         self.updateTarget()
-        return loss*400
+        return loss
 
     def updateTarget(self):
         if self.total_steps >= self.batch_size and self.total_steps % self.target_update_interval == 0:
@@ -59,10 +60,10 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         pass
 
     def buildQNetwork(self):
-        inputs = Input(shape=(self.input_size,))
-        x = Dense(24, input_dim=self.input_size, activation='relu')(inputs)  # fully connected
+        inputs = Input(shape=(self.state_size,))
+        x = Dense(24, input_dim=self.state_size, activation='relu')(inputs)  # fully connected
         x = Dense(24, activation='relu')(x)
-        outputs = Dense(self.output_size, activation='linear')(x)
+        outputs = Dense(self.action_size, activation='linear')(x)
         model = Model(inputs=inputs, outputs=outputs)
         model.compile(loss='mse', optimizer=Adam(lr=0.001))
         return model, inputs, outputs
@@ -76,8 +77,8 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         return models
 
     def calculateTargetValues(self, mini_batch):
-        X_train = np.zeros((self.batch_size, self.input_size))
-        next_states = np.zeros((self.batch_size, self.input_size))
+        X_train = np.zeros((self.batch_size, self.state_size))
+        next_states = np.zeros((self.batch_size, self.state_size))
 
         for index_rep, (state, action, reward, next_state, isDone) in enumerate(mini_batch):
             X_train[index_rep] = state

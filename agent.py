@@ -16,12 +16,15 @@ class Agent(ABC):
 
     parameters = [Parameter('Gamma', 0.00, 1.00, 0.01, 0.97, True, True)]
 
-    def __init__(self):
-        pass
+    def __init__(self, state_size, action_size, gamma):
+        self.state_size = state_size
+        self.action_size = action_size
+        self.gamma = gamma
+        self.time_steps = 0
 
     @abstractmethod
     def choose_action(self, state):
-        pass
+        self.time_steps += 1
 
     def __deepcopy__(self, memodict={}):
         pass
