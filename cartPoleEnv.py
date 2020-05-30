@@ -4,6 +4,8 @@ from PIL import Image, ImageDraw
 import math
 
 class CartPoleEnv(environment.Environment):
+    displayName = 'Cart Pole'
+
     def __init__(self):
         self.env = gym.make('CartPole-v1')
         self.action_size = self.env.action_space.n
@@ -22,6 +24,7 @@ class CartPoleEnv(environment.Environment):
 
     def reset(self):
         self.state = self.env.reset()
+        print(self.state)
         self.done = False
         self.total_rewards = 0
 

@@ -5,7 +5,7 @@ import numpy as np
 class Model:
     def __init__(self):
         # these can be set directly from the Controller based on user input from the View
-        self.environment = None
+        self.environment_class = None
         self.agent_class = None
         self.isHalted = False
         self.isRunning = False
@@ -15,6 +15,7 @@ class Model:
         self.isRunning = True
         epsilon = max_epsilon
 
+        self.environment = self.environment_class()
         self.agent = self.agent_class(self.environment.state_size, self.environment.action_size, learning_rate, gamma)
 
         for episode in range(total_episodes):
@@ -31,7 +32,7 @@ class Model:
 
                 reward = self.environment.step(action)
 
-                loss = self.agent.remember(old_state, action, reward, self.environment.state)
+                loss = self.agent.remember(old_state, action, reward, self.environment.state, self.environment.done)
 
                 modelState = Model.State(self.environment.render(), epsilon, reward, loss)
                 message = Model.Message(Model.Message.STATE, modelState)

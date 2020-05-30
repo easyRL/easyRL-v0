@@ -8,6 +8,7 @@ import sys
 from gym import utils
 
 class FrozenLakeEnv(environment.Environment):
+    displayName = 'Frozen Lake'
 
     def __init__(self):
         self.env = gym.make('FrozenLake-v0')

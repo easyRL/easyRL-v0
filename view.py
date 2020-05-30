@@ -6,9 +6,9 @@ import agent
 import deepQ
 import qLearning
 import valueIteration
+import cartPoleEnv, cartPoleEnvDiscrete, frozenLakeEnv
 from model import Model
 from sarsa import sarsa
-
 
 class View:
     """
@@ -29,7 +29,7 @@ class View:
                 self.frame.grid_columnconfigure(i, minsize=75)
                 self.frame.grid_rowconfigure(i, minsize=50)
 
-        def backButton(self):
+        def goBack(self):
             self.frame.destroy()
 
     class StartWindow(Window):
@@ -49,69 +49,30 @@ class View:
             self.frame.lift()
 
         def handleButton(self):
-            View.EnvironmentChooser(self.master, self.listener)
-
-    class EnvironmentChooser(Window):
-        def __init__(self, master, listener):
-            super().__init__(master, listener)
-
-            self.backButton = tkinter.Button(self.frame, text='back', fg='black', command=self.backButton)
-            self.backButton.grid(row=0, column=0, sticky='wens')
-
-            self.title = tkinter.Label(self.frame, text='Select an Environment:')
-            self.title.grid(row=1, column=4, columnspan=2, sticky='wens')
-
-            self.frozenLakeButton = tkinter.Button(self.frame, text='Frozen Lake', fg='black', command=self.chooseFrozenLake)
-            self.frozenLakeButton.grid(row=2, column=4, columnspan=2, sticky='wens')
-
-            self.cartPoleButton = tkinter.Button(self.frame, text='Cart Pole', fg='black', command=self.chooseCartPoleEnv)
-            self.cartPoleButton.grid(row=3, column=4, columnspan=2, sticky='wens')
-
-            self.cartPoleDiscreteButton = tkinter.Button(self.frame, text='Cart Pole Discretized', fg='black', command=self.chooseCartPoleDiscreteEnv)
-            self.cartPoleDiscreteButton.grid(row=4, column=4, columnspan=2, sticky='wens')
-
-            self.customButton = tkinter.Button(self.frame, text='Custom Environment', fg='black', command=self.chooseCustom)
-            self.customButton.grid(row=5, column=4, columnspan=2, sticky='wens')
-
-            self.frame.grid(row=0, column=0)
-            self.frame.lift()
-
-        def chooseFrozenLake(self):
-            self.listener.setFrozenLakeEnv()
             View.ProjectWindow(self.master, self.listener)
-            self.frame.destroy()
-
-        def chooseCartPoleEnv(self):
-            self.listener.setCartPoleEnv()
-            View.ProjectWindow(self.master, self.listener)
-            self.frame.destroy()
-
-        def chooseCartPoleDiscreteEnv(self):
-            self.listener.setCartPoleDiscreteEnv()
-            View.ProjectWindow(self.master, self.listener)
-            self.frame.destroy()
-
-        def chooseCustom(self):
-            pass
 
     class ProjectWindow(Window):
         def __init__(self, master, listener):
             super().__init__(master, listener)
 
-            self.backButton = tkinter.Button(self.frame, text='<- Back', fg='black', command=self.backButton)
+            self.listener = listener
+            self.tabIDCounter = 0
+            self.backButton = tkinter.Button(self.frame, text='<- Back', fg='black', command=self.goBack)
             self.backButton.grid(row=0, column=0)
+            self.closeTabButton = tkinter.Button(self.frame, text='Close Current Tab', fg='black', command=self.closeTab)
+            self.closeTabButton.grid(row=0, column=1)
 
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
-            self.qlearningTab = View.GeneralTab(self.tab, listener, qLearning.QLearning)
-            self.deepQTab = View.GeneralTab(self.tab, listener, deepQ.DeepQ)
-            self.valueIteration = View.GeneralTab(self.tab, listener, valueIteration.ValueIteration)
-            self.etc = tkinter.Frame(self.tab)
-            self.tab.add(self.qlearningTab, text='Q Learning')
-            self.tab.add(self.deepQTab, text='Deep Q Learning')
-            self.tab.add(self.valueIteration, text='Value Iteration')
-            self.tab.add(self.etc, text='Etc.')
+            self.tabs = [View.GeneralTab(self.tab, listener, self.tabIDCounter)]
+
+            for tab in self.tabs:
+                self.tab.add(tab, text='Tab '+str(self.tabIDCounter + 1))
+                self.tabIDCounter += 1
+            addTab = tkinter.Frame(self.tab)
+            self.tab.add(addTab, text='+')
+            self.tabs.append(addTab)
 
             self.tab.grid(row=1, column=0, rowspan=9, columnspan=10, sticky='wens')
 
@@ -120,16 +81,38 @@ class View:
 
         def tabChange(self, event):
             tabIndex = event.widget.index('current')
-            if tabIndex == 0:
-                self.listener.setQLearningAgent()
-            elif tabIndex == 1:
-                self.listener.setDeepQLearningAgent()
-            elif tabIndex == 2:
-                self.listener.setDeepSarsaAgent()
+            if len(self.tabs) > 1 and tabIndex == len(self.tabs)-1:
+                newTab = View.GeneralTab(self.tab, self.listener, self.tabIDCounter)
+                self.tab.forget(self.tabs[-1])
+                self.tab.add(newTab, text='Tab '+str(self.tabIDCounter+1))
+                self.tab.add(self.tabs[-1], text='+')
+                self.tabs = self.tabs[:-1] + [newTab] + [self.tabs[-1]]
+                self.tab.select(newTab)
+                self.tabIDCounter += 1
+
+        def closeTab(self):
+            if len(self.tabs) != 2:
+                tkId = self.tab.select()
+                curTab = self.tab.nametowidget(tkId)
+                curTab.close()
+                ind = 0
+                while self.tabs[ind] != curTab:
+                    ind += 1
+                self.tabs = self.tabs[:ind] + self.tabs[ind + 1:]
+                if ind == len(self.tabs)-1:
+                    self.tab.select(self.tabs[-2])
+                self.tab.forget(tkId)
+                self.tabIDCounter = self.tabs[-2].tabID+1
+
+        def goBack(self):
+            for tab in self.tabs[:-1]:
+                tab.close()
+            super().goBack()
 
     class GeneralTab(tkinter.Frame):
-        def __init__(self, tab, listener, model):
+        def __init__(self, tab, listener, tabID):
             super().__init__(tab)
+            self.tabID = tabID
             self.image = None
             self.imageQueues = ([], [])
             self.imageQueuesInd = 0
@@ -166,50 +149,14 @@ class View:
             self.maxSteps.grid(row=1, column=1)
 
             # Add model parameters here
-            self.modelFrame = model.ParameterProfile(self)
-            self.modelFrame.grid(row=2, column=0)
-            # x = agent.Agent.ParameterProfile(self)
-            # x.grid(row=0, column=0)
-
-            # tkinter.Label(self, text='Learning Rate: ').grid(row=2, column=0)
-            # self.learningRate = tkinter.Scale(self, from_=0.01, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
-            # self.learningRate.set(0.18)
-            # self.learningRate.grid(row=2, column=1)
-
-            # tkinter.Label(self, text='Gamma: ').grid(row=3, column=0)
-            # self.gamma = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
-            # self.gamma.set(0.97)
-            # self.gamma.grid(row=3, column=1)
-
-            # tkinter.Label(self, text='Max Epsilon: ').grid(row=4, column=0)
-            # self.maxEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
-            # self.maxEpsilon.set(1.0)
-            # self.maxEpsilon.grid(row=4, column=1)
-
-            # tkinter.Label(self, text='Min Epsilon: ').grid(row=5, column=0)
-            # self.minEpsilon = tkinter.Scale(self, from_=0.00, to=1, resolution=0.01, orient=tkinter.HORIZONTAL)
-            # self.minEpsilon.set(0.1)
-            # self.minEpsilon.grid(row=5, column=1)
-
-            # tkinter.Label(self, text='Decay Rate: ').grid(row=6, column=0)
-            # self.decayRate = tkinter.Scale(self, from_=0.0, to=0.2, resolution=0.001, orient=tkinter.HORIZONTAL)
-            # self.decayRate.set(0.018)
-            # self.decayRate.grid(row=6, column=1)
+            self.parameterFrame = self.ModelChooser(self)
+            self.parameterFrame.grid(row=2, column=0, columnspan=2)
 
             self.slowLabel = tkinter.Label(self, text='Displayed episode speed')
             self.slowLabel.grid(row=7, column=0)
             self.slowSlider = tkinter.Scale(self, from_=1, to=20, resolution=1, orient=tkinter.HORIZONTAL)
             self.slowSlider.set(10)
             self.slowSlider.grid(row=7, column=1)
-
-            self.trainButton = tkinter.Button(self, text='Train', fg='black', command=self.train)
-            self.trainButton.grid(row=8, column=0)
-
-            self.haltButton = tkinter.Button(self, text='Halt', fg='black', command=self.halt)
-            self.haltButton.grid(row=8, column=1)
-
-            self.resetButton = tkinter.Button(self, text='Test', fg='black', command=self.test)
-            self.resetButton.grid(row=9, column=0)
 
             self.render = tkinter.Canvas(self)
             self.render.grid(row=0, column=2, rowspan=9, columnspan=8, sticky='wens')
@@ -228,6 +175,7 @@ class View:
             self.legend = tkinter.Canvas(self)
             self.legend.grid(row=10, column=0, rowspan=4, columnspan=2, sticky='wens')
             self.legend.bind('<Configure>', self.legendResize)
+
 
         def legendResize(self, evt):
             self.legend.delete('all')
@@ -260,7 +208,7 @@ class View:
                     self.legend.itemconfig(self.epsilonLegend, text='Epsilon:')
 
         def halt(self):
-            self.listener.halt()
+            self.listener.halt(self.tabID)
             self.imageQueues[0].clear()
             self.imageQueues[1].clear()
             self.imageQueuesInd = 0
@@ -269,12 +217,12 @@ class View:
             self.waitCount = 0
 
         def train(self):
-            if not self.listener.modelIsRunning():
+            if not self.listener.modelIsRunning(self.tabID):
                 try:
                     total_episodes = int(self.numEps.get())
                     max_steps = int(self.maxSteps.get())
 
-                    self.listener.startTraining((total_episodes, max_steps) + self.modelFrame.getParameters())
+                    self.listener.startTraining(self.tabID, [total_episodes, max_steps] + self.parameterFrame.getParameters())
                     self.trainingEpisodes = 0
                     self.curTotalEpisodes = total_episodes
                     self.resetGraph()
@@ -313,8 +261,8 @@ class View:
             self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
 
         def checkMessages(self):
-            while self.listener.messageQueue.qsize():
-                message = self.listener.messageQueue.get(timeout=0)
+            while self.listener.getQueue(self.tabID).qsize():
+                message = self.listener.getQueue(self.tabID).get(timeout=0)
                 if message.type == Model.Message.EVENT:
                     if message.data == Model.Message.EPISODE:
                         self.addEpisodeToGraph()
@@ -433,3 +381,101 @@ class View:
                         self.render.delete(self.renderImage)
                     self.renderImage = self.render.create_image(0, 0, anchor='nw', image=self.image)
                 self.waitCount += 1
+
+        def selectModel(self):
+            for agent in self.parameterFrame.agents:
+                if self.parameterFrame.agentOpts.get() == agent.displayName:
+                    break
+            for env in self.parameterFrame.environments:
+                if self.parameterFrame.envOpts.get() == env.displayName:
+                    break
+            self.parameterFrame.destroy()
+            self.parameterFrame = self.ParameterFrame(self, agent, env)
+            self.parameterFrame.grid(row=2, column=0, columnspan=2)
+
+        def close(self):
+            self.listener.close(self.tabID)
+
+        class ParameterFrame(tkinter.Frame):
+            def __init__(self, master, agentClass, envClass):
+                super().__init__(master)
+                self.master = master
+                master.listener.setAgent(master.tabID, agentClass)
+                master.listener.setEnvironment(master.tabID, envClass)
+                self.values = []
+                for param in agentClass.parameters:
+                    subFrame = tkinter.Frame(self)
+                    tkinter.Label(subFrame, text=param.name).pack(side='left')
+                    scale = tkinter.Scale(subFrame, from_=param.min, to=param.max, resolution=param.resolution,
+                                          orient=tkinter.HORIZONTAL)
+                    scale.set(param.default)
+                    scale.pack(side='left')
+                    subFrame.pack()
+                    self.values.append(scale)
+                tkinter.Button(self, text='Train', fg='black', command=self.master.train).pack(side='left')
+                tkinter.Button(self, text='Halt', fg='black', command=self.master.halt).pack(side='left')
+                tkinter.Button(self, text='Test', fg='black', command=self.master.test).pack(side='left')
+
+            def getParameters(self):
+                return [value.get() for value in self.values]
+
+        class ModelChooser(tkinter.Frame):
+            agents = [deepQ.DeepQ, qLearning.QLearning]
+            environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv]
+
+            def __init__(self, master):
+                super().__init__(master)
+                self.agentOpts = tkinter.StringVar(self)
+                self.envOpts = tkinter.StringVar(self)
+                subFrame = tkinter.Frame(self)
+                tkinter.OptionMenu(subFrame, self.agentOpts, *[opt.displayName for opt in self.agents]).pack(side='left')
+                tkinter.OptionMenu(subFrame, self.envOpts, *[opt.displayName for opt in self.environments]).pack(side='left')
+                self.agentOpts.set(self.agents[0].displayName)
+                self.envOpts.set(self.environments[0].displayName)
+                subFrame.pack()
+                tkinter.Button(self, text='Set Model', command=master.selectModel).pack()
+
+        class EnvironmentChooser(tkinter.Frame):
+
+            def __init__(self, master, listener):
+                super().__init__(master, listener)
+
+                self.title = tkinter.Label(self.frame, text='Select an Environment:')
+                self.title.grid(row=1, column=4, columnspan=2, sticky='wens')
+
+                self.frozenLakeButton = tkinter.Button(self.frame, text='Frozen Lake', fg='black',
+                                                       command=self.chooseFrozenLake)
+                self.frozenLakeButton.grid(row=2, column=4, columnspan=2, sticky='wens')
+
+                self.cartPoleButton = tkinter.Button(self.frame, text='Cart Pole', fg='black',
+                                                     command=self.chooseCartPoleEnv)
+                self.cartPoleButton.grid(row=3, column=4, columnspan=2, sticky='wens')
+
+                self.cartPoleDiscreteButton = tkinter.Button(self.frame, text='Cart Pole Discretized', fg='black',
+                                                             command=self.chooseCartPoleDiscreteEnv)
+                self.cartPoleDiscreteButton.grid(row=4, column=4, columnspan=2, sticky='wens')
+
+                self.customButton = tkinter.Button(self.frame, text='Custom Environment', fg='black',
+                                                   command=self.chooseCustom)
+                self.customButton.grid(row=5, column=4, columnspan=2, sticky='wens')
+
+                self.frame.grid(row=0, column=0)
+                self.frame.lift()
+
+            def chooseFrozenLake(self):
+                self.listener.setEnvironment()
+                View.ProjectWindow(self.master, self.listener)
+                self.frame.destroy()
+
+            def chooseCartPoleEnv(self):
+                self.listener.setCartPoleEnv()
+                View.ProjectWindow(self.master, self.listener)
+                self.frame.destroy()
+
+            def chooseCartPoleDiscreteEnv(self):
+                self.listener.setCartPoleDiscreteEnv()
+                View.ProjectWindow(self.master, self.listener)
+                self.frame.destroy()
+
+            def chooseCustom(self):
+                pass

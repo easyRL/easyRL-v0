@@ -6,24 +6,26 @@ from collections import deque
 import random
 
 import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, Input
 from tensorflow.python.keras import utils
 
-
 class DeepQ(modelFreeAgent.ModelFreeAgent):
+    displayName = 'Deep Q'
+
     def __init__(self, input_size, output_size, learning_rate, gamma):
         super().__init__()
         self.input_size = input_size
         self.output_size = output_size
-        self.batch_size = 16
+        self.batch_size = 128
         self.learning_rate = learning_rate
         self.gamma = gamma
-        self.model = self.buildQNetwork()
-        self.target = self.buildQNetwork()
-        self.memory = deque(maxlen=2000)
+        self.model, self.inputs, self.outputs = self.buildQNetwork()
+        self.outputModels = self.buildOutputNetworks(self.inputs, self.outputs)
+        self.target, _, _ = self.buildQNetwork()
+        self.memory = deque(maxlen=655360)
         self.total_steps = 0
-        self.target_update_interval = 20
+        self.target_update_interval = 100
 
     def choose_action(self, state):
         qval = self.model.predict(np.reshape(state, (1, self.input_size)))
@@ -32,18 +34,13 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
 
     def remember(self, state, action, reward, new_state, done=False):
         self.memory.append((state, action, reward, new_state, done))
-        X_train = np.zeros((self.batch_size, self.input_size))
-        Y_train = np.zeros((self.batch_size, self.output_size))
         loss = 0
         if len(self.memory) < self.batch_size:
             #print("memory insufficient for training")
-            return loss
+            return loss*400
         mini_batch = random.sample(self.memory, self.batch_size)
 
-        for index_rep in range(self.batch_size):
-            state, action, reward, next_state, isDone = mini_batch[index_rep]
-            X_train[index_rep] = state
-            Y_train[index_rep] = self.calculateTargetValue(reward, next_state, isDone)
+        X_train, Y_train = self.calculateTargetValues(mini_batch)
         loss = self.model.train_on_batch(X_train, Y_train)
         self.updateTarget()
         return loss*400
@@ -51,7 +48,9 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
     def updateTarget(self):
         if self.total_steps >= self.batch_size and self.total_steps % self.target_update_interval == 0:
             self.target.set_weights(self.model.get_weights())
-            #print("target updated")
+            print("target updated")
+        self.total_steps += 1
+
 
     def update(self):
         pass
@@ -60,25 +59,39 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         pass
 
     def buildQNetwork(self):
-        model = Sequential()
-        model.add(Dense(10, input_dim=self.input_size, activation='relu'))  # fully connected
-        model.add(Dense(10, activation='relu'))
-        model.add(Dense(self.output_size))
+        inputs = Input(shape=(self.input_size,))
+        x = Dense(24, input_dim=self.input_size, activation='relu')(inputs)  # fully connected
+        x = Dense(24, activation='relu')(x)
+        outputs = Dense(self.output_size, activation='linear')(x)
+        model = Model(inputs=inputs, outputs=outputs)
         model.compile(loss='mse', optimizer=Adam(lr=0.001))
-        return model
+        return model, inputs, outputs
 
-    def calculateTargetValue(self, reward, next_state, isDone):
-        qnext = self.target.predict(np.reshape(next_state, (1, self.input_size)))
-        maxqval = max(qnext)
+    def buildOutputNetworks(self, inputs, outputs):
+        models = []
+        for index in range(self.outputs.shape[1]):
+            model = Model(inputs=inputs, outputs=outputs[:, index])
+            model.compile(loss='mse', optimizer=Adam(lr=0.001))
+            models.append(model)
+        return models
 
-        if isDone:
-            target_value = reward
-        else:
-            target_value = reward + self.gamma * maxqval
+    def calculateTargetValues(self, mini_batch):
+        X_train = np.zeros((self.batch_size, self.input_size))
+        next_states = np.zeros((self.batch_size, self.input_size))
 
-        return target_value
+        for index_rep, (state, action, reward, next_state, isDone) in enumerate(mini_batch):
+            X_train[index_rep] = state
+            next_states[index_rep] = next_state
+
+        Y_train = self.model.predict(X_train)
+        qnext = self.target.predict(next_states)
+
+        for index_rep, (state, action, reward, next_state, isDone) in enumerate(mini_batch):
+            if isDone:
+                Y_train[index_rep][action] = -reward
+            else:
+                Y_train[index_rep][action] = reward + np.amax(qnext[index_rep]) * self.gamma
+        return X_train, Y_train
 
     def __deepcopy__(self, memodict={}):
         pass
-
-

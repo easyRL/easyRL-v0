@@ -1,40 +1,51 @@
 import cartPoleEnv
-import gym
-import pandas
-import numpy as np
-from PIL import Image, ImageDraw
-import math
+from PIL import ImageDraw, ImageFont
+
 
 class CartPoleEnvDiscrete(cartPoleEnv.CartPoleEnv):
+    displayName = 'Cart Pole Discrete'
+
     def __init__(self):
         super().__init__()
+
         self.state_size = 1
-        self.n_bins = 8
-        self.n_bins_angle = 10
-        self.cart_position_bins = pandas.cut([-2.4, 2.4], bins=self.n_bins, retbins=True)[1][1:-1]
-        self.pole_angle_bins = pandas.cut([-2, 2], bins=self.n_bins_angle, retbins=True)[1][1:-1]
-        self.cart_velocity_bins = pandas.cut([-1, 1], bins=self.n_bins, retbins=True)[1][1:-1]
-        self.angle_rate_bins = pandas.cut([-3.5, 3.5], bins=self.n_bins_angle, retbins=True)[1][1:-1]
+        self.n_bins = 3
+        self.n_bins_angle = 12
+        self.cart_position_range = (-2.4, 2.4)
+        self.pole_angle_range = (-2, 2)
+        self.cart_velocity_range = (-1, 1)
+        self.angle_rate_range = (-3.5, 3.5)
 
     def step(self, action):
         reward = super().step(action)
-        cart_position, pole_angle, cart_velocity, angle_rate_of_change = self.state
-        self.state = self.build_state([self.to_bin(cart_position, self.cart_position_bins),
-                             self.to_bin(pole_angle, self.pole_angle_bins),
-                             self.to_bin(cart_velocity, self.cart_velocity_bins),
-                             self.to_bin(angle_rate_of_change, self.angle_rate_bins)])
+        self.state = self.build_state(self.state)
         return reward
+
+    def render(self, mode='RGB'):
+        image = super().render(mode)
+        fnt = ImageFont.truetype('arial.ttf', 30)
+        draw = ImageDraw.Draw(image)
+        draw.text((50,50), str(self.state), fill='black', font=fnt)
+        #draw.text((50,100), str(self.env.state), fill='black', font=fnt)
+        return image
 
     def reset(self):
         super().reset()
-        cart_position, pole_angle, cart_velocity, angle_rate_of_change = self.state
-        self.state = self.build_state([self.to_bin(cart_position, self.cart_position_bins),
-                             self.to_bin(pole_angle, self.pole_angle_bins),
-                             self.to_bin(cart_velocity, self.cart_velocity_bins),
-                             self.to_bin(angle_rate_of_change, self.angle_rate_bins)])
+        self.state = self.build_state(self.state)
 
-    def to_bin(self, value, bins):
-        return np.digitize(x=[value], bins=bins)[0]
+    def to_bin(self, value, range, bins):
+        bin = int((value-range[0]) // ((range[1] - range[0]) / bins))
+        bin = max(min(bin, bins-1), 0)
+        return bin
 
-    def build_state(self, features):
-        return int("".join(map(lambda feature: str(int(feature)), features)))
+    def build_state(self, state):
+        cart_position, cart_velocity, pole_angle, angle_rate_of_change = state
+
+        new_cart_position = self.to_bin(cart_position, self.cart_position_range, self.n_bins)
+        new_cart_velocity = self.to_bin(cart_velocity, self.cart_velocity_range, self.n_bins)
+        new_pole_angle = self.to_bin(pole_angle, self.pole_angle_range, self.n_bins_angle)
+        new_angle_rate_of_change = self.to_bin(angle_rate_of_change, self.angle_rate_range, self.n_bins)
+
+        state = new_cart_position, new_cart_velocity, new_pole_angle, new_angle_rate_of_change
+
+        return state

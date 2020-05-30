@@ -1,6 +1,8 @@
 import gym
 
 class Environment:
+    displayName = 'Environment'
+
     def __init__(self):
         pass
 

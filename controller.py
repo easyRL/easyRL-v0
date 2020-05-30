@@ -17,7 +17,7 @@ import queue
 
 class Controller:
     def __init__(self):
-        self.model = model.Model()
+        self.models = {}
         self.viewListener = self.ViewListener(self)
         self.root = tkinter.Tk(className='rl framework')
         self.view = view.View(self.root, self.viewListener)
@@ -27,46 +27,62 @@ class Controller:
     class ViewListener:
         def __init__(self, controller):
             self.controller = controller
-            self.messageQueue = queue.Queue()
+            self.messageQueues = {}
 
-        def setFrozenLakeEnv(self):
-            self.controller.model.environment = frozenLakeEnv.FrozenLakeEnv()
-            print('loaded frozen lake')
+        def getModel(self, tabID):
+            curModel = self.controller.models.get(tabID)
+            if not curModel:
+                curModel = model.Model()
+                self.controller.models[tabID] = curModel
+            return curModel
 
-        def setCartPoleEnv(self):
-            self.controller.model.environment = cartPoleEnv.CartPoleEnv()
-            print('loaded cartpole')
+        def getQueue(self, tabID):
+            curQueue = self.messageQueues.get(tabID)
+            if not curQueue:
+                curQueue = queue.Queue()
+                self.messageQueues[tabID] = curQueue
+            return curQueue
 
-        def setCartPoleDiscreteEnv(self):
-            self.controller.model.environment = cartPoleEnvDiscrete.CartPoleEnvDiscrete()
-            print('loaded cartpole discrete')
+        def setEnvironment(self, tabID, envClass):
+            self.getModel(tabID).environment_class = envClass
+            print('loaded ' + envClass.displayName)
 
-        def setQLearningAgent(self):
-            self.controller.model.agent_class = qLearning.QLearning
+        def setAgent(self, tabID, agentClass):
+            self.getModel(tabID).agent_class = agentClass
+            print('loaded ' + agentClass.displayName)
 
-        def setDeepQLearningAgent(self):
-            self.controller.model.agent_class = deepQ.DeepQ
+        def startTraining(self, tabID, args):
+            model = self.getModel(tabID)
+            queue = self.getQueue(tabID)
+            threading.Thread(target=model.run_learning, args=[queue,]+args).start()
 
-        def setDeepSarsaAgent(self):
-            pass
+        def startTesting(self, tabID, args):
+            model = self.getModel(tabID)
+            queue = self.getQueue(tabID)
+            threading.Thread(target=model.run_testing, args=[queue,]+args).start()
 
-        def startTraining(self, args):
-            threading.Thread(target=self.controller.model.run_learning, args=(self.messageQueue,)+args).start()
+        def modelIsRunning(self, tabID):
+            model = self.getModel(tabID)
+            return model.isRunning
 
-        def startTesting(self, args):
-            threading.Thread(target=self.controller.model.run_testing, args=(self.messageQueue,)+args).start()
+        def halt(self, tabID):
+            model = self.getModel(tabID)
+            model.halt_learning()
 
-        def modelIsRunning(self):
-            return self.controller.model.isRunning
+        def reset(self, tabID):
+            model = self.getMode(tabID)
+            model.agent.reset()
 
-        def halt(self):
-            self.controller.model.halt_learning()
+        def close(self, tabID):
+            self.halt(tabID)
+            if self.controller.models.get(tabID):
+                del self.controller.models[tabID]
+            if self.messageQueues.get(tabID):
+                del self.messageQueues[tabID]
 
-        def reset(self):
-            if self.controller.model.agent.reset:
-                self.controller.model.agent.reset()
     def delete_window(self):
-        self.viewListener.halt()
+        for _, model in self.models.items():
+            model.halt_learning()
         try:
             self.root.destroy()
         except:

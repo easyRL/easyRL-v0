@@ -4,6 +4,8 @@ import modelFreeAgent
 
 
 class QTable(modelFreeAgent.ModelFreeAgent, ABC):
+    displayName = 'Q Table'
+
     def __init__(self, action_size, learning_rate, gamma):
         super().__init__()
         self.action_size = action_size
