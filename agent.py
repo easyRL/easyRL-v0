@@ -9,10 +9,13 @@ class Agent(ABC):
         self.state_size = state_size
         self.action_size = action_size
         self.gamma = gamma
+
+        self.time_steps = 0
         pass
 
     @abstractmethod
     def choose_action(self, state):
+        self.time_steps += 1
         pass
 
     def __deepcopy__(self, memodict={}):

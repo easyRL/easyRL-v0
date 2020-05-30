@@ -23,7 +23,12 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
 
     def choose_action(self, state):
         qval = self.model.predict(np.reshape(state, (1, self.state_size)))
+        epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * self.time_steps)
+        # TODO: Put epsilon at a level near this
+        # if random.random() > epsilon:
         action = np.argmax(qval)
+        # else:
+            # action = self.state_size.sample()
         return action
 
     def remember(self, state, action, reward, new_state, done=False):
