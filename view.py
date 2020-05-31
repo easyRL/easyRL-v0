@@ -3,7 +3,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 
 import agent
-import deepQ, qLearning, drqn
+import deepQ, qLearning, drqn, adrqn
 import valueIteration
 import cartPoleEnv, cartPoleEnvDiscrete, frozenLakeEnv, alien
 from model import Model
@@ -445,7 +445,7 @@ class View:
                 return [value.get() for value in self.values]
 
         class ModelChooser(tkinter.Frame):
-            agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN]
+            agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN]
             environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv, alien.AlienEnv]
 
             def __init__(self, master):
