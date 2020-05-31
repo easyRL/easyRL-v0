@@ -9,7 +9,7 @@ class CartPoleEnv(environment.Environment):
     def __init__(self):
         self.env = gym.make('CartPole-v1')
         self.action_size = self.env.action_space.n
-        self.state_size = self.env.observation_space.shape[0]
+        self.state_size = self.env.observation_space.shape
         print(self.env.action_space, self.env.observation_space)
         print(self.action_size, self.state_size)
 

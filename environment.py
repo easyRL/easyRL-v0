@@ -4,7 +4,8 @@ class Environment:
     displayName = 'Environment'
 
     def __init__(self):
-        pass
+        self.action_size = None
+        self.state_size = None
 
     def step(self, action):
         pass
@@ -15,7 +16,7 @@ class Environment:
     def sample_action(self):
         pass
 
-    def render(self, mode, close):
+    def render(self, mode):
         pass
 
     def close(self):

@@ -17,7 +17,7 @@ class ModelFreeAgent(agent.Agent, ABC):
         self.min_epsilon, self.max_epsilon, self.decay_rate = args[-paramLen:]
 
     @abstractmethod
-    def remember(self, state, action, reward, new_state):
+    def remember(self, state, action, reward, new_state, episode, done):
         pass
 
     @abstractmethod

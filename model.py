@@ -35,7 +35,7 @@ class Model:
 
                 reward = self.environment.step(action)
 
-                loss = self.agent.remember(old_state, action, reward, self.environment.state, self.environment.done)
+                loss = self.agent.remember(old_state, action, reward, self.environment.state, episode, self.environment.done)
 
                 modelState = Model.State(self.environment.render(), epsilon, reward, loss)
                 message = Model.Message(Model.Message.STATE, modelState)

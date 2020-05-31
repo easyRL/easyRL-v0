@@ -14,6 +14,11 @@ import queue
 # pip install pandas
 # pip install numpy
 # pip install tensorflow
+# pip install opencv-python
+# pip install gym[atari]  (if not on Windows)
+# OR if on Windows:
+# pip install --no-index -f https://github.com/Kojoley/atari-py/releases atari_py
+# pip install git+https://github.com/Kojoley/atari-py.git
 
 class Controller:
     def __init__(self):
