@@ -1,6 +1,7 @@
 import gym
+from abc import ABC
 
-class Environment:
+class Environment(ABC):
     displayName = 'Environment'
 
     def __init__(self):

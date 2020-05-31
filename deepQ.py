@@ -6,7 +6,7 @@ import random
 import tensorflow as tf
 from tensorflow.python.keras.optimizer_v2.adam import Adam
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense, Input
+from tensorflow.keras.layers import Dense, Input, Flatten
 from tensorflow.python.keras import utils
 
 class DeepQ(modelFreeAgent.ModelFreeAgent):
@@ -30,6 +30,8 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         action = np.argmax(qval)
         # else:
             # action = self.state_size.sample()
+        if action > 17:
+            print('hello')
         return action
 
     def sample(self):
@@ -74,7 +76,8 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
 
     def buildQNetwork(self):
         inputs = Input(shape=self.state_size)
-        x = Dense(24, input_dim=self.state_size, activation='relu')(inputs)  # fully connected
+        x = Flatten()(inputs)
+        x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
         x = Dense(24, activation='relu')(x)
         outputs = Dense(self.action_size, activation='linear')(x)
         model = Model(inputs=inputs, outputs=outputs)

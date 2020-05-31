@@ -5,7 +5,7 @@ from PIL import Image, ImageTk
 import agent
 import deepQ, qLearning, drqn, adrqn
 import valueIteration
-import cartPoleEnv, cartPoleEnvDiscrete, frozenLakeEnv, alien
+import cartPoleEnv, cartPoleEnvDiscrete, frozenLakeEnv, atariEnv
 from model import Model
 from sarsa import sarsa
 
@@ -446,7 +446,9 @@ class View:
 
         class ModelChooser(tkinter.Frame):
             agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN]
-            environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv, alien.AlienEnv]
+            environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv]
+            environments += atariEnv.AtariEnv.subEnvs
+
 
             def __init__(self, master):
                 super().__init__(master)
