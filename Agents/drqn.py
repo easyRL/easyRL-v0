@@ -10,13 +10,13 @@ class DRQN(deepQ.DeepQ):
         self.historylength = 4
         super().__init__(*args)
         self.batch_size = 16
-        self.memory = DRQN.ReplayBuffer(4000, self.historylength)
+        self.memory = DRQN.ReplayBuffer(self, 4000, self.historylength)
 
     def getRecentState(self):
         return self.memory.get_recent_state()
 
     def resetBuffer(self):
-        self.memory = DRQN.ReplayBuffer(40, self.historylength)
+        self.memory = DRQN.ReplayBuffer(self, 40, self.historylength)
 
     def buildQNetwork(self):
         from tensorflow.python.keras.optimizer_v2.adam import Adam
@@ -85,7 +85,8 @@ class DRQN(deepQ.DeepQ):
 
 
     class ReplayBuffer:
-        def __init__(self, maxlength, historylength):
+        def __init__(self, learner, maxlength, historylength):
+            self.learner = learner
             self.maxlength = maxlength
             self.historylength = historylength
             self.currentEpisodes = [[] for _ in range(self.maxlength)]
@@ -107,7 +108,7 @@ class DRQN(deepQ.DeepQ):
 
         def getTransitions(self, episode, startInd):
             base = episode[startInd:min(len(episode), startInd + self.historylength)]
-            shape = base[0][0].shape
+            shape = self.learner.state_size
             emptyState = np.array([[[-10000]] * shape[0] for _ in range(shape[1])])
             pad = [[emptyState, -1, 0, emptyState, False] for _ in
                    range(max(0, (startInd + self.historylength - len(episode))))]

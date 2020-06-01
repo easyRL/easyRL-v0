@@ -6,7 +6,7 @@ class ADRQN(drqn.DRQN):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self.memory = ADRQN.ReplayBuffer(4000, self.historylength)
+        self.memory = ADRQN.ReplayBuffer(self, 4000, self.historylength)
 
     def getRecentAction(self):
         return self.memory.get_recent_action()

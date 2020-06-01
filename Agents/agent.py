@@ -1,6 +1,4 @@
 from abc import ABC, abstractmethod
-from paramFrame import ParamFrame
-
 
 
 class Agent(ABC):

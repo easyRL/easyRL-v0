@@ -16,7 +16,7 @@ class View:
     :type listener: controller.ViewListener
     """
     def __init__(self, master, listener):
-        self.StartWindow(master, listener)
+        View.ProjectWindow(master, listener)
 
     class Window:
         def __init__(self, master, listener):
@@ -30,24 +30,6 @@ class View:
         def goBack(self):
             self.frame.destroy()
 
-    class StartWindow(Window):
-        def __init__(self, master, listener):
-            super().__init__(master, listener)
-
-            self.projectsButton = tkinter.Button(self.frame, text='Load Agent', fg='black')
-            self.projectsButton.grid(row=2, column=2, rowspan=2, columnspan = 2, sticky='wens')
-
-            self.examplesButton = tkinter.Button(self.frame, text='Example Agents', fg='black')
-            self.examplesButton.grid(row=2, column=6, rowspan=2, columnspan = 2, sticky='wens')
-
-            self.newButton = tkinter.Button(self.frame, text='New Agent', fg='black', command=self.handleButton)
-            self.newButton.grid(row=6, column=4, rowspan=2, columnspan = 2, sticky='wens')
-
-            self.frame.grid(row=0, column=0)
-            self.frame.lift()
-
-        def handleButton(self):
-            View.ProjectWindow(self.master, self.listener)
 
     class ProjectWindow(Window):
         def __init__(self, master, listener):
@@ -55,10 +37,10 @@ class View:
 
             self.listener = listener
             self.tabIDCounter = 0
-            self.backButton = tkinter.Button(self.frame, text='<- Back', fg='black', command=self.goBack)
-            self.backButton.grid(row=0, column=0)
             self.closeTabButton = tkinter.Button(self.frame, text='Close Current Tab', fg='black', command=self.closeTab)
-            self.closeTabButton.grid(row=0, column=1)
+            self.closeTabButton.grid(row=0, column=0)
+            self.rechooseButton = tkinter.Button(self.frame, text='Reset Current Tab', fg='black', command=self.rechoose)
+            self.rechooseButton.grid(row=0, column=1)
 
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
@@ -102,10 +84,13 @@ class View:
                 self.tab.forget(tkId)
                 self.tabIDCounter = self.tabs[-2].tabID+1
 
-        def goBack(self):
-            for tab in self.tabs[:-1]:
-                tab.close()
-            super().goBack()
+        def rechoose(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            if not curTab.listener.modelIsRunning(curTab.tabID):
+                curTab.parameterFrame.destroy()
+                curTab.parameterFrame = View.GeneralTab.ModelChooser(curTab)
+                curTab.parameterFrame.grid(row=2, column=0, columnspan=2)
 
     class GeneralTab(tkinter.Frame):
         def __init__(self, tab, listener, tabID):
@@ -134,7 +119,6 @@ class View:
             self.smoothAmt = 20
             self.rewardGraphMax = 100
             self.lossGraphMax = 100
-            self.graphLineCoords = None
 
             self.listener = listener
 
@@ -195,7 +179,7 @@ class View:
         def updateGraphLine(self, evt):
             xVal = evt.x
             height = self.graph.winfo_height()
-            self.graphLineCoords = [xVal, 0, xVal, height]
+            self.graph.coords(self.graphLine, [xVal, 0, xVal, height])
 
             if self.curTotalEpisodes:
                 smoothIndex = (int)(self.curTotalEpisodes*xVal/self.graph.winfo_width())-self.smoothAmt
@@ -251,15 +235,18 @@ class View:
                     print('Bad Hyperparameters')
 
         def save(self):
-            filename = filedialog.asksaveasfilename(initialdir = "/",title = "Select file",filetypes = (("reinforcement learning agent files","*.rla"),("All files", "*.*")))
-            self.listener.save(filename, self.tabID)
+            if not self.listener.modelIsRunning(self.tabID):
+                filename = filedialog.asksaveasfilename(initialdir = "/",title = "Select file",filetypes = (("reinforcement learning agent files","*.rla"),("All files", "*.*")))
+                self.listener.save(filename, self.tabID)
 
         def load(self):
-            filename = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("reinforcement learning agent files","*.rla"),("All files", "*.*")))
-            self.listener.load(filename, self.tabID)
+            if not self.listener.modelIsRunning(self.tabID):
+                filename = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("reinforcement learning agent files","*.rla"),("All files", "*.*")))
+                self.listener.load(filename, self.tabID)
 
         def reset(self):
-            self.listener.reset(self.tabID)
+            if not self.listener.modelIsRunning(self.tabID):
+                self.listener.reset(self.tabID)
 
         def resetGraph(self):
             self.graphDataPoints.clear()
@@ -318,8 +305,6 @@ class View:
                     self.accumulateState(message.data)
 
             self.updateEpisodeRender()
-            if self.graphLineCoords:
-                self.graph.coords(self.graphLine, self.graphLineCoords)
             self.master.after(10, self.checkMessages)
 
         def addEpisodeToGraph(self):
