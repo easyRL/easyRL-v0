@@ -22,6 +22,8 @@ class sarsa(qTable.QTable):
             self.qtable[(self.last_state, self.last_action)] = prevQValue + self.alpha * loss
         self.last_state = state
         self.last_action = action
+        return loss
+
     def update(self):
         pass
 
