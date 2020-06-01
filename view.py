@@ -445,7 +445,7 @@ class View:
                 return [value.get() for value in self.values]
 
         class ModelChooser(tkinter.Frame):
-            agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN]
+            agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, sarsa]
             environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv]
             environments += atariEnv.AtariEnv.subEnvs
 
