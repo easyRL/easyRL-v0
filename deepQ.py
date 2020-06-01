@@ -2,6 +2,7 @@ import modelFreeAgent
 import numpy as np
 from collections import deque
 import random
+import joblib
 
 import tensorflow as tf
 from tensorflow.python.keras.optimizer_v2.adam import Adam
@@ -112,3 +113,22 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
 
     def __deepcopy__(self, memodict={}):
         pass
+
+    def save(self, filename):
+        mem = self.model.get_weights()
+        joblib.dump((DeepQ.displayName, mem), filename)
+
+    def load(self, filename):
+        name, mem = joblib.load(filename)
+        if name != DeepQ.displayName:
+            print('load failed')
+        else:
+            self.model.set_weights(mem)
+            self.target.set_weights(mem)
+
+    def memsave(self):
+        return self.model.get_weights()
+
+    def memload(self, mem):
+        self.model.set_weights(mem)
+        self.target.set_weights(mem)

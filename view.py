@@ -1,5 +1,6 @@
 import tkinter
 from tkinter import ttk
+from tkinter import filedialog
 from PIL import Image, ImageTk
 
 import agent
@@ -241,7 +242,7 @@ class View:
                     total_episodes = int(self.numEps.get())
                     max_steps = int(self.maxSteps.get())
 
-                    self.listener.startTesting(self.tabID, [total_episodes, max_steps])
+                    self.listener.startTesting(self.tabID, [total_episodes, max_steps] + self.parameterFrame.getParameters())
                     self.trainingEpisodes = 0
                     self.curTotalEpisodes = total_episodes
                     self.resetGraph()
@@ -250,6 +251,17 @@ class View:
                     self.legend.itemconfig(self.testResult2, text='')
                 except ValueError:
                     print('Bad Hyperparameters')
+
+        def save(self):
+            filename = filedialog.asksaveasfilename(initialdir = "/",title = "Select file",filetypes = (("reinforcement learning agent files","*.rla"),("All files", "*.*")))
+            self.listener.save(filename, self.tabID)
+
+        def load(self):
+            filename = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("reinforcement learning agent files","*.rla"),("All files", "*.*")))
+            self.listener.load(filename, self.tabID)
+
+        def reset(self):
+            self.listener.reset(self.tabID)
 
         def resetGraph(self):
             self.graphDataPoints.clear()
@@ -440,6 +452,9 @@ class View:
                 tkinter.Button(self, text='Train', fg='black', command=self.master.train).pack(side='left')
                 tkinter.Button(self, text='Halt', fg='black', command=self.master.halt).pack(side='left')
                 tkinter.Button(self, text='Test', fg='black', command=self.master.test).pack(side='left')
+                tkinter.Button(self, text='Save', fg='black', command=self.master.save).pack(side='left')
+                tkinter.Button(self, text='Load', fg='black', command=self.master.load).pack(side='left')
+                tkinter.Button(self, text='Reset', fg='black', command=self.master.reset).pack(side='left')
 
             def getParameters(self):
                 return [value.get() for value in self.values]

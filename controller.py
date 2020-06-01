@@ -70,8 +70,8 @@ class Controller:
             model.halt_learning()
 
         def reset(self, tabID):
-            model = self.getMode(tabID)
-            model.agent.reset()
+            model = self.getModel(tabID)
+            model.reset()
 
         def close(self, tabID):
             self.halt(tabID)
@@ -79,6 +79,14 @@ class Controller:
                 del self.controller.models[tabID]
             if self.messageQueues.get(tabID):
                 del self.messageQueues[tabID]
+
+        def save(self, filename, tabID):
+            model = self.getModel(tabID)
+            model.save(filename)
+
+        def load(self, filename, tabID):
+            model = self.getModel(tabID)
+            model.load(filename)
 
     def delete_window(self):
         for _, model in self.models.items():

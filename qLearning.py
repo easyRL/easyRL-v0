@@ -1,8 +1,7 @@
 import random
-
+import joblib
 import qTable
 import numpy as np
-
 
 class QLearning(qTable.QTable):
     displayName = 'Q Learning'
@@ -34,3 +33,20 @@ class QLearning(qTable.QTable):
 
     def __deepcopy__(self, memodict={}):
         pass
+
+    def save(self, filename):
+        joblib.dump((QLearning.displayName, self.qtable), filename)
+
+    def load(self, filename):
+        name, mem = joblib.load(filename)
+        if name != QLearning.displayName:
+            print('load failed')
+        else:
+            self.qtable = mem
+            print('load successful')
+
+    def memsave(self):
+        return self.qtable
+
+    def memload(self, mem):
+        self.qtable = mem

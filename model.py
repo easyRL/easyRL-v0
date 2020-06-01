@@ -11,12 +11,24 @@ class Model:
         self.isRunning = False
         self.environment = None
         self.agent = None
+        self.loadFilename = None
 
     def run_learning(self, messageQueue, total_episodes, max_steps, *model_args):
         self.isRunning = True
 
-        self.environment = self.environment_class()
-        self.agent = self.agent_class(self.environment.state_size, self.environment.action_size, *model_args)
+        if not self.environment:
+            self.environment = self.environment_class()
+
+        if self.loadFilename:
+            self.agent = self.agent_class(self.environment.state_size, self.environment.action_size, *model_args)
+            self.agent.load(self.loadFilename)
+            self.loadFilename = None
+        elif not self.agent:
+            self.agent = self.agent_class(self.environment.state_size, self.environment.action_size, *model_args)
+        else:  # if agent already exists, update the model arguments
+            mem = self.agent.memsave()
+            self.agent = self.agent_class(self.environment.state_size, self.environment.action_size, *model_args)
+            self.agent.memload(mem)
 
         min_epsilon, max_epsilon, decay_rate = self.agent.min_epsilon, self.agent.max_epsilon, self.agent.decay_rate
         epsilon = max_epsilon
@@ -57,8 +69,18 @@ class Model:
         self.isRunning = False
         print('learning done')
 
-    def run_testing(self, messageQueue, total_episodes, max_steps):
+    def run_testing(self, messageQueue, total_episodes, max_steps, *model_args):
         self.isRunning = True
+
+        if not self.environment:
+            self.environment = self.environment_class()
+
+        if self.loadFilename:
+            self.agent = self.agent_class(self.environment.state_size, self.environment.action_size, *model_args)
+            self.agent.load(self.loadFilename)
+            self.loadFilename = None
+        elif not self.agent:
+            return
 
         if self.agent:
             for episode in range(total_episodes):
@@ -92,6 +114,17 @@ class Model:
     def halt_learning(self):
         if self.isRunning:
             self.isHalted = True
+
+    def reset(self):
+        self.environment = None
+        self.agent = None
+
+    def save(self, filename):
+        if self.agent:
+            self.agent.save(filename)
+
+    def load(self, filename):
+        self.loadFilename = filename
 
     class Message:
         # types of message
