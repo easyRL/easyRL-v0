@@ -5,6 +5,7 @@ class ClassicControlEnv(environment.Environment):
     displayName = 'Classic Control'
 
     def __init__(self):
+        self.env = None
         self.state = None
         self.done = None
         self.total_rewards = None
