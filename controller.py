@@ -1,11 +1,6 @@
 import view
 import model
 import tkinter
-import cartPoleEnv
-import cartPoleEnvDiscrete
-import frozenLakeEnv
-import qLearning
-import deepQ
 import threading
 import queue
 

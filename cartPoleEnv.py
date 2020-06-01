@@ -1,34 +1,15 @@
-import environment
+import classicControlEnv
 import gym
 from PIL import Image, ImageDraw
 import math
 
-class CartPoleEnv(environment.Environment):
+class CartPoleEnv(classicControlEnv.ClassicControlEnv):
     displayName = 'Cart Pole'
 
     def __init__(self):
         self.env = gym.make('CartPole-v1')
         self.action_size = self.env.action_space.n
         self.state_size = self.env.observation_space.shape
-        print(self.env.action_space, self.env.observation_space)
-        print(self.action_size, self.state_size)
-
-        self.state = None
-        self.done = None
-        self.total_rewards = None
-
-    def step(self, action):
-        observation, reward, self.done, info = self.env.step(action)
-        self.state = observation
-        return reward
-
-    def reset(self):
-        self.state = self.env.reset()
-        self.done = False
-        self.total_rewards = 0
-
-    def sample_action(self):
-        return self.env.action_space.sample()
 
     def render(self, mode='RGB'):
         if self.env.state is None: return None
