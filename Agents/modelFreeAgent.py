@@ -1,7 +1,6 @@
-import tkinter
 from abc import ABC, abstractmethod
 
-import agent
+from Agents import agent
 
 
 class ModelFreeAgent(agent.Agent, ABC):

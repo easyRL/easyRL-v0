@@ -1,12 +1,5 @@
-import drqn, deepQ
-import random
+from Agents import drqn
 import numpy as np
-import tensorflow as tf
-from tensorflow.python.keras.optimizer_v2.adam import Adam
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense, Conv1D, Conv2D, Conv3D
-from tensorflow.keras.layers import MaxPool1D, MaxPool2D, MaxPool3D, Flatten, TimeDistributed, LSTM, concatenate
-
 
 class ADRQN(drqn.DRQN):
     displayName = 'ADRQN'
@@ -46,6 +39,12 @@ class ADRQN(drqn.DRQN):
         return result
 
     def buildQNetwork(self):
+
+        from tensorflow.python.keras.optimizer_v2.adam import Adam
+        from tensorflow.keras.models import Model
+        from tensorflow.keras.layers import Input, Dense, Conv2D
+        from tensorflow.keras.layers import MaxPool2D, Flatten, TimeDistributed, LSTM, concatenate
+
         input_shape = (self.historylength,) + self.state_size
         inputA = Input(shape=input_shape)
         inputB = Input(shape=(self.historylength, self.action_size))

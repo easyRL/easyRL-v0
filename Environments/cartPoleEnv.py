@@ -1,4 +1,4 @@
-import classicControlEnv
+from Environments import classicControlEnv
 import gym
 from PIL import Image, ImageDraw
 import math
