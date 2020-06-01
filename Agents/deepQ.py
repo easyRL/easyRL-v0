@@ -1,4 +1,4 @@
-import modelFreeAgent
+from Agents import modelFreeAgent
 import numpy as np
 from collections import deque
 import random
@@ -55,6 +55,7 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
 
     def predict(self, state, isTarget):
         import tensorflow as tf
+
         shape = (1,) + self.state_size
         state = np.reshape(state, shape)
         state = tf.cast(state, dtype=tf.float32)

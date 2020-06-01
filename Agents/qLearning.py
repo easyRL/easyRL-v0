@@ -1,7 +1,4 @@
-import random
-
-import qTable
-import numpy as np
+from Agents import qTable
 
 
 class QLearning(qTable.QTable):

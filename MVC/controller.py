@@ -1,5 +1,4 @@
-import view
-import model
+from MVC import view, model
 import tkinter
 import threading
 import queue

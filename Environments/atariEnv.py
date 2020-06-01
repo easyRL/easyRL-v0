@@ -1,10 +1,8 @@
-import environment
+from Environments import environment
 import gym
-from PIL import Image, ImageDraw
-import math
+from PIL import Image
 import cv2
 import numpy as np
-import atari_py
 from abc import ABC
 
 

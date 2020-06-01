@@ -1,4 +1,5 @@
-import qTable
+from Agents import qTable
+
 
 class sarsa(qTable.QTable):
     displayName = 'SARSA'

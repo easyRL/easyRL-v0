@@ -1,4 +1,4 @@
-import modelBasedAgent
+from Agents import modelBasedAgent
 
 
 class PolicyIteration(modelBasedAgent.ModelBasedAgent):

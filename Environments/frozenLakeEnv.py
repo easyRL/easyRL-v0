@@ -1,9 +1,5 @@
-import environment
+from Environments import environment
 import gym
-import numpy as np
-import random
-from PIL import Image, ImageDraw
-import math
 import sys
 from gym import utils
 

@@ -1,4 +1,4 @@
-import deepQ
+from Agents import deepQ
 import numpy as np
 import random
 

@@ -1,13 +1,11 @@
 import tkinter
 from tkinter import ttk
-from PIL import Image, ImageTk
+from PIL import ImageTk
 
-import agent
-import deepQ, qLearning, drqn, adrqn
-import valueIteration
-import cartPoleEnv, cartPoleEnvDiscrete, frozenLakeEnv, atariEnv
-from model import Model
-from sarsa import sarsa
+from Agents import qLearning, drqn, deepQ, adrqn
+from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv
+from MVC.model import Model
+from Agents.sarsa import sarsa
 
 class View:
     """

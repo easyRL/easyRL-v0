@@ -1,4 +1,4 @@
-import drqn
+from Agents import drqn
 import numpy as np
 
 class ADRQN(drqn.DRQN):

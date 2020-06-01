@@ -1,7 +1,5 @@
-import environment
-import gym
-from PIL import Image, ImageDraw
-import math
+from Environments import environment
+
 
 class ClassicControlEnv(environment.Environment):
     displayName = 'Classic Control'

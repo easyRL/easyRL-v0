@@ -1,4 +1,4 @@
-import cartPoleEnv
+from Environments import cartPoleEnv
 from PIL import ImageDraw, ImageFont
 
 

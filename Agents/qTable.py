@@ -1,7 +1,8 @@
 from abc import ABC
 import numpy as np
 
-import modelFreeAgent
+from Agents import modelFreeAgent
+
 
 class QTable(modelFreeAgent.ModelFreeAgent, ABC):
     displayName = 'Q Table'
