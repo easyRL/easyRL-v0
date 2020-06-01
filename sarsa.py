@@ -10,21 +10,18 @@ class sarsa(qTable.QTable):
 
     def remember(self, state, action, reward, new_state, _, done=False):
         # SARSA requires two timesteps of history. Since by default we arent given this, we must skip one to do so
-        if self.last_state is None or self.last_action is None:
-            self.last_state = state
-            self.last_action = action
-            return 0
-        else:
+        loss = 0
+        if self.last_state is not None and self.last_action is not None:
             prevQValue = self.getQvalue(self.last_state, self.last_action)
             newQValue = self.getQvalue(action, state)
             if done:
                 target = reward
             else:
                 target = reward + self.gamma * newQValue
-            loss = target - prevQValue
+            loss = (target - prevQValue) ** 2
             self.qtable[(self.last_state, self.last_action)] = prevQValue + self.alpha * loss
-            return loss**2
-
+        self.last_state = state
+        self.last_action = action
     def update(self):
         pass
 
