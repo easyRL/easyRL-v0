@@ -3,11 +3,6 @@ import numpy as np
 from collections import deque
 import random
 
-import tensorflow as tf
-from tensorflow.python.keras.optimizer_v2.adam import Adam
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense, Input, Flatten
-from tensorflow.python.keras import utils
 
 class DeepQ(modelFreeAgent.ModelFreeAgent):
     displayName = 'Deep Q'
@@ -59,6 +54,7 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         self.total_steps += 1
 
     def predict(self, state, isTarget):
+        import tensorflow as tf
         shape = (1,) + self.state_size
         state = np.reshape(state, shape)
         state = tf.cast(state, dtype=tf.float32)
@@ -75,6 +71,10 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         pass
 
     def buildQNetwork(self):
+        from tensorflow.python.keras.optimizer_v2.adam import Adam
+        from tensorflow.keras.models import Model
+        from tensorflow.keras.layers import Dense, Input, Flatten
+
         inputs = Input(shape=self.state_size)
         x = Flatten()(inputs)
         x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
@@ -85,6 +85,9 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         return model, inputs, outputs
 
     def buildOutputNetworks(self, inputs, outputs):
+        from tensorflow.python.keras.optimizer_v2.adam import Adam
+        from tensorflow.keras.models import Model
+
         models = []
         for index in range(self.outputs.shape[1]):
             model = Model(inputs=inputs, outputs=outputs[:, index])

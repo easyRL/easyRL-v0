@@ -1,11 +1,6 @@
 import deepQ
 import numpy as np
 import random
-import tensorflow as tf
-from tensorflow.python.keras.optimizer_v2.adam import Adam
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense, Conv1D, Conv2D, Conv3D
-from tensorflow.keras.layers import MaxPool1D, MaxPool2D, MaxPool3D, Flatten, TimeDistributed, LSTM, concatenate
 
 
 class DRQN(deepQ.DeepQ):
@@ -24,6 +19,11 @@ class DRQN(deepQ.DeepQ):
         self.memory = DRQN.ReplayBuffer(40, self.historylength)
 
     def buildQNetwork(self):
+        from tensorflow.python.keras.optimizer_v2.adam import Adam
+        from tensorflow.keras.models import Model
+        from tensorflow.keras.layers import Input, Dense, Conv2D
+        from tensorflow.keras.layers import MaxPool2D, Flatten, TimeDistributed, LSTM
+
         input_shape = (self.historylength,) + self.state_size
         inputs = Input(shape=input_shape)
         # x = TimeDistributed(Dense(10, input_shape=input_shape, activation='relu'))(inputs)
@@ -66,6 +66,8 @@ class DRQN(deepQ.DeepQ):
         return super().choose_action(recent_state)
 
     def predict(self, state, isTarget):
+        import tensorflow as tf
+
         shape = (1,) + (self.historylength,) + self.state_size
         state = np.reshape(state, shape)
         state = tf.cast(state, dtype=tf.float32)
