@@ -1,52 +1,56 @@
 from Environments import classicControlEnv
 import gym
 from PIL import Image, ImageDraw
-import math
+from math import cos, sin, pi
+import numpy as np
 
 class AcrobotEnv(classicControlEnv.ClassicControlEnv):
     displayName = 'Acrobot'
 
     def __init__(self):
-        self.env = gym.make('CartPole-v1')
+        self.env = gym.make('Acrobot-v1')
         self.action_size = self.env.action_space.n
         self.state_size = self.env.observation_space.shape
+
+    def boundToScreen(self, x, y):
+        bound = 2.2
+        screen = 500
+        return (x+bound)*screen/(2*bound), (y+bound)*screen/(2*bound)
+
+    def rotateTrans(self, x, y, tx, ty, ang):
+        return tx + x * cos(-ang) + y * sin(-ang), ty - x * sin(-ang) + y * cos(-ang)
 
     def render(self, mode='RGB'):
         if self.env.state is None: return None
 
-        screen_width = 600
-        screen_height = 400
+        screen_width = 500
+        screen_height = 500
 
-        state = self.env.state
+        s = self.env.state
 
-        world_width = self.env.x_threshold*2
-        scale = screen_width/world_width
-        cartx = state[0] * scale + screen_width / 2.0
-        carty = 100 # TOP OF CART
-        polewidth = 10.0
-        polelen = scale * (2 * self.env.length)
-        cartwidth = 50.0
-        cartheight = 30.0
+        p1 = [-self.env.LINK_LENGTH_1 *
+              cos(s[0]), self.env.LINK_LENGTH_1 * sin(s[0])]
+
+        p2 = [p1[0] - self.env.LINK_LENGTH_2 * cos(s[0] + s[1]),
+              p1[1] + self.env.LINK_LENGTH_2 * sin(s[0] + s[1])]
+
+        xys = np.array([[0, 0], p1, p2])[:, ::-1]
+        thetas = [s[0] - pi / 2, s[0] + s[1] - pi / 2]
+        link_lengths = [self.env.LINK_LENGTH_1, self.env.LINK_LENGTH_2]
 
         image = Image.new('RGB', (screen_width, screen_height), 'white')
         draw = ImageDraw.Draw(image)
-        l,r,t,b = -cartwidth/2, cartwidth/2, cartheight/2, -cartheight/2
-        axleoffset =cartheight/4.0
-        cartPoints = [(cartx + l, carty + b), (cartx + l, carty + t), (cartx + r, carty + t), (cartx + r, carty + b)]
-        draw.polygon(cartPoints, fill='black')
-        l,r,t,b = -polewidth/2,polewidth/2,polelen-polewidth/2,-polewidth/2
-        t, b = t + axleoffset, b + axleoffset
-        l, r, t, b = cartx + l, cartx + r, carty + t, carty + b
-        polePoints = [(l,b), (l,t), (r,t), (r,b)]
-        for i, (x, y) in enumerate(polePoints):
-            x -= cartx
-            y -= carty+axleoffset
-            x, y = x*math.cos(state[2])+y*math.sin(state[2]), -x*math.sin(state[2])+y*math.cos(state[2])
-            x += cartx
-            y += carty+axleoffset
-            polePoints[i] = x, y
-        draw.polygon(polePoints, fill=(204, 153, 102))
-        draw.chord([cartx-polewidth/2, carty+axleoffset-polewidth/2, cartx+polewidth/2, carty+axleoffset+polewidth/2], 0, 360, fill=(127,127,284))
-        draw.line([(0,carty), (screen_width,carty)], fill='black')
+
+        draw.line([self.boundToScreen(-2.2, 1), self.boundToScreen(2.2, 1)], fill='black')
+        for ((x, y), th, llen) in zip(xys, thetas, link_lengths):
+            l, r, t, b = 0, llen, .1, -.1
+            x1, y1 = self.boundToScreen(*self.rotateTrans(l, b, x, y, th))
+            x2, y2 = self.boundToScreen(*self.rotateTrans(l, t, x, y, th))
+            x3, y3 = self.boundToScreen(*self.rotateTrans(r, t, x, y, th))
+            x4, y4 = self.boundToScreen(*self.rotateTrans(r, b, x, y, th))
+            draw.polygon([(x1, y1), (x2, y2), (x3, y3), (x4, y4)], fill=(0, 204, 204))
+            x1,y1 = self.boundToScreen(x-0.1,y-0.1)
+            x2,y2 = self.boundToScreen(x+0.1, y+0.1)
+            draw.chord([x1, y1, x2, y2], 0, 360, fill=(204, 204, 0))
 
         return image.transpose(method=Image.FLIP_TOP_BOTTOM)

@@ -43,11 +43,15 @@ class Controller:
             return curQueue
 
         def setEnvironment(self, tabID, envClass):
-            self.getModel(tabID).environment_class = envClass
+            model = self.getModel(tabID)
+            model.reset()
+            model.environment_class = envClass
             print('loaded ' + envClass.displayName)
 
         def setAgent(self, tabID, agentClass):
-            self.getModel(tabID).agent_class = agentClass
+            model = self.getModel(tabID)
+            model.reset()
+            model.agent_class = agentClass
             print('loaded ' + agentClass.displayName)
 
         def startTraining(self, tabID, args):
