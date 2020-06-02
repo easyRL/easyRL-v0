@@ -1,7 +1,8 @@
 from MVC import view, model
-import tkinter
+from ttkthemes import ThemedTk
 import threading
 import queue
+from tkinter import ttk
 
 # pip install pillow
 # pip install gym
@@ -13,12 +14,14 @@ import queue
 # OR if on Windows:
 # pip install --no-index -f https://github.com/Kojoley/atari-py/releases atari_py
 # pip install git+https://github.com/Kojoley/atari-py.git
+# pip install ttkthemes
+# pip install ttkwidgets
 
 class Controller:
     def __init__(self):
         self.models = {}
         self.viewListener = self.ViewListener(self)
-        self.root = tkinter.Tk(className='rl framework')
+        self.root = ThemedTk(theme='breeze')
         self.view = view.View(self.root, self.viewListener)
         self.root.protocol("WM_DELETE_WINDOW", self.delete_window)
         self.root.mainloop()

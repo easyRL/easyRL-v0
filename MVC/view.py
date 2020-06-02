@@ -2,6 +2,7 @@ import tkinter
 from tkinter import ttk
 from tkinter import filedialog
 from PIL import ImageTk
+import ttkwidgets
 
 from Agents import qLearning, drqn, deepQ, adrqn
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, mountainCarEnv, treatmentEnv
@@ -23,7 +24,7 @@ class View:
         def __init__(self, master, listener):
             self.master = master
             self.listener = listener
-            self.frame = tkinter.Frame(master)
+            self.frame = ttk.Frame(master)
             for i in range(10):
                 self.frame.grid_columnconfigure(i, minsize=75)
                 self.frame.grid_rowconfigure(i, minsize=50)
@@ -38,11 +39,10 @@ class View:
 
             self.listener = listener
             self.tabIDCounter = 0
-            self.closeTabButton = tkinter.Button(self.frame, text='Close Current Tab', fg='black', command=self.closeTab)
+            self.closeTabButton = ttk.Button(self.frame, text='Close Current Tab', command=self.closeTab)
             self.closeTabButton.grid(row=0, column=0)
-            self.rechooseButton = tkinter.Button(self.frame, text='Reset Current Tab', fg='black', command=self.rechoose)
+            self.rechooseButton = ttk.Button(self.frame, text='Reset Current Tab', command=self.rechoose)
             self.rechooseButton.grid(row=0, column=1)
-
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
@@ -51,7 +51,7 @@ class View:
             for tab in self.tabs:
                 self.tab.add(tab, text='Tab '+str(self.tabIDCounter + 1))
                 self.tabIDCounter += 1
-            addTab = tkinter.Frame(self.tab)
+            addTab = ttk.Frame(self.tab)
             self.tab.add(addTab, text='+')
             self.tabs.append(addTab)
 
@@ -93,7 +93,7 @@ class View:
                 curTab.parameterFrame = View.GeneralTab.ModelChooser(curTab)
                 curTab.parameterFrame.grid(row=2, column=0, columnspan=2)
 
-    class GeneralTab(tkinter.Frame):
+    class GeneralTab(ttk.Frame):
         def __init__(self, tab, listener, tabID):
             super().__init__(tab)
             self.tabID = tabID
@@ -125,43 +125,43 @@ class View:
 
             self.listener = listener
 
-            tkinter.Label(self, text='Number of Episodes: ').grid(row=0, column=0)
-            numEpsVar = tkinter.StringVar()
-            self.numEps = tkinter.Entry(self, textvariable=numEpsVar)
-            numEpsVar.set('1000')
+            ttk.Label(self, text='Number of Episodes: ').grid(row=0, column=0)
+            self.numEpsVar = tkinter.StringVar()
+            self.numEps = ttk.Entry(self, textvariable=self.numEpsVar)
+            self.numEpsVar.set('1000')
             self.numEps.grid(row=0, column=1)
 
-            tkinter.Label(self, text='Max Steps: ').grid(row=1, column=0)
-            maxStepsVar = tkinter.StringVar()
-            self.maxSteps = tkinter.Entry(self, textvariable=maxStepsVar)
-            maxStepsVar.set('200')
+            ttk.Label(self, text='Max Steps: ').grid(row=1, column=0)
+            self.maxStepsVar = tkinter.StringVar()
+            self.maxSteps = ttk.Entry(self, textvariable=self.maxStepsVar)
+            self.maxStepsVar.set('200')
             self.maxSteps.grid(row=1, column=1)
 
             # Add model parameters here
             self.parameterFrame = self.ModelChooser(self)
             self.parameterFrame.grid(row=2, column=0, columnspan=2)
 
-            self.slowLabel = tkinter.Label(self, text='Displayed episode speed')
+            self.slowLabel = ttk.Label(self, text='Displayed episode speed')
             self.slowLabel.grid(row=7, column=0)
-            self.slowSlider = tkinter.Scale(self, from_=1, to=20, resolution=1, orient=tkinter.HORIZONTAL)
+            self.slowSlider = ttkwidgets.tickscale.TickScale(self, from_=1, to=20, resolution=1, orient=tkinter.HORIZONTAL)
             self.slowSlider.set(10)
             self.slowSlider.grid(row=7, column=1)
-
-            self.render = tkinter.Canvas(self)
+            
+            self.render = tkinter.Canvas(self, background='#eff0f1')
             self.render.grid(row=0, column=2, rowspan=9, columnspan=8, sticky='wens')
 
-            self.displayedEpisodeNum = tkinter.Label(self, text='')
+            self.displayedEpisodeNum = ttk.Label(self, text='')
             self.displayedEpisodeNum.grid(row=9, column=2)
 
-            self.curEpisodeNum = tkinter.Label(self, text='')
+            self.curEpisodeNum = ttk.Label(self, text='')
             self.curEpisodeNum.grid(row=9, column=3)
 
-            self.graph = tkinter.Canvas(self)
+            self.graph = tkinter.Canvas(self, background='#eff0f1')
             self.graph.grid(row=10, column=2, rowspan=4, columnspan=8, sticky='wens')
             self.graphLine = self.graph.create_line(0,0,0,0, fill='black')
             self.graph.bind("<Motion>", self.updateGraphLine)
 
-            self.legend = tkinter.Canvas(self)
+            self.legend = tkinter.Canvas(self, background='#eff0f1')
             self.legend.grid(row=10, column=0, rowspan=4, columnspan=2, sticky='wens')
             self.legend.bind('<Configure>', self.legendResize)
 
@@ -261,7 +261,6 @@ class View:
             self.episodeAccReward = 0
             self.episodeAccEpsilon = 0
             self.graph.delete('all')
-            self.graph.create_rectangle(0,0,self.graph.winfo_width(), self.graph.winfo_height(), fill='white')
             self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
             self.redrawGraphXAxis()
 
@@ -359,7 +358,6 @@ class View:
                 print('loss graph max:', self.lossGraphMax)
                 print('reward graph min/max:', self.rewardGraphMin, self.rewardGraphMax)
                 self.graph.delete('all')
-                self.graph.create_rectangle(0, 0, self.graph.winfo_width(), self.graph.winfo_height(), fill='white')
                 self.redrawGraphXAxis()
                 self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
             else:
@@ -444,7 +442,7 @@ class View:
         def close(self):
             self.listener.close(self.tabID)
 
-        class ParameterFrame(tkinter.Frame):
+        class ParameterFrame(ttk.Frame):
             def __init__(self, master, agentClass, envClass):
                 super().__init__(master)
                 self.master = master
@@ -452,25 +450,25 @@ class View:
                 master.listener.setEnvironment(master.tabID, envClass)
                 self.values = []
                 for param in agentClass.parameters:
-                    subFrame = tkinter.Frame(self)
-                    tkinter.Label(subFrame, text=param.name).pack(side='left')
-                    scale = tkinter.Scale(subFrame, from_=param.min, to=param.max, resolution=param.resolution,
+                    subFrame = ttk.Frame(self)
+                    ttk.Label(subFrame, text=param.name).pack(side='left')
+                    scale = ttkwidgets.tickscale.TickScale(subFrame, from_=param.min, to=param.max, resolution=param.resolution,
                                           orient=tkinter.HORIZONTAL)
                     scale.set(param.default)
                     scale.pack(side='left')
                     subFrame.pack()
                     self.values.append(scale)
-                tkinter.Button(self, text='Train', fg='black', command=self.master.train).pack(side='left')
-                tkinter.Button(self, text='Halt', fg='black', command=self.master.halt).pack(side='left')
-                tkinter.Button(self, text='Test', fg='black', command=self.master.test).pack(side='left')
-                tkinter.Button(self, text='Save', fg='black', command=self.master.save).pack(side='left')
-                tkinter.Button(self, text='Load', fg='black', command=self.master.load).pack(side='left')
-                tkinter.Button(self, text='Reset', fg='black', command=self.master.reset).pack(side='left')
+                ttk.Button(self, text='Train', command=self.master.train).pack(side='left')
+                ttk.Button(self, text='Halt', command=self.master.halt).pack(side='left')
+                ttk.Button(self, text='Test', command=self.master.test).pack(side='left')
+                ttk.Button(self, text='Save', command=self.master.save).pack(side='left')
+                ttk.Button(self, text='Load', command=self.master.load).pack(side='left')
+                ttk.Button(self, text='Reset', command=self.master.reset).pack(side='left')
 
             def getParameters(self):
                 return [value.get() for value in self.values]
 
-        class ModelChooser(tkinter.Frame):
+        class ModelChooser(ttk.Frame):
             agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, sarsa]
             environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv, pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv, treatmentEnv.TreatmentEnv]
             environments += atariEnv.AtariEnv.subEnvs
@@ -480,35 +478,35 @@ class View:
                 super().__init__(master)
                 self.agentOpts = tkinter.StringVar(self)
                 self.envOpts = tkinter.StringVar(self)
-                subFrame = tkinter.Frame(self)
-                tkinter.OptionMenu(subFrame, self.agentOpts, *[opt.displayName for opt in self.agents]).pack(side='left')
-                tkinter.OptionMenu(subFrame, self.envOpts, *[opt.displayName for opt in self.environments]).pack(side='left')
+                subFrame = ttk.Frame(self)
+                ttk.OptionMenu(subFrame, self.agentOpts, *[opt.displayName for opt in self.agents]).pack(side='left')
+                ttk.OptionMenu(subFrame, self.envOpts, *[opt.displayName for opt in self.environments]).pack(side='left')
                 self.agentOpts.set(self.agents[0].displayName)
                 self.envOpts.set(self.environments[0].displayName)
                 subFrame.pack()
-                tkinter.Button(self, text='Set Model', command=master.selectModel).pack()
+                ttk.Button(self, text='Set Model', command=master.selectModel).pack()
 
-        class EnvironmentChooser(tkinter.Frame):
+        class EnvironmentChooser(ttk.Frame):
 
             def __init__(self, master, listener):
                 super().__init__(master, listener)
 
-                self.title = tkinter.Label(self.frame, text='Select an Environment:')
+                self.title = ttk.Label(self.frame, text='Select an Environment:')
                 self.title.grid(row=1, column=4, columnspan=2, sticky='wens')
 
-                self.frozenLakeButton = tkinter.Button(self.frame, text='Frozen Lake', fg='black',
+                self.frozenLakeButton = ttk.Button(self.frame, text='Frozen Lake', fg='black',
                                                        command=self.chooseFrozenLake)
                 self.frozenLakeButton.grid(row=2, column=4, columnspan=2, sticky='wens')
 
-                self.cartPoleButton = tkinter.Button(self.frame, text='Cart Pole', fg='black',
+                self.cartPoleButton = ttk.Button(self.frame, text='Cart Pole', fg='black',
                                                      command=self.chooseCartPoleEnv)
                 self.cartPoleButton.grid(row=3, column=4, columnspan=2, sticky='wens')
 
-                self.cartPoleDiscreteButton = tkinter.Button(self.frame, text='Cart Pole Discretized', fg='black',
+                self.cartPoleDiscreteButton = ttk.Button(self.frame, text='Cart Pole Discretized', fg='black',
                                                              command=self.chooseCartPoleDiscreteEnv)
                 self.cartPoleDiscreteButton.grid(row=4, column=4, columnspan=2, sticky='wens')
 
-                self.customButton = tkinter.Button(self.frame, text='Custom Environment', fg='black',
+                self.customButton = ttk.Button(self.frame, text='Custom Environment', fg='black',
                                                    command=self.chooseCustom)
                 self.customButton.grid(row=5, column=4, columnspan=2, sticky='wens')
 

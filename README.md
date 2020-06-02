@@ -13,6 +13,8 @@ OR if on Windows with the Visual C++ Build Tools installed:
 pip install --no-index -f https://github.com/Kojoley/atari-py/releases atari_py
 pip install git+https://github.com/Kojoley/atari-py.git
 pip install joblib
+pip install ttkthemes
+pip install ttkwidgets
 ```
 
 Then run the program:
