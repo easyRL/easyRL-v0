@@ -26,8 +26,6 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         action = np.argmax(qval)
         # else:
             # action = self.state_size.sample()
-        if action > 17:
-            print('hello')
         return action
 
     def sample(self):

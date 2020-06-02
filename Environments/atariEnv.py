@@ -4,7 +4,7 @@ from PIL import Image
 import cv2
 import numpy as np
 from abc import ABC
-
+import random
 
 class AtariEnv(environment.Environment, ABC):
     displayName = 'AtariEnv'
@@ -530,8 +530,17 @@ class pongEnv(AtariEnv):
     def __init__(self):
         super().__init__()
         self.env = gym.make('Pong-v0')
-        self.action_size = self.env.action_space.n
+        self.action_size = 2
 
+    def step(self, action):
+        if action == 0:
+            action = 2
+        else:
+            action = 5
+        return super().step(action)
+
+    def sample_action(self):
+        return random.randrange(self.action_size)
 
 AtariEnv.subEnvs.append(pongEnv)
 

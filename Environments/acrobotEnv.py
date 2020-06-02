@@ -3,8 +3,8 @@ import gym
 from PIL import Image, ImageDraw
 import math
 
-class CartPoleEnv(classicControlEnv.ClassicControlEnv):
-    displayName = 'Cart Pole'
+class AcrobotEnv(classicControlEnv.ClassicControlEnv):
+    displayName = 'Acrobot'
 
     def __init__(self):
         self.env = gym.make('CartPole-v1')
