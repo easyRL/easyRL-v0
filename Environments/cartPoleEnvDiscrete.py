@@ -21,8 +21,8 @@ class CartPoleEnvDiscrete(cartPoleEnv.CartPoleEnv):
         self.state = self.build_state(self.state)
         return reward
 
-    def render(self, mode='RGB'):
-        image = super().render(mode)
+    def render(self):
+        image = super().render()
         fnt = ImageFont.truetype('arial.ttf', 30)
         draw = ImageDraw.Draw(image)
         draw.text((50,50), str(self.state), fill='black', font=fnt)

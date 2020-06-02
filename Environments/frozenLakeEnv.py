@@ -30,7 +30,7 @@ class FrozenLakeEnv(environment.Environment):
     def sample_action(self):
         return self.env.action_space.sample()
 
-    def render(self, mode='human'):
+    def render(self):
         # Output to console
         # self.env.render()
 

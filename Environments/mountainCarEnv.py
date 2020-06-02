@@ -18,7 +18,7 @@ class MountainCarEnv(classicControlEnv.ClassicControlEnv):
     def rotateTrans(self, x, y, tx, ty, ang):
         return tx + x * cos(-ang) + y * sin(-ang), ty - x * sin(-ang) + y * cos(-ang)
 
-    def render(self, mode='RGB', pos=None):
+    def render(self):
         screen_width = 600
         screen_height = 400
 

@@ -11,7 +11,7 @@ class CartPoleEnv(classicControlEnv.ClassicControlEnv):
         self.action_size = self.env.action_space.n
         self.state_size = self.env.observation_space.shape
 
-    def render(self, mode='RGB'):
+    def render(self):
         if self.env.state is None: return None
 
         screen_width = 600

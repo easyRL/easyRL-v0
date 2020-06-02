@@ -4,9 +4,10 @@ from tkinter import filedialog
 from PIL import ImageTk
 
 from Agents import qLearning, drqn, deepQ, adrqn
-from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, mountainCarEnv
+from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, mountainCarEnv, treatmentEnv
 from MVC.model import Model
 from Agents.sarsa import sarsa
+import math
 
 class View:
     """
@@ -117,8 +118,10 @@ class View:
             self.episodeAccEpsilon = 0
 
             self.smoothAmt = 20
+            self.rewardGraphMin = 0
             self.rewardGraphMax = 100
             self.lossGraphMax = 100
+            self.graphBottomMargin = 50
 
             self.listener = listener
 
@@ -236,12 +239,12 @@ class View:
 
         def save(self):
             if not self.listener.modelIsRunning(self.tabID):
-                filename = filedialog.asksaveasfilename(initialdir = "/",title = "Select file",filetypes = (("reinforcement learning agent files","*.rla"),("All files", "*.*")))
+                filename = filedialog.asksaveasfilename(initialdir = "/",title = "Select file")
                 self.listener.save(filename, self.tabID)
 
         def load(self):
             if not self.listener.modelIsRunning(self.tabID):
-                filename = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("reinforcement learning agent files","*.rla"),("All files", "*.*")))
+                filename = filedialog.askopenfilename(initialdir = "/",title = "Select file")
                 self.listener.load(filename, self.tabID)
 
         def reset(self):
@@ -258,7 +261,9 @@ class View:
             self.episodeAccReward = 0
             self.episodeAccEpsilon = 0
             self.graph.delete('all')
+            self.graph.create_rectangle(0,0,self.graph.winfo_width(), self.graph.winfo_height(), fill='white')
             self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
+            self.redrawGraphXAxis()
 
         def checkMessages(self):
             while self.listener.getQueue(self.tabID).qsize():
@@ -322,6 +327,21 @@ class View:
             self.episodeAccReward = 0
             self.episodeAccEpsilon = 0
 
+        def redrawGraphXAxis(self):
+            w = self.graph.winfo_width()
+            h = self.graph.winfo_height()
+
+            step = 1
+            while self.curTotalEpisodes // step > 13:
+                step *= 5
+                if self.curTotalEpisodes // step <= 13:
+                    break
+                step *= 2
+            for ind in range(0, self.curTotalEpisodes, step):
+                x = w * (ind / self.curTotalEpisodes)
+                self.graph.create_line(x, h - self.graphBottomMargin, x, h - self.graphBottomMargin / 2)
+                self.graph.create_text(x, h - self.graphBottomMargin / 2, text=str(ind), anchor='n')
+
         def redrawGraph(self, full):
             if full:
                 lastN = len(self.graphDataPoints)
@@ -329,11 +349,18 @@ class View:
                 self.curRewardAccum = 0
                 self.smoothedDataPoints.clear()
                 self.lossGraphMax = max(0.0000000000001, sorted([loss for loss, _, _ in self.graphDataPoints])[int((len(self.graphDataPoints)-1)*0.95)]*1.1)
-                self.rewardGraphMax = max(0.0000000000001, sorted([reward for _, reward, _ in self.graphDataPoints])[int((len(self.graphDataPoints)-1)*0.95)]*1.1)
+                rewardSorted = sorted([reward for _, reward, _ in self.graphDataPoints])
+                self.rewardGraphMax = rewardSorted[int((len(self.graphDataPoints)-1)*0.95)]
+                self.rewardGraphMin = rewardSorted[int((len(self.graphDataPoints)-1)*0.05)]
+                extendAmt = 0.1*(self.rewardGraphMax - self.rewardGraphMin)
+                self.rewardGraphMax += extendAmt
+                self.rewardGraphMin -= extendAmt
 
                 print('loss graph max:', self.lossGraphMax)
-                print('reward graph max:', self.rewardGraphMax)
+                print('reward graph min/max:', self.rewardGraphMin, self.rewardGraphMax)
                 self.graph.delete('all')
+                self.graph.create_rectangle(0, 0, self.graph.winfo_width(), self.graph.winfo_height(), fill='white')
+                self.redrawGraphXAxis()
                 self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
             else:
                 lastN = 1
@@ -365,8 +392,9 @@ class View:
                     curLoss = self.curLossAccum/self.smoothAmt
                     self.smoothedDataPoints.append((curLoss, curReward, avgEpsilon))
 
-                    oldY = h*(1 - prevReward/self.rewardGraphMax)
-                    newY = h*(1 - curReward/self.rewardGraphMax)
+                    rewardRange = self.rewardGraphMax - self.rewardGraphMin
+                    oldY = self.graphBottomMargin + (h - self.graphBottomMargin) * (1 - (prevReward - self.rewardGraphMin)/rewardRange)
+                    newY = self.graphBottomMargin + (h - self.graphBottomMargin) * (1 - (curReward - self.rewardGraphMin)/rewardRange)
                     self.graph.create_line(oldX, oldY, newX, newY, fill='red')
 
                     oldY = h*(1 - prevLoss/self.lossGraphMax)
@@ -444,7 +472,7 @@ class View:
 
         class ModelChooser(tkinter.Frame):
             agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, sarsa]
-            environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv, pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv]
+            environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv, pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv, treatmentEnv.TreatmentEnv]
             environments += atariEnv.AtariEnv.subEnvs
 
 

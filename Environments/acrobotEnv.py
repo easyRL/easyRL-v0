@@ -20,7 +20,7 @@ class AcrobotEnv(classicControlEnv.ClassicControlEnv):
     def rotateTrans(self, x, y, tx, ty, ang):
         return tx + x * cos(-ang) + y * sin(-ang), ty - x * sin(-ang) + y * cos(-ang)
 
-    def render(self, mode='RGB'):
+    def render(self):
         if self.env.state is None: return None
 
         screen_width = 500

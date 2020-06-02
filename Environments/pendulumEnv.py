@@ -23,7 +23,7 @@ class PendulumEnv(classicControlEnv.ClassicControlEnv):
     def sample_action(self):
         return random.randrange(self.action_size)
 
-    def render(self, mode='RGB'):
+    def render(self):
         if self.env.state is None: return None
 
         screen_width = 500
