@@ -479,10 +479,8 @@ class View:
                 self.agentOpts = tkinter.StringVar(self)
                 self.envOpts = tkinter.StringVar(self)
                 subFrame = ttk.Frame(self)
-                ttk.OptionMenu(subFrame, self.agentOpts, *[opt.displayName for opt in self.agents]).pack(side='left')
-                ttk.OptionMenu(subFrame, self.envOpts, *[opt.displayName for opt in self.environments]).pack(side='left')
-                self.agentOpts.set(self.agents[0].displayName)
-                self.envOpts.set(self.environments[0].displayName)
+                ttk.OptionMenu(subFrame, self.agentOpts, *['Select Agent']+[opt.displayName for opt in self.agents]).pack(side='left')
+                ttk.OptionMenu(subFrame, self.envOpts, *['Select Environment']+[opt.displayName for opt in self.environments]).pack(side='left')
                 subFrame.pack()
                 ttk.Button(self, text='Set Model', command=master.selectModel).pack()
 

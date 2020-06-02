@@ -57,7 +57,6 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
 
         shape = (1,) + self.state_size
         state = np.reshape(state, shape)
-        state = tf.cast(state, dtype=tf.float32)
         if isTarget:
             result = self.target.predict(state)
         else:
