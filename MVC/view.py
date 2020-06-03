@@ -479,8 +479,15 @@ class View:
                 self.agentOpts = tkinter.StringVar(self)
                 self.envOpts = tkinter.StringVar(self)
                 subFrame = ttk.Frame(self)
-                ttk.OptionMenu(subFrame, self.agentOpts, *['Select Agent']+[opt.displayName for opt in self.agents]).pack(side='left')
-                ttk.OptionMenu(subFrame, self.envOpts, *['Select Environment']+[opt.displayName for opt in self.environments]).pack(side='left')
+
+                value = [opt.displayName for opt in self.environments]
+                value2 = [opt.displayName for opt in self.agents]
+
+                ttk.Combobox(subFrame, values=value2, textvariable = self.agentOpts).pack(side='left')
+                ttk.Combobox(subFrame, values=value, textvariable = self.envOpts).pack(side='left')
+                
+                #ttk.OptionMenu(subFrame, self.agentOpts, *['Select Agent']+[opt.displayName for opt in self.agents]).pack(side='left')
+                #ttk.OptionMenu(subFrame, self.envOpts, *['Select Environment']+[opt.displayName for opt in self.environments]).pack(side='left')
                 subFrame.pack()
                 ttk.Button(self, text='Set Model', command=master.selectModel).pack()
 
