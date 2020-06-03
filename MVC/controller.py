@@ -2,7 +2,7 @@ from MVC import view, model
 from ttkthemes import ThemedTk
 import threading
 import queue
-from tkinter import ttk
+from tkinter import Menu, ttk
 
 # pip install pillow
 # pip install gym
@@ -23,6 +23,24 @@ class Controller:
         self.viewListener = self.ViewListener(self)
         self.root = ThemedTk(theme='breeze')
         self.view = view.View(self.root, self.viewListener)
+
+         def helpMenu():
+            popup = tkinter.Tk()
+            popup.wm_title("Help")
+
+            texts = "To train a model choose New Agent.\nYou may then select your agent and environment through the drop down menus and choose Set Model.\n"
+            texts += "You can use the sliders to set the hyperparameters for training your agent.\n"
+            texts += "Press Train to begin training the agent, you may stop the training with Halt or change the playback speed with the episode speed slider."
+            label = ttk.Label(popup, text=texts)
+            label.pack(side="top", fill="x", pady=10)
+            B1 = ttk.Button(popup, text="Okay", command = popup.destroy)
+            B1.pack()
+            popup.mainloop()
+
+        self.menubar = Menu(self.root)
+        self.menubar.add_command(label="Help", command=helpMenu)
+        self.root.config(menu=self.menubar)
+        
         self.root.protocol("WM_DELETE_WINDOW", self.delete_window)
         self.root.mainloop()
 
