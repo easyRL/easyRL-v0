@@ -501,8 +501,10 @@ class View:
                 value = [opt.displayName for opt in View.environments]
                 value2 = [opt.displayName for opt in View.agents]
 
-                ttk.Combobox(subFrame, values=value2, textvariable = self.agentOpts).pack(side='left')
-                ttk.Combobox(subFrame, values=value, textvariable = self.envOpts).pack(side='left')
+                ttk.Combobox(subFrame, state='readonly', values=value2, textvariable = self.agentOpts).pack(side='left')
+                ttk.Combobox(subFrame, state='readonly', values=value, textvariable = self.envOpts).pack(side='left')
+                self.agentOpts.set('Select Agent')
+                self.envOpts.set('Select Environment')
 
                 subFrame.pack()
                 ttk.Button(self, text='Set Model', command=master.selectModel).pack()

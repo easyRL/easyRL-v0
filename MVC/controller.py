@@ -1,3 +1,5 @@
+import tkinter
+
 from MVC import view, model
 from ttkthemes import ThemedTk
 import threading
@@ -24,7 +26,7 @@ class Controller:
         self.root = ThemedTk(theme='breeze')
         self.view = view.View(self.root, self.viewListener)
 
-         def helpMenu():
+        def helpMenu():
             popup = tkinter.Tk()
             popup.wm_title("Help")
 
