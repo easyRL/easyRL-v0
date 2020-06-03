@@ -5,12 +5,18 @@ from PIL import ImageTk
 import ttkwidgets
 
 from Agents import qLearning, drqn, deepQ, adrqn
-from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, mountainCarEnv, treatmentEnv
+from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, mountainCarEnv
 from MVC.model import Model
 from Agents.sarsa import sarsa
 import math
+import importlib.util
 
 class View:
+    agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, sarsa]
+    environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
+                    pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv]
+    environments += atariEnv.AtariEnv.subEnvs
+
     """
     :param master: the top level widget of Tk
     :type master: tkinter.Tk
@@ -19,6 +25,7 @@ class View:
     """
     def __init__(self, master, listener):
         View.ProjectWindow(master, listener)
+
 
     class Window:
         def __init__(self, master, listener):
@@ -43,6 +50,8 @@ class View:
             self.closeTabButton.grid(row=0, column=0)
             self.rechooseButton = ttk.Button(self.frame, text='Reset Current Tab', command=self.rechoose)
             self.rechooseButton.grid(row=0, column=1)
+            self.loadEnvButton = ttk.Button(self.frame, text='Load Environment', command=self.loadEnv)
+            self.loadEnvButton.grid(row=0, column=2)
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
@@ -92,6 +101,20 @@ class View:
                 curTab.parameterFrame.destroy()
                 curTab.parameterFrame = View.GeneralTab.ModelChooser(curTab)
                 curTab.parameterFrame.grid(row=2, column=0, columnspan=2)
+
+        def loadEnv(self):
+            filename = filedialog.askopenfilename(initialdir="/", title="Select file")
+
+            spec = importlib.util.spec_from_file_location("customenv", filename)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            View.environments = [mod.CustomEnv] + View.environments
+
+            for ind, tab in enumerate(self.tabs):
+                if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
+                    tab.parameterFrame.destroy()
+                    tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
+                    tab.parameterFrame.grid(row=2, column=0, columnspan=2)
 
     class GeneralTab(ttk.Frame):
         def __init__(self, tab, listener, tabID):
@@ -429,10 +452,10 @@ class View:
                 self.waitCount += 1
 
         def selectModel(self):
-            for agent in self.parameterFrame.agents:
+            for agent in View.agents:
                 if self.parameterFrame.agentOpts.get() == agent.displayName:
                     break
-            for env in self.parameterFrame.environments:
+            for env in View.environments:
                 if self.parameterFrame.envOpts.get() == env.displayName:
                     break
             self.parameterFrame.destroy()
@@ -469,18 +492,13 @@ class View:
                 return [value.get() for value in self.values]
 
         class ModelChooser(ttk.Frame):
-            agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, sarsa]
-            environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv, pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv, treatmentEnv.TreatmentEnv]
-            environments += atariEnv.AtariEnv.subEnvs
-
-
             def __init__(self, master):
                 super().__init__(master)
                 self.agentOpts = tkinter.StringVar(self)
                 self.envOpts = tkinter.StringVar(self)
                 subFrame = ttk.Frame(self)
-                ttk.OptionMenu(subFrame, self.agentOpts, *['Select Agent']+[opt.displayName for opt in self.agents]).pack(side='left')
-                ttk.OptionMenu(subFrame, self.envOpts, *['Select Environment']+[opt.displayName for opt in self.environments]).pack(side='left')
+                ttk.OptionMenu(subFrame, self.agentOpts, *['Select Agent']+[opt.displayName for opt in View.agents]).pack(side='left')
+                ttk.OptionMenu(subFrame, self.envOpts, *['Select Environment']+[opt.displayName for opt in View.environments]).pack(side='left')
                 subFrame.pack()
                 ttk.Button(self, text='Set Model', command=master.selectModel).pack()
 

@@ -16,7 +16,7 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         self.target, _, _ = self.buildQNetwork()
         self.memory = deque(maxlen=655360)
         self.total_steps = 0
-        self.target_update_interval = 100
+        self.target_update_interval = 200
 
     def choose_action(self, state):
         qval = self.predict(state, False)
