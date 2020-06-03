@@ -2,7 +2,7 @@ from MVC import view, model
 from ttkthemes import ThemedTk
 import threading
 import queue
-from tkinter import ttk
+from tkinter import Menu, ttk
 
 # pip install pillow
 # pip install gym
