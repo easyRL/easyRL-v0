@@ -413,7 +413,7 @@ class View:
                     curLoss = self.curLossAccum/self.smoothAmt
                     self.smoothedDataPoints.append((curLoss, curReward, avgEpsilon))
 
-                    rewardRange = self.rewardGraphMax - self.rewardGraphMin
+                    rewardRange = max(0.000000001, self.rewardGraphMax - self.rewardGraphMin)
                     oldY = self.graphBottomMargin + (h - self.graphBottomMargin) * (1 - (prevReward - self.rewardGraphMin)/rewardRange)
                     newY = self.graphBottomMargin + (h - self.graphBottomMargin) * (1 - (curReward - self.rewardGraphMin)/rewardRange)
                     self.graph.create_line(oldX, oldY, newX, newY, fill='red')

@@ -12,6 +12,9 @@ class MountainCarEnv(classicControlEnv.ClassicControlEnv):
         self.action_size = self.env.action_space.n
         self.state_size = self.env.observation_space.shape
 
+    def step(self, action):
+        return super().step(action) + 0.1*self.state[0]
+
     def height(self, xs):
         return np.sin(3 * xs) * .45 + .55
 
