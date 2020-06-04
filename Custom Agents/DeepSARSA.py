@@ -32,7 +32,7 @@ class CustomAgent(DeepQ):
 
         for sample_index in range(self.batch_size):
             if dones[sample_index][0]:
-                Y_train[sample_index][actions[sample_index][0]] = rewards[sample_index][1]
+                Y_train[sample_index][actions[sample_index][0]] = rewards[sample_index][0]
             else:
-                Y_train[sample_index][actions[sample_index][0]] = rewards[sample_index][1] + qnext[sample_index][actions[sample_index][1]] * self.gamma
+                Y_train[sample_index][actions[sample_index][0]] = rewards[sample_index][0] + qnext[sample_index][actions[sample_index][1]] * self.gamma
         return X_train, Y_train
