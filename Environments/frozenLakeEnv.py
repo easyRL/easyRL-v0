@@ -32,22 +32,4 @@ class FrozenLakeEnv(environment.Environment):
 
     def render(self):
         pass
-        # Output to console
-        # self.env.render()
-
-        # Render method from environment, change to output in window
-        # outfile = StringIO() if mode == 'ansi' else sys.stdout
-        #
-        # row, col = self.env.s // self.env.ncol, self.env.s % self.env.ncol
-        # desc = self.env.desc.tolist()
-        # desc = [[c.decode('utf-8') for c in line] for line in desc]
-        # desc[row][col] = utils.colorize(desc[row][col], "red", highlight=True)
-        # if self.env.lastaction is not None:
-        #     outfile.write("  ({})\n".format(["Left","Down","Right","Up"][self.env.lastaction]))
-        # else:
-        #     outfile.write("\n")
-        # outfile.write("\n".join(''.join(line) for line in desc)+"\n")
-        #
-        # if mode != 'human':
-        #     with closing(outfile):
-        #         return outfile.getvalue()
+        
