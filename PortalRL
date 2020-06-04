@@ -1,8 +1,7 @@
 #!/bin/bash
 
 
-figlet -f slant "Portal RL"
-
+cat splash.txt
 
 welcome1="Welcome to Portal RL - A user friendly ednvironment for learning"
 welcome2="and deploying reinforcement learning environments and agents"
