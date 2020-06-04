@@ -7,7 +7,7 @@ import itertools
 
 class DRQN(deepQ.DeepQ):
     displayName = 'DRQN'
-    newParameters = [deepQ.DeepQ.Parameter('Min Epsilon', 0, 20, 1, 10, True, True)]
+    newParameters = [deepQ.DeepQ.Parameter('History Length', 0, 20, 1, 10, True, True)]
     parameters = deepQ.DeepQ.parameters + newParameters
 
     def __init__(self, *args):
