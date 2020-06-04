@@ -9,4 +9,7 @@ welcome2="and deploying reinforcement learning environments and agents"
 echo $welcome1
 echo $welcome2
 
+echo
+echo
+
 python3 portalrl.py
