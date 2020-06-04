@@ -30,12 +30,16 @@ class Controller:
             popup = tkinter.Tk()
             popup.wm_title("Help")
 
-            texts = "To train a model choose New Agent.\nYou may then select your agent and environment through the drop down menus and choose Set Model.\n"
-            texts += "You can use the sliders to set the hyperparameters for training your agent.\n"
-            texts += "Press Train to begin training the agent, you may stop the training with Halt or change the playback speed with the episode speed slider."
+            texts = "To train a model choose New Agent.\nYou may then select your agent and environment through the drop down menus and choose Set Model.\n\n"
+            texts += "You can use the sliders to set the hyperparameters for training your agent.\n\n"
+            texts += "Press Train to begin training the agent, you may stop the training with Halt or change the playback speed with the episode speed slider.\n\n"
+            texts += "Select load environment/agent to load a custom environment/agent from a .py file\n\n"
+            texts += "Press '+' to create another tab for training/testing (be careful not to exhaust system resources by training too many tabs)\n\n"
+            texts += "To re-choose the environment/agent for a tab, click 'Reset Current Tab'\n\n"
+            texts += "To close a tab when you are finished with it and training/testing is halted, click 'Close Current Tab'"
             label = ttk.Label(popup, text=texts)
             label.pack(side="top", fill="x", pady=10)
-            B1 = ttk.Button(popup, text="Okay", command = popup.destroy)
+            B1 = ttk.Button(popup, text="OK", command = popup.destroy)
             B1.pack()
             popup.mainloop()
 
