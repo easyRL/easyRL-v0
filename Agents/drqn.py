@@ -12,7 +12,7 @@ class DRQN(deepQ.DeepQ):
 
     def __init__(self, *args):
         paramLen = len(DRQN.newParameters)
-        (self.historylength,) = args[-paramLen:]
+        self.historylength = int(args[-paramLen])
         super().__init__(*args[:-paramLen])
         self.memory = DRQN.ReplayBuffer(self, self.memory_size, self.historylength)
 
@@ -31,7 +31,7 @@ class DRQN(deepQ.DeepQ):
         input_shape = (self.historylength,) + self.state_size
         inputs = Input(shape=input_shape)
 
-        if len(self.state_size.shape) == 1:
+        if len(self.state_size) == 1:
             x = TimeDistributed(Dense(10, input_shape=input_shape, activation='relu'))(inputs)
         else:
             x = TimeDistributed(Conv2D(32, (3,3), activation='relu'))(inputs)
@@ -54,8 +54,8 @@ class DRQN(deepQ.DeepQ):
 
         for index_rep, history in enumerate(mini_batch):
             for histInd, (state, action, reward, next_state, isDone) in enumerate(history):
-                X_train[index_rep][histInd] = state
-                next_states[index_rep][histInd] = next_state
+                X_train[index_rep][histInd] = np.array(state)
+                next_states[index_rep][histInd] = np.array(next_state)
 
         Y_train = self.model.predict(X_train)
         qnext = self.target.predict(next_states)
@@ -69,6 +69,7 @@ class DRQN(deepQ.DeepQ):
         return X_train, Y_train
 
     def choose_action(self, state):
+        state = np.array(state)
         recent_state = self.getRecentState()
         recent_state = np.concatenate([[state], recent_state[:-1]], 0)
         return super().choose_action(recent_state)
@@ -117,8 +118,10 @@ class DRQN(deepQ.DeepQ):
         def getTransitions(self, episode, startInd):
             base = list(itertools.islice(episode, startInd, min(len(episode), startInd + self.historylength)))
             shape = self.learner.state_size
-            # emptyState = np.array([[[-10000]] * shape[0] for _ in range(shape[1])])
-            emptyState = np.array([-10000] * shape[0])
+            if len(shape) >= 2:
+                emptyState = np.array([[[-10000]] * shape[0] for _ in range(shape[1])])
+            else:
+                emptyState = np.array([-10000] * shape[0])
             pad = [(emptyState, -1, 0, emptyState, False) for _ in
                    range(max(0, (startInd + self.historylength - len(episode))))]
             return base+pad

@@ -50,7 +50,7 @@ class ADRQN(drqn.DRQN):
         input_shape = (self.historylength,) + self.state_size
         inputA = Input(shape=input_shape)
         inputB = Input(shape=(self.historylength, self.action_size))
-        if len(self.state_size.shape) == 1:
+        if len(self.state_size) == 1:
             x = TimeDistributed(Dense(24, activation='relu'))(inputA)
         else:
             x = TimeDistributed(Conv2D(32, (3, 3), activation='relu'))(inputA)
@@ -109,8 +109,11 @@ class ADRQN(drqn.DRQN):
                 base[i] = (prevAction,) + base[i]
 
             shape = self.learner.state_size
-            emptyState = np.array([[[-10000]] * shape[0] for _ in range(shape[1])])
-            # emptyState = np.array([-10000] * shape[0])
+            if len(shape) >= 2:
+                emptyState = np.array([[[-10000]] * shape[0] for _ in range(shape[1])])
+            else:
+                emptyState = np.array([-10000] * shape[0])
+
             pad = [[-1, emptyState, -1, 0, emptyState, False] for _ in
                    range(max(0, (startInd + self.historylength - len(episode))))]
             return base+pad
