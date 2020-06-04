@@ -1,6 +1,6 @@
 from abc import ABC
 import numpy as np
-
+import joblib
 from Agents import modelFreeAgent
 
 
@@ -31,6 +31,23 @@ class QTable(modelFreeAgent.ModelFreeAgent, ABC):
 
     def __compute_new_q_value(self):
         pass
+
+    def save(self, filename):
+        joblib.dump((self.displayName, self.qtable), filename)
+
+    def load(self, filename):
+        name, mem = joblib.load(filename)
+        if name != self.displayName:
+            print('load failed')
+        else:
+            self.qtable = mem
+            print('load successful')
+
+    def memsave(self):
+        return self.qtable
+
+    def memload(self, mem):
+        self.qtable = mem
 
     def reset(self):
         self.qtable.clear()
