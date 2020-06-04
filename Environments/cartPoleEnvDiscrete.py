@@ -1,3 +1,5 @@
+import sys
+
 from Environments import cartPoleEnv
 from PIL import ImageDraw, ImageFont
 
@@ -23,7 +25,12 @@ class CartPoleEnvDiscrete(cartPoleEnv.CartPoleEnv):
 
     def render(self):
         image = super().render()
-        fnt = ImageFont.truetype('arial.ttf', 30)
+        # fnt = ImageFont.truetype('arial.ttf', 30)
+        if sys.platform.startswith('darwin'):
+            fnt = ImageFont.truetype('/Library/Fonts/Arial.ttf', 30)
+            # elif sys.platform.startswith('win32'):
+        else:
+            fnt = ImageFont.truetype('arial.ttf', 30)
         draw = ImageDraw.Draw(image)
         draw.text((50,50), str(self.state), fill='black', font=fnt)
         #draw.text((50,100), str(self.env.state), fill='black', font=fnt)
