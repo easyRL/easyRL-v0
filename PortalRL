@@ -1,0 +1,7 @@
+#!/bin/bash
+
+welcome="Welcome to Portal RL - A User Friendly Environment for learning Reinforcement Learning"
+
+echo $welcome
+
+python3 portalrl.py
