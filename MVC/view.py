@@ -9,7 +9,6 @@ from Agents import qLearning, qTable, drqn, deepQ, adrqn
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, mountainCarEnv
 from MVC.model import Model
 from Agents.sarsa import sarsa
-import math
 import importlib.util
 
 class View:
@@ -104,6 +103,7 @@ class View:
                 curTab.parameterFrame.destroy()
                 curTab.parameterFrame = View.GeneralTab.ModelChooser(curTab)
                 curTab.parameterFrame.grid(row=2, column=0, columnspan=2)
+                self.tab.tab(curTab, text='Tab '+str(curTab.tabID))
 
         def loadEnv(self):
             filename = filedialog.askopenfilename(initialdir="/", title="Select file")
@@ -308,6 +308,7 @@ class View:
             if not self.listener.modelIsRunning(self.tabID):
                 self.listener.reset(self.tabID)
 
+
         def resetGraph(self):
             self.graphDataPoints.clear()
             self.smoothedDataPoints.clear()
@@ -499,6 +500,7 @@ class View:
                 messagebox.showerror("Error", "Agent is not compatible with this environment")
                 return
 
+            self.master.tab(self, text=agent.displayName + '+' + env.displayName)
             self.parameterFrame.destroy()
             self.parameterFrame = self.ParameterFrame(self, agent, env)
             self.parameterFrame.grid(row=2, column=0, columnspan=2)

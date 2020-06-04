@@ -1,6 +1,6 @@
 import random
 import numpy as np
-
+from Agents import drqn
 
 class Model:
     def __init__(self):
@@ -83,15 +83,27 @@ class Model:
             return
 
         if self.agent:
+            min_epsilon, max_epsilon, decay_rate = self.agent.min_epsilon, self.agent.max_epsilon, self.agent.decay_rate
+            epsilon = max_epsilon
+
             for episode in range(total_episodes):
                 self.environment.reset()
 
                 for step in range(max_steps):
                     old_state = self.environment.state
 
-                    action = self.agent.choose_action(old_state)
+                    exp_exp_tradeoff = random.uniform(0, 1)
+
+                    if exp_exp_tradeoff > epsilon:
+                        action = self.agent.choose_action(old_state)
+                    else:
+                        action = self.environment.sample_action()
+                    print('action:', action)
 
                     reward = self.environment.step(action)
+
+                    if isinstance(self.agent, drqn.DRQN):
+                        self.agent.addToMemory(old_state, action, reward, self.environment.state, episode, self.environment.done)
 
                     modelState = Model.State(self.environment.render(), None, reward, None)
                     message = Model.Message(Model.Message.STATE, modelState)
@@ -102,6 +114,8 @@ class Model:
 
                 message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
                 messageQueue.put(message)
+
+                epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
 
                 if self.isHalted:
                     self.isHalted = False
