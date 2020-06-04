@@ -7,16 +7,20 @@ import joblib
 
 class DeepQ(modelFreeAgent.ModelFreeAgent):
     displayName = 'Deep Q'
+    newParameters = [modelFreeAgent.ModelFreeAgent.Parameter('Batch Size', 1, 256, 1, 32, True, True),
+                     modelFreeAgent.ModelFreeAgent.Parameter('Memory Size', 1, 655360, 1, 1000, True, True),
+                     modelFreeAgent.ModelFreeAgent.Parameter('Target Update Interval', 1, 100000, 1, 200, True, True)]
+    parameters = modelFreeAgent.ModelFreeAgent.parameters + newParameters
 
     def __init__(self, *args):
-        super().__init__(*args)
-        self.batch_size = 128
+        paramLen = len(DeepQ.newParameters)
+        super().__init__(*args[:-paramLen])
+        self.batch_size, self.memory_size, self.target_update_interval = args[-paramLen:]
         self.model, self.inputs, self.outputs = self.buildQNetwork()
         self.outputModels = self.buildOutputNetworks(self.inputs, self.outputs)
         self.target, _, _ = self.buildQNetwork()
-        self.memory = deque(maxlen=655360)
+        self.memory = deque(maxlen=self.memory_size)
         self.total_steps = 0
-        self.target_update_interval = 200
 
     def choose_action(self, state):
         qval = self.predict(state, False)

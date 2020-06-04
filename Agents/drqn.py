@@ -7,18 +7,20 @@ import itertools
 
 class DRQN(deepQ.DeepQ):
     displayName = 'DRQN'
+    newParameters = [deepQ.DeepQ.Parameter('Min Epsilon', 0, 20, 1, 10, True, True)]
+    parameters = deepQ.DeepQ.parameters + newParameters
 
     def __init__(self, *args):
-        self.historylength = 10
-        super().__init__(*args)
-        self.batch_size = 32
-        self.memory = DRQN.ReplayBuffer(self, 4000, self.historylength)
+        paramLen = len(DRQN.newParameters)
+        (self.historylength,) = args[-paramLen:]
+        super().__init__(*args[:-paramLen])
+        self.memory = DRQN.ReplayBuffer(self, self.memory_size, self.historylength)
 
     def getRecentState(self):
         return self.memory.get_recent_state()
 
     def resetBuffer(self):
-        self.memory = DRQN.ReplayBuffer(self, 40, self.historylength)
+        self.memory = DRQN.ReplayBuffer(self, self.memory_size, self.historylength)
 
     def buildQNetwork(self):
         from tensorflow.python.keras.optimizer_v2.adam import Adam
@@ -28,11 +30,15 @@ class DRQN(deepQ.DeepQ):
 
         input_shape = (self.historylength,) + self.state_size
         inputs = Input(shape=input_shape)
-        # x = TimeDistributed(Dense(10, input_shape=input_shape, activation='relu'))(inputs)
-        x = TimeDistributed(Conv2D(32, (3,3), activation='relu'))(inputs)
-        x = TimeDistributed(MaxPool2D(pool_size=(2,2)))(x)
-        x = TimeDistributed(Conv2D(64, (3,3), activation='relu'))(x)
-        x = TimeDistributed(MaxPool2D(pool_size=(2,2)))(x)
+
+        if len(self.state_size.shape) == 1:
+            x = TimeDistributed(Dense(10, input_shape=input_shape, activation='relu'))(inputs)
+        else:
+            x = TimeDistributed(Conv2D(32, (3,3), activation='relu'))(inputs)
+            x = TimeDistributed(MaxPool2D(pool_size=(2,2)))(x)
+            x = TimeDistributed(Conv2D(64, (3,3), activation='relu'))(x)
+            x = TimeDistributed(MaxPool2D(pool_size=(2,2)))(x)
+
         x = TimeDistributed(Flatten())(x)
         x = LSTM(512)(x)
         x = Dense(10, activation='relu')(x)  # fully connected
