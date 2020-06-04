@@ -7,8 +7,7 @@ class ADRQN(drqn.DRQN):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self.memory = ADRQN.ReplayBuffer(self, 4000, self.historylength)
-        self.target_update_interval = 1000
+        self.memory = ADRQN.ReplayBuffer(self, self.memory_size, self.historylength)
 
     def getRecentAction(self):
         return self.memory.get_recent_action()
@@ -51,11 +50,14 @@ class ADRQN(drqn.DRQN):
         input_shape = (self.historylength,) + self.state_size
         inputA = Input(shape=input_shape)
         inputB = Input(shape=(self.historylength, self.action_size))
-        # x = TimeDistributed(Dense(24, activation='relu'))(inputA)
-        x = TimeDistributed(Conv2D(32, (3, 3), activation='relu'))(inputA)
-        x = TimeDistributed(MaxPool2D(pool_size=(2, 2)))(x)
-        x = TimeDistributed(Conv2D(64, (3, 3), activation='relu'))(x)
-        x = TimeDistributed(MaxPool2D(pool_size=(2, 2)))(x)
+        if len(self.state_size) == 1:
+            x = TimeDistributed(Dense(24, activation='relu'))(inputA)
+        else:
+            x = TimeDistributed(Conv2D(32, (3, 3), activation='relu'))(inputA)
+            x = TimeDistributed(MaxPool2D(pool_size=(2, 2)))(x)
+            x = TimeDistributed(Conv2D(64, (3, 3), activation='relu'))(x)
+            x = TimeDistributed(MaxPool2D(pool_size=(2, 2)))(x)
+
         x = TimeDistributed(Flatten())(x)
         x = Model(inputs=inputA, outputs=x)
 
@@ -107,8 +109,11 @@ class ADRQN(drqn.DRQN):
                 base[i] = (prevAction,) + base[i]
 
             shape = self.learner.state_size
-            emptyState = np.array([[[-10000]] * shape[0] for _ in range(shape[1])])
-            # emptyState = np.array([-10000] * shape[0])
+            if len(shape) >= 2:
+                emptyState = np.array([[[-10000]] * shape[0] for _ in range(shape[1])])
+            else:
+                emptyState = np.array([-10000] * shape[0])
+
             pad = [[-1, emptyState, -1, 0, emptyState, False] for _ in
                    range(max(0, (startInd + self.historylength - len(episode))))]
             return base+pad

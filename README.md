@@ -15,6 +15,7 @@ pip install git+https://github.com/Kojoley/atari-py.git
 pip install joblib
 pip install ttkthemes
 pip install ttkwidgets
+pip install opencv-python
 ```
 
 Then run the program:

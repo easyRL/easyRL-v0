@@ -1,10 +1,11 @@
 import tkinter
 from tkinter import ttk
 from tkinter import filedialog
+from tkinter import messagebox
 from PIL import ImageTk
 import ttkwidgets
 
-from Agents import qLearning, drqn, deepQ, adrqn
+from Agents import qLearning, qTable, drqn, deepQ, adrqn
 from Agents.DeepSARSA import DeepSARSA
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, mountainCarEnv
 from MVC.model import Model
@@ -53,6 +54,8 @@ class View:
             self.rechooseButton.grid(row=0, column=1)
             self.loadEnvButton = ttk.Button(self.frame, text='Load Environment', command=self.loadEnv)
             self.loadEnvButton.grid(row=0, column=2)
+            self.loadAgentButton = ttk.Button(self.frame, text='Load Agent', command=self.loadAgent)
+            self.loadAgentButton.grid(row=0, column=3)
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
@@ -107,15 +110,35 @@ class View:
             filename = filedialog.askopenfilename(initialdir="/", title="Select file")
 
             spec = importlib.util.spec_from_file_location("customenv", filename)
-            mod = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(mod)
-            View.environments = [mod.CustomEnv] + View.environments
+            try:
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                View.environments = [mod.CustomEnv] + View.environments
 
-            for ind, tab in enumerate(self.tabs):
-                if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
-                    tab.parameterFrame.destroy()
-                    tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
-                    tab.parameterFrame.grid(row=2, column=0, columnspan=2)
+                for ind, tab in enumerate(self.tabs):
+                    if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
+                        tab.parameterFrame.destroy()
+                        tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
+                        tab.parameterFrame.grid(row=2, column=0, columnspan=2)
+            except:
+                pass
+
+        def loadAgent(self):
+            filename = filedialog.askopenfilename(initialdir="/", title="Select file")
+
+            spec = importlib.util.spec_from_file_location("customagent", filename)
+            try:
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                View.agents = [mod.CustomAgent] + View.agents
+
+                for ind, tab in enumerate(self.tabs):
+                    if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
+                        tab.parameterFrame.destroy()
+                        tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
+                        tab.parameterFrame.grid(row=2, column=0, columnspan=2)
+            except:
+                pass
 
     class GeneralTab(ttk.Frame):
         def __init__(self, tab, listener, tabID):
@@ -270,6 +293,15 @@ class View:
             if not self.listener.modelIsRunning(self.tabID):
                 filename = filedialog.askopenfilename(initialdir = "/",title = "Select file")
                 self.listener.load(filename, self.tabID)
+
+        def saveResults(self):
+            filename = filedialog.asksaveasfilename(initialdir="/", title="Select file")
+            file = open(filename, "w")
+
+            file.write("episode, loss, reward, epsilon\n")
+            for episode, (loss, reward, epsilon) in enumerate(self.graphDataPoints):
+                file.write(str(episode)+","+str(loss)+","+str(reward)+","+str(epsilon)+"\n")
+            file.close()
 
         def reset(self):
             if not self.listener.modelIsRunning(self.tabID):
@@ -459,6 +491,13 @@ class View:
             for env in View.environments:
                 if self.parameterFrame.envOpts.get() == env.displayName:
                     break
+
+            if issubclass(agent, qTable.QTable) and\
+                    not issubclass(env, cartPoleEnvDiscrete.CartPoleEnvDiscrete) and\
+                    not issubclass(env, frozenLakeEnv.FrozenLakeEnv):
+                messagebox.showerror("Error", "Agent is not compatible with this environment")
+                return
+
             self.parameterFrame.destroy()
             self.parameterFrame = self.ParameterFrame(self, agent, env)
             self.parameterFrame.grid(row=2, column=0, columnspan=2)
@@ -474,20 +513,42 @@ class View:
                 master.listener.setEnvironment(master.tabID, envClass)
                 self.values = []
                 for param in agentClass.parameters:
-                    subFrame = ttk.Frame(self)
-                    ttk.Label(subFrame, text=param.name).pack(side='left')
-                    scale = ttkwidgets.tickscale.TickScale(subFrame, from_=param.min, to=param.max, resolution=param.resolution,
-                                          orient=tkinter.HORIZONTAL)
-                    scale.set(param.default)
-                    scale.pack(side='left')
-                    subFrame.pack()
-                    self.values.append(scale)
+                    self.createParameterChooser(param)
+
                 ttk.Button(self, text='Train', command=self.master.train).pack(side='left')
                 ttk.Button(self, text='Halt', command=self.master.halt).pack(side='left')
                 ttk.Button(self, text='Test', command=self.master.test).pack(side='left')
-                ttk.Button(self, text='Save', command=self.master.save).pack(side='left')
-                ttk.Button(self, text='Load', command=self.master.load).pack(side='left')
+                ttk.Button(self, text='Save Agent', command=self.master.save).pack(side='left')
+                ttk.Button(self, text='Load Agent', command=self.master.load).pack(side='left')
                 ttk.Button(self, text='Reset', command=self.master.reset).pack(side='left')
+                ttk.Button(self, text='Save Results', command=self.master.saveResults).pack(side='left')
+
+            def createParameterChooser(self, param):
+                subFrame = ttk.Frame(self)
+                ttk.Label(subFrame, text=param.name).pack(side='left')
+                valVar = tkinter.StringVar()
+                input = None
+                def scaleChanged(val):
+                    if subFrame.focus_get() != input:
+                        valVar.set(val)
+                scale = ttkwidgets.tickscale.TickScale(subFrame, from_=param.min, to=param.max,
+                                                       resolution=param.resolution,
+                                                       orient=tkinter.HORIZONTAL, command=scaleChanged)
+                scale.set(param.default)
+                scale.pack(side='left')
+
+                def entryChanged(var, indx, mode):
+                    try:
+                        if subFrame.focus_get() == input:
+                            scale.set(float(valVar.get()))
+                    except ValueError:
+                        pass
+                valVar.trace_add('write', entryChanged)
+                input = ttk.Entry(subFrame, textvariable=valVar)
+                valVar.set(str(param.default))
+                input.pack(side='left')
+                subFrame.pack()
+                self.values.append(scale)
 
             def getParameters(self):
                 return [value.get() for value in self.values]

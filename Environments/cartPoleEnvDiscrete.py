@@ -10,7 +10,7 @@ class CartPoleEnvDiscrete(cartPoleEnv.CartPoleEnv):
     def __init__(self):
         super().__init__()
 
-        self.state_size = (1,)
+        self.state_size = (4,)
         self.n_bins = 3
         self.n_bins_angle = 12
         self.cart_position_range = (-2.4, 2.4)

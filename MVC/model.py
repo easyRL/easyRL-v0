@@ -108,8 +108,8 @@ class Model:
                     break
             message = Model.Message(Model.Message.EVENT, Model.Message.TEST_FINISHED)
             messageQueue.put(message)
-            self.isRunning = False
             print('testing done')
+        self.isRunning = False
 
     def halt_learning(self):
         if self.isRunning:
