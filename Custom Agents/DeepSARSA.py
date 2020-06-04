@@ -4,7 +4,7 @@ from Agents.deepQ import DeepQ
 from Agents.episodicExperienceBuffer import EpisodicExperienceBuffer
 
 
-class DeepSARSA(DeepQ):
+class CustomAgent(DeepQ):
     displayName = 'Deep SARSA'
 
     def __init__(self, *args):
