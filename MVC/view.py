@@ -103,6 +103,7 @@ class View:
                 curTab.parameterFrame.destroy()
                 curTab.parameterFrame = View.GeneralTab.ModelChooser(curTab)
                 curTab.parameterFrame.grid(row=2, column=0, columnspan=2)
+                self.tab.tab(curTab, text='Tab '+str(curTab.tabID))
 
         def loadEnv(self):
             filename = filedialog.askopenfilename(initialdir="/", title="Select file")
@@ -191,7 +192,7 @@ class View:
             self.slowSlider = ttkwidgets.tickscale.TickScale(self, from_=1, to=20, resolution=1, orient=tkinter.HORIZONTAL)
             self.slowSlider.set(10)
             self.slowSlider.grid(row=7, column=1)
-            
+
             self.render = tkinter.Canvas(self, background='#eff0f1')
             self.render.grid(row=0, column=2, rowspan=9, columnspan=8, sticky='wens')
 
@@ -252,6 +253,7 @@ class View:
 
         def train(self):
             if not self.listener.modelIsRunning(self.tabID):
+                self.smoothAmt = 20
                 try:
                     total_episodes = int(self.numEps.get())
                     max_steps = int(self.maxSteps.get())
@@ -268,6 +270,7 @@ class View:
 
         def test(self):
             if not self.listener.modelIsRunning(self.tabID):
+                self.smoothAmt = 1
                 try:
                     total_episodes = int(self.numEps.get())
                     max_steps = int(self.maxSteps.get())
@@ -304,6 +307,7 @@ class View:
         def reset(self):
             if not self.listener.modelIsRunning(self.tabID):
                 self.listener.reset(self.tabID)
+
 
         def resetGraph(self):
             self.graphDataPoints.clear()
@@ -373,7 +377,7 @@ class View:
             avgState = (avgLoss, totalReward, avgEpsilon)
             self.graphDataPoints.append(avgState)
 
-            self.redrawGraph(len(self.graphDataPoints)%20 == 0)
+            self.redrawGraph(len(self.graphDataPoints) % max(5,self.smoothAmt) == 0)
 
             self.curEpisodeSteps = 0
             self.episodeAccLoss = 0
@@ -496,6 +500,7 @@ class View:
                 messagebox.showerror("Error", "Agent is not compatible with this environment")
                 return
 
+            self.master.tab(self, text=agent.displayName + '+' + env.displayName)
             self.parameterFrame.destroy()
             self.parameterFrame = self.ParameterFrame(self, agent, env)
             self.parameterFrame.grid(row=2, column=0, columnspan=2)
