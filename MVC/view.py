@@ -293,6 +293,15 @@ class View:
                 filename = filedialog.askopenfilename(initialdir = "/",title = "Select file")
                 self.listener.load(filename, self.tabID)
 
+        def saveResults(self):
+            filename = filedialog.asksaveasfilename(initialdir="/", title="Select file")
+            file = open(filename, "w")
+
+            file.write("episode, loss, reward, epsilon\n")
+            for episode, (loss, reward, epsilon) in enumerate(self.graphDataPoints):
+                file.write(str(episode)+","+str(loss)+","+str(reward)+","+str(epsilon)+"\n")
+            file.close()
+
         def reset(self):
             if not self.listener.modelIsRunning(self.tabID):
                 self.listener.reset(self.tabID)
@@ -508,9 +517,10 @@ class View:
                 ttk.Button(self, text='Train', command=self.master.train).pack(side='left')
                 ttk.Button(self, text='Halt', command=self.master.halt).pack(side='left')
                 ttk.Button(self, text='Test', command=self.master.test).pack(side='left')
-                ttk.Button(self, text='Save', command=self.master.save).pack(side='left')
-                ttk.Button(self, text='Load', command=self.master.load).pack(side='left')
+                ttk.Button(self, text='Save Agent', command=self.master.save).pack(side='left')
+                ttk.Button(self, text='Load Agent', command=self.master.load).pack(side='left')
                 ttk.Button(self, text='Reset', command=self.master.reset).pack(side='left')
+                ttk.Button(self, text='Save Results', command=self.master.saveResults).pack(side='left')
 
             def createParameterChooser(self, param):
                 subFrame = ttk.Frame(self)
