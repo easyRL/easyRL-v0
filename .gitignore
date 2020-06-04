@@ -198,3 +198,6 @@ dmypy.json
 
 __pycache__/
 *.pyc
+*.iml
+*.xml
+.idea/misc.xml
