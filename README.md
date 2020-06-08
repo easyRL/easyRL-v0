@@ -21,8 +21,15 @@ pip install opencv-python
 ```
 
 Then run the program:
+
+
+-For Linux Command line:
 ```
-python controller.py
+./PortalRL
+```
+-For Windows CmdPrompt
+```
+python portalrl.py
 ```
 
 We have CartPole with discretized states and a Q-Table, and CartPole with continuous states and Deep Q learning implemented.
