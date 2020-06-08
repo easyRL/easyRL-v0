@@ -13,7 +13,7 @@ pip install ttkthemes
 pip install ttkwidgets
 pip install opencv-python
 
-(if not on Windows): pip install gym[atari]
+(if not on Windows): pip (or pip3) install gym[atari]
 
 (OR if on Windows with the Visual C++ Build Tools installed:
     pip install --no-index -f https://github.com/Kojoley/atari-py/releases atari_py
