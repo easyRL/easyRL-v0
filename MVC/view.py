@@ -103,7 +103,7 @@ class View:
                 curTab.parameterFrame.destroy()
                 curTab.parameterFrame = View.GeneralTab.ModelChooser(curTab)
                 curTab.parameterFrame.grid(row=2, column=0, columnspan=2)
-                self.tab.tab(curTab, text='Tab '+str(curTab.tabID))
+                self.tab.tab(curTab, text='Tab '+str(curTab.tabID+1))
 
         def loadEnv(self):
             filename = filedialog.askopenfilename(initialdir="/", title="Select file")
