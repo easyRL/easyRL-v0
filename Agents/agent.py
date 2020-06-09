@@ -8,7 +8,7 @@ class Agent(ABC):
     This is a parameter class that defines a parameter of an extended agent
     """
     class Parameter():
-        def __init__(self, name, min, max, resolution, default, hasSlider, hasTextInput):
+        def __init__(self, name, min, max, resolution, default, hasSlider, hasTextInput, toolTipText=""):
             self.name = name
             self.min = min
             self.max = max
@@ -16,8 +16,9 @@ class Agent(ABC):
             self.default = default
             self.hasSlider = hasSlider
             self.hasTextInput = hasTextInput
+            self.toolTipText = toolTipText
 
-    parameters = [Parameter('Gamma', 0.00, 1.00, 0.01, 0.97, True, True)]
+    parameters = [Parameter('Gamma', 0.00, 1.00, 0.01, 0.97, True, True, "The factor by which to discount future rewards")]
 
     def __init__(self, state_size, action_size, gamma):
         """The constructor method
