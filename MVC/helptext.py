@@ -110,12 +110,12 @@ Section3 =  "   TABS AND BUTTONS AND VISUALS\n\n" \
 API_info =  "   Advanced - API information: \n\n" \
             "     The Portal API requires methods for environments and agents as follows -\n\n" \
             "     - Environment: \n" \
-            "       Must extend the environment abstract class and contain all abstract methods within. It must be\n" \
-            "       stored in the Custom Environments folder for access during runtime.\n\n" \
+            "       Must extend the environment abstract class and contain all abstract methods within and as set forth\n" \
+            "       in the API documentation.\n\n" \
             "     - Agent:\n" \
             "       Must extend the abstract modelBasedAgent or modelFreeAgent class from the Agents library or one of\n" \
             "       their child classes and contain all methods therein described by that class and the abstract Agent\n" \
-            "       class. It must then be stored in the Custom Agents folder for access during runtime.\n\n"
+            "       class and as set forth in the API documentation.\n\n"
 
 def getHelpGettingStarted():
 
