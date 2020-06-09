@@ -40,8 +40,8 @@ pip (or pip3) install gym[atari]
 ```
 (OR if on Windows with the Visual C++ Build Tools installed):
 ```
-pip install --no-index -f https://github.com/Kojoley/atari-py
-/releases atari_pypip install git+https://github.com/Kojoley/atari-py.git)
+pip install --no-index -f https://github.com/Kojoley/atari-py/releases atari_py
+pip install git+https://github.com/Kojoley/atari-py.git
 ```
 ##Running the Program:
 First, run the following on either Mac Linux or Windows PC...
