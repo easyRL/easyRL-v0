@@ -98,7 +98,6 @@ class Model:
                         action = self.agent.choose_action(old_state)
                     else:
                         action = self.environment.sample_action()
-                    print('action:', action)
 
                     reward = self.environment.step(action)
 

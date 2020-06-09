@@ -6,7 +6,7 @@ from Agents import modelFreeAgent
 
 class QTable(modelFreeAgent.ModelFreeAgent, ABC):
     displayName = 'Q Table'
-    newParameters = [modelFreeAgent.ModelFreeAgent.Parameter('Alpha', 0.00, 1.00, 0.01, 0.18, True, True)]
+    newParameters = [modelFreeAgent.ModelFreeAgent.Parameter('Alpha', 0.00, 1.00, 0.01, 0.18, True, True, "The learning rate factor which determines how quickly we use new data")]
     parameters = modelFreeAgent.ModelFreeAgent.parameters + newParameters
 
     def __init__(self, *args):

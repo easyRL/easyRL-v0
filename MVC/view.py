@@ -26,6 +26,56 @@ class View:
     def __init__(self, master, listener):
         View.ProjectWindow(master, listener)
 
+    class CreateToolTip(object):    # Source: https://stackoverflow.com/questions/3221956/how-do-i-display-tooltips-in-tkinter
+        def __init__(self, widget, text='widget info'):
+            self.waittime = 500  # miliseconds
+            self.wraplength = 180  # pixels
+            self.widget = widget
+            self.text = text
+            self.widget.bind("<Enter>", self.enter)
+            self.widget.bind("<Leave>", self.leave)
+            self.widget.bind("<ButtonPress>", self.leave)
+            self.id = None
+            self.tw = None
+
+        def enter(self, event=None):
+            self.schedule()
+
+        def leave(self, event=None):
+            self.unschedule()
+            self.hidetip()
+
+        def schedule(self):
+            self.unschedule()
+            self.id = self.widget.after(self.waittime, self.showtip)
+
+        def unschedule(self):
+            id = self.id
+            self.id = None
+            if id:
+                self.widget.after_cancel(id)
+
+        def showtip(self, event=None):
+            x = y = 0
+            x, y, cx, cy = self.widget.bbox("insert")
+            x += self.widget.winfo_rootx() + 25
+            y += self.widget.winfo_rooty() + 20
+            # creates a toplevel window
+            self.tw = tkinter.Toplevel(self.widget)
+            # Leaves only the label and removes the app window
+            self.tw.wm_overrideredirect(True)
+            self.tw.wm_geometry("+%d+%d" % (x, y))
+            label = tkinter.Label(self.tw, text=self.text, justify='left',
+                             background="#ffffff", relief='solid', borderwidth=1,
+                             wraplength=self.wraplength)
+            label.pack(ipadx=1)
+
+        def hidetip(self):
+            tw = self.tw
+            self.tw = None
+            if tw:
+                tw.destroy()
+
 
     class Window:
         def __init__(self, master, listener):
@@ -48,12 +98,16 @@ class View:
             self.tabIDCounter = 0
             self.closeTabButton = ttk.Button(self.frame, text='Close Current Tab', command=self.closeTab)
             self.closeTabButton.grid(row=0, column=0)
+            close_button_ttp = View.CreateToolTip(self.closeTabButton, "Close Tab")
             self.rechooseButton = ttk.Button(self.frame, text='Reset Current Tab', command=self.rechoose)
             self.rechooseButton.grid(row=0, column=1)
+            reset_button_ttp = View.CreateToolTip(self.rechooseButton, "Reset Tab")
             self.loadEnvButton = ttk.Button(self.frame, text='Load Environment', command=self.loadEnv)
             self.loadEnvButton.grid(row=0, column=2)
+            load_env_button_ttp = View.CreateToolTip(self.loadEnvButton, "Load Custom  Environment")
             self.loadAgentButton = ttk.Button(self.frame, text='Load Agent', command=self.loadAgent)
             self.loadAgentButton.grid(row=0, column=3)
+            load_agent_button_ttp = View.CreateToolTip(self.loadAgentButton, "Load Custom Agent")
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
@@ -103,7 +157,7 @@ class View:
                 curTab.parameterFrame.destroy()
                 curTab.parameterFrame = View.GeneralTab.ModelChooser(curTab)
                 curTab.parameterFrame.grid(row=2, column=0, columnspan=2)
-                self.tab.tab(curTab, text='Tab '+str(curTab.tabID))
+                self.tab.tab(curTab, text='Tab '+str(curTab.tabID+1))
 
         def loadEnv(self):
             filename = filedialog.askopenfilename(initialdir="/", title="Select file")
@@ -138,6 +192,7 @@ class View:
                         tab.parameterFrame.grid(row=2, column=0, columnspan=2)
             except:
                 pass
+
 
     class GeneralTab(ttk.Frame):
         def __init__(self, tab, listener, tabID):
@@ -174,12 +229,14 @@ class View:
             ttk.Label(self, text='Number of Episodes: ').grid(row=0, column=0)
             self.numEpsVar = tkinter.StringVar()
             self.numEps = ttk.Entry(self, textvariable=self.numEpsVar)
+            numEps_ttp = View.CreateToolTip(self.numEps, "The number of episodes to run the model on")
             self.numEpsVar.set('1000')
             self.numEps.grid(row=0, column=1)
 
             ttk.Label(self, text='Max Steps: ').grid(row=1, column=0)
             self.maxStepsVar = tkinter.StringVar()
             self.maxSteps = ttk.Entry(self, textvariable=self.maxStepsVar)
+            maxSteps_ttp = View.CreateToolTip(self.maxSteps, "The max number of timesteps permitted in an episode")
             self.maxStepsVar.set('200')
             self.maxSteps.grid(row=1, column=1)
 
@@ -190,6 +247,7 @@ class View:
             self.slowLabel = ttk.Label(self, text='Displayed episode speed')
             self.slowLabel.grid(row=7, column=0)
             self.slowSlider = ttkwidgets.tickscale.TickScale(self, from_=1, to=20, resolution=1, orient=tkinter.HORIZONTAL)
+            slowSlider_ttp = View.CreateToolTip(self.slowSlider, "The speed at which to display the episodes")
             self.slowSlider.set(10)
             self.slowSlider.grid(row=7, column=1)
 
@@ -518,13 +576,27 @@ class View:
                 for param in agentClass.parameters:
                     self.createParameterChooser(param)
 
-                ttk.Button(self, text='Train', command=self.master.train).pack(side='left')
-                ttk.Button(self, text='Halt', command=self.master.halt).pack(side='left')
-                ttk.Button(self, text='Test', command=self.master.test).pack(side='left')
-                ttk.Button(self, text='Save Agent', command=self.master.save).pack(side='left')
-                ttk.Button(self, text='Load Agent', command=self.master.load).pack(side='left')
-                ttk.Button(self, text='Reset', command=self.master.reset).pack(side='left')
-                ttk.Button(self, text='Save Results', command=self.master.saveResults).pack(side='left')
+                train = ttk.Button(self, text='Train', command=self.master.train)
+                train.pack(side='left')
+                train_button_ttp = View.CreateToolTip(train, "Train the agent with the current settings")
+                halt = ttk.Button(self, text='Halt', command=self.master.halt)
+                halt.pack(side='left')
+                halt_button_ttp = View.CreateToolTip(halt, "Pause the current training")
+                test = ttk.Button(self, text='Test', command=self.master.test)
+                test.pack(side='left')
+                test_button_ttp = View.CreateToolTip(test, "Test the agent in its current state")
+                save = ttk.Button(self, text='Save Agent', command=self.master.save)
+                save.pack(side='left')
+                save_button_ttp = View.CreateToolTip(save, "Save the agent in its current state")
+                load = ttk.Button(self, text='Load Agent', command=self.master.load)
+                load.pack(side='left')
+                load_button_ttp = View.CreateToolTip(load, "Load an agent")
+                reset = ttk.Button(self, text='Reset', command=self.master.reset)
+                reset.pack(side='left')
+                reset_button_ttp = View.CreateToolTip(reset, "Reset the current agent and its parameters")
+                save_results = ttk.Button(self, text='Save Results', command=self.master.saveResults)
+                save_results.pack(side='left')
+                save_results_button_ttp = View.CreateToolTip(save_results, "Save the results of the current training session")
 
             def createParameterChooser(self, param):
                 subFrame = ttk.Frame(self)
@@ -537,6 +609,8 @@ class View:
                 scale = ttkwidgets.tickscale.TickScale(subFrame, from_=param.min, to=param.max,
                                                        resolution=param.resolution,
                                                        orient=tkinter.HORIZONTAL, command=scaleChanged)
+                View.CreateToolTip(scale, param.toolTipText)
+
                 scale.set(param.default)
                 scale.pack(side='left')
 
@@ -572,10 +646,12 @@ class View:
                 self.envOpts.set('Select Environment')
 
                 subFrame.pack()
-                ttk.Button(self, text='Set Model', command=master.selectModel).pack()
+                set_model = ttk.Button(self, text='Set Model', command=master.selectModel)
+                set_model.pack()
+                save_results_button_ttp = View.CreateToolTip(set_model, "Confirm the currently selected model and environment")
+
 
         class EnvironmentChooser(ttk.Frame):
-
             def __init__(self, master, listener):
                 super().__init__(master, listener)
 
@@ -618,3 +694,4 @@ class View:
 
             def chooseCustom(self):
                 pass
+
