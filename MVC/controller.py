@@ -1,6 +1,6 @@
 import tkinter
 
-from MVC import view, model
+from MVC import view, model, helptext
 from ttkthemes import ThemedTk
 import threading
 import queue
@@ -29,18 +29,17 @@ class Controller:
         def helpMenu():
             popup = tkinter.Tk()
             popup.wm_title("Help")
+            popup.geometry("1000x1000")
 
-            texts = "To train a model choose New Agent.\nYou may then select your agent and environment through the drop down menus and choose Set Model.\n\n"
-            texts += "You can use the sliders to set the hyperparameters for training your agent.\n\n"
-            texts += "Press Train to begin training the agent, you may stop the training with Halt or change the playback speed with the episode speed slider.\n\n"
-            texts += "Select load environment/agent to load a custom environment/agent from a .py file\n\n"
-            texts += "Press '+' to create another tab for training/testing (be careful not to exhaust system resources by training too many tabs)\n\n"
-            texts += "To re-choose the environment/agent for a tab, click 'Reset Current Tab'\n\n"
-            texts += "To close a tab when you are finished with it and training/testing is halted, click 'Close Current Tab'"
-            label = ttk.Label(popup, text=texts)
-            label.pack(side="top", fill="x", pady=10)
-            B1 = ttk.Button(popup, text="OK", command = popup.destroy)
-            B1.pack()
+            texts = helptext.getHelpGettingStarted()
+            sbar = tkinter.Scrollbar(popup)
+            sbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+
+            text = tkinter.Text(popup, height=1000, width=1000)
+            text.configure(yscrollcommand=sbar.set)
+            text.pack(expand=0, fill=tkinter.BOTH)
+            text.insert(tkinter.END, texts)
+            sbar.config(command=text.yview)
             popup.mainloop()
 
         self.menubar = Menu(self.root)
