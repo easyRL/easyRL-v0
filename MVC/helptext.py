@@ -1,17 +1,16 @@
-Header = "Welcome to Portal RL - A user friendly ednvironment for \n" \
+Header = "Welcome to Portal RL - A user friendly environment for \n" \
          "learning and deploying reinforcement learning environments and agents\n\n\n"
 
 Section1 =  "  MAIN WORK AREA (Tab X) \n\n"  \
             "    - Getting Started: \n\n" \
             "      1) Number of episodes -\n" \
-            "         This parameter is used to let the program how many times you would like it to run the same \n" \
-            "         simulation. Depending on the complexity of the model a user might choose to run the simulation\n" \
-            "         Thousands of times to learn an optimal policy for the task it is trying to perform.\n" \
+            "         This parameter is used to define how many times the program should run the same \n" \
+            "         simulation. Depending on the complexity of the model, a user might choose to run the simulation\n" \
+            "         thousands of times to learn an optimal policy for the task it is trying to perform.\n" \
             "         NEW USER TIP:\n" \
-            "         If you are learning how to use Reinforcement Learning for the first time it is adequate and we\n" \
-            "         recommend to use a low number of episodes and gradually increase. This will give you a sense\n" \
-            "         of how this type of machine learning work and how episodes affect various agent/environment\n" \
-            "         interactions.\n\n"\
+            "         We recommend starting with a low number of episodes and gradually increasing the amount\n" \
+            "         This will give you a sense of how reinforcement learning works and the affect\n" \
+            "         the number of episodes has on various agent/environment interactions.\n\n" \
             "      2) Max Steps -\n" \
             "         This number dictates how many actions will be taken during each episode before a training\n" \
             "         is concluded\n" \
