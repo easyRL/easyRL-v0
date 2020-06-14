@@ -1,10 +1,8 @@
 import tkinter
 
-from MVC import view, model, helptext
-from ttkthemes import ThemedTk
+from MVC import view, model
 import threading
 import queue
-from tkinter import Menu, ttk
 
 # pip install pillow
 # pip install gym
@@ -14,8 +12,10 @@ from tkinter import Menu, ttk
 # pip install opencv-python
 # pip install gym[atari]  (if not on Windows)
 # OR if on Windows:
-# pip install --no-index -f https://github.com/Kojoley/atari-py/releases atari_py
-# pip install git+https://github.com/Kojoley/atari-py.git
+# {
+    # pip install --no-index -f https://github.com/Kojoley/atari-py/releases atari_py
+    # pip install git+https://github.com/Kojoley/atari-py.git
+# }
 # pip install ttkthemes
 # pip install ttkwidgets
 
@@ -23,31 +23,8 @@ class Controller:
     def __init__(self):
         self.models = {}
         self.viewListener = self.ViewListener(self)
-        self.root = ThemedTk(theme='breeze')
-        self.view = view.View(self.root, self.viewListener)
-
-        def helpMenu():
-            popup = tkinter.Tk()
-            popup.wm_title("Help")
-            popup.geometry("1000x1000")
-
-            texts = helptext.getHelpGettingStarted()
-            sbar = tkinter.Scrollbar(popup)
-            sbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-
-            text = tkinter.Text(popup, height=1000, width=1000)
-            text.configure(yscrollcommand=sbar.set)
-            text.pack(expand=0, fill=tkinter.BOTH)
-            text.insert(tkinter.END, texts)
-            sbar.config(command=text.yview)
-            popup.mainloop()
-
-        self.menubar = Menu(self.root)
-        self.menubar.add_command(label="Help", command=helpMenu)
-        self.root.config(menu=self.menubar)
-        
-        self.root.protocol("WM_DELETE_WINDOW", self.delete_window)
-        self.root.mainloop()
+        self.view = view.View(self.viewListener)
+        #self.view = terminalView.View(self.viewListener)
 
     class ViewListener:
         def __init__(self, controller):
@@ -98,6 +75,10 @@ class Controller:
             model = self.getModel(tabID)
             model.halt_learning()
 
+        def haltAll(self):
+            for _, model in self.controller.models.items():
+                model.halt_learning()
+
         def reset(self, tabID):
             model = self.getModel(tabID)
             model.reset()
@@ -116,14 +97,6 @@ class Controller:
         def load(self, filename, tabID):
             model = self.getModel(tabID)
             model.load(filename)
-
-    def delete_window(self):
-        for _, model in self.models.items():
-            model.halt_learning()
-        try:
-            self.root.destroy()
-        except:
-            pass
 
 # Conventional way to write the main method
 if __name__ == "__main__":

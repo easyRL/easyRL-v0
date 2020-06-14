@@ -2,11 +2,13 @@ import tkinter
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
+from ttkthemes import ThemedTk
 from PIL import ImageTk
 import ttkwidgets
 
 from Agents import qLearning, qTable, drqn, deepQ, adrqn
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, mountainCarEnv
+from MVC import helptext
 from MVC.model import Model
 from Agents.sarsa import sarsa
 import importlib.util
@@ -23,8 +25,39 @@ class View:
     :param listener: the listener object that will handle user input
     :type listener: controller.ViewListener
     """
-    def __init__(self, master, listener):
-        View.ProjectWindow(master, listener)
+    def __init__(self, listener):
+        self.root = ThemedTk(theme='breeze')
+        self.listener = listener
+        View.ProjectWindow(self.root, listener)
+        self.menubar = tkinter.Menu(self.root)
+        self.menubar.add_command(label="Help", command=self.helpMenu)
+        self.root.config(menu=self.menubar)
+
+        self.root.protocol("WM_DELETE_WINDOW", self.delete_window)
+        self.root.mainloop()
+
+    def helpMenu(self):
+        popup = tkinter.Tk()
+        popup.wm_title("Help")
+        popup.geometry("1000x1000")
+
+        texts = helptext.getHelpGettingStarted()
+        sbar = tkinter.Scrollbar(popup)
+        sbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+
+        text = tkinter.Text(popup, height=1000, width=1000)
+        text.configure(yscrollcommand=sbar.set)
+        text.pack(expand=0, fill=tkinter.BOTH)
+        text.insert(tkinter.END, texts)
+        sbar.config(command=text.yview)
+        popup.mainloop()
+
+    def delete_window(self):
+        self.listener.haltAll()
+        try:
+            self.root.destroy()
+        except:
+            pass
 
     class CreateToolTip(object):    # Source: https://stackoverflow.com/questions/3221956/how-do-i-display-tooltips-in-tkinter
         def __init__(self, widget, text='widget info'):
