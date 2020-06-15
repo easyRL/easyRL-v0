@@ -35,11 +35,11 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
     def sample(self):
         return random.sample(self.memory, self.batch_size)
 
-    def addToMemory(self, state, action, reward, new_state, _, done):
+    def addToMemory(self, state, action, reward, new_state, done):
         self.memory.append((state, action, reward, new_state, done))
 
-    def remember(self, state, action, reward, new_state, episode, done=False):
-        self.addToMemory(state, action, reward, new_state, episode, done)
+    def remember(self, state, action, reward, new_state, done=False):
+        self.addToMemory(state, action, reward, new_state, done)
         loss = 0
         if len(self.memory) < 2*self.batch_size:
             return loss

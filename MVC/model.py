@@ -1,6 +1,7 @@
 import random
 import numpy as np
 from Agents import drqn
+import cProfile
 
 class Model:
     def __init__(self):
@@ -12,6 +13,10 @@ class Model:
         self.environment = None
         self.agent = None
         self.loadFilename = None
+
+    # def run_learning(self, messageQueue, total_episodes, max_steps, *model_args):
+    #     cProfile.runctx('self.run_learning2(messageQueue, total_episodes, max_steps, *model_args)', globals(), locals(),
+    #                     'stats')
 
     def run_learning(self, messageQueue, total_episodes, max_steps, *model_args):
         self.isRunning = True
@@ -47,7 +52,7 @@ class Model:
 
                 reward = self.environment.step(action)
 
-                loss = self.agent.remember(old_state, action, reward, self.environment.state, episode, self.environment.done)
+                loss = self.agent.remember(old_state, action, reward, self.environment.state, self.environment.done)
 
                 modelState = Model.State(self.environment.render(), epsilon, reward, loss)
                 message = Model.Message(Model.Message.STATE, modelState)

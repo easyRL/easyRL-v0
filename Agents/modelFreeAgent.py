@@ -22,7 +22,7 @@ class ModelFreeAgent(agent.Agent, ABC):
         self.min_epsilon, self.max_epsilon, self.decay_rate = args[-paramLen:]
 
     @abstractmethod
-    def remember(self, state, action, reward, new_state, episode, done):
+    def remember(self, state, action, reward, new_state, done):
         """'Remembers' the state and action taken during an episode
         :param state: the original state of the environment
         :param action: the action the agent took in the environment
