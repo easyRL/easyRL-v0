@@ -16,11 +16,12 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         paramLen = len(DeepQ.newParameters)
         super().__init__(*args[:-paramLen])
         self.batch_size, self.memory_size, self.target_update_interval = [int(arg) for arg in args[-paramLen:]]
-        self.model, self.inputs, self.outputs = self.buildQNetwork()
-        self.outputModels = self.buildOutputNetworks(self.inputs, self.outputs)
-        self.target, _, _ = self.buildQNetwork()
+        self.model = self.buildQNetwork()
+        self.target = self.buildQNetwork()
         self.memory = deque(maxlen=self.memory_size)
         self.total_steps = 0
+        self.allMask = np.full((1, self.action_size), 1)
+        self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
 
     def choose_action(self, state):
         qval = self.predict(state, False)
@@ -62,9 +63,9 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         shape = (1,) + self.state_size
         state = np.reshape(state, shape)
         if isTarget:
-            result = self.target.predict(state)
+            result = self.target.predict([state, self.allMask])
         else:
-            result = self.model.predict(state)
+            result = self.model.predict([state, self.allMask])
         return result
 
     def update(self):
@@ -73,47 +74,46 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
     def reset(self):
         pass
 
+    def create_one_hot(self, vector_length, hot_index):
+        output = np.zeros((vector_length))
+        if hot_index != -1:
+            output[hot_index] = 1
+        return output
+
     def buildQNetwork(self):
         from tensorflow.python.keras.optimizer_v2.adam import Adam
         from tensorflow.keras.models import Model
-        from tensorflow.keras.layers import Dense, Input, Flatten
+        from tensorflow.keras.layers import Dense, Input, Flatten, multiply
 
-        inputs = Input(shape=self.state_size)
-        x = Flatten()(inputs)
+        inputA = Input(shape=self.state_size)
+        inputB = Input(shape=(self.action_size,))
+        x = Flatten()(inputA)
         x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
         x = Dense(24, activation='relu')(x)
-        outputs = Dense(self.action_size, activation='linear')(x)
-        model = Model(inputs=inputs, outputs=outputs)
+        x = Dense(self.action_size, activation='linear')(x)
+        outputs = multiply([x, inputB])
+        model = Model(inputs=[inputA, inputB], outputs=outputs)
         model.compile(loss='mse', optimizer=Adam(lr=0.001))
-        return model, inputs, outputs
-
-    def buildOutputNetworks(self, inputs, outputs):
-        from tensorflow.python.keras.optimizer_v2.adam import Adam
-        from tensorflow.keras.models import Model
-
-        models = []
-        for index in range(self.outputs.shape[1]):
-            model = Model(inputs=inputs, outputs=outputs[:, index])
-            model.compile(loss='mse', optimizer=Adam(lr=0.001))
-            models.append(model)
-        return models
+        return model
 
     def calculateTargetValues(self, mini_batch):
-        X_train = np.zeros((self.batch_size,) + self.state_size)
+        X_train = [np.zeros((self.batch_size,) + self.state_size), np.zeros((self.batch_size,) + (self.action_size,))]
         next_states = np.zeros((self.batch_size,) + self.state_size)
 
         for index_rep, (state, action, reward, next_state, isDone) in enumerate(mini_batch):
-            X_train[index_rep] = state
+            X_train[0][index_rep] = state
+            X_train[1][index_rep] = self.create_one_hot(self.action_size, action)
             next_states[index_rep] = next_state
 
-        Y_train = self.model.predict(X_train)
-        qnext = self.target.predict(next_states)
+        Y_train = np.zeros((self.batch_size,) + (self.action_size,))
+        qnext = self.target.predict([next_states, self.allBatchMask])
+        qnext = np.amax(qnext, 1)
 
         for index_rep, (state, action, reward, next_state, isDone) in enumerate(mini_batch):
             if isDone:
                 Y_train[index_rep][action] = reward
             else:
-                Y_train[index_rep][action] = reward + np.amax(qnext[index_rep]) * self.gamma
+                Y_train[index_rep][action] = reward + qnext[index_rep] * self.gamma
         return X_train, Y_train
 
     def __deepcopy__(self, memodict={}):

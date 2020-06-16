@@ -7,7 +7,7 @@ class QLearning(qTable.QTable):
     def __init__(self, *args):
         super().__init__(*args)
 
-    def remember(self, state, action, reward, new_state, _, done=False):
+    def remember(self, state, action, reward, new_state, done=False):
         prevQValue = self.getQvalue(state, action)
         newQValue = self.getQvalue(new_state, self.choose_action(new_state))
         if done:

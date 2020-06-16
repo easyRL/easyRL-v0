@@ -21,12 +21,6 @@ class ADRQN(drqn.DRQN):
         action = np.argmax(qval)
         return action
 
-    def create_one_hot(self, vector_length, hot_index):
-        output = np.zeros((vector_length))
-        if hot_index != -1:
-            output[hot_index] = 1
-        return output
-
     def predict(self, state, isTarget):
         state, action = state
         stateShape = (1,) + (self.historylength,) + self.state_size
@@ -35,21 +29,22 @@ class ADRQN(drqn.DRQN):
         action = np.reshape(action, actionShape)
 
         if isTarget:
-            result = self.target.predict([state, action])
+            result = self.target.predict([state, action, self.allMask])
         else:
-            result = self.model.predict([state, action])
+            result = self.model.predict([state, action, self.allMask])
         return result
 
     def buildQNetwork(self):
-
         from tensorflow.python.keras.optimizer_v2.adam import Adam
         from tensorflow.keras.models import Model
         from tensorflow.keras.layers import Input, Dense, Conv2D
-        from tensorflow.keras.layers import MaxPool2D, Flatten, TimeDistributed, LSTM, concatenate
+        from tensorflow.keras.layers import Flatten, TimeDistributed, LSTM, concatenate, multiply
 
         input_shape = (self.historylength,) + self.state_size
         inputA = Input(shape=input_shape)
         inputB = Input(shape=(self.historylength, self.action_size))
+        inputC = Input(shape=(self.action_size,))
+
         if len(self.state_size) == 1:
             x = TimeDistributed(Dense(24, activation='relu'))(inputA)
         else:
@@ -67,16 +62,18 @@ class ADRQN(drqn.DRQN):
         z = LSTM(256)(combined)
         z = Dense(10, activation='relu')(z)  # fully connected
         z = Dense(10, activation='relu')(z)
-        outputs = Dense(self.action_size)(z)
+        z = Dense(self.action_size)(z)
+        outputs = multiply([z, inputC])
 
-        inputs = [inputA, inputB]
+        inputs = [inputA, inputB, inputC]
         model = Model(inputs=inputs, outputs=outputs)
         model.compile(loss='mse', optimizer=Adam(lr=0.0001, clipvalue=1))
-        return model, inputs, outputs
+        return model
 
     def calculateTargetValues(self, mini_batch):
         X_train = [np.zeros((self.batch_size,) + (self.historylength,) + self.state_size),
-                   np.zeros((self.batch_size,) + (self.historylength,) + (self.action_size,))]
+                   np.zeros((self.batch_size,) + (self.historylength,) + (self.action_size,)),
+                   np.zeros((self.batch_size,) + (self.action_size,))]
         next_states = [np.zeros((self.batch_size,) + (self.historylength,) + self.state_size),
                    np.zeros((self.batch_size,) + (self.historylength,) + (self.action_size,))]
 
@@ -86,16 +83,18 @@ class ADRQN(drqn.DRQN):
                 next_states[0][index_rep][histInd] = next_state
                 X_train[1][index_rep][histInd] = self.create_one_hot(self.action_size, prevAction)
                 next_states[1][index_rep][histInd] = self.create_one_hot(self.action_size, action)
+            X_train[2][index_rep] = self.create_one_hot(self.action_size, action)
 
-        Y_train = self.model.predict(X_train)
-        qnext = self.target.predict(next_states)
+        Y_train = np.zeros((self.batch_size,) + (self.action_size,))
+        qnext = self.target.predict([next_states, self.allBatchMask])
+        qnext = np.amax(qnext, 1)
 
         for index_rep, history in enumerate(mini_batch):
             prevAction, state, action, reward, next_state, isDone = history[-1]
             if isDone:
                 Y_train[index_rep][action] = reward
             else:
-                Y_train[index_rep][action] = reward + np.amax(qnext[index_rep]) * self.gamma
+                Y_train[index_rep][action] = reward + qnext[index_rep] * self.gamma
         return X_train, Y_train
 
 

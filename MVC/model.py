@@ -18,6 +18,7 @@ class Model:
     #     cProfile.runctx('self.run_learning2(messageQueue, total_episodes, max_steps, *model_args)', globals(), locals(),
     #                     'stats')
 
+    # def run_learning2(self, messageQueue, total_episodes, max_steps, *model_args):
     def run_learning(self, messageQueue, total_episodes, max_steps, *model_args):
         self.isRunning = True
 
