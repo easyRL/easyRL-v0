@@ -28,10 +28,23 @@ class View:
     def __init__(self, listener):
         self.root = ThemedTk(theme='breeze')
         self.listener = listener
-        View.ProjectWindow(self.root, listener)
+        pw = View.ProjectWindow(self.root, listener)
+
         self.menubar = tkinter.Menu(self.root)
-        self.menubar.add_command(label="Help", command=self.helpMenu)
+        self.mMenuFile = tkinter.Menu(self.menubar, tearoff=0)
+        self.mMenuFile.add_command(label="Load Agent", command=pw.loadAgent)
+        self.mMenuFile.add_command(label="Load Environment", command=pw.loadEnv)
+        self.mMenuFile.add_command(label="Close Tab", command=pw.closeTab)
+        self.mMenuFile.add_command(label="Reset Tab", command=pw.rechoose)
+        self.mMenuFile.add_separator()
+        self.mMenuFile.add_command(label="Exit", command=self.delete_window)
+        self.menubar.add_cascade(label="File", menu=self.mMenuFile)
+        self.mMenuHelp = tkinter.Menu(self.menubar, tearoff=0)
+        self.mMenuHelp.add_command(label="Help", command=self.helpMenu)
+        self.mMenuHelp.add_command(label="About")
+        self.menubar.add_cascade(label="Help", menu=self.mMenuHelp)
         self.root.config(menu=self.menubar)
+
         center(self.root)
         self.root.protocol("WM_DELETE_WINDOW", self.delete_window)
         self.root.mainloop()
@@ -50,6 +63,7 @@ class View:
         text.pack(expand=0, fill=tkinter.BOTH)
         text.insert(tkinter.END, texts)
         sbar.config(command=text.yview)
+        text.config(state="disabled")
         center(popup)
         popup.mainloop()
 
