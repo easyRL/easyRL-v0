@@ -50,6 +50,7 @@ class View:
         text.pack(expand=0, fill=tkinter.BOTH)
         text.insert(tkinter.END, texts)
         sbar.config(command=text.yview)
+        center(popup)
         popup.mainloop()
 
     def delete_window(self):
