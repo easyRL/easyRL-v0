@@ -259,14 +259,14 @@ class View:
 
             self.listener = listener
 
-            ttk.Label(self, text='Number of Episodes: ').grid(row=0, column=0)
+            ttk.Label(self, text='Number of Episodes: ', width=18).grid(row=0, column=0, padx=(0, 20))
             self.numEpsVar = tkinter.StringVar()
             self.numEps = ttk.Entry(self, textvariable=self.numEpsVar)
             numEps_ttp = View.CreateToolTip(self.numEps, "The number of episodes to run the model on")
             self.numEpsVar.set('1000')
             self.numEps.grid(row=0, column=1)
 
-            ttk.Label(self, text='Max Steps: ').grid(row=1, column=0)
+            ttk.Label(self, text='Max Steps: ', width=18).grid(row=1, column=0, padx=(0, 20))
             self.maxStepsVar = tkinter.StringVar()
             self.maxSteps = ttk.Entry(self, textvariable=self.maxStepsVar)
             maxSteps_ttp = View.CreateToolTip(self.maxSteps, "The max number of timesteps permitted in an episode")
@@ -633,7 +633,7 @@ class View:
 
             def createParameterChooser(self, param):
                 subFrame = ttk.Frame(self)
-                ttk.Label(subFrame, text=param.name).pack(side='left')
+                ttk.Label(subFrame, text=param.name, width=18).pack(side="left", expand=True, fill='both', padx=5)
                 valVar = tkinter.StringVar()
                 input = None
                 def scaleChanged(val):
@@ -641,11 +641,11 @@ class View:
                         valVar.set(val)
                 scale = ttkwidgets.tickscale.TickScale(subFrame, from_=param.min, to=param.max,
                                                        resolution=param.resolution,
-                                                       orient=tkinter.HORIZONTAL, command=scaleChanged)
+                                                       orient=tkinter.HORIZONTAL, command=scaleChanged, length=170)
                 View.CreateToolTip(scale, param.toolTipText)
 
                 scale.set(param.default)
-                scale.pack(side='left')
+                scale.pack(side="left", expand=True, fill='both', padx=5)
 
                 def entryChanged(var, indx, mode):
                     try:
@@ -656,8 +656,8 @@ class View:
                 valVar.trace_add('write', entryChanged)
                 input = ttk.Entry(subFrame, textvariable=valVar)
                 valVar.set(str(param.default))
-                input.pack(side='left')
-                subFrame.pack()
+                input.pack(side="right", expand=True, padx=5)
+                subFrame.pack(side='top')
                 self.values.append(scale)
 
             def getParameters(self):
