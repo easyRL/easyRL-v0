@@ -144,18 +144,18 @@ class View:
 
             self.listener = listener
             self.tabIDCounter = 0
-            self.closeTabButton = ttk.Button(self.frame, text='Close Current Tab', command=self.closeTab)
-            self.closeTabButton.grid(row=0, column=0)
-            close_button_ttp = View.CreateToolTip(self.closeTabButton, "Close Tab")
-            self.rechooseButton = ttk.Button(self.frame, text='Reset Current Tab', command=self.rechoose)
-            self.rechooseButton.grid(row=0, column=1)
-            reset_button_ttp = View.CreateToolTip(self.rechooseButton, "Reset Tab")
-            self.loadEnvButton = ttk.Button(self.frame, text='Load Environment', command=self.loadEnv)
-            self.loadEnvButton.grid(row=0, column=2)
-            load_env_button_ttp = View.CreateToolTip(self.loadEnvButton, "Load Custom  Environment")
-            self.loadAgentButton = ttk.Button(self.frame, text='Load Agent', command=self.loadAgent)
-            self.loadAgentButton.grid(row=0, column=3)
-            load_agent_button_ttp = View.CreateToolTip(self.loadAgentButton, "Load Custom Agent")
+            # self.closeTabButton = ttk.Button(self.frame, text='Close Current Tab', command=self.closeTab)
+            # self.closeTabButton.grid(row=0, column=0)
+            # close_button_ttp = View.CreateToolTip(self.closeTabButton, "Close Current Tab")
+            # self.rechooseButton = ttk.Button(self.frame, text='Reset Current Tab', command=self.rechoose)
+            # self.rechooseButton.grid(row=0, column=1)
+            # reset_button_ttp = View.CreateToolTip(self.rechooseButton, "Reset Current Tab")
+            # self.loadEnvButton = ttk.Button(self.frame, text='Load Environment', command=self.loadEnv)
+            # self.loadEnvButton.grid(row=0, column=2)
+            # load_env_button_ttp = View.CreateToolTip(self.loadEnvButton, "Load Custom  Environment")
+            # self.loadAgentButton = ttk.Button(self.frame, text='Load Agent', command=self.loadAgent)
+            # self.loadAgentButton.grid(row=0, column=3)
+            # load_agent_button_ttp = View.CreateToolTip(self.loadAgentButton, "Load Custom Agent")
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
@@ -168,7 +168,7 @@ class View:
             self.tab.add(addTab, text='+')
             self.tabs.append(addTab)
 
-            self.tab.grid(row=1, column=0, rowspan=9, columnspan=10, sticky='wens')
+            self.tab.grid(row=0, column=0, rowspan=9, columnspan=10, sticky='wens')
 
             self.frame.grid(row=0, column=0)
             self.frame.lift()
