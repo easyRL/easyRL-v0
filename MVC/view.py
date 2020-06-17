@@ -39,6 +39,15 @@ class View:
         self.mMenuFile.add_separator()
         self.mMenuFile.add_command(label="Exit", command=self.delete_window)
         self.menubar.add_cascade(label="File", menu=self.mMenuFile)
+        self.mMenuRun = tkinter.Menu(self.menubar, tearoff=0)
+        self.mMenuRun.add_command(label="Train Current Tab", command=pw.train)
+        self.mMenuRun.add_command(label="Halt Current Tab", command=pw.halt)
+        self.mMenuRun.add_command(label="Test Current Tab", command=pw.test)
+        self.mMenuRun.add_command(label="Save Agent Current Tab", command=pw.save)
+        self.mMenuRun.add_command(label="Load Agent Current Tab", command=pw.load)
+        self.mMenuRun.add_command(label="Reset Current Tab", command=pw.reset)
+        self.mMenuRun.add_command(label="Save Results Current Tab", command=pw.saveResults)
+        self.menubar.add_cascade(label="Run", menu=self.mMenuRun)
         self.mMenuHelp = tkinter.Menu(self.menubar, tearoff=0)
         self.mMenuHelp.add_command(label="Help", command=self.helpMenu)
         self.mMenuHelp.add_command(label="About")
@@ -206,6 +215,49 @@ class View:
                 curTab.parameterFrame = View.GeneralTab.ModelChooser(curTab)
                 curTab.parameterFrame.grid(row=2, column=0, columnspan=2)
                 self.tab.tab(curTab, text='Tab '+str(curTab.tabID+1))
+
+        def train(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            # print(hasattr(curTab.parameterFrame, "train"))
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.train()
+
+        def halt(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.halt()
+
+        def test(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.test()
+
+        def save(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.save()
+
+        def load(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.load()
+
+        def reset(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.reset()
+
+        def saveResults(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.saveResults()
 
         def loadEnv(self):
             filename = filedialog.askopenfilename(initialdir="/", title="Select file")
@@ -617,6 +669,7 @@ class View:
         class ParameterFrame(ttk.Frame):
             def __init__(self, master, agentClass, envClass):
                 super().__init__(master)
+                self.isParameterFrame = True
                 self.master = master
                 master.listener.setAgent(master.tabID, agentClass)
                 master.listener.setEnvironment(master.tabID, envClass)
@@ -681,6 +734,7 @@ class View:
         class ModelChooser(ttk.Frame):
             def __init__(self, master):
                 super().__init__(master)
+                self.isParameterFrame = False
                 self.agentOpts = tkinter.StringVar(self)
                 self.envOpts = tkinter.StringVar(self)
                 subFrame = ttk.Frame(self)
