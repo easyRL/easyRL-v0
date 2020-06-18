@@ -6,7 +6,7 @@ from ttkthemes import ThemedTk
 from PIL import ImageTk
 import ttkwidgets
 
-from Agents import qLearning, qTable, drqn, deepQ, adrqn
+from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, modelFreeAgent
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, mountainCarEnv
 from MVC import helptext
 from MVC.model import Model
@@ -351,23 +351,23 @@ class View:
 
             self.listener = listener
 
-            frame = tkinter.Frame(self)
-            frame.grid(row=0, column=0, columnspan=2)
-            ttk.Label(frame, text='Number of Episodes', width=18, anchor='w').pack(side="left", padx=(5,0), pady=10)
-            ttkwidgets.tickscale.TickScale(self, from_=1, to=655360, resolution=1, orient=tkinter.HORIZONTAL)
-            self.numEpsVar = tkinter.StringVar()
-            self.numEps = ttk.Entry(frame, textvariable=self.numEpsVar).pack(side="left", padx=(195,0))
-            # numEps_ttp = View.CreateToolTip(self.numEps, "The number of episodes to run the model on")
-            self.numEpsVar.set('1000')
-
-            frame2 = tkinter.Frame(self)
-            frame2.grid(row=1, column=0, columnspan=2)
-            ttk.Label(frame2, text='Max Steps', width=18, anchor='w').pack(side="left", padx=(5,0), pady=10)
-            ttkwidgets.tickscale.TickScale(self, from_=1, to=655360, resolution=1, orient=tkinter.HORIZONTAL)
-            self.maxStepsVar = tkinter.StringVar()
-            self.maxSteps = ttk.Entry(frame2, textvariable=self.maxStepsVar).pack(side="left", padx=(195,0))
-            # maxSteps_ttp = View.CreateToolTip(self.maxSteps, "The max number of timesteps permitted in an episode")
-            self.maxStepsVar.set('200')
+            # frame = tkinter.Frame(self)
+            # frame.grid(row=0, column=0, columnspan=2)
+            # ttk.Label(frame, text='Number of Episodes', width=18, anchor='w').pack(side="left", padx=(5,0), pady=10)
+            # ttkwidgets.tickscale.TickScale(self, from_=1, to=655360, resolution=1, orient=tkinter.HORIZONTAL)
+            # self.numEpsVar = tkinter.StringVar()
+            # self.numEps = ttk.Entry(frame, textvariable=self.numEpsVar).pack(side="left", padx=(195,0))
+            # # numEps_ttp = View.CreateToolTip(self.numEps, "The number of episodes to run the model on")
+            # self.numEpsVar.set('1000')
+            #
+            # frame2 = tkinter.Frame(self)
+            # frame2.grid(row=1, column=0, columnspan=2)
+            # ttk.Label(frame2, text='Max Steps', width=18, anchor='w').pack(side="left", padx=(5,0), pady=10)
+            # ttkwidgets.tickscale.TickScale(self, from_=1, to=655360, resolution=1, orient=tkinter.HORIZONTAL)
+            # self.maxStepsVar = tkinter.StringVar()
+            # self.maxSteps = ttk.Entry(frame2, textvariable=self.maxStepsVar).pack(side="left", padx=(195,0))
+            # # maxSteps_ttp = View.CreateToolTip(self.maxSteps, "The max number of timesteps permitted in an episode")
+            # self.maxStepsVar.set('200')
 
 
             # Add model parameters here
@@ -443,12 +443,12 @@ class View:
             if not self.listener.modelIsRunning(self.tabID):
                 self.smoothAmt = 20
                 try:
-                    total_episodes = int(self.numEps.get())
-                    max_steps = int(self.maxSteps.get())
+                    # total_episodes = int(self.numEps.get())
+                    # max_steps = int(self.maxSteps.get())
 
-                    self.listener.startTraining(self.tabID, [total_episodes, max_steps] + self.parameterFrame.getParameters())
+                    self.listener.startTraining(self.tabID, self.parameterFrame.getParameters())
                     self.trainingEpisodes = 0
-                    self.curTotalEpisodes = total_episodes
+                    self.curTotalEpisodes = self.parameterFrame.getParameters()[0]
                     self.resetGraph()
                     self.checkMessages()
                     self.legend.itemconfig(self.testResult1, text='')
@@ -460,12 +460,12 @@ class View:
             if not self.listener.modelIsRunning(self.tabID):
                 self.smoothAmt = 1
                 try:
-                    total_episodes = int(self.numEps.get())
-                    max_steps = int(self.maxSteps.get())
+                    # total_episodes = int(self.numEps.get())
+                    # max_steps = int(self.maxSteps.get())
 
-                    self.listener.startTesting(self.tabID, [total_episodes, max_steps] + self.parameterFrame.getParameters())
+                    self.listener.startTesting(self.tabID, self.parameterFrame.getParameters())
                     self.trainingEpisodes = 0
-                    self.curTotalEpisodes = total_episodes
+                    self.curTotalEpisodes = self.parameterFrame.getParameters()[0]
                     self.resetGraph()
                     self.checkMessages()
                     self.legend.itemconfig(self.testResult1, text='')
@@ -704,6 +704,13 @@ class View:
                 master.listener.setAgent(master.tabID, agentClass)
                 master.listener.setEnvironment(master.tabID, envClass)
                 self.values = []
+
+                self.createParameterChooser(
+                    agent.Agent.Parameter('Number of Episodes', 1, 655360, 1, 1000, True, True,
+                                                            "The number of episodes to run the model on"))
+                self.createParameterChooser(
+                    agent.Agent.Parameter('Max Size', 1, 655360, 1, 200, True, True,
+                                          "The max number of timesteps permitted in an episode"))
                 for param in agentClass.parameters:
                     self.createParameterChooser(param)
 
