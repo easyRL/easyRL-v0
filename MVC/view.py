@@ -188,7 +188,7 @@ class View:
             save_results.pack(side='left')
             save_results_button_ttp = View.CreateToolTip(save_results,
                                                          "Save the results of the current training session")
-            tempFrame.grid(row=0, column=0, columnspan=2)
+            tempFrame.grid(row=0, column=0, columnspan=3)
 
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
@@ -582,7 +582,7 @@ class View:
                 if self.curTotalEpisodes // step <= 13:
                     break
                 step *= 2
-            for ind in range(0, self.curTotalEpisodes, step):
+            for ind in range(0, int(self.curTotalEpisodes), step):
                 x = w * (ind / self.curTotalEpisodes)
                 self.graph.create_line(x, h - self.graphBottomMargin, x, h - self.graphBottomMargin / 2)
                 self.graph.create_text(x, h - self.graphBottomMargin / 2, text=str(ind), anchor='n')
