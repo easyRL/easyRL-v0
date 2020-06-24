@@ -3,7 +3,9 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from ttkthemes import ThemedTk
+from PIL import Image
 from PIL import ImageTk
+from PIL.ImageTk import PhotoImage
 import ttkwidgets
 
 from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, modelFreeAgent
@@ -776,19 +778,62 @@ class View:
                 self.envOpts = tkinter.StringVar(self)
                 subFrame = ttk.Frame(self)
 
-                value = [opt.displayName for opt in View.environments]
-                value2 = [opt.displayName for opt in View.agents]
+                envName = [opt.displayName for opt in View.environments]
+                agtName = [opt.displayName for opt in View.agents]
 
-                ttk.Combobox(subFrame, state='readonly', values=value2, textvariable = self.agentOpts).pack(side='left')
-                ttk.Combobox(subFrame, state='readonly', values=value, textvariable = self.envOpts).pack(side='left')
-                self.agentOpts.set('Select Agent')
-                self.envOpts.set('Select Environment')
+                # ttk.Combobox(subFrame, state='readonly', values=agtName, textvariable = self.agentOpts).pack(side='left')
+                # ttk.Combobox(subFrame, state='readonly', values=envName, textvariable = self.envOpts).pack(side='left')
+
+                # imgloc = "./images/"
+                # imty = '.jpg'
+
+                entxb = tkinter.Text(subFrame, height=2, width=30, wrap=tkinter.NONE)
+                enscb = ttk.Scrollbar(subFrame, orient=tkinter.HORIZONTAL, command=entxb.xview)
+                entxb.configure(xscrollcommand=enscb.set)
+                enscb.pack(fill=tkinter.X)
+                entxb.pack()
+                self.slev = ttk.Label(subFrame, text='Selected Environment: None')
+                self.slev.pack()
+
+                for e in envName:
+                    # epic = Image.open(imgloc+e+imty)
+                    # epic = epic.resize((50, 50), Image.ANTIALIAS)
+                    # piepic = PhotoImage(epic)
+
+                    eb = ttk.Radiobutton(entxb, text=e, variable=self.envOpts, value=e, command=self.selevUpdate,
+                                         style='TButton', compound=tkinter.TOP)
+                    # eb.piepic = piepic
+                    entxb.window_create(tkinter.END, window=eb)
+
+                entxb.configure(state=tkinter.DISABLED)
+
+                agtxb = tkinter.Text(subFrame, height=2, width=30, wrap=tkinter.NONE)
+                agscb = ttk.Scrollbar(subFrame, orient=tkinter.HORIZONTAL, command=agtxb.xview)
+                agtxb.configure(xscrollcommand=agscb.set)
+                agscb.pack(fill=tkinter.X)
+                agtxb.pack()
+                self.slag = ttk.Label(subFrame, text='Selected Agent: None')
+                self.slag.pack()
+
+                for a in agtName:
+                    ab = ttk.Radiobutton(agtxb, text=a, variable=self.agentOpts, value=a, command=self.selagUpdate,
+                                         style='TButton', compound=tkinter.TOP)
+                    agtxb.window_create(tkinter.END, window=ab)
+
+                agtxb.configure(state=tkinter.DISABLED)
 
                 subFrame.pack()
                 set_model = ttk.Button(self, text='Set Model', command=master.selectModel)
                 set_model.pack()
-                save_results_button_ttp = View.CreateToolTip(set_model, "Confirm the currently selected model and environment")
+                View.CreateToolTip(set_model, "Run program with the currently selected environment and agent")
 
+            def selevUpdate(self):
+                envUpdate = 'Selected Environment: ' + self.envOpts.get()
+                self.slev.config(text=envUpdate)
+
+            def selagUpdate(self):
+                agUpdate = 'Selected Environment: ' + self.agentOpts.get()
+                self.slag.config(text=agUpdate)
 
         class EnvironmentChooser(ttk.Frame):
             def __init__(self, master, listener):
@@ -842,4 +887,3 @@ def center(win):
     x = (win.winfo_screenwidth() // 2) - (width // 2)
     y = (win.winfo_screenheight() // 2) - (height // 2)
     win.geometry('{}x{}+{}+{}'.format(width, height, x, y))
-
