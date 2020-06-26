@@ -39,10 +39,10 @@ class Model:
         min_epsilon, max_epsilon, decay_rate = self.agent.min_epsilon, self.agent.max_epsilon, self.agent.decay_rate
         epsilon = max_epsilon
 
-        for episode in range(total_episodes):
+        for episode in range(int(total_episodes)):
             self.environment.reset()
 
-            for step in range(max_steps):
+            for step in range(int(max_steps)):
                 old_state = self.environment.state
                 exp_exp_tradeoff = random.uniform(0, 1)
 

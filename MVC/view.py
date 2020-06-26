@@ -3,10 +3,12 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from ttkthemes import ThemedTk
+from PIL import Image
 from PIL import ImageTk
+from PIL.ImageTk import PhotoImage
 import ttkwidgets
 
-from Agents import qLearning, qTable, drqn, deepQ, adrqn
+from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, modelFreeAgent
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, mountainCarEnv
 from MVC import helptext
 from MVC.model import Model
@@ -28,11 +30,33 @@ class View:
     def __init__(self, listener):
         self.root = ThemedTk(theme='breeze')
         self.listener = listener
-        View.ProjectWindow(self.root, listener)
+        pw = View.ProjectWindow(self.root, listener)
+
         self.menubar = tkinter.Menu(self.root)
-        self.menubar.add_command(label="Help", command=self.helpMenu)
+        self.mMenuFile = tkinter.Menu(self.menubar, tearoff=0)
+        self.mMenuFile.add_command(label="Load Agent", command=pw.loadAgent)
+        self.mMenuFile.add_command(label="Load Environment", command=pw.loadEnv)
+        self.mMenuFile.add_command(label="Close Tab", command=pw.closeTab)
+        self.mMenuFile.add_command(label="Reset Tab", command=pw.rechoose)
+        self.mMenuFile.add_command(label="Save Agent", command=pw.save)
+        # self.mMenuFile.add_command(label="Load Agent", command=pw.load)
+        self.mMenuFile.add_command(label="Save Results", command=pw.saveResults)
+        self.mMenuFile.add_separator()
+        self.mMenuFile.add_command(label="Exit", command=self.delete_window)
+        self.menubar.add_cascade(label="File", menu=self.mMenuFile)
+        self.mMenuRun = tkinter.Menu(self.menubar, tearoff=0)
+        self.mMenuRun.add_command(label="Train", command=pw.train)
+        self.mMenuRun.add_command(label="Halt", command=pw.halt)
+        self.mMenuRun.add_command(label="Test", command=pw.test)
+        self.mMenuRun.add_command(label="Reset", command=pw.reset)
+        self.menubar.add_cascade(label="Run", menu=self.mMenuRun)
+        self.mMenuHelp = tkinter.Menu(self.menubar, tearoff=0)
+        self.mMenuHelp.add_command(label="Help", command=self.helpMenu)
+        self.mMenuHelp.add_command(label="About")
+        self.menubar.add_cascade(label="Help", menu=self.mMenuHelp)
         self.root.config(menu=self.menubar)
 
+        center(self.root)
         self.root.protocol("WM_DELETE_WINDOW", self.delete_window)
         self.root.mainloop()
 
@@ -50,6 +74,8 @@ class View:
         text.pack(expand=0, fill=tkinter.BOTH)
         text.insert(tkinter.END, texts)
         sbar.config(command=text.yview)
+        text.config(state="disabled")
+        center(popup)
         popup.mainloop()
 
     def delete_window(self):
@@ -129,18 +155,43 @@ class View:
 
             self.listener = listener
             self.tabIDCounter = 0
-            self.closeTabButton = ttk.Button(self.frame, text='Close Current Tab', command=self.closeTab)
-            self.closeTabButton.grid(row=0, column=0)
-            close_button_ttp = View.CreateToolTip(self.closeTabButton, "Close Tab")
-            self.rechooseButton = ttk.Button(self.frame, text='Reset Current Tab', command=self.rechoose)
-            self.rechooseButton.grid(row=0, column=1)
-            reset_button_ttp = View.CreateToolTip(self.rechooseButton, "Reset Tab")
-            self.loadEnvButton = ttk.Button(self.frame, text='Load Environment', command=self.loadEnv)
-            self.loadEnvButton.grid(row=0, column=2)
-            load_env_button_ttp = View.CreateToolTip(self.loadEnvButton, "Load Custom  Environment")
-            self.loadAgentButton = ttk.Button(self.frame, text='Load Agent', command=self.loadAgent)
-            self.loadAgentButton.grid(row=0, column=3)
-            load_agent_button_ttp = View.CreateToolTip(self.loadAgentButton, "Load Custom Agent")
+            # self.closeTabButton = ttk.Button(self.frame, text='Close Current Tab', command=self.closeTab)
+            # self.closeTabButton.grid(row=0, column=0)
+            # close_button_ttp = View.CreateToolTip(self.closeTabButton, "Close Current Tab")
+            # self.rechooseButton = ttk.Button(self.frame, text='Reset Current Tab', command=self.rechoose)
+            # self.rechooseButton.grid(row=0, column=1)
+            # reset_button_ttp = View.CreateToolTip(self.rechooseButton, "Reset Current Tab")
+            # self.loadEnvButton = ttk.Button(self.frame, text='Load Environment', command=self.loadEnv)
+            # self.loadEnvButton.grid(row=0, column=2)
+            # load_env_button_ttp = View.CreateToolTip(self.loadEnvButton, "Load Custom  Environment")
+            # self.loadAgentButton = ttk.Button(self.frame, text='Load Agent', command=self.loadAgent)
+            # self.loadAgentButton.grid(row=0, column=3)
+            # load_agent_button_ttp = View.CreateToolTip(self.loadAgentButton, "Load Custom Agent")
+            tempFrame = tkinter.Frame(self.frame)
+            train = ttk.Button(tempFrame, text='Train', command=self.train)
+            train.pack(side='left')
+            train_button_ttp = View.CreateToolTip(train, "Train the agent with the current settings")
+            halt = ttk.Button(tempFrame, text='Halt', command=self.halt)
+            halt.pack(side='left')
+            halt_button_ttp = View.CreateToolTip(halt, "Pause the current training")
+            test = ttk.Button(tempFrame, text='Test', command=self.test)
+            test.pack(side='left')
+            test_button_ttp = View.CreateToolTip(test, "Test the agent in its current state")
+            save = ttk.Button(tempFrame, text='Save Agent', command=self.save)
+            save.pack(side='left')
+            save_button_ttp = View.CreateToolTip(save, "Save the agent in its current state")
+            load = ttk.Button(tempFrame, text='Load Agent', command=self.load)
+            load.pack(side='left')
+            load_button_ttp = View.CreateToolTip(load, "Load an agent")
+            reset = ttk.Button(tempFrame, text='Reset', command=self.reset)
+            reset.pack(side='left')
+            reset_button_ttp = View.CreateToolTip(reset, "Reset the current agent and its parameters")
+            save_results = ttk.Button(tempFrame, text='Save Results', command=self.saveResults)
+            save_results.pack(side='left')
+            save_results_button_ttp = View.CreateToolTip(save_results,
+                                                         "Save the results of the current training session")
+            tempFrame.grid(row=0, column=0, columnspan=3)
+
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
@@ -192,6 +243,49 @@ class View:
                 curTab.parameterFrame.grid(row=2, column=0, columnspan=2)
                 self.tab.tab(curTab, text='Tab '+str(curTab.tabID+1))
 
+        def train(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            # print(hasattr(curTab.parameterFrame, "train"))
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.train()
+
+        def halt(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.halt()
+
+        def test(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.test()
+
+        def save(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.save()
+
+        def load(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.load()
+
+        def reset(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.reset()
+
+        def saveResults(self):
+            tkId = self.tab.select()
+            curTab = self.tab.nametowidget(tkId)
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+                curTab.parameterFrame.master.saveResults()
+
         def loadEnv(self):
             filename = filedialog.askopenfilename(initialdir="/", title="Select file")
 
@@ -199,13 +293,22 @@ class View:
             try:
                 mod = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(mod)
-                View.environments = [mod.CustomEnv] + View.environments
 
-                for ind, tab in enumerate(self.tabs):
-                    if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
-                        tab.parameterFrame.destroy()
-                        tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
-                        tab.parameterFrame.grid(row=2, column=0, columnspan=2)
+                tkId = self.tab.select()
+                curTab = self.tab.nametowidget(tkId)
+                if not curTab.listener.modelIsRunning(curTab.tabID):
+                    curTab.parameterFrame.envOpts.set(mod.CustomEnv.displayName)
+                    curTab.parameterFrame.selevUpdate()
+                    # curTab.parameterFrame.slev.config(text='Selected Environment: ' + mod.CustomEnv.displayName)
+                # self.tabs[0].parameterFrame.slev
+                # self.slev.config(text='Selected Environment: ' + mod.CustomEnv.displayName)
+                    View.environments = [mod.CustomEnv] + View.environments
+
+                # for ind, tab in enumerate(self.tabs):
+                #     if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
+                #         tab.parameterFrame.destroy()
+                #         tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
+                #         tab.parameterFrame.grid(row=2, column=0, columnspan=2)
             except:
                 pass
 
@@ -216,13 +319,20 @@ class View:
             try:
                 mod = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(mod)
-                View.agents = [mod.CustomAgent] + View.agents
 
-                for ind, tab in enumerate(self.tabs):
-                    if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
-                        tab.parameterFrame.destroy()
-                        tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
-                        tab.parameterFrame.grid(row=2, column=0, columnspan=2)
+                tkId = self.tab.select()
+                curTab = self.tab.nametowidget(tkId)
+                if not curTab.listener.modelIsRunning(curTab.tabID):
+                    curTab.parameterFrame.agentOpts.set(mod.CustomAgent.displayName)
+                    curTab.parameterFrame.selagUpdate()
+                    # curTab.parameterFrame.slag.config(text='Selected Agent: ' + mod.CustomAgent.displayName)
+                    View.agents = [mod.CustomAgent] + View.agents
+                #
+                # for ind, tab in enumerate(self.tabs):
+                #     if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
+                #         tab.parameterFrame.destroy()
+                #         tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
+                #         tab.parameterFrame.grid(row=2, column=0, columnspan=2)
             except:
                 pass
 
@@ -259,19 +369,24 @@ class View:
 
             self.listener = listener
 
-            ttk.Label(self, text='Number of Episodes: ').grid(row=0, column=0)
-            self.numEpsVar = tkinter.StringVar()
-            self.numEps = ttk.Entry(self, textvariable=self.numEpsVar)
-            numEps_ttp = View.CreateToolTip(self.numEps, "The number of episodes to run the model on")
-            self.numEpsVar.set('1000')
-            self.numEps.grid(row=0, column=1)
+            # frame = tkinter.Frame(self)
+            # frame.grid(row=0, column=0, columnspan=2)
+            # ttk.Label(frame, text='Number of Episodes', width=18, anchor='w').pack(side="left", padx=(5,0), pady=10)
+            # ttkwidgets.tickscale.TickScale(self, from_=1, to=655360, resolution=1, orient=tkinter.HORIZONTAL)
+            # self.numEpsVar = tkinter.StringVar()
+            # self.numEps = ttk.Entry(frame, textvariable=self.numEpsVar).pack(side="left", padx=(195,0))
+            # # numEps_ttp = View.CreateToolTip(self.numEps, "The number of episodes to run the model on")
+            # self.numEpsVar.set('1000')
+            #
+            # frame2 = tkinter.Frame(self)
+            # frame2.grid(row=1, column=0, columnspan=2)
+            # ttk.Label(frame2, text='Max Steps', width=18, anchor='w').pack(side="left", padx=(5,0), pady=10)
+            # ttkwidgets.tickscale.TickScale(self, from_=1, to=655360, resolution=1, orient=tkinter.HORIZONTAL)
+            # self.maxStepsVar = tkinter.StringVar()
+            # self.maxSteps = ttk.Entry(frame2, textvariable=self.maxStepsVar).pack(side="left", padx=(195,0))
+            # # maxSteps_ttp = View.CreateToolTip(self.maxSteps, "The max number of timesteps permitted in an episode")
+            # self.maxStepsVar.set('200')
 
-            ttk.Label(self, text='Max Steps: ').grid(row=1, column=0)
-            self.maxStepsVar = tkinter.StringVar()
-            self.maxSteps = ttk.Entry(self, textvariable=self.maxStepsVar)
-            maxSteps_ttp = View.CreateToolTip(self.maxSteps, "The max number of timesteps permitted in an episode")
-            self.maxStepsVar.set('200')
-            self.maxSteps.grid(row=1, column=1)
 
             # Add model parameters here
             self.parameterFrame = self.ModelChooser(self)
@@ -346,12 +461,12 @@ class View:
             if not self.listener.modelIsRunning(self.tabID):
                 self.smoothAmt = 20
                 try:
-                    total_episodes = int(self.numEps.get())
-                    max_steps = int(self.maxSteps.get())
+                    # total_episodes = int(self.numEps.get())
+                    # max_steps = int(self.maxSteps.get())
 
-                    self.listener.startTraining(self.tabID, [total_episodes, max_steps] + self.parameterFrame.getParameters())
+                    self.listener.startTraining(self.tabID, self.parameterFrame.getParameters())
                     self.trainingEpisodes = 0
-                    self.curTotalEpisodes = total_episodes
+                    self.curTotalEpisodes = self.parameterFrame.getParameters()[0]
                     self.resetGraph()
                     self.checkMessages()
                     self.legend.itemconfig(self.testResult1, text='')
@@ -363,12 +478,12 @@ class View:
             if not self.listener.modelIsRunning(self.tabID):
                 self.smoothAmt = 1
                 try:
-                    total_episodes = int(self.numEps.get())
-                    max_steps = int(self.maxSteps.get())
+                    # total_episodes = int(self.numEps.get())
+                    # max_steps = int(self.maxSteps.get())
 
-                    self.listener.startTesting(self.tabID, [total_episodes, max_steps] + self.parameterFrame.getParameters())
+                    self.listener.startTesting(self.tabID, self.parameterFrame.getParameters())
                     self.trainingEpisodes = 0
-                    self.curTotalEpisodes = total_episodes
+                    self.curTotalEpisodes = self.parameterFrame.getParameters()[0]
                     self.resetGraph()
                     self.checkMessages()
                     self.legend.itemconfig(self.testResult1, text='')
@@ -485,7 +600,7 @@ class View:
                 if self.curTotalEpisodes // step <= 13:
                     break
                 step *= 2
-            for ind in range(0, self.curTotalEpisodes, step):
+            for ind in range(0, int(self.curTotalEpisodes), step):
                 x = w * (ind / self.curTotalEpisodes)
                 self.graph.create_line(x, h - self.graphBottomMargin, x, h - self.graphBottomMargin / 2)
                 self.graph.create_text(x, h - self.graphBottomMargin / 2, text=str(ind), anchor='n')
@@ -585,6 +700,8 @@ class View:
                 if self.parameterFrame.envOpts.get() == env.displayName:
                     break
 
+
+
             if issubclass(agent, qTable.QTable) and\
                     not issubclass(env, cartPoleEnvDiscrete.CartPoleEnvDiscrete) and\
                     not issubclass(env, frozenLakeEnv.FrozenLakeEnv):
@@ -602,38 +719,46 @@ class View:
         class ParameterFrame(ttk.Frame):
             def __init__(self, master, agentClass, envClass):
                 super().__init__(master)
+                self.isParameterFrame = True
                 self.master = master
                 master.listener.setAgent(master.tabID, agentClass)
                 master.listener.setEnvironment(master.tabID, envClass)
                 self.values = []
+
+                self.createParameterChooser(
+                    agent.Agent.Parameter('Number of Episodes', 1, 655360, 1, 1000, True, True,
+                                                            "The number of episodes to run the model on"))
+                self.createParameterChooser(
+                    agent.Agent.Parameter('Max Size', 1, 655360, 1, 200, True, True,
+                                          "The max number of timesteps permitted in an episode"))
                 for param in agentClass.parameters:
                     self.createParameterChooser(param)
 
-                train = ttk.Button(self, text='Train', command=self.master.train)
-                train.pack(side='left')
-                train_button_ttp = View.CreateToolTip(train, "Train the agent with the current settings")
-                halt = ttk.Button(self, text='Halt', command=self.master.halt)
-                halt.pack(side='left')
-                halt_button_ttp = View.CreateToolTip(halt, "Pause the current training")
-                test = ttk.Button(self, text='Test', command=self.master.test)
-                test.pack(side='left')
-                test_button_ttp = View.CreateToolTip(test, "Test the agent in its current state")
-                save = ttk.Button(self, text='Save Agent', command=self.master.save)
-                save.pack(side='left')
-                save_button_ttp = View.CreateToolTip(save, "Save the agent in its current state")
-                load = ttk.Button(self, text='Load Agent', command=self.master.load)
-                load.pack(side='left')
-                load_button_ttp = View.CreateToolTip(load, "Load an agent")
-                reset = ttk.Button(self, text='Reset', command=self.master.reset)
-                reset.pack(side='left')
-                reset_button_ttp = View.CreateToolTip(reset, "Reset the current agent and its parameters")
-                save_results = ttk.Button(self, text='Save Results', command=self.master.saveResults)
-                save_results.pack(side='left')
-                save_results_button_ttp = View.CreateToolTip(save_results, "Save the results of the current training session")
+                # train = ttk.Button(self, text='Train', command=self.master.train)
+                # train.pack(side='left')
+                # train_button_ttp = View.CreateToolTip(train, "Train the agent with the current settings")
+                # halt = ttk.Button(self, text='Halt', command=self.master.halt)
+                # halt.pack(side='left')
+                # halt_button_ttp = View.CreateToolTip(halt, "Pause the current training")
+                # test = ttk.Button(self, text='Test', command=self.master.test)
+                # test.pack(side='left')
+                # test_button_ttp = View.CreateToolTip(test, "Test the agent in its current state")
+                # save = ttk.Button(self, text='Save Agent', command=self.master.save)
+                # save.pack(side='left')
+                # save_button_ttp = View.CreateToolTip(save, "Save the agent in its current state")
+                # load = ttk.Button(self, text='Load Agent', command=self.master.load)
+                # load.pack(side='left')
+                # load_button_ttp = View.CreateToolTip(load, "Load an agent")
+                # reset = ttk.Button(self, text='Reset', command=self.master.reset)
+                # reset.pack(side='left')
+                # reset_button_ttp = View.CreateToolTip(reset, "Reset the current agent and its parameters")
+                # save_results = ttk.Button(self, text='Save Results', command=self.master.saveResults)
+                # save_results.pack(side='left')
+                # save_results_button_ttp = View.CreateToolTip(save_results, "Save the results of the current training session")
 
             def createParameterChooser(self, param):
                 subFrame = ttk.Frame(self)
-                ttk.Label(subFrame, text=param.name).pack(side='left')
+                ttk.Label(subFrame, text=param.name, width=18).pack(side="left", expand=True, fill='both', padx=5)
                 valVar = tkinter.StringVar()
                 input = None
                 def scaleChanged(val):
@@ -641,11 +766,11 @@ class View:
                         valVar.set(val)
                 scale = ttkwidgets.tickscale.TickScale(subFrame, from_=param.min, to=param.max,
                                                        resolution=param.resolution,
-                                                       orient=tkinter.HORIZONTAL, command=scaleChanged)
+                                                       orient=tkinter.HORIZONTAL, command=scaleChanged, length=170)
                 View.CreateToolTip(scale, param.toolTipText)
 
                 scale.set(param.default)
-                scale.pack(side='left')
+                scale.pack(side="left", expand=True, fill='both', padx=5)
 
                 def entryChanged(var, indx, mode):
                     try:
@@ -656,8 +781,8 @@ class View:
                 valVar.trace_add('write', entryChanged)
                 input = ttk.Entry(subFrame, textvariable=valVar)
                 valVar.set(str(param.default))
-                input.pack(side='left')
-                subFrame.pack()
+                input.pack(side="right", expand=True, padx=5)
+                subFrame.pack(side='top')
                 self.values.append(scale)
 
             def getParameters(self):
@@ -666,23 +791,67 @@ class View:
         class ModelChooser(ttk.Frame):
             def __init__(self, master):
                 super().__init__(master)
+                self.isParameterFrame = False
                 self.agentOpts = tkinter.StringVar(self)
                 self.envOpts = tkinter.StringVar(self)
                 subFrame = ttk.Frame(self)
 
-                value = [opt.displayName for opt in View.environments]
-                value2 = [opt.displayName for opt in View.agents]
+                envName = [opt.displayName for opt in View.environments]
+                agtName = [opt.displayName for opt in View.agents]
 
-                ttk.Combobox(subFrame, state='readonly', values=value2, textvariable = self.agentOpts).pack(side='left')
-                ttk.Combobox(subFrame, state='readonly', values=value, textvariable = self.envOpts).pack(side='left')
-                self.agentOpts.set('Select Agent')
-                self.envOpts.set('Select Environment')
+                # ttk.Combobox(subFrame, state='readonly', values=agtName, textvariable = self.agentOpts).pack(side='left')
+                # ttk.Combobox(subFrame, state='readonly', values=envName, textvariable = self.envOpts).pack(side='left')
+
+                # imgloc = "./images/"
+                # imty = '.jpg'
+
+                entxb = tkinter.Text(subFrame, height=2, width=30, wrap=tkinter.NONE)
+                enscb = ttk.Scrollbar(subFrame, orient=tkinter.HORIZONTAL, command=entxb.xview)
+                entxb.configure(xscrollcommand=enscb.set)
+                enscb.pack(fill=tkinter.X)
+                entxb.pack()
+                self.slev = ttk.Label(subFrame, text='Selected Environment: None')
+                self.slev.pack()
+
+                for e in envName:
+                    # epic = Image.open(imgloc+e+imty)
+                    # epic = epic.resize((50, 50), Image.ANTIALIAS)
+                    # piepic = PhotoImage(epic)
+
+                    eb = ttk.Radiobutton(entxb, text=e, variable=self.envOpts, value=e, command=self.selevUpdate,
+                                         style='TButton', compound=tkinter.TOP)
+                    # eb.piepic = piepic
+                    entxb.window_create(tkinter.END, window=eb)
+
+                entxb.configure(state=tkinter.DISABLED)
+
+                agtxb = tkinter.Text(subFrame, height=2, width=30, wrap=tkinter.NONE)
+                agscb = ttk.Scrollbar(subFrame, orient=tkinter.HORIZONTAL, command=agtxb.xview)
+                agtxb.configure(xscrollcommand=agscb.set)
+                agscb.pack(fill=tkinter.X)
+                agtxb.pack()
+                self.slag = ttk.Label(subFrame, text='Selected Agent: None')
+                self.slag.pack()
+
+                for a in agtName:
+                    ab = ttk.Radiobutton(agtxb, text=a, variable=self.agentOpts, value=a, command=self.selagUpdate,
+                                         style='TButton', compound=tkinter.TOP)
+                    agtxb.window_create(tkinter.END, window=ab)
+
+                agtxb.configure(state=tkinter.DISABLED)
 
                 subFrame.pack()
                 set_model = ttk.Button(self, text='Set Model', command=master.selectModel)
                 set_model.pack()
-                save_results_button_ttp = View.CreateToolTip(set_model, "Confirm the currently selected model and environment")
+                View.CreateToolTip(set_model, "Run program with the currently selected environment and agent")
 
+            def selevUpdate(self):
+                envUpdate = 'Selected Environment: ' + self.envOpts.get()
+                self.slev.config(text=envUpdate)
+
+            def selagUpdate(self):
+                agUpdate = 'Selected Environment: ' + self.agentOpts.get()
+                self.slag.config(text=agUpdate)
 
         class EnvironmentChooser(ttk.Frame):
             def __init__(self, master, listener):
@@ -728,3 +897,11 @@ class View:
             def chooseCustom(self):
                 pass
 
+
+def center(win):
+    win.update_idletasks()
+    width = win.winfo_width()
+    height = win.winfo_height()
+    x = (win.winfo_screenwidth() // 2) - (width // 2)
+    y = (win.winfo_screenheight() // 2) - (height // 2)
+    win.geometry('{}x{}+{}+{}'.format(width, height, x, y))
