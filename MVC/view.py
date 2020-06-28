@@ -297,18 +297,18 @@ class View:
                 tkId = self.tab.select()
                 curTab = self.tab.nametowidget(tkId)
                 if not curTab.listener.modelIsRunning(curTab.tabID):
-                    curTab.parameterFrame.envOpts.set(mod.CustomEnv.displayName)
-                    curTab.parameterFrame.selevUpdate()
+                    # curTab.parameterFrame.envOpts.set(mod.CustomEnv.displayName)
+                    # curTab.parameterFrame.selevUpdate()
                     # curTab.parameterFrame.slev.config(text='Selected Environment: ' + mod.CustomEnv.displayName)
                 # self.tabs[0].parameterFrame.slev
                 # self.slev.config(text='Selected Environment: ' + mod.CustomEnv.displayName)
                     View.environments = [mod.CustomEnv] + View.environments
 
-                # for ind, tab in enumerate(self.tabs):
-                #     if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
-                #         tab.parameterFrame.destroy()
-                #         tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
-                #         tab.parameterFrame.grid(row=2, column=0, columnspan=2)
+                for ind, tab in enumerate(self.tabs):
+                    if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
+                        tab.parameterFrame.destroy()
+                        tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
+                        tab.parameterFrame.grid(row=2, column=0, columnspan=2)
             except:
                 pass
 
@@ -323,16 +323,16 @@ class View:
                 tkId = self.tab.select()
                 curTab = self.tab.nametowidget(tkId)
                 if not curTab.listener.modelIsRunning(curTab.tabID):
-                    curTab.parameterFrame.agentOpts.set(mod.CustomAgent.displayName)
-                    curTab.parameterFrame.selagUpdate()
+                    # curTab.parameterFrame.agentOpts.set(mod.CustomAgent.displayName)
+                    # curTab.parameterFrame.selagUpdate()
                     # curTab.parameterFrame.slag.config(text='Selected Agent: ' + mod.CustomAgent.displayName)
                     View.agents = [mod.CustomAgent] + View.agents
                 #
-                # for ind, tab in enumerate(self.tabs):
-                #     if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
-                #         tab.parameterFrame.destroy()
-                #         tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
-                #         tab.parameterFrame.grid(row=2, column=0, columnspan=2)
+                for ind, tab in enumerate(self.tabs):
+                    if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
+                        tab.parameterFrame.destroy()
+                        tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
+                        tab.parameterFrame.grid(row=2, column=0, columnspan=2)
             except:
                 pass
 
