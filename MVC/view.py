@@ -181,11 +181,11 @@ class View:
             save = ttk.Button(tempFrame, text='Save Agent', command=self.save)
             save.pack(side='left')
             save_button_ttp = View.CreateToolTip(save, "Save the agent in its current state")
-            load = ttk.Button(tempFrame, text='Load Agent', command=self.loadAgent)
-            load.pack(side='left')
-            btnLoadEnv = ttk.Button(tempFrame, text='Load Environment', command=self.loadEnv)
-            btnLoadEnv.pack(side='left')
-            load_button_ttp = View.CreateToolTip(load, "Load an agent")
+            # load = ttk.Button(tempFrame, text='Load Agent', command=self.loadAgent)
+            # load.pack(side='left')
+            # btnLoadEnv = ttk.Button(tempFrame, text='Load Environment', command=self.loadEnv)
+            # btnLoadEnv.pack(side='left')
+            # load_button_ttp = View.CreateToolTip(load, "Load an agent")
             reset = ttk.Button(tempFrame, text='Reset', command=self.reset)
             reset.pack(side='left')
             reset_button_ttp = View.CreateToolTip(reset, "Reset the current agent and its parameters")
@@ -823,8 +823,8 @@ class View:
                     epic = epic.resize((50, 50), Image.ANTIALIAS)
                     piepic = PhotoImage(epic)
 
-                    eb = ttk.Radiobutton(entxb, text=e, variable=self.envOpts, value=e, command=self.selevUpdate,
-                                         style='TButton', compound=tkinter.TOP)
+                    eb = ttk.Radiobutton(entxb, image=piepic, text=e, variable=self.envOpts, value=e,
+                                         command=self.selevUpdate, style='TButton', compound=tkinter.TOP)
                     eb.piepic = piepic
                     entxb.window_create(tkinter.END, window=eb)
 
