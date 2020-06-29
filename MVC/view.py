@@ -823,8 +823,8 @@ class View:
                     epic = epic.resize((50, 50), Image.ANTIALIAS)
                     piepic = PhotoImage(epic)
 
-                    eb = ttk.Radiobutton(entxb, text=e, variable=self.envOpts, value=e, command=self.selevUpdate,
-                                         style='TButton', compound=tkinter.TOP)
+                    eb = ttk.Radiobutton(entxb, image=piepic, text=e, variable=self.envOpts, value=e, 
+                                         command=self.selevUpdate, style='TButton', compound=tkinter.TOP)
                     eb.piepic = piepic
                     entxb.window_create(tkinter.END, window=eb)
 
