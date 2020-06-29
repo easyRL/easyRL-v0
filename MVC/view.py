@@ -807,10 +807,10 @@ class View:
                 # ttk.Combobox(subFrame, state='readonly', values=agtName, textvariable = self.agentOpts).pack(side='left')
                 # ttk.Combobox(subFrame, state='readonly', values=envName, textvariable = self.envOpts).pack(side='left')
 
-                # imgloc = "./images/"
-                # imty = '.jpg'
+                imgloc = "./img/"
+                imty = '.jpg'
 
-                entxb = tkinter.Text(subFrame, height=2, width=30, wrap=tkinter.NONE)
+                entxb = tkinter.Text(subFrame, height=5, width=50, wrap=tkinter.NONE)
                 enscb = ttk.Scrollbar(subFrame, orient=tkinter.HORIZONTAL, command=entxb.xview)
                 entxb.configure(xscrollcommand=enscb.set)
                 enscb.pack(fill=tkinter.X)
@@ -819,18 +819,18 @@ class View:
                 self.slev.pack()
 
                 for e in envName:
-                    # epic = Image.open(imgloc+e+imty)
-                    # epic = epic.resize((50, 50), Image.ANTIALIAS)
-                    # piepic = PhotoImage(epic)
+                    epic = Image.open(imgloc+e+imty)
+                    epic = epic.resize((50, 50), Image.ANTIALIAS)
+                    piepic = PhotoImage(epic)
 
                     eb = ttk.Radiobutton(entxb, text=e, variable=self.envOpts, value=e, command=self.selevUpdate,
                                          style='TButton', compound=tkinter.TOP)
-                    # eb.piepic = piepic
+                    eb.piepic = piepic
                     entxb.window_create(tkinter.END, window=eb)
 
                 entxb.configure(state=tkinter.DISABLED)
 
-                agtxb = tkinter.Text(subFrame, height=2, width=30, wrap=tkinter.NONE)
+                agtxb = tkinter.Text(subFrame, height=2, width=50, wrap=tkinter.NONE)
                 agscb = ttk.Scrollbar(subFrame, orient=tkinter.HORIZONTAL, command=agtxb.xview)
                 agtxb.configure(xscrollcommand=agscb.set)
                 agscb.pack(fill=tkinter.X)
