@@ -29,6 +29,7 @@ class View:
     """
     def __init__(self, listener):
         self.root = ThemedTk(theme='breeze')
+        # self.root.attributes('-fullscreen', True)
         self.listener = listener
         pw = View.ProjectWindow(self.root, listener)
 
@@ -180,8 +181,10 @@ class View:
             save = ttk.Button(tempFrame, text='Save Agent', command=self.save)
             save.pack(side='left')
             save_button_ttp = View.CreateToolTip(save, "Save the agent in its current state")
-            load = ttk.Button(tempFrame, text='Load Agent', command=self.load)
+            load = ttk.Button(tempFrame, text='Load Agent', command=self.loadAgent)
             load.pack(side='left')
+            btnLoadEnv = ttk.Button(tempFrame, text='Load Environment', command=self.loadEnv)
+            btnLoadEnv.pack(side='left')
             load_button_ttp = View.CreateToolTip(load, "Load an agent")
             reset = ttk.Button(tempFrame, text='Reset', command=self.reset)
             reset.pack(side='left')
@@ -190,12 +193,12 @@ class View:
             save_results.pack(side='left')
             save_results_button_ttp = View.CreateToolTip(save_results,
                                                          "Save the results of the current training session")
-            tempFrame.grid(row=0, column=0, columnspan=3)
+            tempFrame.grid(row=0, column=0, columnspan=7)
 
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
-            self.tabs = [View.GeneralTab(self.tab, listener, self.tabIDCounter)]
+            self.tabs = [View.GeneralTab(self.tab, listener, self.tabIDCounter, self.frame)]
 
             for tab in self.tabs:
                 self.tab.add(tab, text='Tab '+str(self.tabIDCounter + 1))
@@ -206,13 +209,13 @@ class View:
 
             self.tab.grid(row=1, column=0, rowspan=9, columnspan=10, sticky='wens')
 
-            self.frame.grid(row=0, column=0)
+            self.frame.pack()
             self.frame.lift()
 
         def tabChange(self, event):
             tabIndex = event.widget.index('current')
             if len(self.tabs) > 1 and tabIndex == len(self.tabs)-1:
-                newTab = View.GeneralTab(self.tab, self.listener, self.tabIDCounter)
+                newTab = View.GeneralTab(self.tab, self.listener, self.tabIDCounter, self.frame)
                 self.tab.forget(self.tabs[-1])
                 self.tab.add(newTab, text='Tab '+str(self.tabIDCounter+1))
                 self.tab.add(self.tabs[-1], text='+')
@@ -338,8 +341,9 @@ class View:
 
 
     class GeneralTab(ttk.Frame):
-        def __init__(self, tab, listener, tabID):
+        def __init__(self, tab, listener, tabID, frame):
             super().__init__(tab)
+            self.frame = frame
             self.tabID = tabID
             self.image = None
             self.imageQueues = ([], [])
@@ -712,6 +716,7 @@ class View:
             self.parameterFrame.destroy()
             self.parameterFrame = self.ParameterFrame(self, agent, env)
             self.parameterFrame.grid(row=2, column=0, columnspan=2)
+
 
         def close(self):
             self.listener.close(self.tabID)
