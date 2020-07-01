@@ -29,6 +29,7 @@ class View:
     """
     def __init__(self, listener):
         self.root = ThemedTk(theme='breeze')
+        self.root.geometry('750x600')
         # self.root.attributes('-fullscreen', True)
         self.listener = listener
         pw = View.ProjectWindow(self.root, listener)
@@ -193,7 +194,7 @@ class View:
             save_results.pack(side='left')
             save_results_button_ttp = View.CreateToolTip(save_results,
                                                          "Save the results of the current training session")
-            tempFrame.grid(row=0, column=0, columnspan=7)
+            tempFrame.grid(row=0, column=0, columnspan=6)
 
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
@@ -243,7 +244,7 @@ class View:
             if not curTab.listener.modelIsRunning(curTab.tabID):
                 curTab.parameterFrame.destroy()
                 curTab.parameterFrame = View.GeneralTab.ModelChooser(curTab)
-                curTab.parameterFrame.grid(row=2, column=0, columnspan=2)
+                curTab.parameterFrame.grid(row=0, column=0)
                 self.tab.tab(curTab, text='Tab '+str(curTab.tabID+1))
 
         def train(self):
@@ -311,7 +312,7 @@ class View:
                     if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
                         tab.parameterFrame.destroy()
                         tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
-                        tab.parameterFrame.grid(row=2, column=0, columnspan=2)
+                        tab.parameterFrame.grid(row=0, column=0)
             except:
                 pass
 
@@ -335,7 +336,7 @@ class View:
                     if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
                         tab.parameterFrame.destroy()
                         tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
-                        tab.parameterFrame.grid(row=2, column=0, columnspan=2)
+                        tab.parameterFrame.grid(row=0, column=0)
             except:
                 pass
 
@@ -394,32 +395,33 @@ class View:
 
             # Add model parameters here
             self.parameterFrame = self.ModelChooser(self)
-            self.parameterFrame.grid(row=2, column=0, columnspan=2)
+            self.parameterFrame.grid(row=0, column=0)
 
-            self.slowLabel = ttk.Label(self, text='Displayed episode speed')
-            self.slowLabel.grid(row=7, column=0)
-            self.slowSlider = ttkwidgets.tickscale.TickScale(self, from_=1, to=20, resolution=1, orient=tkinter.HORIZONTAL)
-            slowSlider_ttp = View.CreateToolTip(self.slowSlider, "The speed at which to display the episodes")
-            self.slowSlider.set(10)
-            self.slowSlider.grid(row=7, column=1)
-
-            self.render = tkinter.Canvas(self, background='#eff0f1')
-            self.render.grid(row=0, column=2, rowspan=9, columnspan=8, sticky='wens')
-
-            self.displayedEpisodeNum = ttk.Label(self, text='')
-            self.displayedEpisodeNum.grid(row=9, column=2)
-
-            self.curEpisodeNum = ttk.Label(self, text='')
-            self.curEpisodeNum.grid(row=9, column=3)
-
-            self.graph = tkinter.Canvas(self, background='#eff0f1')
-            self.graph.grid(row=10, column=2, rowspan=4, columnspan=8, sticky='wens')
-            self.graphLine = self.graph.create_line(0,0,0,0, fill='black')
-            self.graph.bind("<Motion>", self.updateGraphLine)
-
-            self.legend = tkinter.Canvas(self, background='#eff0f1')
-            self.legend.grid(row=10, column=0, rowspan=4, columnspan=2, sticky='wens')
-            self.legend.bind('<Configure>', self.legendResize)
+            # self.slowLabel = ttk.Label(self, text='Displayed episode speed')
+            # self.slowLabel.grid(row=7, column=0)
+            # self.slowSlider = ttkwidgets.tickscale.TickScale(self, from_=1, to=20, resolution=1, orient=tkinter.HORIZONTAL)
+            # slowSlider_ttp = View.CreateToolTip(self.slowSlider, "The speed at which to display the episodes")
+            # self.slowSlider.set(10)
+            # self.slowSlider.grid(row=7, column=1)
+            #
+            # self.render = tkinter.Canvas(self, background='#eff0f1')
+            # self.render.grid(row=0, column=2, rowspan=9, columnspan=8, sticky='wens')
+            #
+            # self.displayedEpisodeNum = ttk.Label(self, text='')
+            # self.displayedEpisodeNum.grid(row=9, column=2)
+            #
+            # self.curEpisodeNum = ttk.Label(self, text='')
+            # self.curEpisodeNum.grid(row=9, column=3)
+            #
+            # self.graph = tkinter.Canvas(self, background='#eff0f1')
+            # self.graph.grid(row=10, column=2, rowspan=4, columnspan=8, sticky='wens')
+            # self.graphLine = self.graph.create_line(0,0,0,0, fill='black')
+            # self.graph.bind("<Motion>", self.updateGraphLine)
+            # self.drawAxis()
+            #
+            # self.legend = tkinter.Canvas(self, background='#eff0f1')
+            # self.legend.grid(row=10, column=0, rowspan=4, columnspan=2, sticky='wens')
+            # self.legend.bind('<Configure>', self.legendResize)
 
 
         def legendResize(self, evt):
@@ -461,6 +463,38 @@ class View:
             self.isDisplayingEpisode = False
             self.waitCount = 0
 
+        def setupPage3(self):
+            self.parameterFrame.grid_forget()
+            self.slowLabel = ttk.Label(self, text='Displayed episode speed')
+            self.slowLabel.grid(row=2, column=0)
+            self.slowSlider = ttkwidgets.tickscale.TickScale(self, from_=1, to=20, resolution=1,
+                                                             orient=tkinter.HORIZONTAL)
+            slowSlider_ttp = View.CreateToolTip(self.slowSlider, "The speed at which to display the episodes")
+            self.slowSlider.set(10)
+            self.slowSlider.grid(row=3, column=0)
+
+            self.render = tkinter.Canvas(self, background='#eff0f1')
+            self.render.grid(row=2, column=1, rowspan=4, columnspan=2, sticky='wens')
+
+            self.displayedEpisodeNum = ttk.Label(self, text='Showing episode')
+            self.displayedEpisodeNum.grid(row=4, column=0)
+
+            self.curEpisodeNum = ttk.Label(self, text='Episodes completed:')
+            self.curEpisodeNum.grid(row=5, column=0)
+
+            self.graph = tkinter.Canvas(self, background='#eff0f1')
+            self.graph.grid(row=0, column=1, rowspan=1, columnspan=1, sticky='wens')
+            self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
+            self.graph.bind("<Motion>", self.updateGraphLine)
+            self.drawAxis()
+
+            self.legend = tkinter.Canvas(self, background='#eff0f1')
+            self.legend.grid(row=0, column=0, sticky='wens')
+            self.legend.bind('<Configure>', self.legendResize)
+
+            ttk.Label(self, text=' ').grid(row=6, column=0)
+            self.frame.pack()
+
         def train(self):
             if not self.listener.modelIsRunning(self.tabID):
                 self.smoothAmt = 20
@@ -468,13 +502,15 @@ class View:
                     # total_episodes = int(self.numEps.get())
                     # max_steps = int(self.maxSteps.get())
 
+                    self.setupPage3()
+
                     self.listener.startTraining(self.tabID, self.parameterFrame.getParameters())
                     self.trainingEpisodes = 0
                     self.curTotalEpisodes = self.parameterFrame.getParameters()[0]
                     self.resetGraph()
                     self.checkMessages()
-                    self.legend.itemconfig(self.testResult1, text='')
-                    self.legend.itemconfig(self.testResult2, text='')
+                    # self.legend.itemconfig(self.testResult1, text='')
+                    # self.legend.itemconfig(self.testResult2, text='')
                 except ValueError:
                     print('Bad Hyperparameters')
 
@@ -529,6 +565,7 @@ class View:
             self.episodeAccReward = 0
             self.episodeAccEpsilon = 0
             self.graph.delete('all')
+            self.drawAxis()
             self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
             self.redrawGraphXAxis()
 
@@ -610,6 +647,7 @@ class View:
                 self.graph.create_text(x, h - self.graphBottomMargin / 2, text=str(ind), anchor='n')
 
         def redrawGraph(self, full):
+            self.drawAxis()
             if full:
                 lastN = len(self.graphDataPoints)
                 self.curLossAccum = 0
@@ -670,6 +708,13 @@ class View:
                     self.curLossAccum += avgLoss
                     self.curRewardAccum += totalReward
 
+        def drawAxis(self):
+            self.graph.create_line(2, 0, 2, self.graph.winfo_height(), fill='black')
+            # self.graph.create_line(0, int(self.graph.winfo_height()/2), self.graph.winfo_width(),
+            #                        int(self.graph.winfo_height()/2), fill='black')
+            self.graph.create_line(0, self.graph.winfo_height() - 3, self.graph.winfo_width(),
+                                   self.graph.winfo_height() - 3, fill='black')
+
         def accumulateState(self, state):
             if state.epsilon:
                 self.episodeAccEpsilon += state.epsilon
@@ -715,7 +760,7 @@ class View:
             self.master.tab(self, text=agent.displayName + '+' + env.displayName)
             self.parameterFrame.destroy()
             self.parameterFrame = self.ParameterFrame(self, agent, env)
-            self.parameterFrame.grid(row=2, column=0, columnspan=2)
+            self.parameterFrame.grid(row=0, column=0)
 
 
         def close(self):
