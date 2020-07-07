@@ -9,11 +9,13 @@ from PIL.ImageTk import PhotoImage
 import ttkwidgets
 
 from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, modelFreeAgent
-from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, mountainCarEnv
+from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, \
+    mountainCarEnv
 from MVC import helptext
 from MVC.model import Model
 from Agents.sarsa import sarsa
 import importlib.util
+
 
 class View:
     agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, sarsa]
@@ -27,9 +29,10 @@ class View:
     :param listener: the listener object that will handle user input
     :type listener: controller.ViewListener
     """
+
     def __init__(self, listener):
         self.root = ThemedTk(theme='breeze')
-        self.root.geometry('1150x635')
+        self.root.geometry('1150x655')
         # self.root.attributes('-fullscreen', True)
         self.listener = listener
         pw = View.ProjectWindow(self.root, listener)
@@ -87,7 +90,8 @@ class View:
         except:
             pass
 
-    class CreateToolTip(object):    # Source: https://stackoverflow.com/questions/3221956/how-do-i-display-tooltips-in-tkinter
+    class CreateToolTip(
+        object):  # Source: https://stackoverflow.com/questions/3221956/how-do-i-display-tooltips-in-tkinter
         def __init__(self, widget, text='widget info'):
             self.waittime = 500  # miliseconds
             self.wraplength = 180  # pixels
@@ -127,8 +131,8 @@ class View:
             self.tw.wm_overrideredirect(True)
             self.tw.wm_geometry("+%d+%d" % (x, y))
             label = tkinter.Label(self.tw, text=self.text, justify='left',
-                             background="#ffffff", relief='solid', borderwidth=1,
-                             wraplength=self.wraplength)
+                                  background="#ffffff", relief='solid', borderwidth=1,
+                                  wraplength=self.wraplength)
             label.pack(ipadx=1)
 
         def hidetip(self):
@@ -136,7 +140,6 @@ class View:
             self.tw = None
             if tw:
                 tw.destroy()
-
 
     class Window:
         def __init__(self, master, listener):
@@ -149,7 +152,6 @@ class View:
 
         def goBack(self):
             self.frame.destroy()
-
 
     class ProjectWindow(Window):
         def __init__(self, master, listener):
@@ -202,7 +204,7 @@ class View:
             self.tabs = [View.GeneralTab(self.tab, listener, self.tabIDCounter, self.frame)]
 
             for tab in self.tabs:
-                self.tab.add(tab, text='Tab '+str(self.tabIDCounter + 1))
+                self.tab.add(tab, text='Tab ' + str(self.tabIDCounter + 1))
                 self.tabIDCounter += 1
             addTab = ttk.Frame(self.tab)
             self.tab.add(addTab, text='+')
@@ -215,10 +217,10 @@ class View:
 
         def tabChange(self, event):
             tabIndex = event.widget.index('current')
-            if len(self.tabs) > 1 and tabIndex == len(self.tabs)-1:
+            if len(self.tabs) > 1 and tabIndex == len(self.tabs) - 1:
                 newTab = View.GeneralTab(self.tab, self.listener, self.tabIDCounter, self.frame)
                 self.tab.forget(self.tabs[-1])
-                self.tab.add(newTab, text='Tab '+str(self.tabIDCounter+1))
+                self.tab.add(newTab, text='Tab ' + str(self.tabIDCounter + 1))
                 self.tab.add(self.tabs[-1], text='+')
                 self.tabs = self.tabs[:-1] + [newTab] + [self.tabs[-1]]
                 self.tab.select(newTab)
@@ -233,10 +235,10 @@ class View:
                 while self.tabs[ind] != curTab:
                     ind += 1
                 self.tabs = self.tabs[:ind] + self.tabs[ind + 1:]
-                if ind == len(self.tabs)-1:
+                if ind == len(self.tabs) - 1:
                     self.tab.select(self.tabs[-2])
                 self.tab.forget(tkId)
-                self.tabIDCounter = self.tabs[-2].tabID+1
+                self.tabIDCounter = self.tabs[-2].tabID + 1
 
         def rechoose(self):
             tkId = self.tab.select()
@@ -245,7 +247,7 @@ class View:
                 curTab.parameterFrame.destroy()
                 curTab.parameterFrame = View.GeneralTab.ModelChooser(curTab)
                 curTab.parameterFrame.grid(row=0, column=0, rowspan=9)
-                self.tab.tab(curTab, text='Tab '+str(curTab.tabID+1))
+                self.tab.tab(curTab, text='Tab ' + str(curTab.tabID + 1))
 
         def train(self):
             tkId = self.tab.select()
@@ -304,12 +306,13 @@ class View:
                     # curTab.parameterFrame.envOpts.set(mod.CustomEnv.displayName)
                     # curTab.parameterFrame.selevUpdate()
                     # curTab.parameterFrame.slev.config(text='Selected Environment: ' + mod.CustomEnv.displayName)
-                # self.tabs[0].parameterFrame.slev
-                # self.slev.config(text='Selected Environment: ' + mod.CustomEnv.displayName)
+                    # self.tabs[0].parameterFrame.slev
+                    # self.slev.config(text='Selected Environment: ' + mod.CustomEnv.displayName)
                     View.environments = [mod.CustomEnv] + View.environments
 
                 for ind, tab in enumerate(self.tabs):
-                    if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
+                    if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame,
+                                                                       View.GeneralTab.ModelChooser):
                         tab.parameterFrame.destroy()
                         tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
                         tab.parameterFrame.grid(row=0, column=0, rowspan=9)
@@ -333,13 +336,13 @@ class View:
                     View.agents = [mod.CustomAgent] + View.agents
                 #
                 for ind, tab in enumerate(self.tabs):
-                    if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame, View.GeneralTab.ModelChooser):
+                    if isinstance(tab, View.GeneralTab) and isinstance(tab.parameterFrame,
+                                                                       View.GeneralTab.ModelChooser):
                         tab.parameterFrame.destroy()
                         tab.parameterFrame = View.GeneralTab.ModelChooser(tab)
                         tab.parameterFrame.grid(row=0, column=0, rowspan=9)
             except:
                 pass
-
 
     class GeneralTab(ttk.Frame):
         def __init__(self, tab, listener, tabID, frame):
@@ -392,7 +395,6 @@ class View:
             # # maxSteps_ttp = View.CreateToolTip(self.maxSteps, "The max number of timesteps permitted in an episode")
             # self.maxStepsVar.set('200')
 
-
             # Add model parameters here
             self.parameterFrame = self.ModelChooser(self)
             self.parameterFrame.grid(row=0, column=0, rowspan=9)
@@ -422,19 +424,18 @@ class View:
             # self.legend.grid(row=10, column=0, rowspan=4, columnspan=2, sticky='wens')
             # self.legend.bind('<Configure>', self.legendResize)
 
-
         def legendResize(self, evt):
             self.legend.delete('all')
             h = evt.height
-            p1, p2, p3, p4, p5 = h/5, 2*h/5, 3*h/5, 4*h/5, 9*h/10
+            p1, p2, p3, p4, p5 = h / 5, 2 * h / 5, 3 * h / 5, 4 * h / 5, 9 * h / 10
             self.legend.create_line(40, p1, 90, p1, fill='blue')
             self.legend.create_line(40, p2, 90, p2, fill='red')
             self.legend.create_line(40, p3, 90, p3, fill='green')
             self.lossLegend = self.legend.create_text(100, p1, text='MSE Episode Loss:', anchor='w')
             self.rewardLegend = self.legend.create_text(100, p2, text='Episode Reward:', anchor='w')
             self.epsilonLegend = self.legend.create_text(100, p3, text='Epsilon:', anchor='w')
-            self.testResult1 = self.legend.create_text(100,p4, text='', anchor='w')
-            self.testResult2 = self.legend.create_text(100,p5, text='', anchor='w')
+            self.testResult1 = self.legend.create_text(100, p4, text='', anchor='w')
+            self.testResult2 = self.legend.create_text(100, p5, text='', anchor='w')
 
         def updateGraphLine(self, evt):
             xVal = evt.x
@@ -442,11 +443,11 @@ class View:
             self.graph.coords(self.graphLine, [xVal, 0, xVal, height])
 
             if self.curTotalEpisodes:
-                smoothIndex = (int)(self.curTotalEpisodes*xVal/self.graph.winfo_width())-self.smoothAmt
+                smoothIndex = (int)(self.curTotalEpisodes * xVal / self.graph.winfo_width()) - self.smoothAmt
                 if len(self.smoothedDataPoints) > smoothIndex >= 0:
                     loss, reward, epsilon = self.smoothedDataPoints[smoothIndex]
                     self.legend.itemconfig(self.lossLegend, text='MSE Episode Loss: {:.4f}'.format(loss))
-                    self.legend.itemconfig(self.rewardLegend, text='Episode Reward: '+str(reward))
+                    self.legend.itemconfig(self.rewardLegend, text='Episode Reward: ' + str(reward))
                     self.legend.itemconfig(self.epsilonLegend, text='Epsilon: {:.4f}'.format(epsilon))
                 else:
                     self.legend.itemconfig(self.lossLegend, text='MSE Episode Loss:')
@@ -485,7 +486,11 @@ class View:
             self.graph.grid(row=0, column=2, rowspan=2, columnspan=1, sticky='wens')
             self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
             self.graph.bind("<Motion>", self.updateGraphLine)
-            self.drawAxis()
+
+            self.xAxisLabel = tkinter.Canvas(self, background='#eff0f1', height=15)
+            self.xAxisLabel.grid(row=2, column=2, rowspan=1, columnspan=1, sticky='wens')
+
+            # self.drawAxis()
 
             self.legend = tkinter.Canvas(self, background='#eff0f1', width=275)
             self.legend.grid(row=0, column=1, sticky='news')
@@ -536,12 +541,12 @@ class View:
 
         def save(self):
             if not self.listener.modelIsRunning(self.tabID):
-                filename = filedialog.asksaveasfilename(initialdir = "/",title = "Select file")
+                filename = filedialog.asksaveasfilename(initialdir="/", title="Select file")
                 self.listener.save(filename, self.tabID)
 
         def load(self):
             if not self.listener.modelIsRunning(self.tabID):
-                filename = filedialog.askopenfilename(initialdir = "/",title = "Select file")
+                filename = filedialog.askopenfilename(initialdir="/", title="Select file")
                 self.listener.load(filename, self.tabID)
 
         def saveResults(self):
@@ -550,13 +555,12 @@ class View:
 
             file.write("episode, loss, reward, epsilon\n")
             for episode, (loss, reward, epsilon) in enumerate(self.graphDataPoints):
-                file.write(str(episode)+","+str(loss)+","+str(reward)+","+str(epsilon)+"\n")
+                file.write(str(episode) + "," + str(loss) + "," + str(reward) + "," + str(epsilon) + "\n")
             file.close()
 
         def reset(self):
             if not self.listener.modelIsRunning(self.tabID):
                 self.listener.reset(self.tabID)
-
 
         def resetGraph(self):
             self.graphDataPoints.clear()
@@ -579,7 +583,7 @@ class View:
                     if message.data == Model.Message.EPISODE:
                         self.addEpisodeToGraph()
                         self.trainingEpisodes += 1
-                        self.curEpisodeNum.configure(text='Episodes completed: '+str(self.trainingEpisodes))
+                        self.curEpisodeNum.configure(text='Episodes completed: ' + str(self.trainingEpisodes))
                         if self.isDisplayingEpisode:
                             self.imageQueues[self.imageQueuesInd].clear()
                         else:
@@ -587,7 +591,7 @@ class View:
                             self.imageQueues[self.imageQueuesInd].clear()
                             self.isDisplayingEpisode = True
                             self.curImageIndDisplayed = 0
-                            self.displayedEpisodeNum.configure(text='Showing episode '+str(self.trainingEpisodes))
+                            self.displayedEpisodeNum.configure(text='Showing episode ' + str(self.trainingEpisodes))
                     elif message.data == Model.Message.TRAIN_FINISHED:
                         self.imageQueues[0].clear()
                         self.imageQueues[1].clear()
@@ -596,9 +600,9 @@ class View:
                         self.isDisplayingEpisode = False
                         self.waitCount = 0
                         totalReward = sum([reward for _, reward, _ in self.graphDataPoints])
-                        avgReward = totalReward/len(self.graphDataPoints)
-                        self.legend.itemconfig(self.testResult1, text='Total Training Reward: '+str(totalReward))
-                        self.legend.itemconfig(self.testResult2, text='Reward/Episode: '+str(avgReward))
+                        avgReward = totalReward / len(self.graphDataPoints)
+                        self.legend.itemconfig(self.testResult1, text='Total Training Reward: ' + str(totalReward))
+                        self.legend.itemconfig(self.testResult2, text='Reward/Episode: ' + str(avgReward))
                         return
                     elif message.data == Model.Message.TEST_FINISHED:
                         self.imageQueues[0].clear()
@@ -608,9 +612,9 @@ class View:
                         self.isDisplayingEpisode = False
                         self.waitCount = 0
                         totalReward = sum([reward for _, reward, _ in self.graphDataPoints])
-                        avgReward = totalReward/len(self.graphDataPoints)
-                        self.legend.itemconfig(self.testResult1, text='Total Test Reward: '+str(totalReward))
-                        self.legend.itemconfig(self.testResult2, text='Reward/Episode: '+str(avgReward))
+                        avgReward = totalReward / len(self.graphDataPoints)
+                        self.legend.itemconfig(self.testResult1, text='Total Test Reward: ' + str(totalReward))
+                        self.legend.itemconfig(self.testResult2, text='Reward/Episode: ' + str(avgReward))
                         return
                 elif message.type == Model.Message.STATE:
                     self.imageQueues[self.imageQueuesInd].append(message.data.image)
@@ -620,14 +624,14 @@ class View:
             self.master.after(10, self.checkMessages)
 
         def addEpisodeToGraph(self):
-            avgLoss = self.episodeAccLoss/self.curEpisodeSteps
+            avgLoss = self.episodeAccLoss / self.curEpisodeSteps
             totalReward = self.episodeAccReward
-            avgEpsilon = self.episodeAccEpsilon/self.curEpisodeSteps
+            avgEpsilon = self.episodeAccEpsilon / self.curEpisodeSteps
 
             avgState = (avgLoss, totalReward, avgEpsilon)
             self.graphDataPoints.append(avgState)
 
-            self.redrawGraph(len(self.graphDataPoints) % max(5,self.smoothAmt) == 0)
+            self.redrawGraph(len(self.graphDataPoints) % max(5, self.smoothAmt) == 0)
 
             self.curEpisodeSteps = 0
             self.episodeAccLoss = 0
@@ -650,17 +654,17 @@ class View:
                 self.graph.create_text(x, h - self.graphBottomMargin / 2, text=str(ind), anchor='n')
 
         def redrawGraph(self, full):
-            self.drawAxis()
             if full:
                 lastN = len(self.graphDataPoints)
                 self.curLossAccum = 0
                 self.curRewardAccum = 0
                 self.smoothedDataPoints.clear()
-                self.lossGraphMax = max(0.0000000000001, sorted([loss for loss, _, _ in self.graphDataPoints])[int((len(self.graphDataPoints)-1)*0.95)]*1.1)
+                self.lossGraphMax = max(0.0000000000001, sorted([loss for loss, _, _ in self.graphDataPoints])[
+                    int((len(self.graphDataPoints) - 1) * 0.95)] * 1.1)
                 rewardSorted = sorted([reward for _, reward, _ in self.graphDataPoints])
-                self.rewardGraphMax = rewardSorted[int((len(self.graphDataPoints)-1)*0.95)]
-                self.rewardGraphMin = rewardSorted[int((len(self.graphDataPoints)-1)*0.05)]
-                extendAmt = 0.1*(self.rewardGraphMax - self.rewardGraphMin)
+                self.rewardGraphMax = rewardSorted[int((len(self.graphDataPoints) - 1) * 0.95)]
+                self.rewardGraphMin = rewardSorted[int((len(self.graphDataPoints) - 1) * 0.05)]
+                extendAmt = 0.1 * (self.rewardGraphMax - self.rewardGraphMin)
                 self.rewardGraphMax += extendAmt
                 self.rewardGraphMin -= extendAmt
 
@@ -676,40 +680,43 @@ class View:
             h = self.graph.winfo_height()
 
             offset = len(self.graphDataPoints) - lastN
-            for ind in range(max(0,offset), len(self.graphDataPoints)):
+            for ind in range(max(0, offset), len(self.graphDataPoints)):
                 oldX = w * (ind / self.curTotalEpisodes)
-                newX = w * ((ind+1) / self.curTotalEpisodes)
+                newX = w * ((ind + 1) / self.curTotalEpisodes)
                 avgLoss, totalReward, avgEpsilon = self.graphDataPoints[ind]
                 if ind > 0:
-                    _, _, prevEpsilon = self.graphDataPoints[ind-1]
+                    _, _, prevEpsilon = self.graphDataPoints[ind - 1]
                     oldY = h * (1 - prevEpsilon)
                     newY = h * (1 - avgEpsilon)
                     self.graph.create_line(oldX, oldY, newX, newY, fill='green')
 
                 if ind >= self.smoothAmt:
-                    prevLoss, prevReward = self.curLossAccum/self.smoothAmt, self.curRewardAccum/self.smoothAmt
-                    (obsLoss, obsReward, _) = self.graphDataPoints[ind-self.smoothAmt]
+                    prevLoss, prevReward = self.curLossAccum / self.smoothAmt, self.curRewardAccum / self.smoothAmt
+                    (obsLoss, obsReward, _) = self.graphDataPoints[ind - self.smoothAmt]
 
                     self.curLossAccum -= obsLoss
                     self.curRewardAccum -= obsReward
                     self.curLossAccum += avgLoss
                     self.curRewardAccum += totalReward
 
-                    curReward = self.curRewardAccum/self.smoothAmt
-                    curLoss = self.curLossAccum/self.smoothAmt
+                    curReward = self.curRewardAccum / self.smoothAmt
+                    curLoss = self.curLossAccum / self.smoothAmt
                     self.smoothedDataPoints.append((curLoss, curReward, avgEpsilon))
 
                     rewardRange = max(0.000000001, self.rewardGraphMax - self.rewardGraphMin)
-                    oldY = self.graphBottomMargin + (h - self.graphBottomMargin) * (1 - (prevReward - self.rewardGraphMin)/rewardRange)
-                    newY = self.graphBottomMargin + (h - self.graphBottomMargin) * (1 - (curReward - self.rewardGraphMin)/rewardRange)
+                    oldY = self.graphBottomMargin + (h - self.graphBottomMargin) * (
+                                1 - (prevReward - self.rewardGraphMin) / rewardRange)
+                    newY = self.graphBottomMargin + (h - self.graphBottomMargin) * (
+                                1 - (curReward - self.rewardGraphMin) / rewardRange)
                     self.graph.create_line(oldX, oldY, newX, newY, fill='red')
 
-                    oldY = h*(1 - prevLoss/self.lossGraphMax)
-                    newY = h*(1 - curLoss/self.lossGraphMax)
+                    oldY = h * (1 - prevLoss / self.lossGraphMax)
+                    newY = h * (1 - curLoss / self.lossGraphMax)
                     self.graph.create_line(oldX, oldY, newX, newY, fill='blue')
                 else:
                     self.curLossAccum += avgLoss
                     self.curRewardAccum += totalReward
+            self.drawAxis()
 
         def drawAxis(self):
             self.graph.create_line(2, 0, 2, self.graph.winfo_height(), fill='black')
@@ -717,8 +724,8 @@ class View:
             #                        int(self.graph.winfo_height()/2), fill='black')
             self.graph.create_line(0, self.graph.winfo_height() - 3, self.graph.winfo_width(),
                                    self.graph.winfo_height() - 3, fill='black')
-            self.graph.create_text(int(self.graph.winfo_width()/2), self.graph.winfo_height() - 10,
-                                   text='Timestamp', anchor='center')
+            self.xAxisLabel.create_text(int(self.xAxisLabel.winfo_width() / 2), int(self.xAxisLabel.winfo_height() / 2),
+                                        text='Timestamp', anchor='center')
 
         def accumulateState(self, state):
             if state.epsilon:
@@ -735,12 +742,13 @@ class View:
                 if self.waitCount >= 21 - self.slowSlider.get():
                     self.waitCount = 0
                     tempImage = displayQueue[self.curImageIndDisplayed]
-                    self.curImageIndDisplayed = self.curImageIndDisplayed+1
+                    self.curImageIndDisplayed = self.curImageIndDisplayed + 1
                     if self.curImageIndDisplayed == len(displayQueue):
                         self.curImageIndDisplayed = 0
                         self.isDisplayingEpisode = False
                     tempImage = tempImage.resize((self.render.winfo_width(), self.render.winfo_height()))
-                    self.image = ImageTk.PhotoImage(tempImage) # must maintain a reference to this image in self: otherwise will be garbage collected
+                    self.image = ImageTk.PhotoImage(
+                        tempImage)  # must maintain a reference to this image in self: otherwise will be garbage collected
                     if self.renderImage:
                         self.render.delete(self.renderImage)
                     self.renderImage = self.render.create_image(0, 0, anchor='nw', image=self.image)
@@ -754,10 +762,8 @@ class View:
                 if self.parameterFrame.envOpts.get() == env.displayName:
                     break
 
-
-
-            if issubclass(agent, qTable.QTable) and\
-                    not issubclass(env, cartPoleEnvDiscrete.CartPoleEnvDiscrete) and\
+            if issubclass(agent, qTable.QTable) and \
+                    not issubclass(env, cartPoleEnvDiscrete.CartPoleEnvDiscrete) and \
                     not issubclass(env, frozenLakeEnv.FrozenLakeEnv):
                 messagebox.showerror("Error", "Agent is not compatible with this environment")
                 return
@@ -782,7 +788,7 @@ class View:
 
                 self.createParameterChooser(
                     agent.Agent.Parameter('Number of Episodes', 1, 655360, 1, 1000, True, True,
-                                                            "The number of episodes to run the model on"))
+                                          "The number of episodes to run the model on"))
                 self.createParameterChooser(
                     agent.Agent.Parameter('Max Size', 1, 655360, 1, 200, True, True,
                                           "The max number of timesteps permitted in an episode"))
@@ -817,9 +823,11 @@ class View:
                                                                     pady=5)
                 valVar = tkinter.StringVar()
                 input = None
+
                 def scaleChanged(val):
                     if subFrame.focus_get() != input:
                         valVar.set(val)
+
                 scale = ttkwidgets.tickscale.TickScale(subFrame, from_=param.min, to=param.max,
                                                        resolution=param.resolution,
                                                        orient=tkinter.HORIZONTAL, command=scaleChanged, length=170)
@@ -834,6 +842,7 @@ class View:
                             scale.set(float(valVar.get()))
                     except ValueError:
                         pass
+
                 valVar.trace_add('write', entryChanged)
                 input = ttk.Entry(subFrame, textvariable=valVar)
                 valVar.set(str(param.default))
@@ -870,7 +879,7 @@ class View:
                 self.slev.pack()
 
                 for e in envName:
-                    epic = Image.open(imgloc+e+imty)
+                    epic = Image.open(imgloc + e + imty)
                     epic = epic.resize((50, 50), Image.ANTIALIAS)
                     piepic = PhotoImage(epic)
 
@@ -917,19 +926,19 @@ class View:
                 self.title.grid(row=1, column=4, columnspan=2, sticky='wens')
 
                 self.frozenLakeButton = ttk.Button(self.frame, text='Frozen Lake', fg='black',
-                                                       command=self.chooseFrozenLake)
+                                                   command=self.chooseFrozenLake)
                 self.frozenLakeButton.grid(row=2, column=4, columnspan=2, sticky='wens')
 
                 self.cartPoleButton = ttk.Button(self.frame, text='Cart Pole', fg='black',
-                                                     command=self.chooseCartPoleEnv)
+                                                 command=self.chooseCartPoleEnv)
                 self.cartPoleButton.grid(row=3, column=4, columnspan=2, sticky='wens')
 
                 self.cartPoleDiscreteButton = ttk.Button(self.frame, text='Cart Pole Discretized', fg='black',
-                                                             command=self.chooseCartPoleDiscreteEnv)
+                                                         command=self.chooseCartPoleDiscreteEnv)
                 self.cartPoleDiscreteButton.grid(row=4, column=4, columnspan=2, sticky='wens')
 
                 self.customButton = ttk.Button(self.frame, text='Custom Environment', fg='black',
-                                                   command=self.chooseCustom)
+                                               command=self.chooseCustom)
                 self.customButton.grid(row=5, column=4, columnspan=2, sticky='wens')
 
                 self.frame.grid(row=0, column=0)
