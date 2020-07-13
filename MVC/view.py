@@ -33,6 +33,7 @@ class View:
     def __init__(self, listener):
         self.root = ThemedTk(theme='breeze')
         self.root.geometry('1150x655')
+        self.root.title('EasyRL')
         # self.root.attributes('-fullscreen', True)
         self.listener = listener
         pw = View.ProjectWindow(self.root, listener)
@@ -575,6 +576,7 @@ class View:
             # self.drawAxis()
             self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
             self.redrawGraphXAxis()
+            self.drawAxis()
 
         def checkMessages(self):
             while self.listener.getQueue(self.tabID).qsize():
@@ -870,7 +872,7 @@ class View:
                 imgloc = "./img/"
                 imty = '.jpg'
 
-                entxb = tkinter.Text(subFrame, height=5, width=50, wrap=tkinter.NONE)
+                entxb = tkinter.Text(subFrame, height=5, width=163, wrap=tkinter.NONE)
                 enscb = ttk.Scrollbar(subFrame, orient=tkinter.HORIZONTAL, command=entxb.xview)
                 entxb.configure(xscrollcommand=enscb.set)
                 enscb.pack(fill=tkinter.X)
@@ -890,7 +892,7 @@ class View:
 
                 entxb.configure(state=tkinter.DISABLED)
 
-                agtxb = tkinter.Text(subFrame, height=2, width=50, wrap=tkinter.NONE)
+                agtxb = tkinter.Text(subFrame, height=2, width=163, wrap=tkinter.NONE)
                 agscb = ttk.Scrollbar(subFrame, orient=tkinter.HORIZONTAL, command=agtxb.xview)
                 agtxb.configure(xscrollcommand=agscb.set)
                 agscb.pack(fill=tkinter.X)
@@ -915,7 +917,7 @@ class View:
                 self.slev.config(text=envUpdate)
 
             def selagUpdate(self):
-                agUpdate = 'Selected Environment: ' + self.agentOpts.get()
+                agUpdate = 'Selected Agent: ' + self.agentOpts.get()
                 self.slag.config(text=agUpdate)
 
         class EnvironmentChooser(ttk.Frame):
