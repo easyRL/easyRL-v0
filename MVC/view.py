@@ -578,7 +578,7 @@ class View:
             self.graphBottomMarginBlue = 0
             self.graphBottomMarginRed = 0
             self.graph.delete('all')
-            # self.drawAxis()
+            self.drawAxis()
             self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
             self.redrawGraphXAxis()
 
