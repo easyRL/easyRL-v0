@@ -878,7 +878,7 @@ class View:
                 enscb.pack(fill=tkinter.X)
                 entxb.pack()
                 self.slev = ttk.Label(subFrame, text='Selected Environment: None')
-                self.slev.pack()
+                self.slev.pack(pady=(15,10))
 
                 for e in envName:
                     epic = Image.open(imgloc + e + imty)
@@ -898,7 +898,7 @@ class View:
                 agscb.pack(fill=tkinter.X)
                 agtxb.pack()
                 self.slag = ttk.Label(subFrame, text='Selected Agent: None')
-                self.slag.pack()
+                self.slag.pack(pady=(10,15))
 
                 for a in agtName:
                     ab = ttk.Radiobutton(agtxb, text=a, variable=self.agentOpts, value=a, command=self.selagUpdate,
