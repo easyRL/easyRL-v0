@@ -654,7 +654,6 @@ class View:
                 self.graph.create_text(x, h - self.graphBottomMargin / 2, text=str(ind), anchor='n')
 
         def redrawGraph(self, full):
-            isPositive = True
             if full:
                 lastN = len(self.graphDataPoints)
                 self.curLossAccum = 0
@@ -706,12 +705,10 @@ class View:
 
                     rewardRange = max(0.000000001, self.rewardGraphMax - self.rewardGraphMin)
                     oldY = self.graphBottomMargin + (h - self.graphBottomMargin) * (
-                            1 - (prevReward - self.rewardGraphMin) / rewardRange)
+                                1 - (prevReward - self.rewardGraphMin) / rewardRange)
                     newY = self.graphBottomMargin + (h - self.graphBottomMargin) * (
-                            1 - (curReward - self.rewardGraphMin) / rewardRange)
+                                1 - (curReward - self.rewardGraphMin) / rewardRange)
                     self.graph.create_line(oldX, oldY, newX, newY, fill='red')
-                    if curReward < 0:
-                        isPositive = False
 
                     oldY = h * (1 - prevLoss / self.lossGraphMax)
                     newY = h * (1 - curLoss / self.lossGraphMax)
@@ -719,17 +716,14 @@ class View:
                 else:
                     self.curLossAccum += avgLoss
                     self.curRewardAccum += totalReward
+            self.drawAxis()
 
-            if isPositive:
-                self.drawAxis(self.graph.winfo_height() - 3)
-            else:
-                self.drawAxis(self.graphBottomMargin + (h - self.graphBottomMargin) * (
-                        1 - (0 - self.rewardGraphMin) / rewardRange))
-
-        def drawAxis(self, y):
+        def drawAxis(self):
             self.graph.create_line(2, 0, 2, self.graph.winfo_height(), fill='black')
-            self.graph.create_line(0, y, self.graph.winfo_width(),
-                                   y, fill='black')
+            # self.graph.create_line(0, int(self.graph.winfo_height()/2), self.graph.winfo_width(),
+            #                        int(self.graph.winfo_height()/2), fill='black')
+            self.graph.create_line(0, self.graph.winfo_height() - 3, self.graph.winfo_width(),
+                                   self.graph.winfo_height() - 3, fill='black')
             self.xAxisLabel.create_text(int(self.xAxisLabel.winfo_width() / 2), int(self.xAxisLabel.winfo_height() / 2),
                                         text='Timestamp', anchor='center')
 
