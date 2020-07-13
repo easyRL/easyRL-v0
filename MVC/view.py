@@ -572,7 +572,7 @@ class View:
             self.episodeAccReward = 0
             self.episodeAccEpsilon = 0
             self.graph.delete('all')
-            self.drawAxis()
+            # self.drawAxis()
             self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
             self.redrawGraphXAxis()
 
