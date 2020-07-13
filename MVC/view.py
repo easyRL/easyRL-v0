@@ -361,6 +361,7 @@ class View:
 
             self.curTotalEpisodes = None
             self.graphDataPoints = []
+            # self.graphDataPoints.append((0, 0, 0))
             self.smoothedDataPoints = []
             self.curLossAccum = 0
             self.curRewardAccum = 0
@@ -374,6 +375,8 @@ class View:
             self.rewardGraphMax = 100
             self.lossGraphMax = 100
             self.graphBottomMargin = 50
+            self.graphBottomMarginBlue = 0
+            self.graphBottomMarginRed = 0
 
             self.listener = listener
 
@@ -564,6 +567,7 @@ class View:
 
         def resetGraph(self):
             self.graphDataPoints.clear()
+            # self.graphDataPoints.append((0, 0, 0))
             self.smoothedDataPoints.clear()
             self.curLossAccum = 0
             self.curRewardAccum = 0
@@ -571,6 +575,8 @@ class View:
             self.episodeAccLoss = 0
             self.episodeAccReward = 0
             self.episodeAccEpsilon = 0
+            self.graphBottomMarginBlue = 0
+            self.graphBottomMarginRed = 0
             self.graph.delete('all')
             # self.drawAxis()
             self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
@@ -600,7 +606,7 @@ class View:
                         self.isDisplayingEpisode = False
                         self.waitCount = 0
                         totalReward = sum([reward for _, reward, _ in self.graphDataPoints])
-                        avgReward = totalReward / len(self.graphDataPoints)
+                        avgReward = totalReward / (len(self.graphDataPoints))
                         self.legend.itemconfig(self.testResult1, text='Total Training Reward: ' + str(totalReward))
                         self.legend.itemconfig(self.testResult2, text='Reward/Episode: ' + str(avgReward))
                         return
@@ -655,6 +661,8 @@ class View:
 
         def redrawGraph(self, full):
             isPositive = True
+            isBlueNegative = False
+            isRedNegative = False
             if full:
                 lastN = len(self.graphDataPoints)
                 self.curLossAccum = 0
@@ -662,15 +670,17 @@ class View:
                 self.smoothedDataPoints.clear()
                 self.lossGraphMax = max(0.0000000000001, sorted([loss for loss, _, _ in self.graphDataPoints])[
                     int((len(self.graphDataPoints) - 1) * 0.95)] * 1.1)
+                # rewardSorted = sorted([reward for _, reward, _ in self.graphDataPoints + [(0, 0, 0)]])
                 rewardSorted = sorted([reward for _, reward, _ in self.graphDataPoints])
-                self.rewardGraphMax = rewardSorted[int((len(self.graphDataPoints) - 1) * 0.95)]
-                self.rewardGraphMin = rewardSorted[int((len(self.graphDataPoints) - 1) * 0.05)]
-                extendAmt = 0.1 * (self.rewardGraphMax - self.rewardGraphMin)
+                self.rewardGraphMax = rewardSorted[int((len(self.graphDataPoints) ) * 0.95)]
+                self.rewardGraphMin = rewardSorted[int((len(self.graphDataPoints) ) * 0.05)]
+                # extendAmt = 0.1 * (self.rewardGraphMax - self.rewardGraphMin)
+                extendAmt = 0.1 * (rewardSorted[len(rewardSorted) - 1] - rewardSorted[0])
                 self.rewardGraphMax += extendAmt
                 self.rewardGraphMin -= extendAmt
 
-                print('loss graph max:', self.lossGraphMax)
-                print('reward graph min/max:', self.rewardGraphMin, self.rewardGraphMax)
+                # print('loss graph max:', self.lossGraphMax)
+                # print('reward graph min/max:', self.rewardGraphMin, self.rewardGraphMax)
                 self.graph.delete('all')
                 self.redrawGraphXAxis()
                 self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
@@ -685,11 +695,6 @@ class View:
                 oldX = w * (ind / self.curTotalEpisodes)
                 newX = w * ((ind + 1) / self.curTotalEpisodes)
                 avgLoss, totalReward, avgEpsilon = self.graphDataPoints[ind]
-                if ind > 0:
-                    _, _, prevEpsilon = self.graphDataPoints[ind - 1]
-                    oldY = h * (1 - prevEpsilon)
-                    newY = h * (1 - avgEpsilon)
-                    self.graph.create_line(oldX, oldY, newX, newY, fill='green')
 
                 if ind >= self.smoothAmt:
                     prevLoss, prevReward = self.curLossAccum / self.smoothAmt, self.curRewardAccum / self.smoothAmt
@@ -705,26 +710,47 @@ class View:
                     self.smoothedDataPoints.append((curLoss, curReward, avgEpsilon))
 
                     rewardRange = max(0.000000001, self.rewardGraphMax - self.rewardGraphMin)
-                    oldY = self.graphBottomMargin + (h - self.graphBottomMargin) * (
+                    oldY = self.graphBottomMarginRed + (h - self.graphBottomMarginRed) * (
                             1 - (prevReward - self.rewardGraphMin) / rewardRange)
-                    newY = self.graphBottomMargin + (h - self.graphBottomMargin) * (
+                    newY = self.graphBottomMarginRed + (h - self.graphBottomMarginRed) * (
                             1 - (curReward - self.rewardGraphMin) / rewardRange)
                     self.graph.create_line(oldX, oldY, newX, newY, fill='red')
+
                     if curReward < 0:
                         isPositive = False
+                    if newY < 0:
+                        isRedNegative = True
 
-                    oldY = h * (1 - prevLoss / self.lossGraphMax)
-                    newY = h * (1 - curLoss / self.lossGraphMax)
+                    oldY = self.graphBottomMarginBlue + (h - self.graphBottomMarginBlue) * (
+                            1 - prevLoss / self.lossGraphMax)
+                    newY = self.graphBottomMarginBlue + (h - self.graphBottomMarginBlue) * (
+                            1 - curLoss / self.lossGraphMax)
+                    if newY < 0:
+                        isBlueNegative = True
                     self.graph.create_line(oldX, oldY, newX, newY, fill='blue')
                 else:
                     self.curLossAccum += avgLoss
                     self.curRewardAccum += totalReward
 
-            if isPositive:
+                if ind > 0:
+                    _, _, prevEpsilon = self.graphDataPoints[ind - 1]
+                    oldY = h * (1 - prevEpsilon)
+                    newY = h * (1 - avgEpsilon)
+                    self.graph.create_line(oldX, oldY, newX, newY, fill='green')
+
+            if isPositive or self.graphBottomMargin + (h - self.graphBottomMargin) * (
+                    1 - (0 - self.rewardGraphMin) / rewardRange) > self.graph.winfo_height() - 3:
                 self.drawAxis(self.graph.winfo_height() - 3)
             else:
-                self.drawAxis(self.graphBottomMargin + (h - self.graphBottomMargin) * (
+                print(self.graphBottomMargin + (h - self.graphBottomMargin) * (
                         1 - (0 - self.rewardGraphMin) / rewardRange))
+                self.drawAxis(self.graphBottomMarginRed + (h - self.graphBottomMarginRed) * (
+                        1 - (0 - self.rewardGraphMin) / rewardRange))
+
+            if isBlueNegative:
+                self.graphBottomMarginBlue += 50
+            if isRedNegative:
+                self.graphBottomMarginRed += 50
 
         def drawAxis(self, y):
             self.graph.create_line(2, 0, 2, self.graph.winfo_height(), fill='black')
