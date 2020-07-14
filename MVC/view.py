@@ -1,7 +1,9 @@
 import tkinter
 from tkinter import ttk
-from tkinter import filedialog
+from tkinter import filedialog, W
 from tkinter import messagebox
+from tkinter.ttk import Style
+
 from ttkthemes import ThemedTk
 from PIL import Image
 from PIL import ImageTk
@@ -31,8 +33,9 @@ class View:
     """
 
     def __init__(self, listener):
-        self.root = ThemedTk(theme='breeze')
-        self.root.geometry('1150x655')
+        self.root = ThemedTk(theme='keramik')
+        self.root.geometry('1100x653')
+        self.root.configure(bg="gray80")
         self.root.title('EasyRL')
         # self.root.attributes('-fullscreen', True)
         self.listener = listener
@@ -173,16 +176,16 @@ class View:
             # self.loadAgentButton.grid(row=0, column=3)
             # load_agent_button_ttp = View.CreateToolTip(self.loadAgentButton, "Load Custom Agent")
             tempFrame = tkinter.Frame(self.frame)
-            train = ttk.Button(tempFrame, text='Train', command=self.train)
+            train = tkinter.Button(tempFrame, text='Train', command=self.train)
             train.pack(side='left')
             train_button_ttp = View.CreateToolTip(train, "Train the agent with the current settings")
-            halt = ttk.Button(tempFrame, text='Halt', command=self.halt)
+            halt = tkinter.Button(tempFrame, text='Halt', command=self.halt)
             halt.pack(side='left')
             halt_button_ttp = View.CreateToolTip(halt, "Pause the current training")
-            test = ttk.Button(tempFrame, text='Test', command=self.test)
+            test = tkinter.Button(tempFrame, text='Test', command=self.test)
             test.pack(side='left')
             test_button_ttp = View.CreateToolTip(test, "Test the agent in its current state")
-            save = ttk.Button(tempFrame, text='Save Model', command=self.save)
+            save = tkinter.Button(tempFrame, text='Save Model', command=self.save)
             save.pack(side='left')
             save_button_ttp = View.CreateToolTip(save, "Save the agent in its current state")
             # load = ttk.Button(tempFrame, text='Load Agent', command=self.loadAgent)
@@ -190,14 +193,14 @@ class View:
             # btnLoadEnv = ttk.Button(tempFrame, text='Load Environment', command=self.loadEnv)
             # btnLoadEnv.pack(side='left')
             # load_button_ttp = View.CreateToolTip(load, "Load an agent")
-            reset = ttk.Button(tempFrame, text='Reset', command=self.reset)
+            reset = tkinter.Button(tempFrame, text='Reset', command=self.reset)
             reset.pack(side='left')
             reset_button_ttp = View.CreateToolTip(reset, "Reset the current agent and its parameters")
-            save_results = ttk.Button(tempFrame, text='Save Results', command=self.saveResults)
+            save_results = tkinter.Button(tempFrame, text='Save Results', command=self.saveResults)
             save_results.pack(side='left')
             save_results_button_ttp = View.CreateToolTip(save_results,
                                                          "Save the results of the current training session")
-            tempFrame.grid(row=0, column=0, columnspan=5)
+            tempFrame.grid(row=0, column=0, columnspan=9, sticky = W)
 
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
@@ -211,7 +214,7 @@ class View:
             self.tab.add(addTab, text='+')
             self.tabs.append(addTab)
 
-            self.tab.grid(row=1, column=0, rowspan=9, columnspan=10, sticky='wens')
+            self.tab.grid(row=1, column=0, rowspan=9, columnspan=9, sticky='wens')
 
             self.frame.pack()
             self.frame.lift()
@@ -474,8 +477,10 @@ class View:
             self.slowSlider.set(10)
             self.slowSlider.grid(row=5, column=1, sticky="news")
 
-            self.render = tkinter.Canvas(self, background='#eff0f1')
+            self.render = tkinter.Canvas(self, bg="gray80", highlightbackground="gray80")
             self.render.grid(row=4, column=2, rowspan=6, columnspan=2, sticky='wens')
+
+            # tkinter.Canvas(self, height=15,bg="gray80").grid(row=2, column=1, rowspan=1, columnspan=1, sticky='wens')
 
             self.displayedEpisodeNum = ttk.Label(self, text='Showing episode')
             self.displayedEpisodeNum.grid(row=7, column=1)
@@ -483,17 +488,17 @@ class View:
             self.curEpisodeNum = ttk.Label(self, text='Episodes completed:')
             self.curEpisodeNum.grid(row=8, column=1)
 
-            self.graph = tkinter.Canvas(self, background='#eff0f1')
+            self.graph = tkinter.Canvas(self,bg="gray80", highlightbackground="gray80")
             self.graph.grid(row=0, column=2, rowspan=2, columnspan=1, sticky='wens')
             self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
             self.graph.bind("<Motion>", self.updateGraphLine)
 
-            self.xAxisLabel = tkinter.Canvas(self, background='#eff0f1', height=15)
+            self.xAxisLabel = tkinter.Canvas(self, height=15,bg="gray80", highlightbackground="gray80")
             self.xAxisLabel.grid(row=2, column=2, rowspan=1, columnspan=1, sticky='wens')
 
             # self.drawAxis()
-
-            self.legend = tkinter.Canvas(self, background='#eff0f1', width=275)
+            # background='#eff0f1'
+            self.legend = tkinter.Canvas(self, bg="gray80", width=275, highlightbackground="gray80")
             self.legend.grid(row=0, column=1, sticky='news')
             self.legend.bind('<Configure>', self.legendResize)
 
@@ -872,37 +877,40 @@ class View:
                 imgloc = "./img/"
                 imty = '.jpg'
 
-                entxb = tkinter.Text(subFrame, height=5, width=163, wrap=tkinter.NONE)
+                entxb = tkinter.Text(subFrame, height=5, width=137, wrap=tkinter.NONE, bg="gray80")
                 enscb = ttk.Scrollbar(subFrame, orient=tkinter.HORIZONTAL, command=entxb.xview)
                 entxb.configure(xscrollcommand=enscb.set)
                 enscb.pack(fill=tkinter.X)
                 entxb.pack()
                 self.slev = ttk.Label(subFrame, text='Selected Environment: None')
-                self.slev.pack(pady=(15,10))
+                self.slev.pack(pady=(20,30))
+                # style = Style()
+                # style.configure('TButton', activebackground="gray80",
+                #                 borderwidth='4', )
 
                 for e in envName:
                     epic = Image.open(imgloc + e + imty)
                     epic = epic.resize((50, 50), Image.ANTIALIAS)
                     piepic = PhotoImage(epic)
 
-                    eb = ttk.Radiobutton(entxb, image=piepic, text=e, variable=self.envOpts, value=e,
-                                         command=self.selevUpdate, style='TButton', compound=tkinter.TOP)
+                    eb = tkinter.Radiobutton(entxb, image=piepic, text=e, variable=self.envOpts, value=e,
+                                         command=self.selevUpdate, compound=tkinter.TOP, indicatoron=0)
                     eb.piepic = piepic
                     entxb.window_create(tkinter.END, window=eb)
 
                 entxb.configure(state=tkinter.DISABLED)
 
-                agtxb = tkinter.Text(subFrame, height=2, width=163, wrap=tkinter.NONE)
+                agtxb = tkinter.Text(subFrame, height=2, width=137, wrap=tkinter.NONE, bg="gray80")
                 agscb = ttk.Scrollbar(subFrame, orient=tkinter.HORIZONTAL, command=agtxb.xview)
                 agtxb.configure(xscrollcommand=agscb.set)
                 agscb.pack(fill=tkinter.X)
                 agtxb.pack()
                 self.slag = ttk.Label(subFrame, text='Selected Agent: None')
-                self.slag.pack(pady=(10,15))
+                self.slag.pack(pady=(15,30))
 
                 for a in agtName:
-                    ab = ttk.Radiobutton(agtxb, text=a, variable=self.agentOpts, value=a, command=self.selagUpdate,
-                                         style='TButton', compound=tkinter.TOP)
+                    ab = tkinter.Radiobutton(agtxb, text=a, variable=self.agentOpts, value=a, command=self.selagUpdate,
+                                         compound=tkinter.TOP, indicatoron=0)
                     agtxb.window_create(tkinter.END, window=ab)
 
                 agtxb.configure(state=tkinter.DISABLED)
