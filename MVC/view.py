@@ -916,7 +916,7 @@ class View:
                 agtxb.configure(state=tkinter.DISABLED)
 
                 subFrame.pack()
-                set_model = ttk.Button(self, text='Set Model', command=master.selectModel)
+                set_model = tkinter.Button(self, text='Set Model', command=master.selectModel)
                 set_model.pack()
                 View.CreateToolTip(set_model, "Run program with the currently selected environment and agent")
 
