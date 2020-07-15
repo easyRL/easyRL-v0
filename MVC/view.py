@@ -889,13 +889,18 @@ class View:
                 #                 borderwidth='4', )
 
                 for e in envName:
-                    epic = Image.open(imgloc + e + imty)
-                    epic = epic.resize((50, 50), Image.ANTIALIAS)
-                    piepic = PhotoImage(epic)
+                    try:
+                        epic = Image.open(imgloc + e + imty)
+                        epic = epic.resize((50, 50), Image.ANTIALIAS)
+                        piepic = PhotoImage(epic)
 
-                    eb = tkinter.Radiobutton(entxb, image=piepic, text=e, variable=self.envOpts, value=e,
-                                         command=self.selevUpdate, compound=tkinter.TOP, indicatoron=0)
-                    eb.piepic = piepic
+                        eb = tkinter.Radiobutton(entxb, image=piepic, text=e, variable=self.envOpts, value=e,
+                                             command=self.selevUpdate, compound=tkinter.TOP, indicatoron=0, height=70)
+                        eb.piepic = piepic
+                    except IOError:
+                        eb = tkinter.Radiobutton(entxb, text=e, variable=self.envOpts, value=e,
+                                         command=self.selevUpdate, compound=tkinter.TOP, indicatoron=0, height=5)
+                    #     anchor=tkinter.S
                     entxb.window_create(tkinter.END, window=eb)
 
                 entxb.configure(state=tkinter.DISABLED)
