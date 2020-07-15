@@ -160,7 +160,7 @@ class View:
     class ProjectWindow(Window):
         def __init__(self, master, listener):
             super().__init__(master, listener)
-
+            self.master =master
             self.listener = listener
             self.tabIDCounter = 0
             # self.closeTabButton = ttk.Button(self.frame, text='Close Current Tab', command=self.closeTab)
@@ -205,7 +205,7 @@ class View:
             self.tab = ttk.Notebook(self.frame)
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
-            self.tabs = [View.GeneralTab(self.tab, listener, self.tabIDCounter, self.frame)]
+            self.tabs = [View.GeneralTab(self.tab, listener, self.tabIDCounter, self.frame, self.master)]
 
             for tab in self.tabs:
                 self.tab.add(tab, text='Tab ' + str(self.tabIDCounter + 1))
@@ -349,8 +349,9 @@ class View:
                 pass
 
     class GeneralTab(ttk.Frame):
-        def __init__(self, tab, listener, tabID, frame):
+        def __init__(self, tab, listener, tabID, frame, master):
             super().__init__(tab)
+            self.root = master
             self.frame = frame
             self.tabID = tabID
             self.image = None
@@ -509,7 +510,14 @@ class View:
 
             self.frame.pack()
 
+        def busy(self):
+            self.root.config(cursor="wait")
+
+        def notbusy(self):
+            self.root.config(cursor="")
+
         def train(self):
+            self.busy()
             if not self.listener.modelIsRunning(self.tabID):
                 self.smoothAmt = 20
                 try:
@@ -529,6 +537,7 @@ class View:
                     print('Bad Hyperparameters')
 
         def test(self):
+            self.busy()
             if not self.listener.modelIsRunning(self.tabID):
                 self.smoothAmt = 1
                 try:
@@ -584,11 +593,14 @@ class View:
             self.drawAxis()
 
         def checkMessages(self):
+            if self.trainingEpisodes == 1:
+                self.notbusy()
             while self.listener.getQueue(self.tabID).qsize():
                 message = self.listener.getQueue(self.tabID).get(timeout=0)
                 if message.type == Model.Message.EVENT:
                     if message.data == Model.Message.EPISODE:
                         self.addEpisodeToGraph()
+
                         self.trainingEpisodes += 1
                         self.curEpisodeNum.configure(text='Episodes completed: ' + str(self.trainingEpisodes))
                         if self.isDisplayingEpisode:
