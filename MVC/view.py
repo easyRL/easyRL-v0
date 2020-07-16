@@ -222,7 +222,7 @@ class View:
         def tabChange(self, event):
             tabIndex = event.widget.index('current')
             if len(self.tabs) > 1 and tabIndex == len(self.tabs) - 1:
-                newTab = View.GeneralTab(self.tab, self.listener, self.tabIDCounter, self.frame)
+                newTab = View.GeneralTab(self.tab, self.listener, self.tabIDCounter, self.frame, self.master)
                 self.tab.forget(self.tabs[-1])
                 self.tab.add(newTab, text='Tab ' + str(self.tabIDCounter + 1))
                 self.tab.add(self.tabs[-1], text='+')
@@ -723,10 +723,10 @@ class View:
                     self.smoothedDataPoints.append((curLoss, curReward, avgEpsilon))
 
                     rewardRange = max(0.000000001, self.rewardGraphMax - self.rewardGraphMin)
-                    oldY = self.graphBottomMargin + (h - self.graphBottomMargin) * (
-                                1 - (prevReward - self.rewardGraphMin) / rewardRange)
-                    newY = self.graphBottomMargin + (h - self.graphBottomMargin) * (
-                                1 - (curReward - self.rewardGraphMin) / rewardRange)
+                    oldY = (self.graphBottomMargin + (h - self.graphBottomMargin) * (
+                                1 - (prevReward - self.rewardGraphMin) / rewardRange))-4
+                    newY = (self.graphBottomMargin + (h - self.graphBottomMargin) * (
+                                1 - (curReward - self.rewardGraphMin) / rewardRange))-4
                     self.graph.create_line(oldX, oldY, newX, newY, fill='red')
 
                     oldY = h * (1 - prevLoss / self.lossGraphMax)
