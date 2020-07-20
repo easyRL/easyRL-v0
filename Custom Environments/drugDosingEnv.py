@@ -92,9 +92,10 @@ class DrugDosingEnv(Environment):
         return new_state, reward, done
 
     def reset(self):
-        self.done = False
         states = self.data[randint(0, len(self.data) - 1)]
-        self.data = states[randint(0, len(states) - 1)]
+        self.state = states[randint(0, len(states) - 1)]
+        self.done = False
+        return self.state
 
     def load_data(self):
         if self.case == 1 or self.case == 3 or (self.case == 2 and self.first_stage is False):
@@ -183,3 +184,4 @@ def generate_all(num):
     pickle.dump(data_P, open('./drugDosing_P', 'wb'))
 
 # generate_all(50000)
+QTable a =
