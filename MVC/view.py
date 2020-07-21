@@ -251,7 +251,16 @@ class View:
                 curTab.parameterFrame.destroy()
                 curTab.parameterFrame = View.GeneralTab.ModelChooser(curTab)
                 curTab.parameterFrame.grid(row=0, column=0, rowspan=9)
-                self.tab.tab(curTab, text='Tab ' + str(curTab.tabID + 1))
+                curTab.slowLabel.grid_forget()
+                curTab.slowSlider.grid_forget()
+                curTab.render.grid_forget()
+                curTab.displayedEpisodeNum.grid_forget()
+                curTab.curEpisodeNum.grid_forget()
+                curTab.graph.grid_forget()
+                # curTab.graphLine.grid_forget()
+                curTab.xAxisLabel.grid_forget()
+                curTab.legend.grid_forget()
+                # curTab.space.grid_forget()
 
         def train(self):
             tkId = self.tab.select()
@@ -503,7 +512,7 @@ class View:
             self.legend.grid(row=0, column=1, sticky='news')
             self.legend.bind('<Configure>', self.legendResize)
 
-            ttk.Label(self, text=" ").grid(row=3, column=2)
+            self.space = ttk.Label(self, text=" ").grid(row=3, column=2)
 
             # self.columnconfigure(0, weight=1)
             # self.columnconfigure(1, weight=5)
