@@ -764,7 +764,8 @@ class View:
 
             if issubclass(agent, qTable.QTable) and \
                     not issubclass(env, cartPoleEnvDiscrete.CartPoleEnvDiscrete) and \
-                    not issubclass(env, frozenLakeEnv.FrozenLakeEnv):
+                    not issubclass(env, frozenLakeEnv.FrozenLakeEnv) and \
+                    env.displayName.split('_')[0] != 'Custom':
                 messagebox.showerror("Error", "Agent is not compatible with this environment")
                 return
 

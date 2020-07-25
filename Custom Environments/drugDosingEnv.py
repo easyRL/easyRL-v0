@@ -70,7 +70,7 @@ MAX_ITER = 200
 class DrugDosingEnv(Environment):
     displayName = 'DrugDosing'
 
-    def __init__(self, case, first_stage=False):
+    def __init__(self, case, first_stage):
         super().__init__()
         self.case = case
         self.first_stage = first_stage
@@ -99,9 +99,9 @@ class DrugDosingEnv(Environment):
 
     def load_data(self):
         if self.case == 1 or self.case == 3 or (self.case == 2 and self.first_stage is False):
-            return pickle.load(open('./drugDosing_N', 'rb'))
+            return pickle.load(open('./Custom Environments/drugDosing_N', 'rb'))
         else:
-            return pickle.load(open('./drugDosing_P', 'rb'))
+            return pickle.load(open('./Custom Environments/drugDosing_P', 'rb'))
 
     def _get_error(self, x1, x2):
         return x2 if self.case == 1 or self.case == 2 else self.BETA * x2 + (1 - self.BETA) * (1 - x1)
@@ -130,9 +130,10 @@ class DrugDosingEnv(Environment):
 class CustomEnv(Environment):
     displayName = 'Custom_DrugDosing'
 
-    def __init__(self, case):
+    # no Api to assign value
+    def __init__(self, case=1, first_stage=False):
         super().__init__()
-        self.env = DrugDosingEnv(case)
+        self.env = DrugDosingEnv(case, first_stage)
         self.state = self.env.reset()
         self.done = False
         self.state_size = (6,)  # s,x1,x2,x3,x4,t
@@ -158,7 +159,7 @@ class CustomEnv(Environment):
 
 class DataGenerator(DrugDosingEnv):
 
-    def generate(self, num, first_stage=False):
+    def generate(self, num, first_stage):
         scenarios = []
         for i in range(num):
             N, T, I, C, t = random(), random(), random(), 0, 1 if not (self.case == 2 and not first_stage) else 91
@@ -178,10 +179,7 @@ class DataGenerator(DrugDosingEnv):
 
 
 def generate_all(num):
-    data_N = DataGenerator(case=1).generate(num, first_stage=False)
+    data_N = DataGenerator(case=1, first_stage=False).generate(num, first_stage=False)
     pickle.dump(data_N, open('./drugDosing_N', 'wb'))
-    data_P = DataGenerator(case=2).generate(num, first_stage=True)
+    data_P = DataGenerator(case=2, first_stage=True).generate(num, first_stage=True)
     pickle.dump(data_P, open('./drugDosing_P', 'wb'))
-
-# generate_all(50000)
-QTable a =
