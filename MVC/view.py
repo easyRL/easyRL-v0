@@ -45,7 +45,8 @@ class View:
         self.mMenuFile = tkinter.Menu(self.menubar, tearoff=0)
         self.mMenuFile.add_command(label="Load Agent", command=pw.loadAgent)
         self.mMenuFile.add_command(label="Load Environment", command=pw.loadEnv)
-        self.mMenuFile.add_command(label="Close Tab", command=pw.closeTab)
+        self.mMenuFile.add_command(label="Close Tab", command=pw.closeTab, state=tkinter.DISABLED)
+        pw.mMenuFile = self.mMenuFile
         self.mMenuFile.add_command(label="Reset Tab", command=pw.rechoose)
         self.mMenuFile.add_command(label="Save Model", command=pw.save)
         # self.mMenuFile.add_command(label="Load Agent", command=pw.load)
@@ -61,13 +62,31 @@ class View:
         self.menubar.add_cascade(label="Run", menu=self.mMenuRun)
         self.mMenuHelp = tkinter.Menu(self.menubar, tearoff=0)
         self.mMenuHelp.add_command(label="Help", command=self.helpMenu)
-        self.mMenuHelp.add_command(label="About")
+        self.mMenuHelp.add_command(label="About", command=self.about)
         self.menubar.add_cascade(label="Help", menu=self.mMenuHelp)
         self.root.config(menu=self.menubar)
 
         center(self.root)
         self.root.protocol("WM_DELETE_WINDOW", self.delete_window)
         self.root.mainloop()
+
+    def about(self):
+        popup = tkinter.Tk()
+        popup.wm_title("About")
+        popup.geometry("1000x1000")
+
+        texts = "add stuff here"
+        sbar = tkinter.Scrollbar(popup)
+        sbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+
+        text = tkinter.Text(popup, height=1000, width=1000)
+        text.configure(yscrollcommand=sbar.set)
+        text.pack(expand=0, fill=tkinter.BOTH)
+        text.insert(tkinter.END, texts)
+        sbar.config(command=text.yview)
+        text.config(state="disabled")
+        center(popup)
+        popup.mainloop()
 
     def helpMenu(self):
         popup = tkinter.Tk()
@@ -229,6 +248,7 @@ class View:
                 self.tabs = self.tabs[:-1] + [newTab] + [self.tabs[-1]]
                 self.tab.select(newTab)
                 self.tabIDCounter += 1
+                self.mMenuFile.entryconfig(2, state=tkinter.NORMAL)
 
         def closeTab(self):
             if len(self.tabs) != 2:
@@ -243,6 +263,8 @@ class View:
                     self.tab.select(self.tabs[-2])
                 self.tab.forget(tkId)
                 self.tabIDCounter = self.tabs[-2].tabID + 1
+                if len(self.tabs) == 2:
+                    self.mMenuFile.entryconfig(2, state=tkinter.DISABLED)
 
         def rechoose(self):
             tkId = self.tab.select()
@@ -602,7 +624,7 @@ class View:
             self.drawAxis()
 
         def checkMessages(self):
-            if self.trainingEpisodes == 1:
+            if self.trainingEpisodes >= 1:
                 self.notbusy()
             while self.listener.getQueue(self.tabID).qsize():
                 message = self.listener.getQueue(self.tabID).get(timeout=0)
@@ -904,7 +926,7 @@ class View:
                 enscb.pack(fill=tkinter.X)
                 entxb.pack()
                 self.slev = ttk.Label(subFrame, text='Selected Environment: None')
-                self.slev.pack(pady=(20,30))
+                self.slev.pack(pady=(15,30))
                 # style = Style()
                 # style.configure('TButton', activebackground="gray80",
                 #                 borderwidth='4', )
@@ -942,7 +964,7 @@ class View:
 
                 for a in agtName:
                     ab = tkinter.Radiobutton(agtxb, text=a, variable=self.agentOpts, value=a, command=self.selagUpdate,
-                                         compound=tkinter.TOP, indicatoron=0)
+                                         compound=tkinter.TOP, indicatoron=0, height=1)
                     agtxb.window_create(tkinter.END, window=ab)
 
                 agtxb.configure(state=tkinter.DISABLED)
