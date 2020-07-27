@@ -34,7 +34,7 @@ class View:
 
     def __init__(self, listener):
         self.root = ThemedTk(theme='keramik')
-        self.root.geometry('1100x653')
+        self.root.geometry('1100x650')
         self.root.configure(bg="gray80")
         self.root.title('EasyRL')
         # self.root.attributes('-fullscreen', True)
@@ -49,7 +49,7 @@ class View:
         pw.mMenuFile = self.mMenuFile
         self.mMenuFile.add_command(label="Reset Tab", command=pw.rechoose)
         self.mMenuFile.add_command(label="Save Model", command=pw.save)
-        # self.mMenuFile.add_command(label="Load Agent", command=pw.load)
+        self.mMenuFile.add_command(label="Load Model", command=pw.load)
         self.mMenuFile.add_command(label="Save Results", command=pw.saveResults)
         self.mMenuFile.add_separator()
         self.mMenuFile.add_command(label="Exit", command=self.delete_window)
@@ -206,12 +206,14 @@ class View:
             test_button_ttp = View.CreateToolTip(test, "Test the agent in its current state")
             save = tkinter.Button(tempFrame, text='Save Model', command=self.save)
             save.pack(side='left')
-            save_button_ttp = View.CreateToolTip(save, "Save the agent in its current state")
+            load = tkinter.Button(tempFrame, text='Load Model', command=self.load)
+            load.pack(side='left')
+            save_button_ttp = View.CreateToolTip(save, "Save the model in its current state")
             # load = ttk.Button(tempFrame, text='Load Agent', command=self.loadAgent)
             # load.pack(side='left')
             # btnLoadEnv = ttk.Button(tempFrame, text='Load Environment', command=self.loadEnv)
             # btnLoadEnv.pack(side='left')
-            # load_button_ttp = View.CreateToolTip(load, "Load an agent")
+            load_button_ttp = View.CreateToolTip(load, "Load a model")
             reset = tkinter.Button(tempFrame, text='Reset', command=self.reset)
             reset.pack(side='left')
             reset_button_ttp = View.CreateToolTip(reset, "Reset the current agent and its parameters")
@@ -222,6 +224,7 @@ class View:
             tempFrame.grid(row=0, column=0, columnspan=9, sticky = W)
 
             self.tab = ttk.Notebook(self.frame)
+
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
             self.tabs = [View.GeneralTab(self.tab, listener, self.tabIDCounter, self.frame, self.master)]
@@ -551,8 +554,14 @@ class View:
         def notbusy(self):
             self.root.config(cursor="")
 
+        def loadingRender(self):
+            w = self.render.winfo_width()
+            h = self.render.winfo_height()
+            self.render.create_text(w/2, h/2, text='Loading...', anchor='center')
+
         def train(self):
             self.busy()
+            self.loadingRender()
             if not self.listener.modelIsRunning(self.tabID):
                 self.smoothAmt = 20
                 try:
@@ -573,6 +582,7 @@ class View:
 
         def test(self):
             self.busy()
+            self.loadingRender()
             if not self.listener.modelIsRunning(self.tabID):
                 self.smoothAmt = 1
                 try:
@@ -930,7 +940,7 @@ class View:
                 enscb.pack(fill=tkinter.X)
                 entxb.pack()
                 self.slev = ttk.Label(subFrame, text='Selected Environment: None')
-                self.slev.pack(pady=(15,30))
+                self.slev.pack(pady=(15,50))
                 # style = Style()
                 # style.configure('TButton', activebackground="gray80",
                 #                 borderwidth='4', )
@@ -976,6 +986,9 @@ class View:
                 subFrame.pack()
                 set_model = tkinter.Button(self, text='Set Model', command=master.selectModel)
                 set_model.pack()
+
+                space = tkinter.Canvas(self, bg="gray80", highlightbackground="gray80")
+                space.pack()
                 View.CreateToolTip(set_model, "Run program with the currently selected environment and agent")
 
             def selevUpdate(self):
