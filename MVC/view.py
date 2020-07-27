@@ -463,15 +463,16 @@ class View:
         def legendResize(self, evt):
             self.legend.delete('all')
             h = evt.height
-            p1, p2, p3, p4, p5 = h / 5, 2 * h / 5, 3 * h / 5, 4 * h / 5, 9 * h / 10
+            p1, p2, p3, p4, p5, p6 = h / 6, 2 * h / 6, 3 * h / 6, 4 * h / 6, 5 * h / 6 , 9 * h / 10
             self.legend.create_line(40, p1, 90, p1, fill='blue')
             self.legend.create_line(40, p2, 90, p2, fill='red')
             self.legend.create_line(40, p3, 90, p3, fill='green')
             self.lossLegend = self.legend.create_text(100, p1, text='MSE Episode Loss:', anchor='w')
             self.rewardLegend = self.legend.create_text(100, p2, text='Episode Reward:', anchor='w')
             self.epsilonLegend = self.legend.create_text(100, p3, text='Epsilon:', anchor='w')
-            self.testResult1 = self.legend.create_text(100, p4, text='', anchor='w')
-            self.testResult2 = self.legend.create_text(100, p5, text='', anchor='w')
+            self.episodelegend = self.legend.create_text(100, p4, text='Episode:', anchor='w')
+            self.testResult1 = self.legend.create_text(100, p5, text='', anchor='w')
+            self.testResult2 = self.legend.create_text(100, p6, text='', anchor='w')
 
         def updateGraphLine(self, evt):
             xVal = evt.x
@@ -485,10 +486,13 @@ class View:
                     self.legend.itemconfig(self.lossLegend, text='MSE Episode Loss: {:.4f}'.format(loss))
                     self.legend.itemconfig(self.rewardLegend, text='Episode Reward: ' + str(reward))
                     self.legend.itemconfig(self.epsilonLegend, text='Epsilon: {:.4f}'.format(epsilon))
+                    self.legend.itemconfig(self.episodelegend, text='Episode: ' + str(smoothIndex))
+
                 else:
                     self.legend.itemconfig(self.lossLegend, text='MSE Episode Loss:')
                     self.legend.itemconfig(self.rewardLegend, text='Episode Reward:')
                     self.legend.itemconfig(self.epsilonLegend, text='Epsilon:')
+                    self.legend.itemconfig(self.episodelegend, text='Episode:')
 
         def halt(self):
             self.listener.halt(self.tabID)
