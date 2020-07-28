@@ -1,7 +1,10 @@
 typedef struct DQN DQN;
-const int64_t stateSize = 4;
 
-DQN* createDQNc();
+DQN* createDQNc(int stateSize, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate);
 void freeDQNc(DQN* dqn);
-int64_t chooseActionc(DQN* dqn, float state[stateSize]);
-float rememberc(DQN* dqn, float state[stateSize], int64_t action, float reward, int64_t done);
+int64_t chooseActionc(DQN* dqn, float* state);
+float rememberc(DQN* dqn, float* state, int64_t action, float reward, int64_t done);
+void savec(DQN* dqn, char* filename);
+void loadc(DQN* dqn, char* filename);
+void* memsavec(DQN* dqn);
+void memloadc(DQN* dqn, void* mem);

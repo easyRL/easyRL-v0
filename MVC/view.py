@@ -8,7 +8,7 @@ from PIL import ImageTk
 from PIL.ImageTk import PhotoImage
 import ttkwidgets
 
-from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, deepQNative, modelFreeAgent
+from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, doubleDuelingQNative, modelFreeAgent
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, \
     mountainCarEnv
 from MVC import helptext
@@ -18,7 +18,7 @@ import importlib.util
 
 
 class View:
-    agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, deepQNative.DeepQNative, sarsa]
+    agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, doubleDuelingQNative.DoubleDuelingQNative, sarsa]
     environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
                     pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv]
     environments += atariEnv.AtariEnv.subEnvs

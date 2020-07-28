@@ -7,8 +7,17 @@
 
 using namespace std;
 
-DQN::DQN()
+const int layerSize = 10;
+
+DQN::DQN(int inStateSize, int inActionSize, float inGamma, int inBatchSize, int inMemorySize, int inTargetUpdate)
 {
+  stateSize = inStateSize;
+  actionSize = inActionSize;
+  gamma = inGamma;
+  batchSize = inBatchSize;
+  memorySize = inMemorySize;
+  targetUpdate = inTargetUpdate;
+
   if (torch::cuda::is_available()) {
     std::cout << "CUDA is available! Training on GPU." << std::endl;
     device = new torch::Device(torch::kCUDA);
@@ -18,28 +27,28 @@ DQN::DQN()
     device = new torch::Device(torch::kCPU);
   }
 
-  model = DuelingBallTest();
+  model = Dueling(stateSize, actionSize, layerSize);
   model->to(*device);
-  target = DuelingBallTest();
+  target = Dueling(stateSize, actionSize, layerSize);
   target->to(*device);
   
-  model_optimizer = new torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(7e-4));
+  model_optimizer = new torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(1e-3));
 
-  fullMask = torch::ones({1,outputSize}).to(*device);
+  fullMask = torch::ones({1,actionSize}).to(*device);
   
-  replay = new ReplayBuffer();
+  replay = new ReplayBuffer(stateSize, memorySize, batchSize);
   printf("BUFFERSIZE: %lu\n", sizeof(ReplayBuffer));
   
   gamma = 0.99f;
-  epsilon = 1.0f;
-  decayRate = 1.0f/15000.0f;
   itCounter = 0;
   checkpoint_counter = 0;
 
-  cout << "Learning rate: " << 1e-3 << ", gamma: " << gamma << ", target update rate: " << targetUpdate << endl;
+  cout << "Learning rate: " << 1e-3 << ", target update rate: " << targetUpdate << endl;
+  cout << "stateSize: " << stateSize << ", actionSize: " << actionSize << ", gamma: " << gamma << endl;
+  cout << ", batchSize: " << batchSize << ", memorySize: " << memorySize << ", targetUpdate: " << targetUpdate << endl;
 }
 
-int64_t DQN::chooseAction(float state[stateSize])
+int64_t DQN::chooseAction(float* state)
 {
   int64_t action;
   Tensor xsingle = torch::from_blob(state, {1, stateSize}).to(*device);
@@ -50,21 +59,22 @@ int64_t DQN::chooseAction(float state[stateSize])
   return action;
 }
 
-float DQN::remember(float state[stateSize], int64_t action, float reward, int64_t done)
+float DQN::remember(float* state, int64_t action, float reward, int64_t done)
 {
   float fLoss=0;
   model_optimizer->zero_grad();
   replay->add(state, action, reward, done);
   
+  
   if (replay->curSize >= batchSize)
   {  
-    float bStates[batchSize][stateSize];
-    int64_t bActions[batchSize];
-    float bRewards[batchSize];
-    float bNextStates[batchSize][stateSize];
-    int64_t bDones[batchSize];
+    float bStates[batchSize][stateSize];// = new float[batchSize][stateSize];
+    int64_t bActions[batchSize];// = new int64_t[batchSize];
+    float bRewards[batchSize];// = new float[batchSize];
+    float bNextStates[batchSize][stateSize];// = new float[batchSize][stateSize];
+    int64_t bDones[batchSize];// = new int64_t[batchSize];
     
-    replay->sample(bStates, bActions, bRewards, bNextStates, bDones);
+    replay->sample((float*)bStates, (int64_t*)bActions, (float*)bRewards, (float*)bNextStates, (int64_t*)bDones);
     
     Tensor xbatch = torch::from_blob(bStates, {batchSize, stateSize}).to(*device);        
     Tensor actionsbatch = torch::from_blob(bActions, {batchSize, 1}, TensorOptions().dtype(kInt64)).to(*device);
@@ -72,7 +82,7 @@ float DQN::remember(float state[stateSize], int64_t action, float reward, int64_
     Tensor nextxbatch = torch::from_blob(bNextStates, {batchSize, stateSize}).to(*device);
     Tensor donesbatch = torch::from_blob(bDones, {batchSize, 1}, TensorOptions().dtype(kInt64)).to(*device);
     
-    Tensor actionsOneHotBatch = (torch::zeros({batchSize, outputSize}).to(*device).scatter_(1, actionsbatch, 1)).to(*device);
+    Tensor actionsOneHotBatch = (torch::zeros({batchSize, actionSize}).to(*device).scatter_(1, actionsbatch, 1)).to(*device);
     Tensor ybatch = model->forward(xbatch, actionsOneHotBatch);
     Tensor nextybatch = model->forward(nextxbatch, fullMask);
     Tensor nextybatchTarg = target->forward(nextxbatch, fullMask);
@@ -80,7 +90,7 @@ float DQN::remember(float state[stateSize], int64_t action, float reward, int64_
     Tensor maxes = nextybatchTarg.gather(1, argmaxes);
     Tensor nextvals = rewardsbatch + (1 - donesbatch) * (gamma * maxes);    
     
-    Tensor targetbatch = torch::zeros({batchSize, outputSize}).to(*device).scatter_(1, actionsbatch, nextvals);    
+    Tensor targetbatch = torch::zeros({batchSize, actionSize}).to(*device).scatter_(1, actionsbatch, nextvals);    
     
     torch::Tensor loss = torch::mse_loss(ybatch, targetbatch.detach());
     loss.backward();
@@ -95,22 +105,46 @@ float DQN::remember(float state[stateSize], int64_t action, float reward, int64_
       std::cout << "target updated" << std::endl;
     }
     
-    if (itCounter % kCheckpointEvery == 0) {
+    /*if (itCounter % kCheckpointEvery == 0) {
       // Checkpoint the model and optimizer state.
       torch::save(model, "model-checkpoint.pt");
       torch::save(*model_optimizer, "model-optimizer-checkpoint.pt");
       std::cout << "\n-> checkpoint " << ++checkpoint_counter << '\n';
-    }
+    }*/
     
     itCounter++;
-  }
-  
-  if (done)
-  {
-    std::printf("                             Epsilon %f\n", epsilon);
+    
+    /*delete [][] bStates;
+    delete [] bActions;
+    delete [] bRewards;
+    delete [][] bNextStates;
+    delete [] bDones;*/
   }
   
   return fLoss;
+}
+
+void DQN::save(char* filename)
+{
+  torch::save(model, filename);
+}
+
+void DQN::load(char* filename)
+{
+  torch::load(model, filename);
+}
+
+std::stringstream* DQN::memsave()
+{
+  std::stringstream* mem = new std::stringstream;
+  torch::save(model, *mem);
+  return mem;
+}
+
+void DQN::memload(std::stringstream* mem)
+{
+  torch::load(model, *mem);
+  delete mem;
 }
 
 DQN::~DQN()
@@ -120,9 +154,9 @@ DQN::~DQN()
   delete replay;
 }
 
-DQN* createDQN()
+DQN* createDQN(int stateSize, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate)
 {
-  return new DQN;
+  return new DQN(stateSize, actionSize, gamma, inBatchSize, inMemorySize, inTargetUpdate);
 }
 
 void freeDQN(DQN* dqn)
@@ -130,24 +164,44 @@ void freeDQN(DQN* dqn)
   delete dqn;
 }
 
-int64_t chooseAction(DQN* dqn, float state[stateSize])
+int64_t chooseAction(DQN* dqn, float* state)
 {
   int64_t result = dqn->chooseAction(state);
   return result;
 }
 
-float remember(DQN* dqn, float state[stateSize], int64_t action, float reward, int64_t done)
+float remember(DQN* dqn, float* state, int64_t action, float reward, int64_t done)
 {
   float result = dqn->remember(state, action, reward, done);
   return result;
 }
 
+void save(DQN* dqn, char* filename)
+{
+  dqn->save(filename);
+}
+
+void load(DQN* dqn, char* filename)
+{
+  dqn->load(filename);
+}
+
+void* memsave(DQN* dqn)
+{
+  return (void*)dqn->memsave();
+}
+
+void memload(DQN* dqn, void* mem)
+{
+  dqn->memload((std::stringstream*)mem);
+}
+
 extern "C"
 {
   typedef struct DQN DQN;
-  DQN* createDQNc()
+  DQN* createDQNc(int stateSize, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate)
   {
-    return createDQN();
+    return createDQN(stateSize, actionSize, gamma, inBatchSize, inMemorySize, inTargetUpdate);
   }
   
   void freeDQNc(DQN* dqn)
@@ -155,13 +209,33 @@ extern "C"
     freeDQN(dqn);
   }
   
-  int64_t chooseActionc(DQN* dqn, float state[stateSize])
+  int64_t chooseActionc(DQN* dqn, float* state)
   {
     return chooseAction(dqn, state);
   }
   
-  float rememberc(DQN* dqn, float state[stateSize], int64_t action, float reward, int64_t done)
+  float rememberc(DQN* dqn, float* state, int64_t action, float reward, int64_t done)
   {
     return remember(dqn, state, action, reward, done);
+  }
+  
+  void savec(DQN* dqn, char* filename)
+  {
+    save(dqn, filename);
+  }
+  
+  void loadc(DQN* dqn, char* filename)
+  {
+    load(dqn, filename);
+  }
+  
+  void* memsavec(DQN* dqn)
+  {
+    return memsave(dqn);
+  }
+  
+  void memloadc(DQN* dqn, void* mem)
+  {
+    memload(dqn, mem);
   }
 }
