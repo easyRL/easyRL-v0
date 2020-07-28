@@ -45,7 +45,7 @@ class DoubleDuelingQNative(modelFreeAgent.ModelFreeAgent):
         os.chdir(oldwd.as_posix())
 
     def __del__(self):
-        self.nativeInterface.freeDQN(self.nativeDQN)
+        self.nativeInterface.freeDQNc(self.nativeDQN)
 
     def choose_action(self, state):
         cState = self.ffi.new("float[]", state.tolist())

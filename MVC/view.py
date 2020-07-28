@@ -8,7 +8,7 @@ from PIL import ImageTk
 from PIL.ImageTk import PhotoImage
 import ttkwidgets
 
-from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, doubleDuelingQNative, modelFreeAgent
+from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, doubleDuelingQNative
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, \
     mountainCarEnv
 from MVC import helptext
@@ -184,8 +184,8 @@ class View:
             save = ttk.Button(tempFrame, text='Save Model', command=self.save)
             save.pack(side='left')
             save_button_ttp = View.CreateToolTip(save, "Save the agent in its current state")
-            # load = ttk.Button(tempFrame, text='Load Agent', command=self.loadAgent)
-            # load.pack(side='left')
+            load = ttk.Button(tempFrame, text='Load Model', command=self.load)
+            load.pack(side='left')
             # btnLoadEnv = ttk.Button(tempFrame, text='Load Environment', command=self.loadEnv)
             # btnLoadEnv.pack(side='left')
             # load_button_ttp = View.CreateToolTip(load, "Load an agent")
@@ -259,7 +259,7 @@ class View:
         def halt(self):
             tkId = self.tab.select()
             curTab = self.tab.nametowidget(tkId)
-            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+            if curTab.parameterFrame.isParameterFrame:
                 curTab.parameterFrame.master.halt()
 
         def test(self):
