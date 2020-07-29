@@ -556,6 +556,7 @@ class View:
             self.root.config(cursor="")
 
         def loadingRender(self):
+            self.render.delete('all')
             w = self.render.winfo_width()
             h = self.render.winfo_height()
             self.render.create_text(w/2, h/2, text='Loading...', anchor='center')
