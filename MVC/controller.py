@@ -65,7 +65,11 @@ class Controller:
         def startTesting(self, tabID, args):
             model = self.getModel(tabID)
             queue = self.getQueue(tabID)
-            threading.Thread(target=model.run_testing, args=[queue,]+args).start()
+            if model.agent:
+                threading.Thread(target=model.run_testing, args=[queue,]+args).start()
+                return True
+            else:
+                return False
 
         def modelIsRunning(self, tabID):
             model = self.getModel(tabID)

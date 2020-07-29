@@ -591,7 +591,10 @@ class View:
                     # total_episodes = int(self.numEps.get())
                     # max_steps = int(self.maxSteps.get())
 
-                    self.listener.startTesting(self.tabID, self.parameterFrame.getParameters())
+                    if not self.listener.startTesting(self.tabID, self.parameterFrame.getParameters()):
+                        tkinter.messagebox.showerror(title="Error", message="Model has not been trained!")
+                        self.notbusy()
+                        self.render.delete('all')
                     self.trainingEpisodes = 0
                     self.curTotalEpisodes = self.parameterFrame.getParameters()[0]
                     self.resetGraph()
