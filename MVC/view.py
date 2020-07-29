@@ -34,6 +34,7 @@ class View:
 
     def __init__(self, listener):
         self.root = ThemedTk(theme='keramik')
+        self.root.resizable(False, False)
         self.root.geometry('1100x650')
         self.root.configure(bg="gray80")
         self.root.title('EasyRL')
@@ -940,7 +941,7 @@ class View:
                 enscb.pack(fill=tkinter.X)
                 entxb.pack()
                 self.slev = ttk.Label(subFrame, text='Selected Environment: None')
-                self.slev.pack(pady=(15,50))
+                self.slev.pack(pady=(15,75))
                 # style = Style()
                 # style.configure('TButton', activebackground="gray80",
                 #                 borderwidth='4', )
