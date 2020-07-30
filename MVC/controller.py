@@ -65,7 +65,7 @@ class Controller:
         def startTesting(self, tabID, args):
             model = self.getModel(tabID)
             queue = self.getQueue(tabID)
-            if model.agent:
+            if model.agent or model.loadFilename:
                 threading.Thread(target=model.run_testing, args=[queue,]+args).start()
                 return True
             else:
