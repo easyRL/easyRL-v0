@@ -7,56 +7,57 @@ import cffi
 import os
 import pathlib
 
-class DoubleDuelingQNative(modelFreeAgent.ModelFreeAgent):
-    displayName = 'Double, Dueling Deep Q Native'
+class DRQNNative(modelFreeAgent.ModelFreeAgent):
+    displayName = 'DRQN Native'
     newParameters = [modelFreeAgent.ModelFreeAgent.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
                      modelFreeAgent.ModelFreeAgent.Parameter('Memory Size', 1, 655360, 1, 1000, True, True, "The maximum number of timestep transitions to keep stored"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('Target Update Interval', 1, 100000, 1, 200, True, True, "The distance in timesteps between target model updates")]
+                     modelFreeAgent.ModelFreeAgent.Parameter('Target Update Interval', 1, 100000, 1, 200, True, True, "The distance in timesteps between target model updates"),
+                     modelFreeAgent.ModelFreeAgent.Parameter('History Length', 0, 20, 1, 10, True, True, "The number of recent timesteps to use as input")]
     parameters = modelFreeAgent.ModelFreeAgent.parameters + newParameters
 
     def __init__(self, *args):
-        paramLen = len(DoubleDuelingQNative.newParameters)
+        paramLen = len(DRQNNative.newParameters)
         super().__init__(*args[:-paramLen])
-        self.batch_size, self.memory_size, self.target_update_interval = [int(arg) for arg in args[-paramLen:]]
+        self.batch_size, self.memory_size, self.target_update_interval, self.historyLength = [int(arg) for arg in args[-paramLen:]]
 
         self.ffi = cffi.FFI()
         oldwd = pathlib.Path().absolute()
-        curDir = oldwd / "../Agents/Native/deepQNative"
+        curDir = oldwd / "../Agents/Native/drqnNative"
         os.chdir(curDir.as_posix())
-        headerName = curDir / "deepQNative.h"
+        headerName = curDir / "drqnNative.h"
         with open(headerName) as headerFile:
             self.ffi.cdef(headerFile.read())
 
         self.ffi.set_source(
-            "_deepQNative",
+            "_drqnNative",
             """
-            #include "deepQNative.h"
+            #include "drqnNative.h"
             """,
-            libraries=["deepQNative"],
+            libraries=["drqnNative"],
             library_dirs=[curDir.as_posix()],
             include_dirs=[curDir.as_posix()]
         )
 
         self.ffi.compile(verbose=True, tmpdir=curDir)
 
-        import Agents.Native.deepQNative._deepQNative as _deepQNative
+        import Agents.Native.drqnNative._drqnNative as _deepQNative
         self.nativeInterface = _deepQNative.lib
-        self.nativeDQN = self.nativeInterface.createAgentc(self.state_size[0], self.action_size, self.gamma, self.batch_size, self.memory_size, self.target_update_interval)
+        self.nativeDRQN = self.nativeInterface.createAgentc(self.state_size[0], self.action_size, self.gamma, self.batch_size, self.memory_size, self.target_update_interval, self.historyLength)
         os.chdir(oldwd.as_posix())
 
     def __del__(self):
-        self.nativeInterface.freeAgentc(self.nativeDQN)
+        self.nativeInterface.freeAgentc(self.nativeDRQN)
 
     def choose_action(self, state):
         cState = self.ffi.new("float[]", state.tolist())
-        action = self.nativeInterface.chooseActionc(self.nativeDQN, cState)
+        action = self.nativeInterface.chooseActionc(self.nativeDRQN, cState)
         return action
 
     def remember(self, state, action, reward, new_state, done=False):
         cState = self.ffi.new("float[]", state.tolist())
         #cNewState = self.ffi.new("float[]", new_state)
 
-        loss = self.nativeInterface.rememberc(self.nativeDQN, cState, action, reward, done)
+        loss = self.nativeInterface.rememberc(self.nativeDRQN, cState, action, reward, done)
         return loss
 
     def update(self):
@@ -70,14 +71,14 @@ class DoubleDuelingQNative(modelFreeAgent.ModelFreeAgent):
 
     def save(self, filename):
         cFilename = self.ffi.new("char[]", filename.encode('ascii'))
-        self.nativeInterface.savec(self.nativeDQN, cFilename)
+        self.nativeInterface.savec(self.nativeDRQN, cFilename)
 
     def load(self, filename):
         cFilename = self.ffi.new("char[]", filename.encode('ascii'))
-        self.nativeInterface.loadc(self.nativeDQN, cFilename)
+        self.nativeInterface.loadc(self.nativeDRQN, cFilename)
 
     def memsave(self):
-        return self.nativeInterface.memsavec(self.nativeDQN)
+        return self.nativeInterface.memsavec(self.nativeDRQN)
 
     def memload(self, mem):
-        self.nativeInterface.memloadc(self.nativeDQN, mem)
+        self.nativeInterface.memloadc(self.nativeDRQN, mem)
