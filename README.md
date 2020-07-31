@@ -32,6 +32,7 @@ pip install joblib
 pip install ttkthemes
 pip install ttkwidgets
 pip install opencv-python
+pip install cffi
 ```
 
 (if not on Windows): 

@@ -34,16 +34,12 @@ void ReplayBuffer::add(float* state, int64_t action, float reward, int64_t done)
 
 void ReplayBuffer::sample(float* bStates, int64_t* bActions, float* bRewards, float* bNextStates, int64_t* bDones)
 {
-  float (*bStatesAccess)[historySize][stateSize] = (float (*)[historySize][stateSize])bStates;
-  float (*bNextStatesAccess)[historySize][stateSize] = (float (*)[historySize][stateSize])bNextStates;
-  float (*statesAccess)[stateSize] = (float (*)[stateSize])states;
-
   for (int i=0; i<batchSize; i++)
   {
     int sInd = rand()%curSize;
     int nextSind = (sInd+1)%bufferSize;
     
-    memcpy(&bStatesAccess[i][historySize-1][0], &statesAccess[sInd][0], sizeof(float)*stateSize);
+    memcpy(&bStates[stateSize*(historySize*(i+1)-1)], &states[sInd * stateSize], sizeof(float)*stateSize);
     int curSInd = sInd;
     int j=1;
     for (; (curSInd != 0 || curSize == bufferSize) && curSInd != ind && j<historySize; j++)
@@ -53,33 +49,31 @@ void ReplayBuffer::sample(float* bStates, int64_t* bActions, float* bRewards, fl
       {
         break;
       }
-      memcpy(&bStatesAccess[i][historySize-1-j][0], &statesAccess[curSInd][0], sizeof(float)*stateSize);
+      memcpy(&bStates[stateSize*((i+1)*historySize-1-j)], &states[curSInd * stateSize], sizeof(float)*stateSize);
     }
     for (; j<historySize; j++)
     {
-      memset(&bStatesAccess[i][historySize-1-j][0], 0, sizeof(float)*stateSize);
+      memset(&bStates[stateSize*((i+1)*historySize-1-j)], 0, sizeof(float)*stateSize);
     }
     
     bActions[i] = actions[sInd];
     bRewards[i] = rewards[sInd];
     bDones[i] = dones[sInd];
-    
+
     if (dones[sInd] || nextSind == ind)
     {
-      memset(&bNextStatesAccess[i][0][0], 0, sizeof(float)*historySize*stateSize);
+      memset(&bNextStates[i*historySize*stateSize], 0, sizeof(float)*historySize*stateSize);
     }
     else
     {
-      memcpy(&bNextStatesAccess[i][0][0], &bStatesAccess[i][1][0], sizeof(float)*(historySize-1)*stateSize);
-      memcpy(&bNextStatesAccess[i][historySize-1][0], &statesAccess[nextSind][0], sizeof(float)*stateSize);
+      memcpy(&bNextStates[i*historySize*stateSize], &bStates[stateSize*(i*historySize + 1)], sizeof(float)*(historySize-1)*stateSize);
+      memcpy(&bNextStates[stateSize*((i+1)*historySize - 1)], &states[nextSind*stateSize], sizeof(float)*stateSize);
     }
   }
 }
 
 void ReplayBuffer::recent(float* bStates, float* curState)
 {
-  float (*bStatesAccess)[stateSize] = (float (*)[stateSize])bStates;
-  float (*statesAccess)[stateSize] = (float (*)[stateSize])states;
   int sInd = (ind-1+curSize)%curSize;
   
   int curSInd = sInd;
@@ -91,14 +85,14 @@ void ReplayBuffer::recent(float* bStates, float* curState)
     {
       break;
     }
-    memcpy(&bStatesAccess[historySize-2-j][0], &statesAccess[curSInd][0], sizeof(float)*stateSize);
+    memcpy(&bStates[(historySize-2-j)*stateSize], &states[curSInd*stateSize], sizeof(float)*stateSize);
   }
   for (; j<historySize-1; j++)
   {
-    memset(&bStatesAccess[historySize-2-j][0], 0, sizeof(float)*stateSize);
+    memset(&bStates[(historySize-2-j)*stateSize], 0, sizeof(float)*stateSize);
   }
   
-  memcpy(&bStatesAccess[historySize-1][0], curState, sizeof(float)*stateSize);
+  memcpy(&bStates[(historySize-1)*stateSize], curState, sizeof(float)*stateSize);
 }
 
 ReplayBuffer::~ReplayBuffer()

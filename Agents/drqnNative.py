@@ -6,6 +6,8 @@ import joblib
 import cffi
 import os
 import pathlib
+import platform
+import importlib
 
 class DRQNNative(modelFreeAgent.ModelFreeAgent):
     displayName = 'DRQN Native'
@@ -21,28 +23,38 @@ class DRQNNative(modelFreeAgent.ModelFreeAgent):
         self.batch_size, self.memory_size, self.target_update_interval, self.historyLength = [int(arg) for arg in args[-paramLen:]]
 
         self.ffi = cffi.FFI()
+        if platform.system() == "Windows":
+            if not importlib.util.find_spec("Agents.Native.drqnNative.Release._drqnNative"):
+                self.compileLib()
+            import Agents.Native.drqnNative.Release._drqnNative as _drqnNative
+        else:
+            if not importlib.util.find_spec("Agents.Native.drqnNative._drqnNative"):
+                self.compileLib()
+            import Agents.Native.drqnNative._drqnNative as _drqnNative
+
+        self.nativeInterface = _drqnNative.lib
+        self.nativeDRQN = self.nativeInterface.createAgentc(self.state_size[0], self.action_size, self.gamma,
+                                                           self.batch_size, self.memory_size,
+                                                           self.target_update_interval, self.historyLength)
+
+    def compileLib(self):
         oldwd = pathlib.Path().absolute()
         curDir = oldwd / "../Agents/Native/drqnNative"
         os.chdir(curDir.as_posix())
         headerName = curDir / "drqnNative.h"
+        outputDir = (curDir / "Release") if platform.system() == "Windows" else curDir
         with open(headerName) as headerFile:
             self.ffi.cdef(headerFile.read())
-
         self.ffi.set_source(
             "_drqnNative",
             """
             #include "drqnNative.h"
             """,
             libraries=["drqnNative"],
-            library_dirs=[curDir.as_posix()],
+            library_dirs=[outputDir.as_posix()],
             include_dirs=[curDir.as_posix()]
         )
-
-        self.ffi.compile(verbose=True, tmpdir=curDir)
-
-        import Agents.Native.drqnNative._drqnNative as _deepQNative
-        self.nativeInterface = _deepQNative.lib
-        self.nativeDRQN = self.nativeInterface.createAgentc(self.state_size[0], self.action_size, self.gamma, self.batch_size, self.memory_size, self.target_update_interval, self.historyLength)
+        self.ffi.compile(verbose=True, tmpdir=outputDir)
         os.chdir(oldwd.as_posix())
 
     def __del__(self):

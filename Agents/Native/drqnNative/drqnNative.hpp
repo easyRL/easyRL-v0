@@ -76,4 +76,17 @@ class DRQN
         int64_t checkpoint_counter;
 };
 
+#ifdef _WIN32
+extern "C"
+{
+    __declspec(dllexport) void* createAgentc(int stateSize, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate, int inHistorySize);
+    __declspec(dllexport) void freeAgentc(void* dqn);
+    __declspec(dllexport) int64_t chooseActionc(void* dqn, float* state);
+    __declspec(dllexport) float rememberc(void* dqn, float* state, int64_t action, float reward, int64_t done);
+    __declspec(dllexport) void savec(void* dqn, char* filename);
+    __declspec(dllexport) void loadc(void* dqn, char* filename);
+    __declspec(dllexport) void* memsavec(void* dqn);
+    __declspec(dllexport) void memloadc(void* dqn, void* mem);
+}
+#endif
 #endif

@@ -50,14 +50,15 @@ DRQN::DRQN(int inStateSize, int inActionSize, float inGamma, int inBatchSize, in
 int64_t DRQN::chooseAction(float* state)
 {
   int64_t action;
-  float recent[historySize][stateSize];
-  replay->recent(recent[0], state);
+  float* recent = new float[historySize * stateSize];
+  replay->recent(recent, state);
   
   Tensor xsingle = torch::from_blob(recent, {1, historySize, stateSize}).to(*device);
   Tensor ysingle = model->forward(xsingle, fullMask);
   action = ysingle.argmax(1).item().toInt();
     //action = rand()%outputSize;
     //std::cout << "ACTION " << action << " RANDOMED" << std::endl;
+  delete[] recent;
   return action;
 }
 
@@ -70,11 +71,11 @@ float DRQN::remember(float* state, int64_t action, float reward, int64_t done)
   
   if (replay->curSize >= batchSize)
   {
-    float bStates[batchSize][historySize][stateSize];
-    int64_t bActions[batchSize];
-    float bRewards[batchSize];
-    float bNextStates[batchSize][historySize][stateSize];
-    int64_t bDones[batchSize];
+    float* bStates = new float[batchSize * historySize * stateSize];
+    int64_t* bActions = new int64_t[batchSize];
+    float* bRewards = new float[batchSize];
+    float* bNextStates = new float[batchSize * historySize * stateSize];
+    int64_t* bDones = new int64_t[batchSize];
     
     replay->sample((float*)bStates, (int64_t*)bActions, (float*)bRewards, (float*)bNextStates, (int64_t*)bDones);
     
@@ -116,11 +117,11 @@ float DRQN::remember(float* state, int64_t action, float reward, int64_t done)
     
     itCounter++;
     
-    /*delete [][] bStates;
+    delete [] bStates;
     delete [] bActions;
     delete [] bRewards;
-    delete [][] bNextStates;
-    delete [] bDones;*/
+    delete [] bNextStates;
+    delete [] bDones;
   }
   
   return fLoss;

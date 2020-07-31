@@ -66,13 +66,13 @@ float DQN::remember(float* state, int64_t action, float reward, int64_t done)
   
   if (replay->curSize >= batchSize)
   {  
-    float bStates[batchSize][stateSize];// = new float[batchSize][stateSize];
-    int64_t bActions[batchSize];// = new int64_t[batchSize];
-    float bRewards[batchSize];// = new float[batchSize];
-    float bNextStates[batchSize][stateSize];// = new float[batchSize][stateSize];
-    int64_t bDones[batchSize];// = new int64_t[batchSize];
+    float* bStates = new float[batchSize * stateSize];
+    int64_t* bActions = new int64_t[batchSize];
+    float* bRewards = new float[batchSize];
+    float* bNextStates = new float[batchSize * stateSize];
+    int64_t* bDones = new int64_t[batchSize];
     
-    replay->sample((float*)bStates, (int64_t*)bActions, (float*)bRewards, (float*)bNextStates, (int64_t*)bDones);
+    replay->sample(bStates, bActions, bRewards, bNextStates, bDones);
     
     Tensor xbatch = torch::from_blob(bStates, {batchSize, stateSize}).to(*device);        
     Tensor actionsbatch = torch::from_blob(bActions, {batchSize, 1}, TensorOptions().dtype(kInt64)).to(*device);
@@ -112,11 +112,11 @@ float DQN::remember(float* state, int64_t action, float reward, int64_t done)
     
     itCounter++;
     
-    /*delete [][] bStates;
+    delete [] bStates;
     delete [] bActions;
     delete [] bRewards;
-    delete [][] bNextStates;
-    delete [] bDones;*/
+    delete [] bNextStates;
+    delete [] bDones;
   }
   
   return fLoss;
