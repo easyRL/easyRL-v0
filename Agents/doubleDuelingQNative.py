@@ -21,24 +21,27 @@ class DoubleDuelingQNative(modelFreeAgent.ModelFreeAgent):
         super().__init__(*args[:-paramLen])
         self.batch_size, self.memory_size, self.target_update_interval = [int(arg) for arg in args[-paramLen:]]
 
+        oldwd = pathlib.Path().absolute()
+        curDir = oldwd / "../Agents/Native/deepQNative"
+        os.chdir(curDir.as_posix())
+
         self.ffi = cffi.FFI()
         if platform.system() == "Windows":
             if not importlib.util.find_spec("Agents.Native.deepQNative.Release._deepQNative"):
-                self.compileLib()
+                self.compileLib(curDir)
             import Agents.Native.deepQNative.Release._deepQNative as _deepQNative
         else:
             if not importlib.util.find_spec("Agents.Native.deepQNative._deepQNative"):
-                self.compileLib()
+                self.compileLib(curDir)
             import Agents.Native.deepQNative._deepQNative as _deepQNative
 
         self.nativeInterface = _deepQNative.lib
         self.nativeDQN = self.nativeInterface.createAgentc(self.state_size[0], self.action_size, self.gamma, self.batch_size, self.memory_size, self.target_update_interval)
 
+        os.chdir(oldwd.as_posix())
 
-    def compileLib(self):
-        oldwd = pathlib.Path().absolute()
-        curDir = oldwd / "../Agents/Native/deepQNative"
-        os.chdir(curDir.as_posix())
+
+    def compileLib(self, curDir):
         headerName = curDir / "deepQNative.h"
         outputDir = (curDir / "Release") if platform.system() == "Windows" else curDir
         with open(headerName) as headerFile:
@@ -53,7 +56,6 @@ class DoubleDuelingQNative(modelFreeAgent.ModelFreeAgent):
             include_dirs=[curDir.as_posix()]
         )
         self.ffi.compile(verbose=True, tmpdir=outputDir)
-        os.chdir(oldwd.as_posix())
 
     def __del__(self):
         self.nativeInterface.freeAgentc(self.nativeDQN)

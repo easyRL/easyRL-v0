@@ -22,25 +22,27 @@ class DRQNNative(modelFreeAgent.ModelFreeAgent):
         super().__init__(*args[:-paramLen])
         self.batch_size, self.memory_size, self.target_update_interval, self.historyLength = [int(arg) for arg in args[-paramLen:]]
 
+        oldwd = pathlib.Path().absolute()
+        curDir = oldwd / "../Agents/Native/drqnNative"
+        os.chdir(curDir.as_posix())
+
         self.ffi = cffi.FFI()
         if platform.system() == "Windows":
             if not importlib.util.find_spec("Agents.Native.drqnNative.Release._drqnNative"):
-                self.compileLib()
+                self.compileLib(curDir)
             import Agents.Native.drqnNative.Release._drqnNative as _drqnNative
         else:
             if not importlib.util.find_spec("Agents.Native.drqnNative._drqnNative"):
-                self.compileLib()
+                self.compileLib(curDir)
             import Agents.Native.drqnNative._drqnNative as _drqnNative
 
         self.nativeInterface = _drqnNative.lib
         self.nativeDRQN = self.nativeInterface.createAgentc(self.state_size[0], self.action_size, self.gamma,
                                                            self.batch_size, self.memory_size,
                                                            self.target_update_interval, self.historyLength)
+        os.chdir(oldwd.as_posix())
 
-    def compileLib(self):
-        oldwd = pathlib.Path().absolute()
-        curDir = oldwd / "../Agents/Native/drqnNative"
-        os.chdir(curDir.as_posix())
+    def compileLib(self, curDir):
         headerName = curDir / "drqnNative.h"
         outputDir = (curDir / "Release") if platform.system() == "Windows" else curDir
         with open(headerName) as headerFile:
@@ -55,7 +57,6 @@ class DRQNNative(modelFreeAgent.ModelFreeAgent):
             include_dirs=[curDir.as_posix()]
         )
         self.ffi.compile(verbose=True, tmpdir=outputDir)
-        os.chdir(oldwd.as_posix())
 
     def __del__(self):
         self.nativeInterface.freeAgentc(self.nativeDRQN)
