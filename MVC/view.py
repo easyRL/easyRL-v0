@@ -18,7 +18,18 @@ from MVC.model import Model
 from Agents.sarsa import sarsa
 import importlib.util
 
-
+about = """
+    software requirements:
+    Our code can be run on Mac Linux or Windows PC Operating systems with Visual Studio C++ build tools
+    Requires python 3.7 and # pytorch 1.6
+    # Further requires Tensorflow 2.1, Keras, Kivy and other packages, see Readme.txt for an explanation 
+        and requirements.txt for details.
+    
+    EasyRL was created by the following students at the university of washington tacoma: 
+    
+    Neil Hulbert, Sam Spillers, Brandon Francis, James Haines-Temons, Ken Gil Romero
+    Sam Wong, Kevin Flora, Bowei Huang
+        """
 class View:
     agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, sarsa]
     environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
@@ -76,7 +87,7 @@ class View:
         popup.wm_title("About")
         popup.geometry("1000x1000")
 
-        texts = "add stuff here"
+        texts = about
         sbar = tkinter.Scrollbar(popup)
         sbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
 
