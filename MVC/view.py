@@ -8,7 +8,7 @@ from PIL import ImageTk
 from PIL.ImageTk import PhotoImage
 import ttkwidgets
 
-from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, doubleDuelingQNative, drqnNative
+from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, doubleDuelingQNative, drqnNative, drqnConvNative
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, \
     mountainCarEnv
 from MVC import helptext
@@ -18,7 +18,7 @@ import importlib.util
 
 
 class View:
-    agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, sarsa]
+    agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, drqnConvNative.DRQNConvNative, sarsa]
     environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
                     pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv]
     environments += atariEnv.AtariEnv.subEnvs
@@ -867,7 +867,7 @@ class View:
                 # ttk.Combobox(subFrame, state='readonly', values=agtName, textvariable = self.agentOpts).pack(side='left')
                 # ttk.Combobox(subFrame, state='readonly', values=envName, textvariable = self.envOpts).pack(side='left')
 
-                imgloc = "../img/"
+                imgloc = "./img/"
                 imty = '.jpg'
 
                 entxb = tkinter.Text(subFrame, height=5, width=50, wrap=tkinter.NONE)
