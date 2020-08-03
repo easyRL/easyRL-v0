@@ -18,7 +18,7 @@ class Agent(ABC):
             self.hasTextInput = hasTextInput
             self.toolTipText = toolTipText
 
-    parameters = [Parameter('Gamma', 0.00, 1.00, 0.01, 0.97, True, True, "The factor by which to discount future rewards")]
+    parameters = [Parameter('Gamma', 0.00, 1.00, 0.001, 0.97, True, True, "The factor by which to discount future rewards")]
 
     def __init__(self, state_size, action_size, gamma):
         """The constructor method

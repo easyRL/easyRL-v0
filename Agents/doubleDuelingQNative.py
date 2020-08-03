@@ -22,7 +22,7 @@ class DoubleDuelingQNative(modelFreeAgent.ModelFreeAgent):
         self.batch_size, self.memory_size, self.target_update_interval = [int(arg) for arg in args[-paramLen:]]
 
         oldwd = pathlib.Path().absolute()
-        curDir = oldwd / "../Agents/Native/deepQNative"
+        curDir = oldwd / "Agents/Native/deepQNative"
         os.chdir(curDir.as_posix())
 
         self.ffi = cffi.FFI()

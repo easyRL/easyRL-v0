@@ -9,8 +9,8 @@ import pathlib
 import platform
 import importlib
 
-class DRQNNative(modelFreeAgent.ModelFreeAgent):
-    displayName = 'DRQN Native'
+class DRQNConvNative(modelFreeAgent.ModelFreeAgent):
+    displayName = 'Conv DRQN Native'
     newParameters = [modelFreeAgent.ModelFreeAgent.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
                      modelFreeAgent.ModelFreeAgent.Parameter('Memory Size', 1, 655360, 1, 1000, True, True, "The maximum number of timestep transitions to keep stored"),
                      modelFreeAgent.ModelFreeAgent.Parameter('Target Update Interval', 1, 100000, 1, 200, True, True, "The distance in timesteps between target model updates"),
@@ -18,59 +18,61 @@ class DRQNNative(modelFreeAgent.ModelFreeAgent):
     parameters = modelFreeAgent.ModelFreeAgent.parameters + newParameters
 
     def __init__(self, *args):
-        paramLen = len(DRQNNative.newParameters)
+        paramLen = len(DRQNConvNative.newParameters)
         super().__init__(*args[:-paramLen])
         self.batch_size, self.memory_size, self.target_update_interval, self.historyLength = [int(arg) for arg in args[-paramLen:]]
 
         oldwd = pathlib.Path().absolute()
-        curDir = oldwd / "Agents/Native/drqnNative"
+        curDir = oldwd / "Agents/Native/drqnConvNative"
         os.chdir(curDir.as_posix())
 
         self.ffi = cffi.FFI()
         if platform.system() == "Windows":
-            if not importlib.util.find_spec("Agents.Native.drqnNative.Release._drqnNative"):
+            if not importlib.util.find_spec("Agents.Native.drqnConvNative.Release._drqnConvNative"):
                 self.compileLib(curDir)
-            import Agents.Native.drqnNative.Release._drqnNative as _drqnNative
+            import Agents.Native.drqnConvNative.Release._drqnConvNative as _drqnConvNative
         else:
-            if not importlib.util.find_spec("Agents.Native.drqnNative._drqnNative"):
+            if not importlib.util.find_spec("Agents.Native.drqnConvNative._drqnConvNative"):
                 self.compileLib(curDir)
-            import Agents.Native.drqnNative._drqnNative as _drqnNative
+            import Agents.Native.drqnConvNative._drqnConvNative as _drqnConvNative
 
-        self.nativeInterface = _drqnNative.lib
-        self.nativeDRQN = self.nativeInterface.createAgentc(self.state_size[0], self.action_size, self.gamma,
-                                                           self.batch_size, self.memory_size,
-                                                           self.target_update_interval, self.historyLength)
+        self.nativeInterface = _drqnConvNative.lib
+        self.nativeDRQNConv = self.nativeInterface.createAgentc(self.state_size[2], self.state_size[0], self.state_size[1], self.action_size,
+                                                                self.gamma,
+                                                                self.batch_size, self.memory_size,
+                                                                self.target_update_interval, self.historyLength)
+
         os.chdir(oldwd.as_posix())
 
     def compileLib(self, curDir):
-        headerName = curDir / "drqnNative.h"
+        headerName = curDir / "drqnConvNative.h"
         outputDir = (curDir / "Release") if platform.system() == "Windows" else curDir
         with open(headerName) as headerFile:
             self.ffi.cdef(headerFile.read())
         self.ffi.set_source(
-            "_drqnNative",
+            "_drqnConvNative",
             """
-            #include "drqnNative.h"
+            #include "drqnConvNative.h"
             """,
-            libraries=["drqnNative"],
+            libraries=["drqnConvNative"],
             library_dirs=[outputDir.as_posix()],
             include_dirs=[curDir.as_posix()]
         )
         self.ffi.compile(verbose=True, tmpdir=outputDir)
 
     def __del__(self):
-        self.nativeInterface.freeAgentc(self.nativeDRQN)
+        self.nativeInterface.freeAgentc(self.nativeDRQNConv)
 
     def choose_action(self, state):
-        cState = self.ffi.new("float[]", state.tolist())
-        action = self.nativeInterface.chooseActionc(self.nativeDRQN, cState)
+        cState = self.ffi.new("float[]", state.flatten().tolist())
+        action = self.nativeInterface.chooseActionc(self.nativeDRQNConv, cState)
         return action
 
     def remember(self, state, action, reward, new_state, done=False):
-        cState = self.ffi.new("float[]", state.tolist())
+        cState = self.ffi.new("float[]", state.flatten().tolist())
         #cNewState = self.ffi.new("float[]", new_state)
 
-        loss = self.nativeInterface.rememberc(self.nativeDRQN, cState, action, reward, done)
+        loss = self.nativeInterface.rememberc(self.nativeDRQNConv, cState, action, reward, done)
         return loss
 
     def update(self):
@@ -84,14 +86,14 @@ class DRQNNative(modelFreeAgent.ModelFreeAgent):
 
     def save(self, filename):
         cFilename = self.ffi.new("char[]", filename.encode('ascii'))
-        self.nativeInterface.savec(self.nativeDRQN, cFilename)
+        self.nativeInterface.savec(self.nativeDRQNConv, cFilename)
 
     def load(self, filename):
         cFilename = self.ffi.new("char[]", filename.encode('ascii'))
-        self.nativeInterface.loadc(self.nativeDRQN, cFilename)
+        self.nativeInterface.loadc(self.nativeDRQNConv, cFilename)
 
     def memsave(self):
-        return self.nativeInterface.memsavec(self.nativeDRQN)
+        return self.nativeInterface.memsavec(self.nativeDRQNConv)
 
     def memload(self, mem):
-        self.nativeInterface.memloadc(self.nativeDRQN, mem)
+        self.nativeInterface.memloadc(self.nativeDRQNConv, mem)
