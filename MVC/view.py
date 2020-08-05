@@ -1,7 +1,9 @@
 import tkinter
 from tkinter import ttk
-from tkinter import filedialog
+from tkinter import filedialog, W
 from tkinter import messagebox
+from tkinter.ttk import Style
+
 from ttkthemes import ThemedTk
 from PIL import Image
 from PIL import ImageTk
@@ -20,14 +22,16 @@ about = """
     software requirements:
     Our code can be run on Mac Linux or Windows PC Operating systems with Visual Studio C++ build tools
     Requires python 3.7 and # pytorch 1.6
-    # Further requires Tensorflow 2.1, Keras, Kivy and other packages, see Readme.txt for an explanation
+    # Further requires Tensorflow 2.1, Keras, Kivy and other packages, see Readme.txt for an explanation 
         and requirements.txt for details.
 
-    EasyRL was created by the following students at the university of washington tacoma:
+    EasyRL was created by the following students at the university of washington tacoma: 
 
     Neil Hulbert, Sam Spillers, Brandon Francis, James Haines-Temons, Ken Gil Romero
     Sam Wong, Kevin Flora, Bowei Huang
         """
+
+
 class View:
     agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, drqnConvNative.DRQNConvNative, sarsa]
     environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
@@ -189,7 +193,7 @@ class View:
     class ProjectWindow(Window):
         def __init__(self, master, listener):
             super().__init__(master, listener)
-
+            self.master = master
             self.listener = listener
             self.tabIDCounter = 0
             # self.closeTabButton = ttk.Button(self.frame, text='Close Current Tab', command=self.closeTab)
@@ -231,13 +235,13 @@ class View:
             save_results.pack(side='left')
             save_results_button_ttp = View.CreateToolTip(save_results,
                                                          "Save the results of the current training session")
-            tempFrame.grid(row=0, column=0, columnspan=5)
+            tempFrame.grid(row=0, column=0, columnspan=9, sticky=W)
 
             self.tab = ttk.Notebook(self.frame)
 
             self.tab.bind("<<NotebookTabChanged>>", self.tabChange)
 
-            self.tabs = [View.GeneralTab(self.tab, listener, self.tabIDCounter, self.frame)]
+            self.tabs = [View.GeneralTab(self.tab, listener, self.tabIDCounter, self.frame, self.master)]
 
             for tab in self.tabs:
                 self.tab.add(tab, text='Tab ' + str(self.tabIDCounter + 1))
@@ -246,7 +250,7 @@ class View:
             self.tab.add(addTab, text='+')
             self.tabs.append(addTab)
 
-            self.tab.grid(row=1, column=0, rowspan=9, columnspan=10, sticky='wens')
+            self.tab.grid(row=1, column=0, rowspan=9, columnspan=9, sticky='wens')
 
             self.frame.pack()
             self.frame.lift()
@@ -307,7 +311,7 @@ class View:
         def halt(self):
             tkId = self.tab.select()
             curTab = self.tab.nametowidget(tkId)
-            if curTab.parameterFrame.isParameterFrame:
+            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
                 curTab.parameterFrame.master.halt()
 
         def test(self):
@@ -393,8 +397,9 @@ class View:
                 pass
 
     class GeneralTab(ttk.Frame):
-        def __init__(self, tab, listener, tabID, frame):
+        def __init__(self, tab, listener, tabID, frame, master):
             super().__init__(tab)
+            self.root = master
             self.frame = frame
             self.tabID = tabID
             self.image = None
@@ -475,7 +480,7 @@ class View:
         def legendResize(self, evt):
             self.legend.delete('all')
             h = evt.height
-            p1, p2, p3, p4, p5, p6 = h / 6, 2 * h / 6, 3 * h / 6, 4 * h / 6, 5 * h / 6 , 9 * h / 10
+            p1, p2, p3, p4, p5, p6 = h / 6, 2 * h / 6, 3 * h / 6, 4 * h / 6, 5 * h / 6, 9 * h / 10
             self.legend.create_line(40, p1, 90, p1, fill='blue')
             self.legend.create_line(40, p2, 90, p2, fill='red')
             self.legend.create_line(40, p3, 90, p3, fill='green')
@@ -525,8 +530,10 @@ class View:
             self.slowSlider.set(10)
             self.slowSlider.grid(row=5, column=1, sticky="news")
 
-            self.render = tkinter.Canvas(self, background='#eff0f1')
+            self.render = tkinter.Canvas(self, bg="gray80", highlightbackground="gray80")
             self.render.grid(row=4, column=2, rowspan=6, columnspan=2, sticky='wens')
+
+            # tkinter.Canvas(self, height=15,bg="gray80").grid(row=2, column=1, rowspan=1, columnspan=1, sticky='wens')
 
             self.displayedEpisodeNum = ttk.Label(self, text='Showing episode')
             self.displayedEpisodeNum.grid(row=7, column=1)
@@ -534,17 +541,17 @@ class View:
             self.curEpisodeNum = ttk.Label(self, text='Episodes completed:')
             self.curEpisodeNum.grid(row=8, column=1)
 
-            self.graph = tkinter.Canvas(self, background='#eff0f1')
+            self.graph = tkinter.Canvas(self, bg="gray80", highlightbackground="gray80")
             self.graph.grid(row=0, column=2, rowspan=2, columnspan=1, sticky='wens')
             self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
             self.graph.bind("<Motion>", self.updateGraphLine)
 
-            self.xAxisLabel = tkinter.Canvas(self, background='#eff0f1', height=15)
+            self.xAxisLabel = tkinter.Canvas(self, height=15, bg="gray80", highlightbackground="gray80")
             self.xAxisLabel.grid(row=2, column=2, rowspan=1, columnspan=1, sticky='wens')
 
             # self.drawAxis()
-
-            self.legend = tkinter.Canvas(self, background='#eff0f1', width=275)
+            # background='#eff0f1'
+            self.legend = tkinter.Canvas(self, bg="gray80", width=275, highlightbackground="gray80")
             self.legend.grid(row=0, column=1, sticky='news')
             self.legend.bind('<Configure>', self.legendResize)
 
@@ -565,7 +572,7 @@ class View:
             self.render.delete('all')
             w = self.render.winfo_width()
             h = self.render.winfo_height()
-            self.render.create_text(w/2, h/2, text='Loading...', anchor='center')
+            self.render.create_text(w / 2, h / 2, text='Loading...', anchor='center')
 
         def train(self):
             self.busy()
@@ -646,6 +653,7 @@ class View:
             # self.drawAxis()
             self.graphLine = self.graph.create_line(0, 0, 0, 0, fill='black')
             self.redrawGraphXAxis()
+            self.drawAxis()
 
         def checkMessages(self):
             if self.trainingEpisodes >= 1:
@@ -655,6 +663,7 @@ class View:
                 if message.type == Model.Message.EVENT:
                     if message.data == Model.Message.EPISODE:
                         self.addEpisodeToGraph()
+
                         self.trainingEpisodes += 1
                         self.curEpisodeNum.configure(text='Episodes completed: ' + str(self.trainingEpisodes))
                         if self.isDisplayingEpisode:
@@ -778,9 +787,9 @@ class View:
 
                     rewardRange = max(0.000000001, self.rewardGraphMax - self.rewardGraphMin)
                     oldY = (self.graphBottomMargin + (h - self.graphBottomMargin) * (
-                                1 - (prevReward - self.rewardGraphMin) / rewardRange))-4
+                            1 - (prevReward - self.rewardGraphMin) / rewardRange)) - 4
                     newY = (self.graphBottomMargin + (h - self.graphBottomMargin) * (
-                                1 - (curReward - self.rewardGraphMin) / rewardRange))-4
+                            1 - (curReward - self.rewardGraphMin) / rewardRange)) - 4
                     self.graph.create_line(oldX, oldY, newX, newY, fill='red')
 
                     oldY = h * (1 - prevLoss / self.lossGraphMax)
@@ -943,13 +952,13 @@ class View:
                 imgloc = "./img/"
                 imty = '.jpg'
 
-                entxb = tkinter.Text(subFrame, height=5, width=50, wrap=tkinter.NONE)
+                entxb = tkinter.Text(subFrame, height=5, width=137, wrap=tkinter.NONE, bg="gray80")
                 enscb = ttk.Scrollbar(subFrame, orient=tkinter.HORIZONTAL, command=entxb.xview)
                 entxb.configure(xscrollcommand=enscb.set)
                 enscb.pack(fill=tkinter.X)
                 entxb.pack()
                 self.slev = ttk.Label(subFrame, text='Selected Environment: None')
-                self.slev.pack(pady=(15,75))
+                self.slev.pack(pady=(15, 75))
                 # style = Style()
                 # style.configure('TButton', activebackground="gray80",
                 #                 borderwidth='4', )
@@ -961,7 +970,8 @@ class View:
                         piepic = PhotoImage(epic)
 
                         eb = tkinter.Radiobutton(entxb, image=piepic, text=e, variable=self.envOpts, value=e,
-                                             command=self.selevUpdate, compound=tkinter.TOP, indicatoron=0, height=70)
+                                                 command=self.selevUpdate, compound=tkinter.TOP, indicatoron=0,
+                                                 height=70)
                         eb.piepic = piepic
                     except IOError:
                         epic = Image.open(imgloc + "custom" + imty)
@@ -977,23 +987,23 @@ class View:
 
                 entxb.configure(state=tkinter.DISABLED)
 
-                agtxb = tkinter.Text(subFrame, height=2, width=50, wrap=tkinter.NONE)
+                agtxb = tkinter.Text(subFrame, height=2, width=137, wrap=tkinter.NONE, bg="gray80")
                 agscb = ttk.Scrollbar(subFrame, orient=tkinter.HORIZONTAL, command=agtxb.xview)
                 agtxb.configure(xscrollcommand=agscb.set)
                 agscb.pack(fill=tkinter.X)
                 agtxb.pack()
                 self.slag = ttk.Label(subFrame, text='Selected Agent: None')
-                self.slag.pack()
+                self.slag.pack(pady=(15, 30))
 
                 for a in agtName:
                     ab = tkinter.Radiobutton(agtxb, text=a, variable=self.agentOpts, value=a, command=self.selagUpdate,
-                                         compound=tkinter.TOP, indicatoron=0, height=1)
+                                             compound=tkinter.TOP, indicatoron=0, height=1)
                     agtxb.window_create(tkinter.END, window=ab)
 
                 agtxb.configure(state=tkinter.DISABLED)
 
                 subFrame.pack()
-                set_model = ttk.Button(self, text='Set Model', command=master.selectModel)
+                set_model = tkinter.Button(self, text='Set Model', command=master.selectModel)
                 set_model.pack()
 
                 space = tkinter.Canvas(self, bg="gray80", highlightbackground="gray80")
@@ -1005,7 +1015,7 @@ class View:
                 self.slev.config(text=envUpdate)
 
             def selagUpdate(self):
-                agUpdate = 'Selected Environment: ' + self.agentOpts.get()
+                agUpdate = 'Selected Agent: ' + self.agentOpts.get()
                 self.slag.config(text=agUpdate)
 
         class EnvironmentChooser(ttk.Frame):
