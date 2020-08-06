@@ -503,7 +503,7 @@ class View:
                     self.legend.itemconfig(self.lossLegend, text='MSE Episode Loss: {:.4f}'.format(loss))
                     self.legend.itemconfig(self.rewardLegend, text='Episode Reward: ' + str(reward))
                     self.legend.itemconfig(self.epsilonLegend, text='Epsilon: {:.4f}'.format(epsilon))
-                    self.legend.itemconfig(self.episodelegend, text='Episode: ' + str(smoothIndex) + self.smoothAmt)
+                    self.legend.itemconfig(self.episodelegend, text='Episode: ' + str(smoothIndex + self.smoothAmt))
 
                 else:
                     self.legend.itemconfig(self.lossLegend, text='MSE Episode Loss:')
