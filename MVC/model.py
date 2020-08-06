@@ -76,6 +76,8 @@ class Model:
         print('learning done')
 
     def run_testing(self, messageQueue, total_episodes, max_steps, *model_args):
+        total_episodes = int(total_episodes+0.5)
+        max_steps = int(max_steps+0.5)
         self.isRunning = True
 
         if not self.environment:

@@ -116,9 +116,11 @@ API_info =  "   Advanced - API information: \n\n" \
             "       their child classes and contain all methods therein described by that class and the abstract Agent\n" \
             "       class and as set forth in the API documentation.\n\n"
 
+display_episode_speed = "the 'display episode speed' parameter can be changed mid-simulation to adjust how quickly the rendering runs. Keep in mind\nthat each loop is showing the most recent episode, so if you set it high it will often repeat the same episode and if set\nlow it will often skip episodes."
+
 def getHelpGettingStarted():
 
-    return Header + Section1 + Section2 + Section3 + API_info
+    return Header + Section1 + Section2 + Section3 + API_info + display_episode_speed
 
 
 # getHelpText()
