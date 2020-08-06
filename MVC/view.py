@@ -569,6 +569,7 @@ class View:
             self.root.config(cursor="")
 
         def loadingRender(self):
+            self.isLoadingRender = True
             self.render.delete('all')
             w = self.render.winfo_width()
             h = self.render.winfo_height()
@@ -685,6 +686,7 @@ class View:
                         avgReward = totalReward / len(self.graphDataPoints)
                         self.legend.itemconfig(self.testResult1, text='Total Training Reward: ' + str(totalReward))
                         self.legend.itemconfig(self.testResult2, text='Reward/Episode: ' + str(avgReward))
+                        self.loadingRenderUpdate()
                         return
                     elif message.data == Model.Message.TEST_FINISHED:
                         self.imageQueues[0].clear()
@@ -697,6 +699,7 @@ class View:
                         avgReward = totalReward / len(self.graphDataPoints)
                         self.legend.itemconfig(self.testResult1, text='Total Test Reward: ' + str(totalReward))
                         self.legend.itemconfig(self.testResult2, text='Reward/Episode: ' + str(avgReward))
+                        self.loadingRenderUpdate()
                         return
                 elif message.type == Model.Message.STATE:
                     self.imageQueues[self.imageQueuesInd].append(message.data.image)
@@ -704,6 +707,11 @@ class View:
 
             self.updateEpisodeRender()
             self.master.after(10, self.checkMessages)
+
+        def loadingRenderUpdate(self):
+            if self.isLoadingRender:
+                self.notbusy()
+                self.render.delete('all')
 
         def addEpisodeToGraph(self):
             avgLoss = self.episodeAccLoss / self.curEpisodeSteps
@@ -833,6 +841,7 @@ class View:
                         tempImage)  # must maintain a reference to this image in self: otherwise will be garbage collected
                     if self.renderImage:
                         self.render.delete(self.renderImage)
+                        self.isLoadingRender = False
                     self.renderImage = self.render.create_image(0, 0, anchor='nw', image=self.image)
                 self.waitCount += 1
 
