@@ -5,10 +5,12 @@
 
 using namespace std;
 
-const int layerSize = 64;
+const int layerSize = 256;
 
 DRQN::DRQN(int inStateChannels, int inStateDim1, int inStateDim2, int inActionSize, float inGamma, int inBatchSize, int inMemorySize, int inTargetUpdate, int inHistorySize)
 {
+  //GOOGLE_PROTOBUF_VERIFY_VERSION;
+
   stateChannels = inStateChannels;
   stateDim1 = inStateDim1;
   stateDim2 = inStateDim2;
@@ -18,6 +20,9 @@ DRQN::DRQN(int inStateChannels, int inStateDim1, int inStateDim2, int inActionSi
   memorySize = inMemorySize;
   targetUpdate = inTargetUpdate;
   historySize = inHistorySize;
+  
+  //remove("logs/tfevents.pb");
+  //logger = new TensorBoardLogger("logs/tfevents.pb");
 
   if (torch::cuda::is_available()) {
     std::cout << "CUDA is available! Training on GPU." << std::endl;
@@ -27,20 +32,19 @@ DRQN::DRQN(int inStateChannels, int inStateDim1, int inStateDim2, int inActionSi
   {
     device = new torch::Device(torch::kCPU);
   }
-
-  model = Dueling(stateChannels, stateDim1, stateDim2, actionSize, layerSize, historySize, 16, 32, 8, 4, 4, 2);
+  
+  model = Dueling(stateChannels, stateDim1, stateDim2, actionSize, layerSize, historySize, 16, 32, 32, 8, 4, 3, 4, 2, 1);
   model->to(*device);
-  target = Dueling(stateChannels, stateDim1, stateDim2, actionSize, layerSize, historySize, 16, 32, 8, 4, 4, 2);
+  target = Dueling(stateChannels, stateDim1, stateDim2, actionSize, layerSize, historySize, 16, 32, 32, 8, 4, 3, 4, 2, 1);
   target->to(*device);
   
-  model_optimizer = new torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(1e-3));
+  model_optimizer = new torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(1e-4));
 
   fullMask = torch::ones({1,actionSize}).to(*device);
   
   replay = new ReplayBuffer(stateChannels*stateDim1*stateDim2, memorySize, batchSize, historySize);
   printf("BUFFERSIZE: %lu\n", sizeof(float)*memorySize*stateChannels*stateDim1*stateDim2);
   
-  gamma = 0.99f;
   itCounter = 0;
   checkpoint_counter = 0;
 
@@ -52,13 +56,27 @@ DRQN::DRQN(int inStateChannels, int inStateDim1, int inStateDim2, int inActionSi
 int64_t DRQN::chooseAction(float* state)
 {
   //cout << "chooseAction" << endl;
+  
+  if (replay->curSize == 0)
+  {
+    return 0;
+  }
+  
   int64_t action;
   float* recent = new float[historySize * stateChannels * stateDim1 * stateDim2];
   replay->recent(recent, state);
   
   Tensor xsingle = torch::from_blob(recent, {1, historySize, stateChannels, stateDim1, stateDim2}).to(*device);
   Tensor ysingle = model->forward(xsingle, fullMask);
+  
+  /*cout << "XSINGLE:\n" << xsingle << "\n\n\n";
+  int dummy;
+  cin >> dummy;*/
+  
   action = ysingle.argmax(1).item().toInt();
+  
+  //cout << "XSINGLE:\n" << xsingle << "\n\n\n";
+  
     //action = rand()%outputSize;
     //std::cout << "ACTION " << action << " RANDOMED" << std::endl;
   delete[] recent;
@@ -67,6 +85,7 @@ int64_t DRQN::chooseAction(float* state)
 
 float DRQN::remember(float* state, int64_t action, float reward, int64_t done)
 {
+  //cout << "REMEMBERED!\n";
   //cout << "remember" << endl;
   float fLoss=0;
   model_optimizer->zero_grad();
@@ -88,6 +107,11 @@ float DRQN::remember(float* state, int64_t action, float reward, int64_t done)
     Tensor nextxbatch = torch::from_blob(bNextStates, {batchSize, historySize, stateChannels, stateDim1, stateDim2}).to(*device);
     Tensor donesbatch = torch::from_blob(bDones, {batchSize, 1}, TensorOptions().dtype(kInt64)).to(*device);
     
+    /*cout << "XBATCH:\n" << xbatch << "\n\n\n";
+    int dummy;
+    cin >> dummy;*/
+    
+    
     Tensor actionsOneHotBatch = (torch::zeros({batchSize, actionSize}).to(*device).scatter_(1, actionsbatch, 1)).to(*device);
     Tensor ybatch = model->forward(xbatch, actionsOneHotBatch);
     Tensor nextybatch = model->forward(nextxbatch, fullMask);
@@ -96,12 +120,16 @@ float DRQN::remember(float* state, int64_t action, float reward, int64_t done)
     Tensor maxes = nextybatchTarg.gather(1, argmaxes);
     Tensor nextvals = rewardsbatch + (1 - donesbatch) * (gamma * maxes);    
     
-    Tensor targetbatch = torch::zeros({batchSize, actionSize}).to(*device).scatter_(1, actionsbatch, nextvals);
+    Tensor targetbatch = torch::zeros({batchSize, actionSize}).to(*device).scatter_(1, actionsbatch, nextvals).detach();    
     
-    torch::Tensor loss = torch::mse_loss(ybatch, targetbatch.detach());
+    torch::Tensor loss = torch::smooth_l1_loss(ybatch, targetbatch.detach());
     loss.backward();
+    
+    //nn::utils::clip_grad_value_(model->parameters(), 1.0);
+    
     model_optimizer->step();
     fLoss = loss.item<float>();
+    
     
     if ((itCounter+1) % targetUpdate == 0)
     {    
@@ -109,6 +137,44 @@ float DRQN::remember(float* state, int64_t action, float reward, int64_t done)
       torch::save(model, stream);
       torch::load(target, stream);
       std::cout << "target updated" << std::endl;
+      
+      /*auto items = model->named_parameters().items();
+      for (auto item : items)
+      {
+        auto key = item.key();
+        auto val = item.value();
+        auto gradVal = val.grad();
+        int len = 1, gradLen = 1;
+        for (int i=0; i<val.sizes().size(); i++)
+        {
+          len *= val.sizes()[i];
+        }
+        for (int i=0; i<gradVal.sizes().size(); i++)
+        {
+          gradLen *= gradVal.sizes()[i];
+        }
+        const int clen = len, gradClen = gradLen;
+        val = val.view({clen}).to(torch::kCPU);
+        gradVal = gradVal.view({gradClen}).to(torch::kCPU);
+        assert(val.is_contiguous());
+        assert(gradVal.is_contiguous());
+        auto weight_a = val.accessor<float,1>();
+        auto grad_a = gradVal.accessor<float,1>();
+        //cout << key << " added\n\n\n";
+        logger->add_histogram(key, itCounter, &weight_a[0], len);
+        logger->add_histogram(key+".grad", itCounter, &grad_a[0], gradLen);
+        if (key == "conv1.weight")
+        {
+          int ind = rand()%gradLen;
+          cout << "Sample grad: " << grad_a[ind] << endl;
+        }
+      }*/
+      
+      //cout << "\n\n\n\n\n\n\nXBATCH:\n" << xbatch << endl;
+      
+      /*cout << "\n\n\n\n\n*************************************\n";
+      cout << xbatch << endl;
+      cout << "*************************************\n\n\n\n\n";*/
     }
     
     /*if (itCounter % kCheckpointEvery == 0) {
@@ -158,6 +224,8 @@ DRQN::~DRQN()
   delete device;
   delete model_optimizer;
   delete replay;
+  //delete logger;
+  //google::protobuf::ShutdownProtobufLibrary();
 }
 
 DRQN* createDRQN(int stateChannels, int stateDim1, int stateDim2, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate, int inHistorySize)

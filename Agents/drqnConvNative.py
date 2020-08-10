@@ -37,10 +37,15 @@ class DRQNConvNative(modelFreeAgent.ModelFreeAgent):
             import Agents.Native.drqnConvNative._drqnConvNative as _drqnConvNative
 
         self.nativeInterface = _drqnConvNative.lib
-        self.nativeDRQNConv = self.nativeInterface.createAgentc(self.state_size[2], self.state_size[0], self.state_size[1], self.action_size,
+        self.nativeDRQNConv = self.nativeInterface.createAgentc(self.state_size[2], self.state_size[0],
+                                                                self.state_size[1], self.action_size,
                                                                 self.gamma,
                                                                 self.batch_size, self.memory_size,
                                                                 self.target_update_interval, self.historyLength)
+        # self.nativeDRQNConv = self.nativeInterface.createAgentc(self.state_size[2], self.state_size[0], self.state_size[1], self.action_size,
+        #                                                         self.gamma,
+        #                                                         self.batch_size, self.memory_size,
+        #                                                         self.target_update_interval, self.historyLength)
 
         os.chdir(oldwd.as_posix())
 
