@@ -19,4 +19,5 @@ struct ReplayBuffer
   int64_t* dones;
   int curSize;
   int ind;
+  float* emptyState;
 };
