@@ -77,6 +77,8 @@ class DRQNConvNative(modelFreeAgent.ModelFreeAgent):
         cState = self.ffi.new("float[]", state.flatten().tolist())
         #cNewState = self.ffi.new("float[]", new_state)
 
+        done = 1 if done else 0
+
         loss = self.nativeInterface.rememberc(self.nativeDRQNConv, cState, action, reward, done)
         return loss
 

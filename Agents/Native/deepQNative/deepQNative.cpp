@@ -7,7 +7,7 @@ using namespace std;
 
 const int layerSize = 10;
 
-DQN::DQN(int inStateSize, int inActionSize, float inGamma, int inBatchSize, int inMemorySize, int inTargetUpdate)
+DQN::DQN(int inStateSize, int inActionSize, float inGamma, int inBatchSize, int inMemorySize, int inTargetUpdate, float learningRate)
 {
   stateSize = inStateSize;
   actionSize = inActionSize;
@@ -30,18 +30,18 @@ DQN::DQN(int inStateSize, int inActionSize, float inGamma, int inBatchSize, int 
   target = Dueling(stateSize, actionSize, layerSize);
   target->to(*device);
   
-  model_optimizer = new torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(1e-3));
+  model_optimizer = new torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(learningRate));
 
   fullMask = torch::ones({1,actionSize}).to(*device);
   
   replay = new ReplayBuffer(stateSize, memorySize, batchSize);
   printf("BUFFERSIZE: %lu\n", sizeof(ReplayBuffer));
   
-  gamma = 0.99f;
+  gamma = inGamma;
   itCounter = 0;
   checkpoint_counter = 0;
 
-  cout << "Learning rate: " << 1e-3 << ", target update rate: " << targetUpdate << endl;
+  cout << "Learning rate: " << learningRate << ", target update rate: " << targetUpdate << endl;
   cout << "stateSize: " << stateSize << ", actionSize: " << actionSize << ", gamma: " << gamma << endl;
   cout << ", batchSize: " << batchSize << ", memorySize: " << memorySize << ", targetUpdate: " << targetUpdate << endl;
 }
@@ -88,7 +88,7 @@ float DQN::remember(float* state, int64_t action, float reward, int64_t done)
     Tensor maxes = nextybatchTarg.gather(1, argmaxes);
     Tensor nextvals = rewardsbatch + (1 - donesbatch) * (gamma * maxes);    
     
-    Tensor targetbatch = torch::zeros({batchSize, actionSize}).to(*device).scatter_(1, actionsbatch, nextvals);    
+    Tensor targetbatch = torch::zeros({batchSize, actionSize}).to(*device).scatter_(1, actionsbatch, nextvals);
     
     torch::Tensor loss = torch::mse_loss(ybatch, targetbatch.detach());
     loss.backward();
@@ -96,7 +96,7 @@ float DQN::remember(float* state, int64_t action, float reward, int64_t done)
     fLoss = loss.item<float>();
     
     if ((itCounter+1) % targetUpdate == 0)
-    {    
+    {
       std::stringstream stream;
       torch::save(model, stream);
       torch::load(target, stream);
@@ -152,9 +152,9 @@ DQN::~DQN()
   delete replay;
 }
 
-DQN* createDQN(int stateSize, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate)
+DQN* createDQN(int stateSize, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate, float learningRate)
 {
-  return new DQN(stateSize, actionSize, gamma, inBatchSize, inMemorySize, inTargetUpdate);
+  return new DQN(stateSize, actionSize, gamma, inBatchSize, inMemorySize, inTargetUpdate, learningRate);
 }
 
 void freeDQN(DQN* dqn)
@@ -197,9 +197,9 @@ void memload(DQN* dqn, void* mem)
 extern "C"
 {
   typedef struct DQN DQN;
-  void* createAgentc(int stateSize, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate)
+  void* createAgentc(int stateSize, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate, float learningRate)
   {
-    return (void*)createDQN(stateSize, actionSize, gamma, inBatchSize, inMemorySize, inTargetUpdate);
+    return (void*)createDQN(stateSize, actionSize, gamma, inBatchSize, inMemorySize, inTargetUpdate, learningRate);
   }
   
   void freeAgentc(void* dqn)

@@ -38,7 +38,7 @@ DRQN::DRQN(int inStateChannels, int inStateDim1, int inStateDim2, int inActionSi
   target = Dueling(stateChannels, stateDim1, stateDim2, actionSize, layerSize, historySize, 16, 32, 32, 8, 4, 3, 4, 2, 1);
   target->to(*device);
   
-  model_optimizer = new torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(1e-4));
+  model_optimizer = new torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(1e-5));
 
   fullMask = torch::ones({1,actionSize}).to(*device);
   
@@ -48,9 +48,10 @@ DRQN::DRQN(int inStateChannels, int inStateDim1, int inStateDim2, int inActionSi
   itCounter = 0;
   checkpoint_counter = 0;
 
-  cout << "Learning rate: " << 1e-3 << ", target update rate: " << targetUpdate << endl;
+  cout << "target update rate: " << targetUpdate << endl;
   cout << "stateSize: (" << stateChannels << ", " << stateDim1 << ", " << stateDim2 << "), actionSize: " << actionSize << ", gamma: " << gamma << endl;
   cout << ", batchSize: " << batchSize << ", memorySize: " << memorySize << ", targetUpdate: " << targetUpdate << endl;
+  cout << "historySize: " << historySize << endl;
 }
 
 int64_t DRQN::chooseAction(float* state)

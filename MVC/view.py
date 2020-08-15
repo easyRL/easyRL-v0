@@ -311,7 +311,7 @@ class View:
         def halt(self):
             tkId = self.tab.select()
             curTab = self.tab.nametowidget(tkId)
-            if not curTab.listener.modelIsRunning(curTab.tabID) and curTab.parameterFrame.isParameterFrame:
+            if curTab.parameterFrame.isParameterFrame:
                 curTab.parameterFrame.master.halt()
 
         def test(self):
@@ -563,7 +563,9 @@ class View:
             self.frame.pack()
 
         def busy(self):
-            self.root.config(cursor="wait")
+            pass
+            #Commented out because this crashes on Linux:
+            #self.root.config(cursor="wait")
 
         def notbusy(self):
             self.root.config(cursor="")

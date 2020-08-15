@@ -108,7 +108,7 @@ class DRQN
         torch::Device* device;
         Dueling model = nullptr;
         Dueling target = nullptr;
-        torch::optim::Adam* model_optimizer;
+        torch::optim::Optimizer* model_optimizer;
         Tensor fullMask;
         ReplayBuffer* replay;
         
