@@ -94,10 +94,10 @@ TORCH_MODULE(Dueling);
 class DRQN
 {
     public:
-        DRQN(int inStateChannels, int inStateDim1, int inStateDim2, int inActionSize, float inGamma, int inBatchSize, int inMemorySize, int inTargetUpdate, int inHistorySize);
+        DRQN(int inStateChannels, int inStateDim1, int inStateDim2, int inActionSize, float inGamma, int inBatchSize, int inMemorySize, int inTargetUpdate, int inHistorySize, float inLearningRate);
         ~DRQN();
         int64_t chooseAction(float* state);
-        float remember(float* state, int64_t action, float reward, int64_t done);
+        float remember(float* state, int64_t action, float reward, int64_t done, int isTrain);
         void newEpisode(){}
         void save(char* filename);
         void load(char* filename);
@@ -124,6 +124,7 @@ class DRQN
         int64_t itCounter;
         int skipCounter;
         int64_t checkpoint_counter;
+        bool choiceFlag;
         
         
         //TensorBoardLogger* logger = nullptr;
@@ -132,10 +133,10 @@ class DRQN
 #ifdef _WIN32
 extern "C"
 {
-    __declspec(dllexport) void* createAgentc(int stateChannels, int stateDim1, int stateDim2, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate, int historySize);
+    __declspec(dllexport) void* createAgentc(int stateChannels, int stateDim1, int stateDim2, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate, int historySize, float inLearningRate);
     __declspec(dllexport) void freeAgentc(void* dqn);
     __declspec(dllexport) int64_t chooseActionc(void* dqn, float* state);
-    __declspec(dllexport) float rememberc(void* dqn, float* state, int64_t action, float reward, int64_t done);
+    __declspec(dllexport) float rememberc(void* dqn, float* state, int64_t action, float reward, int64_t done, int isTrain);
     __declspec(dllexport) void savec(void* dqn, char* filename);
     __declspec(dllexport) void loadc(void* dqn, char* filename);
     __declspec(dllexport) void* memsavec(void* dqn);

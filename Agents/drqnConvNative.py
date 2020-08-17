@@ -14,13 +14,15 @@ class DRQNConvNative(modelFreeAgent.ModelFreeAgent):
     newParameters = [modelFreeAgent.ModelFreeAgent.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
                      modelFreeAgent.ModelFreeAgent.Parameter('Memory Size', 1, 655360, 1, 1000, True, True, "The maximum number of timestep transitions to keep stored"),
                      modelFreeAgent.ModelFreeAgent.Parameter('Target Update Interval', 1, 100000, 1, 200, True, True, "The distance in timesteps between target model updates"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('History Length', 0, 20, 1, 10, True, True, "The number of recent timesteps to use as input")]
+                     modelFreeAgent.ModelFreeAgent.Parameter('History Length', 0, 20, 1, 10, True, True, "The number of recent timesteps to use as input"),
+                     modelFreeAgent.ModelFreeAgent.Parameter('Learning Rate', 0.00001, 10, 0.00001, 0.001, True, True, "The rate at which the agent's weights are updated")]
     parameters = modelFreeAgent.ModelFreeAgent.parameters + newParameters
 
     def __init__(self, *args):
         paramLen = len(DRQNConvNative.newParameters)
         super().__init__(*args[:-paramLen])
-        self.batch_size, self.memory_size, self.target_update_interval, self.historyLength = [int(arg) for arg in args[-paramLen:]]
+        self.batch_size, self.memory_size, self.target_update_interval, self.historyLength, _ = [int(arg) for arg in args[-paramLen:]]
+        _, _, _, _, self.learningRate = [arg for arg in args[-paramLen:]]
 
         oldwd = pathlib.Path().absolute()
         curDir = oldwd / "Agents/Native/drqnConvNative"
@@ -41,11 +43,13 @@ class DRQNConvNative(modelFreeAgent.ModelFreeAgent):
                                                                 self.state_size[1], self.action_size,
                                                                 self.gamma,
                                                                 self.batch_size, self.memory_size,
-                                                                self.target_update_interval, self.historyLength)
+                                                                self.target_update_interval, self.historyLength, self.learningRate)
         # self.nativeDRQNConv = self.nativeInterface.createAgentc(self.state_size[2], self.state_size[0], self.state_size[1], self.action_size,
         #                                                         self.gamma,
         #                                                         self.batch_size, self.memory_size,
         #                                                         self.target_update_interval, self.historyLength)
+
+        self.chooseActionFlag = False
 
         os.chdir(oldwd.as_posix())
 
@@ -71,15 +75,19 @@ class DRQNConvNative(modelFreeAgent.ModelFreeAgent):
     def choose_action(self, state):
         cState = self.ffi.new("float[]", state.flatten().tolist())
         action = self.nativeInterface.chooseActionc(self.nativeDRQNConv, cState)
+        if self.chooseActionFlag:
+            self.nativeInterface.rememberc(self.nativeDRQNConv, cState, 0, 0, 0, 0)
+        self.chooseActionFlag = True
         return action
 
     def remember(self, state, action, reward, new_state, done=False):
+        self.chooseActionFlag = False
         cState = self.ffi.new("float[]", state.flatten().tolist())
         #cNewState = self.ffi.new("float[]", new_state)
 
         done = 1 if done else 0
 
-        loss = self.nativeInterface.rememberc(self.nativeDRQNConv, cState, action, reward, done)
+        loss = self.nativeInterface.rememberc(self.nativeDRQNConv, cState, action, reward, done, 1)
         return loss
 
     def update(self):

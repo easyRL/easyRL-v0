@@ -48,7 +48,7 @@ class View:
     def __init__(self, listener):
         self.root = ThemedTk(theme='keramik')
         self.root.resizable(False, False)
-        self.root.geometry('1100x650')
+        self.root.geometry('1400x1000')
         self.root.configure(bg="gray80")
         self.root.title('EasyRL')
         # self.root.attributes('-fullscreen', True)

@@ -7,7 +7,7 @@ using namespace std;
 
 const int layerSize = 256;
 
-DRQN::DRQN(int inStateChannels, int inStateDim1, int inStateDim2, int inActionSize, float inGamma, int inBatchSize, int inMemorySize, int inTargetUpdate, int inHistorySize)
+DRQN::DRQN(int inStateChannels, int inStateDim1, int inStateDim2, int inActionSize, float inGamma, int inBatchSize, int inMemorySize, int inTargetUpdate, int inHistorySize, float inLearningRate)
 {
   //GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -38,8 +38,8 @@ DRQN::DRQN(int inStateChannels, int inStateDim1, int inStateDim2, int inActionSi
   target = Dueling(stateChannels, stateDim1, stateDim2, actionSize, layerSize, historySize, 16, 32, 32, 8, 4, 3, 4, 2, 1);
   target->to(*device);
   
-  model_optimizer = new torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(1e-5));
-
+  model_optimizer = new torch::optim::Adam(model->parameters(), torch::optim::AdamOptions(inLearningRate).eps(0.001));
+  
   fullMask = torch::ones({1,actionSize}).to(*device);
   
   replay = new ReplayBuffer(stateChannels*stateDim1*stateDim2, memorySize, batchSize, historySize);
@@ -48,7 +48,7 @@ DRQN::DRQN(int inStateChannels, int inStateDim1, int inStateDim2, int inActionSi
   itCounter = 0;
   checkpoint_counter = 0;
 
-  cout << "target update rate: " << targetUpdate << endl;
+  cout << "learning rate: " << inLearningRate << endl << "target update rate: " << targetUpdate << endl;
   cout << "stateSize: (" << stateChannels << ", " << stateDim1 << ", " << stateDim2 << "), actionSize: " << actionSize << ", gamma: " << gamma << endl;
   cout << ", batchSize: " << batchSize << ", memorySize: " << memorySize << ", targetUpdate: " << targetUpdate << endl;
   cout << "historySize: " << historySize << endl;
@@ -84,7 +84,7 @@ int64_t DRQN::chooseAction(float* state)
   return action;
 }
 
-float DRQN::remember(float* state, int64_t action, float reward, int64_t done)
+float DRQN::remember(float* state, int64_t action, float reward, int64_t done, int isTrain)
 {
   //cout << "REMEMBERED!\n";
   //cout << "remember" << endl;
@@ -92,7 +92,7 @@ float DRQN::remember(float* state, int64_t action, float reward, int64_t done)
   model_optimizer->zero_grad();
   replay->add(state, action, reward, done);
   
-  if (replay->curSize >= batchSize)
+  if (isTrain && replay->curSize >= batchSize)
   {
     float* bStates = new float[batchSize * historySize * stateChannels * stateDim1 * stateDim2];
     int64_t* bActions = new int64_t[batchSize];
@@ -133,7 +133,7 @@ float DRQN::remember(float* state, int64_t action, float reward, int64_t done)
     
     
     if ((itCounter+1) % targetUpdate == 0)
-    {    
+    {
       std::stringstream stream;
       torch::save(model, stream);
       torch::load(target, stream);
@@ -205,6 +205,7 @@ void DRQN::save(char* filename)
 void DRQN::load(char* filename)
 {
   torch::load(model, filename);
+  cout << "loaded " << filename << endl;
 }
 
 std::stringstream* DRQN::memsave()
@@ -229,9 +230,9 @@ DRQN::~DRQN()
   //google::protobuf::ShutdownProtobufLibrary();
 }
 
-DRQN* createDRQN(int stateChannels, int stateDim1, int stateDim2, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate, int inHistorySize)
+DRQN* createDRQN(int stateChannels, int stateDim1, int stateDim2, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate, int inHistorySize, float inLearningRate)
 {
-  return new DRQN(stateChannels, stateDim1, stateDim2, actionSize, gamma, inBatchSize, inMemorySize, inTargetUpdate, inHistorySize);
+  return new DRQN(stateChannels, stateDim1, stateDim2, actionSize, gamma, inBatchSize, inMemorySize, inTargetUpdate, inHistorySize, inLearningRate);
 }
 
 void freeDRQN(DRQN* drqn)
@@ -245,9 +246,9 @@ int64_t chooseAction(DRQN* drqn, float* state)
   return result;
 }
 
-float remember(DRQN* drqn, float* state, int64_t action, float reward, int64_t done)
+float remember(DRQN* drqn, float* state, int64_t action, float reward, int64_t done, int isTrain)
 {
-  float result = drqn->remember(state, action, reward, done);
+  float result = drqn->remember(state, action, reward, done, isTrain);
   return result;
 }
 
@@ -274,9 +275,9 @@ void memload(DRQN* drqn, void* mem)
 extern "C"
 {
   typedef struct DRQN DRQN;
-void* createAgentc(int stateChannels, int stateDim1, int stateDim2, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate, int inHistorySize)
+void* createAgentc(int stateChannels, int stateDim1, int stateDim2, int actionSize, float gamma, int inBatchSize, int inMemorySize, int inTargetUpdate, int inHistorySize, float inLearningRate)
   {
-    return (void*)createDRQN(stateChannels, stateDim1, stateDim2, actionSize, gamma, inBatchSize, inMemorySize, inTargetUpdate, inHistorySize);
+    return (void*)createDRQN(stateChannels, stateDim1, stateDim2, actionSize, gamma, inBatchSize, inMemorySize, inTargetUpdate, inHistorySize, inLearningRate);
   }
   
   void freeAgentc(void* drqn)
@@ -289,9 +290,9 @@ void* createAgentc(int stateChannels, int stateDim1, int stateDim2, int actionSi
     return chooseAction((DRQN*)drqn, state);
   }
   
-  float rememberc(void* drqn, float* state, int64_t action, float reward, int64_t done)
+  float rememberc(void* drqn, float* state, int64_t action, float reward, int64_t done, int isTrain)
   {
-    return remember((DRQN*)drqn, state, action, reward, done);
+    return remember((DRQN*)drqn, state, action, reward, done, isTrain);
   }
   
   void savec(void* drqn, char* filename)

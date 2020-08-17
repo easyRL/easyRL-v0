@@ -529,7 +529,7 @@ class pongEnv(AtariEnv):
 
     def __init__(self):
         super().__init__()
-        self.env = gym.make('PongDeterministic-v0')
+        self.env = gym.make('Pong-v0')
         self.action_size = 2
 
     def step(self, action):
@@ -553,7 +553,7 @@ class pooyanEnv(AtariEnv):
         self.env = gym.make('Pooyan-v0')
         self.action_size = self.env.action_space.n
 
-
+0
 AtariEnv.subEnvs.append(pooyanEnv)
 
 
