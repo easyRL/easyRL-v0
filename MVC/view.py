@@ -10,7 +10,7 @@ from PIL import ImageTk
 from PIL.ImageTk import PhotoImage
 import ttkwidgets
 
-from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, doubleDuelingQNative, drqnNative, drqnConvNative, ppoNative
+from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, doubleDuelingQNative, drqnNative, drqnConvNative, ppoNative, reinforceNative, actorCriticNative
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, \
     mountainCarEnv
 from MVC import helptext
@@ -33,7 +33,7 @@ about = """
 
 
 class View:
-    agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, drqnConvNative.DRQNConvNative, ppoNative.PPONative, sarsa]
+    agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, drqnConvNative.DRQNConvNative, ppoNative.PPONative, reinforceNative.ReinforceNative, actorCriticNative.ActorCriticNative, sarsa]
     environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
                     pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv]
     environments += atariEnv.AtariEnv.subEnvs
