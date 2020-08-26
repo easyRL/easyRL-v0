@@ -1,3 +1,5 @@
+If the executable is not workink or if you want to try to get it working directly
+
 # RL-Framework
 University of Washington Tacoma TCSS 556 Final Project
 -------------
@@ -20,11 +22,47 @@ The following are basic instructions set up and run a copy of the
   
 ###Prerequisites:
   
-To setup, run EasyRL.install. Then click OK to everything. 
+To setup, first install the required pip packages using these commands
+ in a Python 3.7 environment:
+```
+pip install pillow
+pip install gym
+pip install pandas
+pip install numpy
+pip install tensorflow
+pip install joblib
+pip install ttkthemes
+pip install ttkwidgets
+pip install opencv-python
+pip install cffi
+```
 
+(if not on Windows): 
+```
+pip (or pip3) install gym[atari]
+```
+(OR if on Windows with the Visual C++ Build Tools installed):
+```
+pip install --no-index -f https://github.com/Kojoley/atari-py/releases atari_py
+pip install git+https://github.com/Kojoley/atari-py.git
+```
 ##Running the Program:
+First, run the following on either Mac Linux or Windows PC...
 
-Run EasyRL.exe.
+-For Linux Command line:
+```
+./EasyRL
+```
+-For Windows CmdPrompt
+```
+python EasyRL.py
+```
+Note: We have CartPole with discretized states and a Q-Table, and
+ CartPole  with continuous states and Deep Q learning implemented. We
+  also have FrozenLake partially implemented with Q-Learning, which
+   prints its output to the console instead of displaying in the GUI
+    for now. Also, FrozenLake's data is not yet displaying on the
+     graph.
 
 ##Running the tests
 ###The Framework:
@@ -114,3 +152,4 @@ This project is licensed by The University of Washington Tacoma
 * B
 
  
+
