@@ -28,18 +28,17 @@ Run EasyRL.exe.
 
 ##Running the tests
 ###The Framework:
-The framework of the graphical interface is based on a tab system
-. Each tab represents an agent/environment pair which may be
- trained/tested concurrently with, and independent of, all other tabs
- . 
+The framework of the graphical interface is based on a tab system. 
+Each tab represents an agent/environment pair which may be
+trained/tested concurrently with, and independent of, all other tabs. 
  
- Associated with each agent are parameters that are editable by the
- user prior to training/testing. 
+Associated with each agent are parameters that are editable by the
+user prior to training/testing. 
  
- In order to control the training and testing processes, the user is
-  given the options to start/halt training/testing, save the trained
-   agent, load a trained agent , reset the currently loaded agent
-    , and to save the results of the training/testing process.
+In order to control the training and testing processes, the user is
+given the options to start/halt training/testing, save the trained
+agent, load a trained agent , reset the currently loaded agent, 
+and to save the results of the training/testing process.
 
 The types of agent types available by default are as follows: 
 ```
@@ -78,12 +77,10 @@ Our demonstration video makes it clear how a GUI can greatly simplify
 * [Demo](https://www.overleaf.com/project/5edbdec4b060950001e5e6c1
 ) - Video explanation of the RL-Framework application
 
-###Deployment:
-Notes about how to deploy on a live system
-
 ##Reference on RL-Framework
 ###Built with:
-Notes with relevant tools or resources used to build RL-Framework
+See prerequisetes for packages used, no other programs in particular were used to create
+EasyRL.
 
 ###Literature:
 * [Paper](https://www.overleaf.com/read/vvwxqwghryqz
@@ -110,7 +107,6 @@ Notes on our code of conduct and or on the process for submitting
 This project is licensed by The University of Washington Tacoma
 
 ###Acknowledgements:
-* A
-* B
+None
 
  
