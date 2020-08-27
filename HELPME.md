@@ -1,4 +1,4 @@
-If the executable is not workink or if you want to try to get it working directly
+If the executable is not working or if you want to try to get it working directly
 
 # RL-Framework
 University of Washington Tacoma TCSS 556 Final Project
@@ -16,9 +16,9 @@ As reinforcement learning techniques become more powerful, it becomes
 ```
 ##Getting Started:
 
-The following are basic instructions set up and run a copy of the
+The following are basic instructions to set up and run a copy of the
  application on your local machine for testing and development
-  purposes. 
+  purposes without the executable.
   
 ###Prerequisites:
   
@@ -116,12 +116,10 @@ Our demonstration video makes it clear how a GUI can greatly simplify
 * [Demo](https://www.overleaf.com/project/5edbdec4b060950001e5e6c1
 ) - Video explanation of the RL-Framework application
 
-###Deployment:
-Notes about how to deploy on a live system
-
 ##Reference on RL-Framework
 ###Built with:
-Notes with relevant tools or resources used to build RL-Framework
+See prerequisetes for packages used, no other programs in particular were used to create
+EasyRL.
 
 ###Literature:
 * [Paper](https://www.overleaf.com/project/5edbdec4b060950001e5e6c1
@@ -148,8 +146,7 @@ Notes on our code of conduct and or on the process for submitting
 This project is licensed by The University of Washington Tacoma
 
 ###Acknowledgements:
-* A
-* B
+None
 
  
 
