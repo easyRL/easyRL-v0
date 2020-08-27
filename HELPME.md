@@ -124,7 +124,7 @@ Notes about how to deploy on a live system
 Notes with relevant tools or resources used to build RL-Framework
 
 ###Literature:
-* [Paper](https://www.overleaf.com/project/5edbdec4b060950001e5e6c1
+* [Paper](https://www.overleaf.com/read/vvwxqwghryqz
 ) - User Friendly Reinforcement Learning
 
 ###Contributing:
