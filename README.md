@@ -1,16 +1,5 @@
-# RL-Framework
-University of Washington Tacoma TCSS 556 Final Project
--------------
-```
-As reinforcement learning techniques become more powerful, it becomes
- possible for researchers to specify a reinforcement learning agent
- at a higher conceptual level. We present a GUI framework for a user
- to specify, train, and test an RL agent entirely within a user
--friendly and non-technical GUI. Included in the framework are
- several types of general RL agents to choose from, which may be
- applied to several OpenAI Gym environments. In addition, an API is
- available for specifying an arbitrary agent type or environment to
- include in the framework as a plugin. 
+# EasyRL-Framework
+
 ```
 ##Getting Started:
 
