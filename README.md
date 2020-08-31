@@ -1,19 +1,23 @@
 # EasyRL-Framework
 
-#nstaller for Windows:
+#installer for Windows .zip (releases):
   
 ----> run EasyRL.install
 ----> Click OK
 ----> run EasyRL.exe
 
-GUI Example:
+GUI Example for training :
 Click 'CartPole' -> 'Q-Learning' -> Click Set Model
 
-Command-Line Example:
+Command-Line Example for training:
 
 
-#Building source from the scratch for windows/ios/linux:
 
+#Building source from the scratch for windows/ios/linux (master branch):
+
+--other dependensies requirements.txt/check ---? 
+-- visual c++ installation
+-- compile native agents (cmake list)
 
 
 
@@ -31,7 +35,7 @@ reinforce native
 actorcritic native. 
 
 
-###Contributors:
+###Contributors (check):
 * James Haines-Temons
 * Neil Hulbert
 * Kevin Flora
