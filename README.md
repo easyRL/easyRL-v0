@@ -45,7 +45,13 @@ The types of agent types available by default are as follows:
 Q-Table SARSA/Q-Learning
 deep Q-learning
 deep recurrent Q-learning
-action deep recurrent Q-learning. 
+action deep recurrent Q-learning
+double, dueling deep q native
+drqn native
+conv drqn native
+ppo native
+reinforce native
+actorcritic native. 
 
 ```
 The default agent types are all based on model-free algorithms
@@ -74,7 +80,7 @@ Our demonstration video makes it clear how a GUI can greatly simplify
    consumer-grade desktop computer can quickly produce RL agents with
     minimal knowledge of AI and even programming in general.
 
-* [Demo](https://www.overleaf.com/project/5edbdec4b060950001e5e6c1
+* [Demo](https://www.overleaf.com/read/vvwxqwghryqz
 ) - Video explanation of the RL-Framework application
 
 ##Reference on RL-Framework
