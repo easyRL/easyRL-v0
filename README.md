@@ -38,6 +38,7 @@ First, run the following on either Mac, Linux, or Windows PC...
 
 -Run EasyRL.exe
 OR
+-Navigate to the RL-Framework folder then
 -For Linux Command line:
 ```
 ./EasyRL
@@ -48,7 +49,7 @@ python EasyRL.py
 ```
 
 # GUI Example for training :
-Click 'CartPole' -> 'Q-Learning' -> Click Set Model
+Click 'CartPole' -> 'Q-Learning' -> Click Set Model -> Click Train
 
 # Command-Line Example for training:
 
