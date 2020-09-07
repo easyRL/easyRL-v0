@@ -40,7 +40,7 @@ Copy and paste the RL-Framework/Agents/Native folder from RL-FrameworkRelease_wi
 First, run the following on either Mac, Linux, or Windows PC...
 
 -Run EasyRL.exe
-OR
+-OR
 -Navigate to the RL-Framework folder then
 -For Linux Command line:
 ```
