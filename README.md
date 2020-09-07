@@ -33,6 +33,9 @@ pip install git+https://github.com/Kojoley/atari-py.git
 
 Then, download and extract the .zip file
 
+Next is to download and extract RL-FrameworkRelease_win-x64_torch160_cpu.zip from https://github.com/nhulbert/RL-Framework/releases.
+Copy and paste the RL-Framework/Agents/Native folder from RL-FrameworkRelease_win-x64_torch160_cpu.zip to your own RL-Framework/Agents/Native folder.
+
 # Running the Program:
 First, run the following on either Mac, Linux, or Windows PC...
 
