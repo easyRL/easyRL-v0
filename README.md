@@ -58,6 +58,7 @@ Click 'CartPole' -> 'Q-Learning' -> Click Set Model -> Click Train
 
 
 # other dependensies requirements.txt/check ---? 
+```
 -- visual c++ installation
 -- compile native agents (cmake list)
 -- absl-py==0.9.0
@@ -129,7 +130,7 @@ Click 'CartPole' -> 'Q-Learning' -> Click Set Model -> Click Train
 -- xlwt==1.3.0
 
 -- interval~=1.0.0
-
+```
 
 
 # Types of inbuild agents: 
