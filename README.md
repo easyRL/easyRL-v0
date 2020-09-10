@@ -12,6 +12,8 @@
 
 ----> click install
 
+----> click finish
+
 # Installation by building source from the scratch for Windows/IOS/Linux (master branch):
 To setup, first install the required pip packages using these commands
  in a Python 3.7 environment:
