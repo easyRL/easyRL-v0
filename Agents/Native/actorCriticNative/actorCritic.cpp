@@ -107,7 +107,7 @@ float ActorCritic::remember(float* state, int64_t action, float reward, int64_t 
     buffer->clearProcessed();
   }
   
-  if (itCounter % kCheckpointEvery == 0) {
+  /*if (itCounter % kCheckpointEvery == 0) {
       // Checkpoint the model and optimizer state.
       torch::save(actorModel, "model-checkpoint.pt");
       torch::save(*actorModel_optimizer, "model-optimizer-checkpoint.pt");
@@ -115,7 +115,7 @@ float ActorCritic::remember(float* state, int64_t action, float reward, int64_t 
       torch::save(valueModel, "value-checkpoint.pt");
       torch::save(*valueModel_optimizer, "value-optimizer-checkpoint.pt");
       std::cout << "\n-> checkpoint " << ++checkpoint_counter << '\n';
-  }
+  }*/
   
   itCounter++;
   
