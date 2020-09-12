@@ -111,7 +111,7 @@ void ReplayBuffer::recent(float* bStates, float* curState)
   
   memcpy(&bStates[(historySize-1)*stateSize], curState, sizeof(float)*stateSize);
 }
-
+/* // Replay buffer test driver, does not compile with MSVCP
 int main(int argc, const char* argv)
 {
   int stateSize = 3;
@@ -230,6 +230,7 @@ int main(int argc, const char* argv)
     }
   }
 }
+*/
 
 ReplayBuffer::~ReplayBuffer()
 {

@@ -23,8 +23,8 @@ class Controller:
     def __init__(self):
         self.models = {}
         self.viewListener = self.ViewListener(self)
-        self.view = view.View(self.viewListener)
-        #self.view = terminalView.View(self.viewListener)
+        self.view = view.View(self.viewListener) # ------ COMMENT THIS TO DISABLE GUI VIEW
+        #self.view = terminalView.View(self.viewListener) # ------ UNCOMMENT THIS TO ENABLE CONSOLE VIEW
 
     class ViewListener:
         def __init__(self, controller):
