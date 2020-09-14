@@ -60,12 +60,12 @@ class ReinforceNative(modelFreeAgent.ModelFreeAgent):
         self.nativeInterface.freeAgentc(self.nativeReinforce)
 
     def choose_action(self, state):
-        cState = self.ffi.new("float[]", state.flatten().tolist())
+        cState = self.ffi.new("float[]", list(state))
         action = self.nativeInterface.chooseActionc(self.nativeReinforce, cState)
         return action
 
     def remember(self, state, action, reward, new_state, done=False):
-        cState = self.ffi.new("float[]", state.flatten().tolist())
+        cState = self.ffi.new("float[]", list(state))
         #cNewState = self.ffi.new("float[]", new_state)
 
         loss = self.nativeInterface.rememberc(self.nativeReinforce, cState, action, reward, done)

@@ -63,12 +63,12 @@ class DoubleDuelingQNative(modelFreeAgent.ModelFreeAgent):
         self.nativeInterface.freeAgentc(self.nativeDQN)
 
     def choose_action(self, state):
-        cState = self.ffi.new("float[]", state.tolist())
+        cState = self.ffi.new("float[]", list(state))
         action = self.nativeInterface.chooseActionc(self.nativeDQN, cState)
         return action
 
     def remember(self, state, action, reward, new_state, done=False):
-        cState = self.ffi.new("float[]", state.tolist())
+        cState = self.ffi.new("float[]", list(state))
         #cNewState = self.ffi.new("float[]", new_state)
 
         done = 1 if done else 0

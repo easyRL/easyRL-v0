@@ -78,12 +78,12 @@ class PPONative(modelFreeAgent.ModelFreeAgent):
         self.nativeInterface.freeAgentc(self.nativeppo)
 
     def choose_action(self, state):
-        cState = self.ffi.new("float[]", state.flatten().tolist())
+        cState = self.ffi.new("float[]", list(state))
         action = self.nativeInterface.chooseActionc(self.nativeppo, cState)
         return action
 
     def remember(self, state, action, reward, new_state, done=False):
-        cState = self.ffi.new("float[]", state.flatten().tolist())
+        cState = self.ffi.new("float[]", list(state))
         #cNewState = self.ffi.new("float[]", new_state)
 
         loss = self.nativeInterface.rememberc(self.nativeppo, cState, action, reward, done)

@@ -70,12 +70,12 @@ class ActorCriticNative(modelFreeAgent.ModelFreeAgent):
         self.nativeInterface.freeAgentc(self.nativeActorCritic)
 
     def choose_action(self, state):
-        cState = self.ffi.new("float[]", state.flatten().tolist())
+        cState = self.ffi.new("float[]", list(state))
         action = self.nativeInterface.chooseActionc(self.nativeActorCritic, cState)
         return action
 
     def remember(self, state, action, reward, new_state, done=False):
-        cState = self.ffi.new("float[]", state.flatten().tolist())
+        cState = self.ffi.new("float[]", list(state))
         #cNewState = self.ffi.new("float[]", new_state)
 
         loss = self.nativeInterface.rememberc(self.nativeActorCritic, cState, action, reward, done)

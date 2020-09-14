@@ -34,9 +34,33 @@ about = """
 
 class View:
     agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, drqnConvNative.DRQNConvNative, ppoNative.PPONative, reinforceNative.ReinforceNative, actorCriticNative.ActorCriticNative, sarsa]
-    environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
+    singleDimEnvs = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
                     pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv]
-    environments += atariEnv.AtariEnv.subEnvs
+    environments = singleDimEnvs + atariEnv.AtariEnv.subEnvs
+
+    allowedEnvs = {
+        deepQ.DeepQ: singleDimEnvs,
+        qLearning.QLearning: [cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv],
+        drqn.DRQN: environments,
+        adrqn.ADRQN: environments,
+        doubleDuelingQNative.DoubleDuelingQNative: singleDimEnvs,
+        drqnNative.DRQNNative: singleDimEnvs,
+        drqnConvNative.DRQNConvNative: atariEnv.AtariEnv.subEnvs,
+        ppoNative.PPONative: singleDimEnvs,
+        reinforceNative.ReinforceNative: singleDimEnvs,
+        actorCriticNative.ActorCriticNative: singleDimEnvs,
+        sarsa: [cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv]
+    }
+
+    allowedEnvs = {agent.displayName:[env.displayName for env in envs] for (agent, envs) in allowedEnvs.items()}
+    allowedAgents = {}
+    for agent, envs in allowedEnvs.items():
+        for env in envs:
+            curAgents = allowedAgents.get(env)
+            if not curAgents:
+                curAgents = []
+                allowedAgents[env] = curAgents
+            curAgents.append(agent)
 
     """
     :param master: the top level widget of Tk
@@ -623,7 +647,8 @@ class View:
         def save(self):
             if not self.listener.modelIsRunning(self.tabID):
                 filename = filedialog.asksaveasfilename(initialdir="/", title="Select file")
-                self.listener.save(filename, self.tabID)
+                if filename:
+                    self.listener.save(filename, self.tabID)
 
         def load(self):
             if not self.listener.modelIsRunning(self.tabID):
@@ -838,35 +863,35 @@ class View:
                     if self.curImageIndDisplayed == len(displayQueue):
                         self.curImageIndDisplayed = 0
                         self.isDisplayingEpisode = False
-                    tempImage = tempImage.resize((self.render.winfo_width(), self.render.winfo_height()))
-                    self.image = ImageTk.PhotoImage(
+                    if tempImage:
+                        tempImage = tempImage.resize((self.render.winfo_width(), self.render.winfo_height()))
+                        self.image = ImageTk.PhotoImage(
                         tempImage)  # must maintain a reference to this image in self: otherwise will be garbage collected
-                    if self.renderImage:
-                        self.render.delete(self.renderImage)
-                        self.isLoadingRender = False
-                    self.renderImage = self.render.create_image(0, 0, anchor='nw', image=self.image)
+                        if self.renderImage:
+                            self.render.delete(self.renderImage)
+                            self.isLoadingRender = False
+                        self.renderImage = self.render.create_image(0, 0, anchor='nw', image=self.image)
                 self.waitCount += 1
 
         def selectModel(self):
-            for agent in View.agents:
-                if self.parameterFrame.agentOpts.get() == agent.displayName:
+            agent, env = None, None
+            for curAgent in View.agents:
+                if self.parameterFrame.agentOpts.get() == curAgent.displayName:
+                    agent = curAgent
                     break
-            for env in View.environments:
-                if self.parameterFrame.envOpts.get() == env.displayName:
+            for curEnv in View.environments:
+                if self.parameterFrame.envOpts.get() == curEnv.displayName:
+                    env = curEnv
                     break
 
-            if issubclass(agent, qTable.QTable) and \
-                    not issubclass(env, cartPoleEnvDiscrete.CartPoleEnvDiscrete) and \
-                    not issubclass(env, frozenLakeEnv.FrozenLakeEnv) and \
-                    env.displayName.split('_')[0] != 'Custom':
-                messagebox.showerror("Error", "Agent is not compatible with this environment")
-                return
-
-            self.master.tab(self, text=agent.displayName + '+' + env.displayName)
-            self.parameterFrame.destroy()
-            self.parameterFrame = self.ParameterFrame(self, agent, env)
-            self.parameterFrame.grid(row=0, column=0, rowspan=9)
-            self.setupRight()
+            if agent and env:
+                self.master.tab(self, text=agent.displayName + '+' + env.displayName)
+                self.parameterFrame.destroy()
+                self.parameterFrame = self.ParameterFrame(self, agent, env)
+                self.parameterFrame.grid(row=0, column=0, rowspan=9)
+                self.setupRight()
+            else:
+                messagebox.showerror("Error", "Please select both an agent and an environment")
 
         def close(self):
             self.listener.close(self.tabID)
@@ -953,6 +978,8 @@ class View:
                 self.isParameterFrame = False
                 self.agentOpts = tkinter.StringVar(self)
                 self.envOpts = tkinter.StringVar(self)
+                self.envButtons = []
+                self.agentButtons = []
                 subFrame = ttk.Frame(self)
 
                 envName = [opt.displayName for opt in View.environments]
@@ -985,6 +1012,7 @@ class View:
                                                  command=self.selevUpdate, compound=tkinter.TOP, indicatoron=0,
                                                  height=70)
                         eb.piepic = piepic
+                        self.envButtons.append(eb)
                     except IOError:
                         epic = Image.open(imgloc + "custom" + imty)
                         epic = epic.resize((50, 50), Image.ANTIALIAS)
@@ -994,6 +1022,7 @@ class View:
                                                  command=self.selevUpdate, compound=tkinter.TOP, indicatoron=0,
                                                  height=70)
                         eb.piepic = piepic
+                        self.envButtons.append(eb)
                     #     anchor=tkinter.S
                     entxb.window_create(tkinter.END, window=eb)
 
@@ -1011,6 +1040,7 @@ class View:
                     ab = tkinter.Radiobutton(agtxb, text=a, variable=self.agentOpts, value=a, command=self.selagUpdate,
                                              compound=tkinter.TOP, indicatoron=0, height=1)
                     agtxb.window_create(tkinter.END, window=ab)
+                    self.agentButtons.append(ab)
 
                 agtxb.configure(state=tkinter.DISABLED)
 
@@ -1025,10 +1055,39 @@ class View:
             def selevUpdate(self):
                 envUpdate = 'Selected Environment: ' + self.envOpts.get()
                 self.slev.config(text=envUpdate)
+                curAgents = View.allowedAgents[self.envOpts.get()]
+                if curAgents:
+                    for agentButton in self.agentButtons:
+                        if agentButton.cget('text') in curAgents:
+                            agentButton.configure(state=tkinter.NORMAL)
+                        else:
+                            agentButton.configure(state=tkinter.DISABLED)
+                            if agentButton.cget('text') == self.agentOpts.get():
+                                self.agentOpts.set(None)
+
+                else:
+                    for agentButton in self.agentButtons:
+                        agentButton.configure(state=tkinter.NORMAL)
+                for envButton in self.envButtons:
+                    envButton.configure(state=tkinter.NORMAL)
 
             def selagUpdate(self):
                 agUpdate = 'Selected Agent: ' + self.agentOpts.get()
                 self.slag.config(text=agUpdate)
+                curEnvs = View.allowedEnvs[self.agentOpts.get()]
+                if curEnvs:
+                    for envButton in self.envButtons:
+                        if envButton.cget('text') in curEnvs:
+                            envButton.configure(state=tkinter.NORMAL)
+                        else:
+                            envButton.configure(state=tkinter.DISABLED)
+                            if envButton.cget('text') == self.envOpts.get():
+                                self.envOpts.set(None)
+                else:
+                    for envButton in self.envButtons:
+                        envButton.configure(state=tkinter.NORMAL)
+                for agentButton in self.agentButtons:
+                    agentButton.configure(state=tkinter.NORMAL)
 
         class EnvironmentChooser(ttk.Frame):
             def __init__(self, master, listener):

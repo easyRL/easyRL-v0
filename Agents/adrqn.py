@@ -86,7 +86,7 @@ class ADRQN(drqn.DRQN):
             X_train[2][index_rep] = self.create_one_hot(self.action_size, action)
 
         Y_train = np.zeros((self.batch_size,) + (self.action_size,))
-        qnext = self.target.predict([next_states, self.allBatchMask])
+        qnext = self.target.predict(next_states + [self.allBatchMask])
         qnext = np.amax(qnext, 1)
 
         for index_rep, history in enumerate(mini_batch):
