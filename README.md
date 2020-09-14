@@ -1,20 +1,12 @@
 # EasyRL-Framework
 
-# Installation for Windows (releases):
+# Installation for Windows x64 (releases):
   
-----> open EasyRL folder
+----> Download installer executable from GitHub releases
 
-----> run setup.exe
+----> Run installer executable and follow directions
 
-----> click next
-
-----> click next
-
-----> click install
-
-----> click finish
-
-# Installation by building source from the scratch for Windows/IOS/Linux (master branch):
+# Building from source for Windows/MacOS/Linux (master branch):
 To setup, first install the required pip packages using these commands
  in a Python 3.7 environment:
 ```
@@ -36,38 +28,30 @@ pip (or pip3) install gym[atari]
 ```
 (OR if on Windows with the Visual C++ Build Tools installed):
 ```
-pip install --no-index -f https://github.com/Kojoley/atari-py/releases atari_py
-pip install git+https://github.com/Kojoley/atari-py.git
+pip install atari-py
 ```
 
-Then, download and extract the .zip file
+Download the appropriate LibTorch C++ Release package from https://pytorch.org/ .
 
-Next is to download and extract RL-FrameworkRelease_win-x64_torch160_cpu.zip from https://github.com/nhulbert/RL-Framework/releases.
-Copy and paste the RL-Framework/Agents/Native folder from RL-FrameworkRelease_win-x64_torch160_cpu.zip to your own RL-Framework/Agents/Native folder.
+Ensure that the Microsoft Visual C++ compiler is installed.
+
+Inside Agents/Native directory, run
+```
+cmake -DCMAKE_PREFIX_PATH=/path/to/libtorch .
+```
+
+and build from the build files generated in Agents/Native using the MSVC compiler.
+
 
 # Running the Program:
-First, run the following on either Mac, Linux, or Windows PC...
+If installed from the installer, run EasyRL.exe
 
--Run EasyRL.exe
+If built from source, run
 
-OR
-
--Navigate to the RL-Framework folder then
-
--For Linux Command line:
-```
-./EasyRL
-```
--For Windows CmdPrompt
 ```
 python EasyRL.py
 ```
-
-# GUI Example for training :
-Click 'CartPole' -> 'Q-Learning' -> Click Set Model -> Click Train
-
-# Command-Line Example for training:
-
+from the root project directory
 
 # other dependensies requirements.txt/check ---? 
 ```
