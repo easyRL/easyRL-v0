@@ -53,7 +53,7 @@ python EasyRL.py
 ```
 from the root project directory
 
-# other dependencies requirements.txt/check ---? 
+# other dependencies requirements.txt
 ```
 -- visual c++ installation
 -- compile native agents (cmake list)
