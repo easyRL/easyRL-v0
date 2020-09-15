@@ -50,14 +50,14 @@ class SaleEnv(gym.Env):
             seller_in_question_index = int(action / self.ADVISERS)
             seller_in_question = self.sellers[seller_in_question_index]
             total_rewards += SELLER_QUERY_REWARD
-            return consulted_adviser.advise_on_seller(seller_in_question), total_rewards, False, {'actor_number': seller_in_question_index, 'adviser_index': self.SELLERS + consulted_adviser_index, 'state': self.__get_state()}
+            return consulted_adviser.advise_on_seller(seller_in_question).value, total_rewards, False, {'actor_number': seller_in_question_index, 'adviser_index': self.SELLERS + consulted_adviser_index, 'state': self.__get_state()}
         elif action < self.NUM_QUERY_SELLER_ACTIONS + self.NUM_QUERY_ADVISER_ACTIONS:  # Adviser Query
             consulted_adviser_index = (action - self.NUM_QUERY_SELLER_ACTIONS) % self.ADVISERS
             consulted_adviser = self.advisers[consulted_adviser_index]
             adviser_in_question_index = int((action - self.NUM_QUERY_SELLER_ACTIONS) / self.ADVISERS)
             adviser_in_question = self.advisers[adviser_in_question_index]
             total_rewards += ADVISER_QUERY_REWARD
-            return consulted_adviser.advise_on_adviser(adviser_in_question), total_rewards, False, {'actor_number': self.SELLERS + adviser_in_question_index, 'adviser_index': self.SELLERS + consulted_adviser_index, 'state': self.__get_state()}
+            return consulted_adviser.advise_on_adviser(adviser_in_question).value, total_rewards, False, {'actor_number': self.SELLERS + adviser_in_question_index, 'adviser_index': self.SELLERS + consulted_adviser_index, 'state': self.__get_state()}
         elif action < self.NUM_QUERY_SELLER_ACTIONS + self.NUM_QUERY_ADVISER_ACTIONS + self.NUM_BUY_ACTIONS:  # Buy from seller
             chosen_seller = self.sellers[action - (self.NUM_QUERY_SELLER_ACTIONS + self.NUM_QUERY_ADVISER_ACTIONS)]
             outcome = chosen_seller.sell_product()
@@ -66,7 +66,7 @@ class SaleEnv(gym.Env):
             else:
                 total_rewards += UNSATISFACTORY_OUTCOME_REWARD
             self.reset()
-            return Observation.ended, total_rewards, True, {'state': self.__get_state()}
+            return Observation.ended.value, total_rewards, True, {'state': self.__get_state()}
         elif action < self.NUM_ACTIONS:  # DNB
             def __check_sellers(index: int, seller_list: List[Seller]) -> bool:
                 if index < len(seller_list):
@@ -77,7 +77,7 @@ class SaleEnv(gym.Env):
             else:
                 total_rewards += UNSATISFACTORY_OUTCOME_REWARD
             self.reset()
-            return Observation.ended, total_rewards, True, {'state': self.__get_state()}
+            return Observation.ended.value, total_rewards, True, {'state': self.__get_state()}
         else:  # Bad error argument
             # TODO: Error
             pass
@@ -209,11 +209,11 @@ class CustomEnv(environment.Environment):
 
     def step(self, action):
         observation, reward, self.done, info = self.env.step(action)
-        self.state = (observation,)
+        self.state = to_one_hot(observation, len(Observation))
         return reward
 
     def reset(self):
-        self.state = self.env.reset()
+        self.state = to_one_hot(self.env.reset(), len(Observation))
         self.done = False
         self.total_rewards = 0
 
@@ -222,3 +222,6 @@ class CustomEnv(environment.Environment):
 
     def sample_action(self):
         return self.env.action_space.sample()
+
+def to_one_hot(index: int, size: int):
+    return [1 if x is index else 0 for x in range(size)]

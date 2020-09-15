@@ -1055,10 +1055,10 @@ class View:
             def selevUpdate(self):
                 envUpdate = 'Selected Environment: ' + self.envOpts.get()
                 self.slev.config(text=envUpdate)
-                curAgents = View.allowedAgents[self.envOpts.get()]
-                if curAgents:
+                curAgents = View.allowedAgents.get(self.envOpts.get())
+                if curAgents is not None:
                     for agentButton in self.agentButtons:
-                        if agentButton.cget('text') in curAgents:
+                        if agentButton.cget('text') in curAgents or agentButton.cget('text') not in View.allowedEnvs:
                             agentButton.configure(state=tkinter.NORMAL)
                         else:
                             agentButton.configure(state=tkinter.DISABLED)
@@ -1074,10 +1074,10 @@ class View:
             def selagUpdate(self):
                 agUpdate = 'Selected Agent: ' + self.agentOpts.get()
                 self.slag.config(text=agUpdate)
-                curEnvs = View.allowedEnvs[self.agentOpts.get()]
-                if curEnvs:
+                curEnvs = View.allowedEnvs.get(self.agentOpts.get())
+                if curEnvs is not None:
                     for envButton in self.envButtons:
-                        if envButton.cget('text') in curEnvs:
+                        if envButton.cget('text') in curEnvs or envButton.cget('text') not in View.allowedAgents:
                             envButton.configure(state=tkinter.NORMAL)
                         else:
                             envButton.configure(state=tkinter.DISABLED)
