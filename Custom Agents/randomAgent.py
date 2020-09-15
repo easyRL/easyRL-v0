@@ -8,7 +8,7 @@ class CustomAgent(modelFreeAgent.ModelFreeAgent):
         self.time_steps += 1
         return random.randrange(self.action_size)
 
-    def remember(self, state, action, reward, new_state, episode, done):
+    def remember(self, state, action, reward, new_state, done):
         pass
 
     def reset(self):
