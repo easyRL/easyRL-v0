@@ -6,6 +6,8 @@
 
 ----> Run installer executable and follow directions
 
+----> See https://youtu.be/Sc5phA_TR_o for EasyRL functionalities
+
 # Building from source for Windows/MacOS/Linux (master branch):
 To setup, first install the required pip packages using these commands
  in a Python 3.7 environment:
