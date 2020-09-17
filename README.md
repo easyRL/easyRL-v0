@@ -2,7 +2,7 @@
 
 # Installation for Windows x64 (releases):
   
-----> Download installer executable from GitHub releases
+----> Download the latest installer executable from https://github.com/easyRL/easyRL-v0/releases/
 
 ----> Run installer executable and follow directions
 
@@ -143,14 +143,14 @@ reinforce native
 actorcritic native. 
 ```
 
-###Contributors (check):
-* James Haines-Temons
+###Contributors:
 * Neil Hulbert
-* Kevin Flora
+* James Haines-Temons
 * Brandon Francis
 * Sam Spillers
 * Ken Gil Romero
 * Benjamin De Jager
 * Sam Wong
 * Bowei Huang
+* Kevin Flora
 * Athirai A. Irissappane
