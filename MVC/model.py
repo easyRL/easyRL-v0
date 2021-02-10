@@ -41,6 +41,7 @@ class Model:
 
         for episode in range(int(total_episodes)):
             self.environment.reset()
+            animationFrames = []
 
             for step in range(int(max_steps)):
                 old_state = self.environment.state
@@ -55,12 +56,17 @@ class Model:
 
                 loss = self.agent.remember(old_state, action, reward, self.environment.state, self.environment.done)
 
-                modelState = Model.State(self.environment.render(), epsilon, reward, loss)
+                frame = self.environment.render()
+                animationFrames.append(frame)
+                modelState = Model.State(frame, epsilon, reward, loss)
                 message = Model.Message(Model.Message.STATE, modelState)
                 messageQueue.put(message)
 
                 if self.environment.done or self.isHalted:
                     break
+
+            if (len(animationFrames) > 0):
+                animationFrames[0].save('./training-episode-' + str(episode) + ".gif", save_all=True, append_images=animationFrames)
 
             message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
             messageQueue.put(message)
@@ -96,6 +102,7 @@ class Model:
 
             for episode in range(int(total_episodes)):
                 self.environment.reset()
+                animationFrames = []
 
                 for step in range(int(max_steps)):
                     old_state = self.environment.state
@@ -112,12 +119,17 @@ class Model:
                     if isinstance(self.agent, drqn.DRQN):
                         self.agent.addToMemory(old_state, action, reward, self.environment.state, episode, self.environment.done)
 
-                    modelState = Model.State(self.environment.render(), None, reward, None)
+                    frame = self.environment.render()
+                    animationFrames.append(frame)
+                    modelState = Model.State(frame, None, reward, None)
                     message = Model.Message(Model.Message.STATE, modelState)
                     messageQueue.put(message)
 
                     if self.environment.done or self.isHalted:
                         break
+                
+                if (len(animationFrames) > 0):
+                    animationFrames[0].save('./testing-episode-' + str(episode) + ".gif", save_all=True, append_images=animationFrames)
 
                 message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
                 messageQueue.put(message)
