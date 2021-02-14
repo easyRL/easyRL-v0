@@ -139,9 +139,3 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
     def memload(self, mem):
         self.model.set_weights(mem)
         self.target.set_weights(mem)
-        
-    def get_empty_state(self):
-        shape = self.state_size
-        if len(shape) >= 2:
-            return [[[-10000]] * shape[0] for _ in range(shape[1])]
-        return [-10000] * shape[0]
