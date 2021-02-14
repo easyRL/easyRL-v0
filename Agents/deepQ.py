@@ -1,9 +1,10 @@
-from Agents import modelFreeAgent
-import numpy as np
-from collections import deque
-import random
 import joblib
+import numpy as np
+import random
 
+from Agents import modelFreeAgent
+from Agents.Collections import ExperienceReplay
+from Agents.Collections.TransitionFrame import TransitionFrame
 
 class DeepQ(modelFreeAgent.ModelFreeAgent):
     displayName = 'Deep Q'
@@ -18,7 +19,8 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         self.batch_size, self.memory_size, self.target_update_interval = [int(arg) for arg in args[-paramLen:]]
         self.model = self.buildQNetwork()
         self.target = self.buildQNetwork()
-        self.memory = deque(maxlen=self.memory_size)
+        empty_state = self.get_empty_state()
+        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
@@ -34,10 +36,10 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         return action
 
     def sample(self):
-        return random.sample(self.memory, self.batch_size)
+        return self.memory.sample(self.batch_size)
 
     def addToMemory(self, state, action, reward, new_state, done):
-        self.memory.append((state, action, reward, new_state, done))
+        self.memory.append_frame(TransitionFrame(state, action, reward, new_state, done))
 
     def remember(self, state, action, reward, new_state, done=False):
         self.addToMemory(state, action, reward, new_state, done)
@@ -100,20 +102,20 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         X_train = [np.zeros((self.batch_size,) + self.state_size), np.zeros((self.batch_size,) + (self.action_size,))]
         next_states = np.zeros((self.batch_size,) + self.state_size)
 
-        for index_rep, (state, action, reward, next_state, isDone) in enumerate(mini_batch):
-            X_train[0][index_rep] = state
-            X_train[1][index_rep] = self.create_one_hot(self.action_size, action)
-            next_states[index_rep] = next_state
+        for index_rep, transition in enumerate(mini_batch):
+            X_train[0][index_rep] = transition.state
+            X_train[1][index_rep] = self.create_one_hot(self.action_size, transition.action)
+            next_states[index_rep] = transition.next_state
 
         Y_train = np.zeros((self.batch_size,) + (self.action_size,))
         qnext = self.target.predict([next_states, self.allBatchMask])
         qnext = np.amax(qnext, 1)
 
-        for index_rep, (state, action, reward, next_state, isDone) in enumerate(mini_batch):
-            if isDone:
-                Y_train[index_rep][action] = reward
+        for index_rep, transition in enumerate(mini_batch):
+            if transition.is_done:
+                Y_train[index_rep][transition.action] = transition.reward
             else:
-                Y_train[index_rep][action] = reward + qnext[index_rep] * self.gamma
+                Y_train[index_rep][transition.action] = transition.reward + qnext[index_rep] * self.gamma
         return X_train, Y_train
 
     def __deepcopy__(self, memodict={}):
@@ -137,3 +139,9 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
     def memload(self, mem):
         self.model.set_weights(mem)
         self.target.set_weights(mem)
+        
+    def get_empty_state(self):
+        shape = self.state_size
+        if len(shape) >= 2:
+            return [[[-10000]] * shape[0] for _ in range(shape[1])]
+        return [-10000] * shape[0]
