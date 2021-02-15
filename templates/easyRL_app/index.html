@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <title>EasyRL</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-       
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     </head>
     <style>
             
@@ -74,21 +74,15 @@
                         </div>
                     </div>  
                     <br/>                  
-                  <h5 class="card-title">file_name.jpg</h5>
-                  <button class="btn btn-primary">Select Environment</button>
+                    <h5 class="card-title">file_name.jpg</h5>
+                    <button class="btn btn-primary"><span class=""><i class="bi-card-image"></i></span> Select Environment</button>
                 </div>
-              </div>
-            <!-- Top buttons -->
-            <div class="row">
-
             </div>
-            <!-- Carousel -->
-            <br/>
             <br/>
             <!-- Tabs & dropdowns-->
             <div class="row">
                 <!-- Tabs -->
-                <div>
+                <div class="col-md-8">
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         <li class="nav-item" role="presentation">
                           <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
@@ -108,15 +102,31 @@
                                     
                 </div>
                 <!-- Drop downs -->
-                <div>
 
-                </div>
-                <div>
-
+                <div class="col-md-4" style="margin-top: 40px;">
+                    <select class="form-select" size="3" aria-label="Default select example">
+                        <option selected>--Select Agent--</option>
+                        <option value="1">Deep Q</option>
+                        <option value="2">Q Learning</option>
+                        <option value="3">DRQN</option>
+                        <option value="1">ADRQN</option>
+                        <option value="2">Double Dueling Deep Q Native</option>
+                        <option value="3">DRQN Native</option>
+                        <option value="1">Converging DRQN Native</option>
+                        <option value="2">PPO Native</option>
+                        <option value="3">Reinforcemnt Native</option>
+                        <option value="1">ActorCritic Native</option>
+                        <option value="2">SARSA</option>
+                    </select> 
+                    <br/>
+                    <select class="form-select" size="3" aria-label="Default select example">
+                        <option selected>--Select Buffer--</option>
+                        <option value="1">Hindsight Replay Buffer</option>
+                        <option value="2">Prioritize Replay Buffer</option>
+                      </select>                          
                 </div>
             </div>
-        </div>
-          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
-                 
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>         
     </body>
 </html>
