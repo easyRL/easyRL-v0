@@ -29,12 +29,11 @@ class CloudBridge:
     # Create bucket for job in S3 to store data.
     def init(self):
         if self.s3Client is None:
-            self.s3Client = self.botoSession.resource('s3')
+            self.s3Client = self.botoSession.client('s3')
             bucketName = 'easyrl-' + str(self.jobID)
             print(bucketName)
             self.s3Client.create_bucket(Bucket=bucketName)
             print("Created bucket for job.")
-        pass
 
     # Kill infrastructure
     def terminate(self):
@@ -83,8 +82,8 @@ class CloudBridge:
         if (len(self.animationFrames) > 0):
             filename = self.state + '-episode-' + str(episode) + ".gif"
             self.animationFrames[0].save("./" + filename, save_all=True, append_images=self.animationFrames)
-            if self.s3Client is None:
-                s3Client.upload_file(filename, 'easyrl-' + str(self.jobID), filename)
+            if self.s3Client is not None:
+                self.s3Client.upload_file(filename, 'easyrl-' + str(self.jobID), filename)
         
     def submitTrainFinish(self):
         totalReward = self.episodeAccReward
