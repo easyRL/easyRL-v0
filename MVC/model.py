@@ -78,6 +78,8 @@ class Model:
             if self.isHalted:
                 self.isHalted = False
                 break
+
+        self.cloudBridge.submitTrainFinish()
         message = Model.Message(Model.Message.EVENT, Model.Message.TRAIN_FINISHED)
         messageQueue.put(message)
         self.isRunning = False
