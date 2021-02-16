@@ -1,12 +1,41 @@
 import boto3
+import uuid
 
 class CloudBridge:
-    def __init__(self, jobID, secretKey, accessKey, name):
+    def __init__(self, jobID, secretKey, accessKey, sessionToken):
         self.animationFrames = []
-        self.name = name
         self.jobID = jobID
         self.secretKey = secretKey
         self.accessKey = accessKey
+
+        self.s3Client = boto3.Session (
+            aws_access_key_id = accessKey,
+            aws_secret_access_key = secretKey,
+            aws_session_token = sessionToken
+        )
+
+        # Episode Variables
+        self.trainingEpisodes = 0
+
+        # If JobID is null generate one (WebGUI will pass in JobID)
+        if (self.jobID is None):
+            self.jobID = uuid.uuid4()
+            
+        self.refresh()
+
+    # Create bucket for job in S3 to store data.
+    def init():
+        pass
+
+    # Kill infrastructure
+    def terminate():
+        pass
+
+    def setState(self, state):
+        self.state = state
+
+    def refresh(self):
+        self.state = "Idle"
 
         # Step Variables
         self.episodeAccEpsilon = 0
@@ -14,10 +43,6 @@ class CloudBridge:
         self.episodeAccLoss = 0
         self.curEpisodeSteps = 0
 
-        # Episode Variables
-        self.trainingEpisodes = 0
-
-    def refresh(self):
         self.animationFrames.clear()
 
     def submitStep(self, frame, epsilon, reward, loss):
@@ -51,4 +76,4 @@ class CloudBridge:
         totalReward = self.episodeAccReward
         avgReward = totalReward / self.trainingEpisodes
 
-        self.refresh()
+        self.state = "Finished"
