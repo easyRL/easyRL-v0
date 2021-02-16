@@ -32,10 +32,6 @@ class Controller:
         self.sessionToken = None
         self.name = None
 
-        if "--terminal" in argv: 
-            self.view = terminalView.View(self.viewListener)
-        else:
-            self.view = view.View(self.viewListener)
         flagName = ""
         for arg in argv:
             if "--" in arg:
@@ -43,6 +39,8 @@ class Controller:
                 self.arguments[flagName] = ""
             elif flagName != "":
                 self.arguments[flagName] += arg
+
+        print("ALL Arguments: " + str(self.arguments))
 
         # Process arguments
         if "jobID" in self.arguments:
@@ -53,6 +51,13 @@ class Controller:
             self.accessKey = self.arguments["accessKey"]
         if "sessionToken" in self.arguments:
             self.sessionToken = self.arguments["sessionToken"]
+
+        # Start after parsing...
+        if "--terminal" in argv: 
+            self.view = terminalView.View(self.viewListener)
+        else:
+            self.view = view.View(self.viewListener)
+
     class ViewListener:
         def __init__(self, controller):
             self.controller = controller

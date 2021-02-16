@@ -7,11 +7,13 @@ class CloudBridge:
         self.jobID = jobID
         self.secretKey = secretKey
         self.accessKey = accessKey
+        self.s3Client = None
 
-        self.s3Client = boto3.Session (
+        self.botoSession = boto3.Session (
             aws_access_key_id = accessKey,
             aws_secret_access_key = secretKey,
-            aws_session_token = sessionToken
+            aws_session_token = sessionToken, 
+            region_name = 'us-east-1'
         )
 
         # Episode Variables
@@ -22,13 +24,20 @@ class CloudBridge:
             self.jobID = uuid.uuid4()
             
         self.refresh()
+        self.init()
 
     # Create bucket for job in S3 to store data.
-    def init():
+    def init(self):
+        if self.s3Client is None:
+            self.s3Client = self.botoSession.resource('s3')
+            bucketName = 'easyrl-' + str(self.jobID)
+            print(bucketName)
+            self.s3Client.create_bucket(Bucket=bucketName)
+            print("Created bucket for job.")
         pass
 
     # Kill infrastructure
-    def terminate():
+    def terminate(self):
         pass
 
     def setState(self, state):
@@ -69,8 +78,13 @@ class CloudBridge:
         self.episodeAccReward = 0
         self.episodeAccEpsilon = 0
 
+        # We may not want to upload gifs for all episodes.
+        # May make it timed based in the event that lots of episodes are going quickly
         if (len(self.animationFrames) > 0):
-            self.animationFrames[0].save('./' + self.name + '-episode-' + str(episode) + ".gif", save_all=True, append_images=self.animationFrames)
+            filename = self.state + '-episode-' + str(episode) + ".gif"
+            self.animationFrames[0].save("./" + filename, save_all=True, append_images=self.animationFrames)
+            if self.s3Client is None:
+                s3Client.upload_file(filename, 'easyrl-' + str(self.jobID), filename)
         
     def submitTrainFinish(self):
         totalReward = self.episodeAccReward

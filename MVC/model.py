@@ -15,11 +15,12 @@ class Model:
         self.agent = None
         self.loadFilename = None
         self.cloudBridge = None
+        
 
     def createBridge(self, jobID, secretKey, accessKey, sessionToken):
         print("Bridge Created")
         if (self.cloudBridge is None):
-            cloudBridge.CloudBridge(jobID, secretKey, accessKey, sessionToken)
+            self.cloudBridge = cloudBridge.CloudBridge(jobID, secretKey, accessKey, sessionToken)
 
     # def run_learning(self, messageQueue, total_episodes, max_steps, *model_args):
     #     cProfile.runctx('self.run_learning2(messageQueue, total_episodes, max_steps, *model_args)', globals(), locals(),
