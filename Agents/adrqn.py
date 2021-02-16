@@ -1,13 +1,16 @@
-from Agents import drqn
 import numpy as np
-import itertools
+
+from Agents import drqn
+from Agents.Collections import ExperienceReplay
+from Agents.Collections.TransitionFrame import ActionTransitionFrame
 
 class ADRQN(drqn.DRQN):
     displayName = 'ADRQN'
 
     def __init__(self, *args):
         super().__init__(*args)
-        self.memory = ADRQN.ReplayBuffer(self, self.memory_size, self.historylength)
+        empty_state = self.get_empty_state()
+        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, ActionTransitionFrame(-1, empty_state, -1, 0, empty_state, False), history_length = self.historylength)
 
     def getRecentAction(self):
         return self.memory.get_recent_action()
@@ -20,6 +23,10 @@ class ADRQN(drqn.DRQN):
         qval = self.predict((recent_state, recent_action), False)
         action = np.argmax(qval)
         return action
+
+    def addToMemory(self, state, action, reward, new_state, done):
+        prev_action = self.memory.peak_frame().action
+        self.memory.append_frame(ActionTransitionFrame(prev_action, state, action, reward, new_state, done))
 
     def predict(self, state, isTarget):
         state, action = state
@@ -78,77 +85,21 @@ class ADRQN(drqn.DRQN):
                    np.zeros((self.batch_size,) + (self.historylength,) + (self.action_size,))]
 
         for index_rep, history in enumerate(mini_batch):
-            for histInd, (prevAction, state, action, reward, next_state, isDone) in enumerate(history):
-                X_train[0][index_rep][histInd] = state
-                next_states[0][index_rep][histInd] = next_state
-                X_train[1][index_rep][histInd] = self.create_one_hot(self.action_size, prevAction)
-                next_states[1][index_rep][histInd] = self.create_one_hot(self.action_size, action)
-            X_train[2][index_rep] = self.create_one_hot(self.action_size, action)
+            for histInd, transition in enumerate(history):
+                X_train[0][index_rep][histInd] = transition.state
+                next_states[0][index_rep][histInd] = transition.next_state
+                X_train[1][index_rep][histInd] = self.create_one_hot(self.action_size, transition.prev_action)
+                next_states[1][index_rep][histInd] = self.create_one_hot(self.action_size, transition.action)
+            X_train[2][index_rep] = self.create_one_hot(self.action_size, transition.action)
 
         Y_train = np.zeros((self.batch_size,) + (self.action_size,))
         qnext = self.target.predict(next_states + [self.allBatchMask])
         qnext = np.amax(qnext, 1)
 
         for index_rep, history in enumerate(mini_batch):
-            prevAction, state, action, reward, next_state, isDone = history[-1]
-            if isDone:
-                Y_train[index_rep][action] = reward
+            transition = history[-1]
+            if transition.is_done:
+                Y_train[index_rep][transition.action] = transition.reward
             else:
-                Y_train[index_rep][action] = reward + qnext[index_rep] * self.gamma
+                Y_train[index_rep][transition.action] = transition.reward + qnext[index_rep] * self.gamma
         return X_train, Y_train
-
-
-    class ReplayBuffer(drqn.DRQN.ReplayBuffer):
-        def __init__(self, *args):
-            super().__init__(*args)
-
-            shape = self.learner.state_size
-            if len(shape) >= 2:
-                self.emptyState = np.array([[[-10000]] * shape[0] for _ in range(shape[1])])
-            else:
-                self.emptyState = np.array([-10000] * shape[0])
-            self.emptyTrans = (self.emptyState, -1, 0, self.emptyState, False)
-
-        def getTransitions(self, startInd):
-            result = []
-            limit = (self.curIndex-1)%self.maxlength
-            for ind in range(startInd, startInd+self.historylength):
-                ind %= self.maxlength
-                transition = self.transitions[ind]
-                if transition is None:
-                    break
-                prevInd = (ind-1)%self.maxlength
-                prevTransition = self.transitions[prevInd]
-                prevAction = -1
-                if prevTransition and not prevInd == limit and not prevTransition[4]:
-                    prevAction = prevTransition[1]
-                result.append((prevAction,) + transition)
-                if transition[4] or ind == limit:
-                    break
-            return self.pad(result)
-
-        def pad(self, transitions):
-            pad = [(-1, self.emptyState, -1, 0, self.emptyState, False) for _ in
-                   range(self.historylength - len(transitions))]
-            return pad + transitions
-
-        def get_recent_action(self):
-            result = [None] * self.historylength
-            resInd = self.historylength - 1
-            start = (self.curIndex - 1) % self.maxlength
-            transition = self.transitions[start]
-            result[resInd] = transition[1]
-            resInd -= 1
-            for ind in range(start - 1, start - self.historylength, -1):
-                ind %= self.maxlength
-                transition = self.transitions[ind]
-                if not transition or transition[4]:
-                    break
-                result[resInd] = transition[1]
-                resInd -= 1
-
-            while resInd >= 0:
-                result[resInd] = -1
-                resInd -= 1
-
-            return result
