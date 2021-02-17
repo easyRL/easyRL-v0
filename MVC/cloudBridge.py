@@ -1,5 +1,6 @@
 import boto3
 import uuid
+import json
 
 class CloudBridge:
     def __init__(self, jobID, secretKey, accessKey, sessionToken):
@@ -8,6 +9,7 @@ class CloudBridge:
         self.secretKey = secretKey
         self.accessKey = accessKey
         self.s3Client = None
+        self.episodeData = []
 
         self.botoSession = boto3.Session (
             aws_access_key_id = accessKey,
@@ -70,15 +72,29 @@ class CloudBridge:
         totalReward = self.episodeAccReward
         avgEpsilon = self.episodeAccEpsilon / self.curEpisodeSteps
 
-        graphPoints = (avgLoss, totalReward, avgEpsilon)
+        # Append data to data structure
+        self.episodeData.append({
+            "episode": episode,
+            "avgLoss": avgLoss,
+            "avgEpsilon": avgEpsilon,
+            "totalReward": totalReward
+        })
+
+        payload =  {
+            "totalReward": self.episodeAccReward,
+            "avgReward": self.episodeAccReward / self.trainingEpisodes,
+            "episodes": self.episodeData
+        }
+
+        # Submit Data to S3
+        self.s3Client.put_object(Body=json.dumps(payload), Bucket='easyrl-' + str(self.jobID), Key="data.json")
 
         self.curEpisodeSteps = 0
         self.episodeAccLoss = 0
         self.episodeAccReward = 0
         self.episodeAccEpsilon = 0
 
-        # We may not want to upload gifs for all episodes.
-        # May make it timed based in the event that lots of episodes are going quickly
+        # Render Gif
         if (len(self.animationFrames) > 0):
             filename = self.state + '-episode-' + str(episode) + ".gif"
             self.animationFrames[0].save("./" + filename, save_all=True, append_images=self.animationFrames)
@@ -87,6 +103,6 @@ class CloudBridge:
         
     def submitTrainFinish(self):
         totalReward = self.episodeAccReward
-        avgReward = totalReward / self.trainingEpisodes
+        avgReward = self.episodeAccReward / self.trainingEpisodes
 
         self.state = "Finished"
