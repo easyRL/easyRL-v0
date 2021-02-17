@@ -1,8 +1,10 @@
 import boto3
 import uuid
 import json
+import time
 
 class CloudBridge:
+
     def __init__(self, jobID, secretKey, accessKey, sessionToken):
         self.animationFrames = []
         self.jobID = jobID
@@ -10,6 +12,9 @@ class CloudBridge:
         self.accessKey = accessKey
         self.s3Client = None
         self.episodeData = []
+        self.delayTime = 1000
+
+        self.lastSave = 0
 
         self.botoSession = boto3.Session (
             aws_access_key_id = accessKey,
@@ -80,25 +85,28 @@ class CloudBridge:
             "totalReward": totalReward
         })
 
-        payload =  {
-            "totalReward": self.episodeAccReward,
-            "avgReward": self.episodeAccReward / self.trainingEpisodes,
-            "episodes": self.episodeData
-        }
+        currentTime = int(round(time.time() * 1000))
+        if (currentTime - self.lastSave) > self.delayTime:
+            self.lastSave = currentTime
 
-        # Submit Data to S3
-        self.s3Client.put_object(Body=json.dumps(payload), Bucket='easyrl-' + str(self.jobID), Key="data.json")
+            payload =  {
+                "totalReward": self.episodeAccReward,
+                "avgReward": self.episodeAccReward / self.trainingEpisodes,
+                "episodes": self.episodeData
+            }
 
-        self.curEpisodeSteps = 0
-        self.episodeAccLoss = 0
-        self.episodeAccReward = 0
-        self.episodeAccEpsilon = 0
+            # Submit Data to S3
+            self.s3Client.put_object(Body=json.dumps(payload), Bucket='easyrl-' + str(self.jobID), Key="data.json")
 
-        # Render Gif
-        if (len(self.animationFrames) > 0):
-            filename = self.state + '-episode-' + str(episode) + ".gif"
-            self.animationFrames[0].save("./" + filename, save_all=True, append_images=self.animationFrames)
-            if self.s3Client is not None:
+            self.curEpisodeSteps = 0
+            self.episodeAccLoss = 0
+            self.episodeAccReward = 0
+            self.episodeAccEpsilon = 0
+
+            # Render Gif
+            if (len(self.animationFrames) > 0):
+                filename = self.state + '-episode-' + str(episode) + ".gif"
+                self.animationFrames[0].save("./" + filename, save_all=True, append_images=self.animationFrames)
                 self.s3Client.upload_file(filename, 'easyrl-' + str(self.jobID), filename)
         
     def submitTrainFinish(self):
