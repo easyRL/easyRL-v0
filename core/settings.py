@@ -14,6 +14,11 @@ from pathlib import Path
 
 import os
 
+AWS_ACCESS_KEY_ID = 'XXXX'
+AWS_SECRET_ACCESS_KEY = 'XXXX'
+AWS_STORAGE_BUCKET_NAME = 'your-bucket'
+AWS_S3_ENDPOINT_URL = "your-bucket-proivder.domain"
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")

@@ -1,0 +1,37 @@
+{% extends "easyRL_app/base.html" %}
+{% load static %}
+{% block title %}My EasyRL {% endblock %}
+{% block content %}
+<div class="container-fluid justify-content-md-center align-items-center">
+    <div class="row ">
+        <div class="col-md-4 col-sm-2"></div>
+        <div class="card text-center col-md-4 col-sm-12" style="padding:0px">
+            <div class="card-header" >
+            AWS Access Credentials
+            </div>
+            <div class="card-body  justify-content-md-center align-items-center">
+                <h5 class="card-title">Special title treatment</h5>
+                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1"><i class="bi-key-fill" ></i></span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                </div> 
+                <div class="input-group col-md-3">
+                    <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">@</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                </div>                          
+                <a href="#" class="btn btn-primary">Submit</a>
+            </div>
+            <div class="card-footer text-muted">
+            
+            </div>
+
+        </div>
+        <div class="col-md-4 col-sm-2"></div>
+    </div>
+</div>
+{% endblock %}
