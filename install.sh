@@ -27,6 +27,7 @@ python3.7 -m pip install ttkwidgets
 python3.7 -m pip install opencv-python
 python3.7 -m pip install cffi
 python3.7 -m pip install gym[atari]
+python3.7 -m pip install boto3
 python3.7 -m pip install --upgrade --force-reinstall pillow
 
 #git clone https://github.com/easyRL/easyRL-v0

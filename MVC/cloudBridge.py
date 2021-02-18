@@ -2,6 +2,7 @@ import boto3
 import uuid
 import json
 import time
+import os
 
 class CloudBridge:
 
@@ -108,6 +109,8 @@ class CloudBridge:
                 filename = self.state + '-episode-' + str(episode) + ".gif"
                 self.animationFrames[0].save("./" + filename, save_all=True, append_images=self.animationFrames)
                 self.s3Client.upload_file(filename, 'easyrl-' + str(self.jobID), filename)
+                self.animationFrames = []
+                os.remove("./" + filename)
         
     def submitTrainFinish(self):
         totalReward = self.episodeAccReward
