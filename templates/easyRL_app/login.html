@@ -5,16 +5,15 @@
 <div class="container-fluid justify-content-md-center align-items-center">
     <div class="row ">
         <div class="col-md-4 col-sm-2"></div>
-        <div class="card text-center col-md-4 col-sm-12" style="padding:0px">
-            <div class="card-header" >
+        <div class="card col-md-4 col-sm-12" style="padding:0px">
+            <div class="card-header item-content-center" >
             AWS Access Credentials
             </div>
             <div class="card-body  justify-content-md-center align-items-center">
-                <h5 class="card-title">Special title treatment</h5>
-                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+               
                 <form method="post" action="">{% csrf_token %}
                     {{form.as_p}}
-                    <button type="submit" class="form-control btn btn-primary pull-right">Login</button>
+                    <button type="submit" class="form-control btn btn-primary float-right">Login</button>
                 </form>
             </div>
             <div class="card-footer text-muted">

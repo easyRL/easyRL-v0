@@ -26,19 +26,29 @@ def index(request):
     #     for item in bucket.objects.all():
     #         print(item)   
     my_dict = {}
-
     files = os.listdir(os.path.join(settings.BASE_DIR, "static/easyRL_app/images"))
     my_dict['files'] = files
+    form = forms.HyperParameterForm()
+    if request.method == "GET":
+        my_dict['form'] = form
+        return render(request, "easyRL_app/index.html", context=my_dict)
+    
+    elif request.method == "POST":
+        form = forms.HyperParameterForm(request.POST)
+        if form.is_valid():
+            print(form.cleaned_data["gamma"])
+            print(form.cleaned_data["batch"])
+        return render(request, "easyRL_app/index.html", context=my_dict)
 
-    return render(request, "easyRL_app/index.html", context=my_dict)
 
 def login(request):
-    form = forms.FormName()
+    form = forms.AwsCredentialForm()
     if request.method == "POST":
-        form = forms.FormName(request.POST)
+        form = forms.AwsCredentialForm(request.POST)
         if form.is_valid():
             request.session['secret_key'] = form.cleaned_data["aws_secret_key"]
             request.session['aws-access_key'] = form.cleaned_data["aws_access_key"]
             request.session['token'] = form.cleaned_data["aws_security_token"]
     return render(request, "easyRL_app/login.html", context={'form': form})
+
 
