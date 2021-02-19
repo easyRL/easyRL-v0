@@ -34,8 +34,9 @@ def findOurInstance(ec2Client, jobID):
     for instance in instances:
         if 'Tags' in instance:
             tags = instance['Tags']
-            if 'jobID' in tags and tags['jobID'] == jobID:
-                return instance
+            for keyPair in tags:
+                if keyPair['Key'] == 'jobID' and keyPair['Value'] == str(jobID):
+                    return instance
     return None
 
 def yourFunction(request, context):
@@ -61,27 +62,38 @@ def yourFunction(request, context):
         ec2Resource = botoSession.resource('ec2')
 
         if (findOurInstance(ec2Client, jobID) is None):
-            response = ec2Client.create_security_group(
-                GroupName='easyrlsecurity',
-                Description='EasyRL Security Group',
-            )
-            security_group_id = response['GroupId']
+
+            try:
+                response = ec2Client.create_security_group(
+                    GroupName='easyrlsecurity',
+                    Description='EasyRL Security Group',
+                )
+                security_group_id = response['GroupId']
+
+                data = ec2Client.authorize_security_group_ingress(
+                    GroupId=security_group_id,
+                    IpPermissions=[
+                        {'IpProtocol': 'tcp',
+                        'FromPort': 80,
+                        'ToPort': 80,
+                        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
+                        {'IpProtocol': 'tcp',
+                        'FromPort': 22,
+                        'ToPort': 22,
+                        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]}
+                    ])
+                inspector.addAttribute("securityGroupData", str(data))
+
+            except:
+                group_name = 'easyrlsecurity'
+                response = ec2Client.describe_security_groups(
+                    Filters=[
+                        dict(Name='group-name', Values=[group_name])
+                    ]
+                )
+                security_group_id = response['SecurityGroups'][0]['GroupId']
 
             inspector.addAttribute("securityGroupId", str(security_group_id))
-
-            data = ec2Client.authorize_security_group_ingress(
-                GroupId=security_group_id,
-                IpPermissions=[
-                    {'IpProtocol': 'tcp',
-                    'FromPort': 80,
-                    'ToPort': 80,
-                    'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
-                    {'IpProtocol': 'tcp',
-                    'FromPort': 22,
-                    'ToPort': 22,
-                    'IpRanges': [{'CidrIp': '0.0.0.0/0'}]}
-                ])
-            inspector.addAttribute("securityGroupData", str(data))
 
             instance = ec2Resource.create_instances(
                 ImageId='ami-01b4fa5b09c9741a8',
@@ -89,14 +101,19 @@ def yourFunction(request, context):
                 MaxCount=1,
                 InstanceType='c4.xlarge',
                 SecurityGroupIds=[security_group_id],
-                TagSpecifications = {
+                TagSpecifications = [{
                     "ResourceType": "instance",
                     "Tags": [
-                        {'jobID': jobID}
+                        {
+                            'Key': 'jobID',
+                            'Value': str(jobID)
+                        }
                     ]
-                }
+                }]
             )
             inspector.addAttribute("instance", str(instance))
+        else:
+            inspector.addAttribute("error", "Instance already exists")
 
     elif (task == "runJob"):
         ec2Client = botoSession.client('ec2')
@@ -147,6 +164,9 @@ def yourFunction(request, context):
         if (ourInstance is not None):
             instance = ec2Resource.Instance(ourInstance['InstanceId'])
             instance.terminate()
+            inspector.addAttribute("message", "Terminated")
+        else:
+            inspector.addAttribute("message", "Instance not found.")
     elif (task == "createBucket"):
         s3Client = botoSession.client('s3')
         bucketName = 'easyrl-' + str(jobID)
