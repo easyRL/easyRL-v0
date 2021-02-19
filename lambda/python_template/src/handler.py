@@ -20,6 +20,24 @@ from paramiko import SSHClient
 # @param context A platform specific object used to communicate with the cloud platform.
 # @returns A JSON object to use as a response.
 #
+
+def listInstances(ec2Client):
+    instances = []
+    response = ec2Client.describe_instances()
+    for reservation in response["Reservations"]:
+        for instance in reservation["Instances"]:
+            instances.append(instance)
+    return instances
+
+def findOurInstance(ec2Client, jobID):
+    instances = listInstances(ec2Client)
+    ourInstanceId = None
+    for instance in instances:
+        if 'Tags' in instance:
+            tags = instance['Tags']
+            if 'jobID' in tags and tags['jobID'] == jobID:
+                return instance
+
 def yourFunction(request, context):
     # Import the module and collect data
     inspector = Inspector()
@@ -42,42 +60,43 @@ def yourFunction(request, context):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
 
-        response = ec2Client.create_security_group(
-            GroupName='easyrlsecurity',
-            Description='EasyRL Security Group',
-        )
-        security_group_id = response['GroupId']
+        if (findOurInstance(ec2Client, jobID) is None):
+            response = ec2Client.create_security_group(
+                GroupName='easyrlsecurity',
+                Description='EasyRL Security Group',
+            )
+            security_group_id = response['GroupId']
 
-        inspector.addAttribute("securityGroupId", str(security_group_id))
+            inspector.addAttribute("securityGroupId", str(security_group_id))
 
-        data = ec2Client.authorize_security_group_ingress(
-            GroupId=security_group_id,
-            IpPermissions=[
-                {'IpProtocol': 'tcp',
-                'FromPort': 80,
-                'ToPort': 80,
-                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
-                {'IpProtocol': 'tcp',
-                'FromPort': 22,
-                'ToPort': 22,
-                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]}
-            ])
-        inspector.addAttribute("securityGroupData", str(data))
+            data = ec2Client.authorize_security_group_ingress(
+                GroupId=security_group_id,
+                IpPermissions=[
+                    {'IpProtocol': 'tcp',
+                    'FromPort': 80,
+                    'ToPort': 80,
+                    'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
+                    {'IpProtocol': 'tcp',
+                    'FromPort': 22,
+                    'ToPort': 22,
+                    'IpRanges': [{'CidrIp': '0.0.0.0/0'}]}
+                ])
+            inspector.addAttribute("securityGroupData", str(data))
 
-        instance = ec2Resource.create_instances(
-            ImageId='ami-01b4fa5b09c9741a8',
-            MinCount=1,
-            MaxCount=1,
-            InstanceType='c4.xlarge',
-            SecurityGroupIds=[security_group_id],
-            TagSpecifications = {
-                "ResourceType": "instance",
-                "Tags": [
-                    {'jobID': jobID}
-                ]
-            }
-        )
-        inspector.addAttribute("instance", str(instance))
+            instance = ec2Resource.create_instances(
+                ImageId='ami-01b4fa5b09c9741a8',
+                MinCount=1,
+                MaxCount=1,
+                InstanceType='c4.xlarge',
+                SecurityGroupIds=[security_group_id],
+                TagSpecifications = {
+                    "ResourceType": "instance",
+                    "Tags": [
+                        {'jobID': jobID}
+                    ]
+                }
+            )
+            inspector.addAttribute("instance", str(instance))
 
     elif (task == "runJob"):
         pass
