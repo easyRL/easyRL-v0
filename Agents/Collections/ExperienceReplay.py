@@ -32,8 +32,6 @@ class ReplayBuffer:
         of this buffer
         :type transition_frame: TransitionFrame
         """
-        if (not isinstance(transition_frame, TransitionFrame.TransitionFrame)):
-            raise ValueError("Only transition frames can be added to the replay buffer.")
         self._transitions.append(transition_frame)
       
     def peak_frame(self):
