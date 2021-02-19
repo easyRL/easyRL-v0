@@ -1,0 +1,28 @@
+{
+	"README": "See ./deploy/README.md for help!",
+
+	"functionName": "cloudBridge",
+
+	"lambdaHandler": "lambda_function.lambda_handler",
+	"lambdaRoleARN": "arn:aws:iam::267356239361:role/service-role/fullAccess",
+	"lambdaSubnets": "",
+	"lambdaSecurityGroups": "",
+	"lambdaEnvironment": "Variables={}",
+	"lambdaRuntime": "python3.7",
+
+	"googleHandler": "hello_world",
+	"googleRuntime": "python37",
+
+	"ibmRuntime": "python:3",
+
+	"azureRuntime": "python",
+
+	"test": {
+		"accessKey": "AKIAIS6Y4Q25GCAINIQA",
+		"secretKey": "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",
+		"sessionToken": "",
+		"jobID": "bingusmingus5",
+		"task": "createInstance",
+		"arguments": {}
+	}
+}
