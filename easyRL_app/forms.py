@@ -6,6 +6,7 @@ class AwsCredentialForm(forms.Form):
     aws_secret_key = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     aws_access_key = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     aws_security_token = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    aws_hidden = forms.CharField(widget=forms.TextInput(attrs={"type":"hidden", "id":"aws-hidden"}))
 
 class HyperParameterForm(forms.Form):
 
