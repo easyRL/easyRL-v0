@@ -47,6 +47,10 @@ class CloudBridge:
     def terminate(self):
         pass
 
+    def upload(self, filename):
+        if self.s3Client is None:
+            self.s3Client.upload_file(filename, 'easyrl-' + str(self.jobID), filename)
+
     def setState(self, state):
         self.state = state
 

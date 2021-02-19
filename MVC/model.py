@@ -3,6 +3,7 @@ import numpy as np
 from Agents import drqn
 import cProfile
 from MVC import cloudBridge
+import os.path
 
 class Model:
     def __init__(self):
@@ -182,6 +183,8 @@ class Model:
     def save(self, filename):
         if self.agent:
             self.agent.save(filename)
+            if os.path.exists(filename):
+                self.cloudBridge.upload(filename)
 
     def load(self, filename):
         self.loadFilename = filename

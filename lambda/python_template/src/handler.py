@@ -69,7 +69,13 @@ def yourFunction(request, context):
             MinCount=1,
             MaxCount=1,
             InstanceType='c4.xlarge',
-            SecurityGroupIds=[security_group_id]
+            SecurityGroupIds=[security_group_id],
+            TagSpecifications = {
+                "ResourceType": "instance",
+                "Tags": [
+                    {'jobID': jobID}
+                ]
+            }
         )
         inspector.addAttribute("instance", str(instance))
 
