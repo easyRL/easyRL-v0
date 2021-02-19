@@ -31,12 +31,12 @@ def listInstances(ec2Client):
 
 def findOurInstance(ec2Client, jobID):
     instances = listInstances(ec2Client)
-    ourInstanceId = None
     for instance in instances:
         if 'Tags' in instance:
             tags = instance['Tags']
             if 'jobID' in tags and tags['jobID'] == jobID:
                 return instance
+    return None
 
 def yourFunction(request, context):
     # Import the module and collect data
@@ -99,11 +99,54 @@ def yourFunction(request, context):
             inspector.addAttribute("instance", str(instance))
 
     elif (task == "runJob"):
-        pass
+        ec2Client = botoSession.client('ec2')
+        ec2Resource = botoSession.resource('ec2')
+
+        ourInstance = findOurInstance(ec2Client, jobID)
+        if (ourInstance is not None):
+            ip = ourInstance['PublicIpAddress']
+            inspector.addAttribute("ip", str(ip))
+
+            ssh = paramiko.SSHClient()
+            ssh.connect(ip, username='tcss556', password='secretPassword')
+
+            command = 'printf "'
+            command += str(arguments['environment']) + '\n'
+            command += str(arguments['agent']) + '\n'
+            command += '1\n'
+            command += str(arguments['episodes']) + '\n'
+            command += str(arguments['steps']) + '\n'
+            command += str(arguments['gamma']) + '\n'
+            command += str(arguments['minEpsilon']) + '\n'
+            command += str(arguments['maxEpsilon']) + '\n'
+            command += str(arguments['decayRate']) + '\n'
+            command += str(arguments['batchSize']) + '\n'
+            command += str(arguments['memorySize']) + '\n'
+            command += str(arguments['targetInterval']) + '\n'
+            command += '4\n'
+            command += 'trainedAgent.bin\n'
+            command += '5\n'
+            command += '" | python3.7 EasyRL.py --terminal --secretKey ' + secretKey + ' --accessKey ' + accessKey + ' --sessionToken ' + sessionToken + ' --jobID ' + jobID
+            command += '&> /dev/null & sleep 2'
+
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+
+            ssh.close()
+
+            pass
+
     elif (task == "haltJob"):
         pass
     elif (task == "listInstances"):
         pass
+    elif (task == "terminateInstance"):
+        ec2Client = botoSession.client('ec2')
+        ec2Resource = botoSession.resource('ec2')
+
+        ourInstance = findOurInstance(ec2Client, jobID)
+        if (ourInstance is not None):
+            instance = ec2Resource.Instance(ourInstance['InstanceId'])
+            instance.terminate()
     elif (task == "createBucket"):
         s3Client = botoSession.client('s3')
         bucketName = 'easyrl-' + str(jobID)

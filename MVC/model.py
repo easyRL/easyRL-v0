@@ -183,8 +183,9 @@ class Model:
     def save(self, filename):
         if self.agent:
             self.agent.save(filename)
-            if os.path.exists(filename):
-                self.cloudBridge.upload(filename)
+            if (self.cloudBridge is not None):
+                if os.path.exists(filename):
+                    self.cloudBridge.upload(filename)
 
     def load(self, filename):
         self.loadFilename = filename
