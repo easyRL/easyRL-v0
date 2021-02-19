@@ -12,19 +12,10 @@
             <div class="card-body  justify-content-md-center align-items-center">
                 <h5 class="card-title">Special title treatment</h5>
                 <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1"><i class="bi-key-fill" ></i></span>
-                    </div>
-                    <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
-                </div> 
-                <div class="input-group col-md-3">
-                    <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">@</span>
-                    </div>
-                    <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
-                </div>                          
-                <a href="#" class="btn btn-primary">Submit</a>
+                <form method="post" action="">{% csrf_token %}
+                    {{form.as_p}}
+                    <button type="submit" class="form-control btn btn-primary pull-right">Login</button>
+                </form>
             </div>
             <div class="card-footer text-muted">
             

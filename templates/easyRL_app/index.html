@@ -6,19 +6,19 @@
           <div class="card-header">
             <ul class="nav nav-pills card-header-pills">
               <li class="nav-item">
-                <a class="nav-link active" href="#">Train</a>
+                <button class="btn btn-primary" style="margin:5px;">Train</button>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">Halt</a>
+                <button class="btn btn-primary"style="margin:5px;">Halt</button>
               </li>
               <li class="nav-item">
-                <a class="nav-link disabled" href="#">Test</a>
+                <button class="btn btn-primary"style="margin:5px;">Test</button>
               </li>
               <li class="nav-item">
-                  <a class="nav-link disabled" href="#">Reset</a>
+                <button class="btn btn-primary"style="margin:5px;">Reset</button>
                 </li>  
                 <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Model</a>
+                  <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" style="margin:5px;">Model </a>
                   <div class="dropdown-menu">
                     <a class="dropdown-item" href="#">Save</a>
                     <div class="dropdown-divider"></div>
@@ -26,7 +26,7 @@
                   </div>
                 </li> 
                 <li class="nav-item">
-                  <a class="nav-link disabled" href="#">Save Results</a>
+                  <button class="btn btn-primary"style="margin:5px;">Save Result</button>
                 </li>                                                                                
             </ul>
           </div>
@@ -36,20 +36,21 @@
               <div class="row justify-content-center">
                   <div id="carouselExampleControlsNoTouching" class="carousel mbr-slider slide col-md-3" data-bs-touch="false" data-bs-interval="false">
                       <div class="carousel-inner">
-                      <div class="carousel-item active">
+                        {% for file in files %}
+                        {% if file == 'alien.jpg' %}
+                        <div class="carousel-item active">
                           <div class="d-flex justify-content-center w-100 h-100">
-                              <img src="{% static 'easyRL_app/images/amidar.jpg'%}"  alt="...">
+                              <img src="{% static 'easyRL_app/images/'%}{{file}}" data-name="{{file}}" alt="...">
                           </div>
-                      </div>
-                      <div class="carousel-item">
-                          <div class="d-flex justify-content-center w-100 h-100">
-                              <img src="{% static 'easyRL_app/images/alien.jpg'%}"  alt="...">
+                          </div>                        
+                          {% else %}
+                          <div class="carousel-item">
+                            <div class="d-flex justify-content-center w-100 h-100">
+                              <img src="{% static 'easyRL_app/images/'%}{{file}}" data-name="{{file}}" alt="...">
+                            </div>
                           </div>
-                      </div>
-                      <div class="carousel-item">
-                          <div class="d-flex justify-content-center w-100 h-100">
-                              <img src="{% static 'easyRL_app/images/adventure.jpg'%}"  alt="...">
-                          </div>                    </div>
+                          {% endif %}
+                        {% endfor %} 
                       </div>
                       <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsNoTouching" data-bs-slide="prev">
                       <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -62,8 +63,8 @@
                   
                   </div>
               </div>  
-              <br/>                  
-              <h5 class="card-title">file_name.jpg</h5>
+              <br/>               
+              <h5 id="file-name" class="card-title">file_name.jpg</h5>
               <button class="btn btn-primary"><span class=""><i class="bi-card-image"></i></span> Select Environment</button>
           </div>
       </div>
@@ -72,23 +73,62 @@
       <div class="row">
           <!-- Tabs -->
           <div class="col-md-8">
-              <ul class="nav nav-tabs" id="myTab" role="tablist">
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Profile</button>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">Contact</button>
-                  </li>
-                </ul>
-                <div class="tab-content" id="myTabContent">
-                  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">...</div>
-                  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
-                  <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active" id="hp-tab-0" data-bs-toggle="tab" data-bs-target="#hp" type="button" role="tab" aria-controls="hp" aria-selected="true">Hyper Parameters <i class="bi-dash-circle-fill"  style="color: red"></i></button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="add-model-tab" type="button" >Add <i class="bi-plus-circle-fill" style="color: #0b5ed7"></i></button>
+                </li>
+            </ul>
+            <div class="col-md-12">
+              <div class="tab-content" id="myTabContent" style="width: 100%;">
+                <div class="tab-pane fade show active" id="hp" role="tabpanel" aria-labelledby="hp-tab-0">
+                  <form>
+                    <div class="form-row">
+                      <div class="col-md-2 mb-3">
+                        <label for="gamma-range" class="form-label">Gamma</label>
+                        <input type="range" class="form-range" min="0" max="6000" id="gamma-range">
+                      </div>
+                      <input type="text" id=gamma-input maxlength="4" size="4" disabled>
+                      <div class="col-md-2 mb-3">
+                        <label for="min-epsilon-range" class="form-label">Min Epsilon</label>
+                        <input type="range" class="form-range" min="0" max="6000" id="min-epsilon-range"><input type="text" id=min-epsilon-input maxlength="4" size="4" disabled>
+                      </div>
+                      <div class="col-md-2 mb-3">
+                        <label for="max-epsilon-range" class="form-label">Max Epsilon</label>
+                        <input type="range" class="form-range" min="0" max="6000" id="max-epsilon-range"><input type="text" id=max-epsilon-input maxlength="4" size="4" disabled>
+                      </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <label for="decay-range" class="form-label">Decay Rage</label>
+                      <input type="range" class="form-range" min="0" max="6000" id="decay-range"><input type="text" id=decay-input maxlength="4" size="4" disabled>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                      <label for="episodes-range" class="form-label">Batch Size</label>
+                      <input type="range" class="form-range" min="0" max="6000" id="batch-range"><input type="text" id=batch-input maxlength="4" size="4" disabled>
+                    </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationDefault03"># of Episodes</label>
+                        <input type="text" class="form-control" id="validationDefault03" placeholder="2000" required>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationDefault04">Max Size</label>
+                        <input type="text" class="form-control" id="validationDefault04" placeholder="200" required>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationDefault05">Memory</label>
+                        <input type="text" class="form-control" id="validationDefault05" placeholder="1000" required>
+                      </div>
+                      <div class="col-md-3 mb-3">
+                        <label for="validationDefault05">Target Update Interval</label>
+                        <input type="text" class="form-control" id="validationDefault05" placeholder="200" required>
+                      </div>                    
+                    <button class="btn btn-primary" type="submit">Submit form</button>
+                  </form>
                 </div>
-                              
+              </div>
+            </div>
           </div>
           <!-- Drop downs -->
           <div class="col-md-4" style="margin-top: 40px;">
@@ -111,8 +151,76 @@
                   <option selected>--Select Buffer--</option>
                   <option value="1">Hindsight Replay Buffer</option>
                   <option value="2">Prioritize Replay Buffer</option>
-                </select>                          
-          </div>
+              </select> 
+              <br/>
+              <select class="form-select" size="3" aria-label="Default select example">
+                <option selected>--Select Host Environment--</option>
+                <option value="1">EC2</option>
+                <option value="2">Kubeflow</option>
+                <option value="3">...</option>
+                <option value="3">...</option>
+                <option value="3">...</option>                               
+            </select> 
+            <br/>
+            <button class="btn btn-primary pull-right">Select Host</button>
+          </div>                                       
+        </div>
       </div>
-  </div>    
+  </div> 
+  <script src="{% static 'easyRL_app/scripts/jquery-3.5.1.min.js' %}"></script> 
+  <script type="text/javascript"> 
+    // Sets the Environment label
+    $(document).ready(function(){
+      var src = $('.active').find('img').attr('src');
+      src = src.substring(26);
+      $("#file-name").html(src);
+
+      $("#episodes-range").on('input',function(){
+        var newval=$(this).val();
+        $("#episodes-input").val(newval);
+      }); 
+      $("#gamma-range").on('input',function(){
+        var newval=$(this).val();
+        $("#gamma-input").val(newval);
+      }); 
+      $("#min-epsilon-range").on('input',function(){
+        var newval=$(this).val();
+        $("#min-epsilon-input").val(newval);
+      }); 
+      $("#max-epsilon-range").on('input',function(){
+        var newval=$(this).val();
+        $("#max-epsilon-input").val(newval);
+      }); 
+      $("#decay-range").on('input',function(){
+        var newval=$(this).val();
+        $("#decay-input").val(newval);
+      }); 
+      $("#batch-range").on('input',function(){
+        var newval=$(this).val();
+        $("#batch-input").val(newval);
+      });                 
+    });
+
+    $('#add-model-tab').click(function (e) {
+        var nextTab = $('#myTab li').length+1;    
+      // create the tab
+      //$('<li><a href="#tab'+nextTab+'" data-toggle="tab">Tab '+nextTab+'</a></li>').appendTo('#my');
+      $("#myTab li:nth-child(2)").before($('<li class="nav-item" role="presentation"><button class="nav-link" id="hp-tab'+nextTab+'" data-bs-toggle="tab" data-bs-target="#hp'+nextTab+'" type="button" role="tab" aria-controls="hp'+nextTab+'" aria-selected="false">Hyper Parameters'+nextTab+' <i class="bi-dash-circle-fill"  style="color: red"></i></button></li>'));
+      // create the tab content
+      //$('<div class="tab-pane" id="tab'+nextTab+'">tab' +nextTab+' content</div>').appendTo('.tab-content');
+      $('<div class="tab-pane fade" id="hp'+nextTab+'" role="tabpanel" aria-labelledby="hp-tab'+nextTab+'">This will be hyper parameters'+nextTab+'</div>').appendTo('.tab-content');;
+      // make the new tab active
+      $('#myTab').on('click', function (e) {
+        e.preventDefault()
+        $(this).tab('show')
+      });
+    });
+
+    // updates the environment label.   
+    $('#carouselExampleControlsNoTouching').on('slid.bs.carousel', function () {
+      var src = $('div > .active').find('img').attr('src');
+      var b = src.substring(26);
+      $("#file-name").html(b);
+    });
+  </script>  
 {%endblock%}

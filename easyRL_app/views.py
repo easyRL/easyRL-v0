@@ -1,10 +1,14 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-import boto3
 from django.conf import settings
+from django.core.cache import caches
+from django.http import HttpResponse
+from django.shortcuts import render
+from pymemcache.client import base
+from . import forms
+
+import boto3
+import os
 
 session = boto3.session.Session()
-
 
 # Create your views here.
 
@@ -21,8 +25,20 @@ def index(request):
     #     # to see items inside buckets
     #     for item in bucket.objects.all():
     #         print(item)   
-    my_dict = {"insert_me":"This is the insert from easyRL.views"}
-    return render(request, "easyRL_app/index.html", context=my_dict)\
+    my_dict = {}
+
+    files = os.listdir(os.path.join(settings.BASE_DIR, "static/easyRL_app/images"))
+    my_dict['files'] = files
+
+    return render(request, "easyRL_app/index.html", context=my_dict)
 
 def login(request):
-    return render(request, "easyRL_app/login.html", context={})
+    form = forms.FormName()
+    if request.method == "POST":
+        form = forms.FormName(request.POST)
+        if form.is_valid():
+            request.session['secret_key'] = form.cleaned_data["aws_secret_key"]
+            request.session['aws-access_key'] = form.cleaned_data["aws_access_key"]
+            request.session['token'] = form.cleaned_data["aws_security_token"]
+    return render(request, "easyRL_app/login.html", context={'form': form})
+

@@ -1,7 +1,9 @@
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm
 import uuid
 
-class LoginForm (forms.Form):
-    access_key_id = forms.TextInput(label="AWS ACCESS KEY ID", max_length=100)
-    secret_key =  forms.TextInput(label='AWS SECRET ACCESS KEY', max_length=100)
-    session_token = uuid.uuid4()
+class FormName(forms.Form):
+    aws_secret_key = forms.CharField(widget=forms.PasswordInput())
+    aws_access_key = forms.CharField(widget=forms.PasswordInput())
+    aws_security_token = forms.CharField(widget=forms.PasswordInput())
+    
