@@ -1,5 +1,6 @@
 import boto3
 import botocore
+import uuid
 
 def get_aws_s3(aws_access_key_id, aws_secret_access_key, aws_session_token=None):
     return boto3.client('s3',
@@ -34,3 +35,6 @@ def invoke_aws_lambda_func(lambdas, data='{}'):
         InvocationType='RequestResponse',
         Payload=data,
     )
+
+def generate_jobID():
+    return 'jobID'.join(['bingusmingus32', str(uuid.uuid4())])

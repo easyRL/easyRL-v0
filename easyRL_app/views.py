@@ -10,9 +10,9 @@ from . import forms
 import boto3
 import os
 from easyRL_app.utilities import get_aws_s3, get_aws_lambda,\
-    invoke_aws_lambda_func, is_valid_aws_credential
+    invoke_aws_lambda_func, is_valid_aws_credential, generate_jobID
 
-DEBUG_JOB_ID = "Test_1"
+DEBUG_JOB_ID = generate_jobID()
 
 session = boto3.session.Session()
 
@@ -22,7 +22,8 @@ def index(request):
     # send the user back to the login form if the user did not sign in or session expired
     print(request.session.keys())
     if 'aws_succeed' not in request.session :#or not request.session['aws_succeed']:
-        return HttpResponseRedirect("/easyRL_app/login/")
+        #return HttpResponseRedirect("/easyRL_app/login/")
+        pass
 
     my_dict = {}
     files = os.listdir(os.path.join(settings.BASE_DIR, "static/easyRL_app/images"))
@@ -35,8 +36,6 @@ def index(request):
     elif request.method == "POST":
         form = forms.HyperParameterForm(request.POST)
         if form.is_valid():
-            print(form.cleaned_data["gamma"])
-            print(form.cleaned_data["batch"])
             my_dict['form'] = form
         return render(request, "easyRL_app/index.html", context=my_dict)
 
