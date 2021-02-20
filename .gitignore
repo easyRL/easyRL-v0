@@ -140,3 +140,7 @@ cython_debug/
 # Window & MAC
 Thumbs.db
 .DS_Store
+
+# Project files
+.project
+.pydevproject
