@@ -54,10 +54,10 @@ def login(request):
 
 def test_create_instance(request):
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/lambda.html
-    lambdas = get_aws_lambda('AKIAT4P5MOYA6HAIEYZE', 'OPt0jq2e6KOsPUEpPku2BhgiLP8LvIj6jDnNKO5a')
+    lambdas = get_aws_lambda('AAA', 'BBB')
     data = {
-        "accessKey": "AKIAT4P5MOYA6HAIEYZE",
-        "secretKey": "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",
+        "accessKey": "AAA",
+        "secretKey": "BBB",
         "sessionToken": "",
         "jobID": "Test4", # change the job ID for creating new instance
         "task": "createInstance",
@@ -68,10 +68,10 @@ def test_create_instance(request):
 
 def test_terminate_instance(request):
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/lambda.html
-    lambdas = get_aws_lambda('AKIAT4P5MOYA6HAIEYZE', 'OPt0jq2e6KOsPUEpPku2BhgiLP8LvIj6jDnNKO5a')
+    lambdas = get_aws_lambda('AAA', 'BBB')
     data = {
-        "accessKey": "AKIAT4P5MOYA6HAIEYZE",
-        "secretKey": "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",
+        "accessKey": "AAA",
+        "secretKey": "BBB",
         "sessionToken": "",
         "jobID": "Test4", # change the job ID for creating new instance
         "task": "terminateInstance",
