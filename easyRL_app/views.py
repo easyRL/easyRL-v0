@@ -19,7 +19,7 @@ session = boto3.session.Session()
 def index(request):
     # send the user back to the login form if the user did not sign in or session expired
     if 'aws_succeed' not in request.session :#or not request.session['aws_succeed']:
-        return render(request, "easyRL_app/login.html", context={'form': forms.AwsCredentialForm()})
+        return render(request, "easyRL_app/login.html", context={'form': forms.AwsCredentialForm(request.Get)})
 
     my_dict = {}
     files = os.listdir(os.path.join(settings.BASE_DIR, "static/easyRL_app/images"))
@@ -43,13 +43,15 @@ def login(request):
         return render(request, "easyRL_app/login.html", context={'form': form})
     elif request.method == "POST":
         form = forms.AwsCredentialForm(request.POST)
-        if form.is_valid() and is_valid_aws_credential(
-                form.cleaned_data["aws_access_key"], 
-                form.cleaned_data["aws_secret_key"], 
-                form.cleaned_data["aws_security_token"]):
-            request.session['aws_access_key'] = form.cleaned_data["aws_access_key"]
-            request.session['aws_secret_key'] = form.cleaned_data["aws_secret_key"]
-            request.session['aws_security_token'] = form.cleaned_data["aws_security_token"]
+
+        a_key =  form.cleaned_data["aws_access_key"] 
+        s_key =form.cleaned_data["aws_secret_key"]
+        token = form.cleaned_data["aws_security_token"]
+        
+        if form.is_valid() and is_valid_aws_credential(a_key, s_key,token):
+            request.session['aws_access_key'] = a_key
+            request.session['aws_secret_key'] = s_key
+            request.session['aws_security_token'] = token
             request.session['aws_succeed'] = True
             return HttpResponseRedirect("/easyRL_app/")
         else:
