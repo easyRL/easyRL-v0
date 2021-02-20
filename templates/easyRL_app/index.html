@@ -185,7 +185,7 @@
                       </div>                                      
                     </div>  
                     <br/>                
-                    <!-- <button class="btn btn-primary" type="submit">Submit form</button> -->
+                    <button class="btn btn-primary" type="submit">Submit form</button> -->
                   </form>
                 </div>
               </div>
@@ -238,7 +238,70 @@
       $("#myTab li:nth-child(2)").before($('<li class="nav-item" role="presentation"><button class="nav-link" id="hp-tab'+nextTab+'" data-bs-toggle="tab" data-bs-target="#hp'+nextTab+'" type="button" role="tab" aria-controls="hp'+nextTab+'" aria-selected="false">Hyper Parameters'+nextTab+' <i class="bi-dash-circle-fill"  style="color: red"></i></button></li>'));
       // create the tab content
     
-      $('<div class="tab-pane fade" id="hp'+nextTab+'" role="tabpanel" aria-labelledby="hp-tab'+nextTab+'">This will be hyper parameters'+nextTab+'</div>').appendTo('.tab-content');;
+var form =       '<form method="post" style="margin-top: 15px;">{% csrf_token %}'+
+                    '<div class="container-fluid">'+
+                      '<div class="row">'+
+                       '<div class="slider-container col-3">'+
+                          '<label>Gamma</label>'+
+                          '<div class=""  >{{form.gamma}}</div>'+
+                          '<div class="" style="margin: 0px 100px 0px 100px;">{{form.gamma_text}}</div>'+
+                        '</div>'+
+                        '<div class="col-md-3">'+
+                          '<label>Number of Episodes</label>'+
+                        '<div class="col-md-7"  >{{form.num_episodes}}</div>'+
+                      '</div>'+
+                      '</div>'+
+                      '<div class="row">'+
+                        '<div class="slider-container col-3">'+
+                          '<label>Min Epsilon</label>'+
+                          '<div class="">{{form.min_epsilon}}</div>'+
+                          '<div class="" style="margin: 0px 100px 0px 100px;">{{form.min_text}}</div>'+
+                        '</div>'+
+                        '<div class="col-md-3">'+
+                          '<label>Max Memory</label>'+
+                          '<div class="col-md-7" >{{form.max_memory}}</div>'+
+                          '</div>'+
+                          '</div>'+ 
+                          '<div class="row">'+
+                            '<div class="slider-container col-3">'+
+                              '<label>Max Epsilon</label>'+
+                              '<div class=""  >{{form.max_epsilon}}</div>'+
+                              '<div class="" style="margin: 0px 100px 0px 100px;">{{form.max_text}}</div>'+
+                              '</div>'+
+                              '<div class="col-md-3">'+
+                                '<label>Target Update Iterval</label>'+
+                                '<div class="col-md-7"  >{{form.target_update}}</div>'+
+                                '</div>'+ 
+                                '<div class="row">'+
+                                  '<div class="slider-container col-3">'+
+                                    '<label>Batch Size</label>'+
+                                    '<div class=""  >{{form.batch}}</div>'+
+                                    '<div class="" style="margin: 0px 100px 0px 100px;">{{form.batch_text}}</div>'+
+                                    '</div>'+
+                                    '<div class="col-md-3">'+
+                                      '<label>Max Size</label>'+
+                                      '<div class="col-md-7">{{form.max_size}}</div>'+
+                                      '</div>'+
+                                      '</div>'+ 
+                                      '<div class="row">'+
+                                        '<div class="slider-container col-3">'+
+                                          '<label>Decay Rate</label>'+
+                          '<div class=""  >{{form.decay_rate}}</div>'+
+                          '<div class="" style="margin: 0px 100px 0px 100px;">{{form.decay_text}}</div>'+
+                          '</div>'+
+                        '<div class="slider-container col-3">'+
+                          '<label>Display Episode Speed</label>'+
+                          '<div class=""  >{{form.display_ep_speed}}</div>'+
+                          '<div class="" style="margin: 0px 100px 0px 100px;">{{form.display_text}}</div>'+
+                          '</div>'+
+                      '</div>'+                                      
+                    '</div>'+  
+                    '<br/>'+              
+                   '<button class="btn btn-primary" type="submit">Submit form</button>' +
+                  '</form>';
+var form2 = '<div style="margin-top:50px;"><input type="text">TEST</input></div>';
+
+      $('<div class="tab-pane fade" id="hp'+nextTab+'" role="tabpanel" aria-labelledby="hp-tab'+nextTab+'">'+form+'</div>').appendTo('.tab-content');;
       // make the new tab active
       $('#myTab').on('click', function (e) {
         e.preventDefault()

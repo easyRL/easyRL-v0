@@ -30,6 +30,7 @@ def index(request):
             if form.is_valid():
                 print(form.cleaned_data["gamma"])
                 print(form.cleaned_data["batch"])
+                my_dict['form'] = form
             return render(request, "easyRL_app/index.html", context=my_dict)
  
 
