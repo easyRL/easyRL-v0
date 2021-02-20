@@ -148,7 +148,7 @@ def yourFunction(request, context):
                 command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + ' --accessKey ' + accessKey + ' --sessionToken ' + sessionToken + ' --jobID ' + jobID
             else:
                 command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + ' --accessKey ' + accessKey + ' --jobID ' + jobID
-            command += ' &> /dev/null & sleep 15'
+            command += ' &> /dev/null & sleep 1'
 
             inspector.addAttribute("command", command)
 
@@ -168,7 +168,25 @@ def yourFunction(request, context):
                 inspector.addAttribute("instanceState", instanceState['Name'])
         pass
     elif (task == "haltJob"):
-        pass
+        ec2Client = botoSession.client('ec2')
+        ec2Resource = botoSession.resource('ec2')
+
+        ourInstance = findOurInstance(ec2Client, jobID)
+        if (ourInstance is not None):
+            ip = ourInstance['PublicIpAddress']
+            inspector.addAttribute("ip", str(ip))
+
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username='tcss556', password='secretPassword')
+            
+            command = "pKill python3.7"
+            inspector.addAttribute("command", command)
+
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+            stdout=ssh_stdout.readlines()
+            inspector.addAttribute("stdout", stdout)
+            ssh.close()
     elif (task == "listInstances"):
         pass
     elif (task == "terminateInstance"):
@@ -192,7 +210,5 @@ def yourFunction(request, context):
         bucket = s3Client.Bucket(bucketName)
         bucket.objects.all().delete()
         s3Client.delete_bucket(Bucket=bucketName)
-
-
 
     return inspector.finish()
