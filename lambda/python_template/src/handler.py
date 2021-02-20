@@ -10,7 +10,7 @@ from Inspector import *
 import time
 
 import boto3
-from paramiko import SSHClient
+import paramiko
 
 #
 # Define your FaaS Function here.
@@ -99,7 +99,7 @@ def yourFunction(request, context):
                 ImageId='ami-01b4fa5b09c9741a8',
                 MinCount=1,
                 MaxCount=1,
-                InstanceType='c4.xlarge',
+                InstanceType=arguments['instanceType'],
                 SecurityGroupIds=[security_group_id],
                 TagSpecifications = [{
                     "ResourceType": "instance",
@@ -125,8 +125,9 @@ def yourFunction(request, context):
             inspector.addAttribute("ip", str(ip))
 
             ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, username='tcss556', password='secretPassword')
-
+            
             command = 'printf "'
             command += str(arguments['environment']) + '\n'
             command += str(arguments['agent']) + '\n'
@@ -143,15 +144,29 @@ def yourFunction(request, context):
             command += '4\n'
             command += 'trainedAgent.bin\n'
             command += '5\n'
-            command += '" | python3.7 EasyRL.py --terminal --secretKey ' + secretKey + ' --accessKey ' + accessKey + ' --sessionToken ' + sessionToken + ' --jobID ' + jobID
-            command += '&> /dev/null & sleep 2'
+            if (sessionToken != ""):
+                command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + ' --accessKey ' + accessKey + ' --sessionToken ' + sessionToken + ' --jobID ' + jobID
+            else:
+                command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + ' --accessKey ' + accessKey + ' --jobID ' + jobID
+            command += ' &> /dev/null & sleep 15'
+
+            inspector.addAttribute("command", command)
 
             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-
+            stdout=ssh_stdout.readlines()
+            inspector.addAttribute("stdout", stdout)
             ssh.close()
-
-            pass
-
+        else:
+            inspector.addAttribute('error', 'Instance does not exist.')
+    elif (task == "instanceState"):
+        ec2Client = botoSession.client('ec2')
+        ec2Resource = botoSession.resource('ec2')
+        ourInstance = findOurInstance(ec2Client, jobID)
+        if (ourInstance is not None):
+            if 'State' in ourInstance and 'Name' in ourInstance['State']:
+                instanceState = ourInstance['State']
+                inspector.addAttribute("instanceState", instanceState['Name'])
+        pass
     elif (task == "haltJob"):
         pass
     elif (task == "listInstances"):
