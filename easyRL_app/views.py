@@ -66,6 +66,11 @@ def logout(request):
         del request.session[key]
     return HttpResponseRedirect("/easyRL_app/login/")
 
+def test_data(request):
+    if request.method == 'GET' and 'name' in request.GET:
+        return HttpResponse("Hello {}".format(request.GET['name']))
+    return HttpResponse("Hello World")
+
 def test_create_instance(request):
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/lambda.html
     lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))

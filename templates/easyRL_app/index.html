@@ -6,7 +6,7 @@
           <div class="card-header">
             <ul class="nav nav-pills card-header-pills">
               <li class="nav-item">
-                <button class="btn btn-primary" style="margin:5px;">Train</button>
+                <button id="btn_train" class="btn btn-primary" style="margin:5px;">Train</button>
               </li>
               <li class="nav-item">
                 <button class="btn btn-primary"style="margin:5px;">Halt</button>
@@ -343,5 +343,23 @@ var form2 = '<div style="margin-top:50px;"><input type="text">TEST</input></div>
           default:
         }     
     }
+    
+    // Train button
+	$("#btn_train").click(function () {
+		// get values from sliders
+		//var slider = $(this).val();
+		
+		$.ajax({
+			url: '/easyRL_app/test/',
+			data: {
+				'name': 'Varik'
+			},
+			dataType: 'text',
+			success: function (data) {
+				alert(data);
+			}
+		});
+	});
+    
   </script>  
 {%endblock%}
