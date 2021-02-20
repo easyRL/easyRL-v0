@@ -52,10 +52,10 @@ def login(request):
 
 def test_create_instance(request):
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/lambda.html
-    lambdas = get_aws_lambda('AAA', 'BBB')
+    lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
     data = {
-        "accessKey": "AAA",
-        "secretKey": "BBB",
+        "accessKey": os.getenv("AWS_ACCESS_KEY_ID"),
+        "secretKey": os.getenv("AWS_SECRET_ACCESS_KEY"),
         "sessionToken": "",
         "jobID": "Test4", # change the job ID for creating new instance
         "task": "createInstance",
@@ -66,10 +66,10 @@ def test_create_instance(request):
 
 def test_terminate_instance(request):
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/lambda.html
-    lambdas = get_aws_lambda('AAA', 'BBB')
+    lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
     data = {
-        "accessKey": "AAA",
-        "secretKey": "BBB",
+        "accessKey": os.getenv("AWS_ACCESS_KEY_ID"),
+        "secretKey": os.getenv("AWS_SECRET_ACCESS_KEY"),
         "sessionToken": "",
         "jobID": "Test4", # change the job ID for creating new instance
         "task": "terminateInstance",
