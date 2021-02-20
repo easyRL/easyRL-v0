@@ -1,3 +1,4 @@
 from MVC import controller
+import sys
 
-controller.Controller()
+controller.Controller(sys.argv)
