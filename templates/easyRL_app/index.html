@@ -73,7 +73,7 @@
            <!-- Drop downs -->
       <div class="row justify-content-center">
            <div class="col-md-3">
-              <select class="form-select" size="3" aria-label="Default select example">
+              <select class="form-select" id="agent-select" size="3" aria-label="Default select example">
                   <option selected>--Select Agent--</option>
                   <option value="1">Deep Q</option>
                   <option value="2">Q Learning</option>
@@ -198,8 +198,12 @@
     // Sets the Environment label
     $(document).ready(function(){
       var src = $('.active').find('img').attr('src');
-      src = src.substring(26);
+      src = src.slice(26,-4);
       $("#file-name").html(src);
+
+      $( ".target" ).change(function() {
+
+      });
 
       $("#batch-slider").on('input',function(){
         var newval=$(this).val();
@@ -245,8 +249,33 @@
     // updates the environment label.   
     $('#carouselExampleControlsNoTouching').on('slid.bs.carousel', function () {
       var src = $('div > .active').find('img').attr('src');
-      var b = src.substring(26);
+      var b = src.slice(26,-4);
       $("#file-name").html(b);
+      $("#agent-select")
     });
+    function updateSelect(fileName){
+      var games = {
+            'Cart Pole' : ['Deep Q', 'DRQN', 'ADRQN','Double, Dueling Deep Q Native', 'DRQN Native, PPO Native', 'Reinforce Native', 'ActorCritic Native'],
+            'Cart Pole Descrete' : ['Deep Q', 'Q Learning', 'DRQN', 'ADRQN','Double, Dueling Deep Q Native', 'DRQN Native, PPO Native', 'Reinforce Native', 'ActorCritic Native','SARSA'],
+            'Frozen Lake': ['Deep Q', 'Q Learning', 'DRQN', 'ADRQN','Double, Dueling Deep Q Native', 'DRQN Native, PPO Native', 'Reinforce Native', 'ActorCritic Native','SARSA'],
+            'Pendulum' : ['Deep Q', 'DRQN', 'ADRQN','Double, Dueling Deep Q Native', 'DRQN Native, PPO Native', 'Reinforce Native', 'ActorCritic Native'],
+            'Acrobot': ['Deep Q', 'DRQN', 'ADRQN','Double, Dueling Deep Q Native', 'DRQN Native, PPO Native', 'Reinforce Native', 'ActorCritic Native'],
+            'Mountain Car' : ['Deep Q', 'DRQN', 'ADRQN','Double, Dueling Deep Q Native', 'DRQN Native, PPO Native', 'Reinforce Native', 'ActorCritic Native'],
+            'default' : ['DRQN', 'ADRQN', 'Conv DRQN Native']
+          };
+        alert( "Handler for .change() called." );
+        var options = "";
+        switch(fileName){
+          case 'Cart Pole':
+            break;
+          case 'Cart Pole Descrete':
+            break;
+          case 'Fronzen Lake':
+            break;
+          case 'Mountain Car':
+            break;           
+          default:
+        }     
+    }
   </script>  
 {%endblock%}

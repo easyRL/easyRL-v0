@@ -15,8 +15,6 @@ session = boto3.session.Session()
 # Create your views here.
 
 def index(request):
-
-        
         my_dict = {}
         files = os.listdir(os.path.join(settings.BASE_DIR, "static/easyRL_app/images"))
         my_dict['files'] = files
