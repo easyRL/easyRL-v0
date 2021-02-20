@@ -100,6 +100,9 @@ class CloudBridge:
                 "episodes": self.episodeData
             }
 
+            with open('data.json', 'w+') as f:
+                json.dump(payload, f)
+
             # Submit Data to S3
             self.s3Client.put_object(Body=json.dumps(payload), Bucket='easyrl-' + str(self.jobID), Key="data.json")
 

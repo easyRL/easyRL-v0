@@ -187,8 +187,46 @@ def yourFunction(request, context):
             stdout=ssh_stdout.readlines()
             inspector.addAttribute("stdout", stdout)
             ssh.close()
-    elif (task == "listInstances"):
-        pass
+    elif (task == "pullFile"):
+        ec2Client = botoSession.client('ec2')
+        ec2Resource = botoSession.resource('ec2')
+
+        ourInstance = findOurInstance(ec2Client, jobID)
+        if (ourInstance is not None):
+            ip = ourInstance['PublicIpAddress']
+            inspector.addAttribute("ip", str(ip))
+
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username='tcss556', password='secretPassword')
+
+            filename = arguments['path']
+            
+            command = "cat " + filename
+
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+            stdout=ssh_stdout.readlines()
+            inspector.addAttribute("stdout", stdout)
+            ssh.close()
+    elif (task == "updateEasyRL"):
+        ec2Client = botoSession.client('ec2')
+        ec2Resource = botoSession.resource('ec2')
+
+        ourInstance = findOurInstance(ec2Client, jobID)
+        if (ourInstance is not None):
+            ip = ourInstance['PublicIpAddress']
+            inspector.addAttribute("ip", str(ip))
+
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username='tcss556', password='secretPassword')
+            
+            command = "git clone --branch dataExport https://github.com/RobertCordingly/easyRL-v0"
+
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+            stdout=ssh_stdout.readlines()
+            inspector.addAttribute("stdout", stdout)
+            ssh.close()
     elif (task == "terminateInstance"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
