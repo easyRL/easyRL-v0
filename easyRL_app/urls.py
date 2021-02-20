@@ -1,15 +1,14 @@
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
-from . import  views as v
-from django.contrib.auth import views
+from . import  views as view
 
 urlpatterns = [
-    path('', v.index, name="index"),
-    path('login/', v.login, name='login'),
-    path('logout/', v.logout, name='logout'),
-    path('test/', v.test_data, name='test'),
-    path('test_ci/', v.test_create_instance, name='create_instance'),
-    path('test_ti/', v.test_terminate_instance, name='terminate_instance'),
-    path('test_rj/', v.test_run_job, name='run_job'),
+    path('', view.index, name="index"),
+    path('login/', view.login, name='login'),
+    path('logout/', view.logout, name='logout'),
+    path('test/', view.test_data, name='test'),
+    path('test_ci/', view.test_create_instance, name='create_instance'),
+    path('test_ti/', view.test_terminate_instance, name='terminate_instance'),
+    path('test_rj/', view.test_run_job, name='run_job'),
 ]
