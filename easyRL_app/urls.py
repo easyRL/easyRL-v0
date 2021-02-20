@@ -11,5 +11,4 @@ urlpatterns = [
     path('test/', view.test_data, name='test'),
     path('test_ci/', view.test_create_instance, name='create_instance'),
     path('test_ti/', view.test_terminate_instance, name='terminate_instance'),
-    path('test_rj/', view.test_run_job, name='run_job'),
 ]
