@@ -46,7 +46,7 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         loss = 0
         if len(self.memory) < 2*self.batch_size:
             return loss
-        mini_batch = self.sample()
+        batch_idxes, mini_batch = self.sample()
 
         X_train, Y_train = self.calculateTargetValues(mini_batch)
         loss = self.model.train_on_batch(X_train, Y_train)
