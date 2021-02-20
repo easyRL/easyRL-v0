@@ -1,3 +1,4 @@
+import numpy as np
 import random
 
 from Agents.Collections import TransitionFrame
@@ -19,11 +20,21 @@ class ReplayBuffer:
         :param history_length: the length of the history
         :type history_length: int
         """
+        self._cur_idx = 0
         self.empty_trans = empty_trans
         self.history_length = history_length
         self.learner = learner
         self.max_length = max_length
-        self._transitions = deque(maxlen = max_length)
+        self._size = 0
+        self._transitions = np.empty(max_length, dtype = object)
+    
+    def __len__(self):
+        """
+        Returns the length of this replay buffer.
+        :return: the length of the buffer
+        :rtype: int
+        """
+        return self._size
     
     def append_frame(self, transition_frame):
         """
@@ -32,18 +43,15 @@ class ReplayBuffer:
         of this buffer
         :type transition_frame: TransitionFrame
         """
-        self._transitions.append(transition_frame)
-      
-    def peak_frame(self):
-        """
-        Returns the last frame if the buffer is non-empty and an empty
-        transition frame otherwise.
-        :return: the last frame added to the buffer
-        :rtype: TransitionFrame
-        """
-        if (self._transitions):
-            return self._transitions[-1]
-        return self.empty_trans
+        # Add the transition to the buffer.
+        self._transitions[self._cur_idx] = transition_frame
+        
+        # Increment the current index.
+        self._cur_idx = (self._cur_idx + 1) % self.max_length
+        
+        # Increment the size if the size is less than the max_length.
+        if (self._size < self.max_length):
+            self._size += 1
     
     def get_recent_action(self):
         """
@@ -57,8 +65,10 @@ class ReplayBuffer:
         
         # Get the latest action until the history length or until the beginning
         # of the buffer is reached.
-        for i in range((len(self) - 1), max((len(self) - 1) - self.history_length, 0), -1):
-            result.appendleft(self._transitions[i].action)
+        for i in range((self._cur_idx - 1), ((self._cur_idx - 1) - self.history_length), -1):
+            if (i < 0 and not self.is_full()):
+                break
+            result.appendleft(self._transitions[i % self.max_length].action)
         
         # Prepend -1s until the length of the deque equals the history
         # length.
@@ -80,8 +90,10 @@ class ReplayBuffer:
         
         # Get the latest states until the history length or until the beginning
         # of the buffer is reached.
-        for i in range((len(self) - 1), max((len(self) - 1) - self.history_length, 0), -1):
-            result.appendleft(self._transitions[i].state)
+        for i in range((self._cur_idx - 1), ((self._cur_idx - 1) - self.history_length), -1):
+            if (i < 0 and not self.is_full()):
+                break
+            result.appendleft(self._transitions[i % self.max_length].state)
         
         # Prepend empty states until the length of the deque equals the
         # history length.
@@ -115,11 +127,27 @@ class ReplayBuffer:
         # Iterate through the buffer, adding transitions to the list.
         for i in range(start, start + self.history_length):
             results.append(self._transitions[i])
-            if self._transitions[i].is_done or i == (len(self._transitions) - 1):
+            if self._transitions[i].is_done or i == (self._cur_idx - 1):
                 break
                 
         # Pad and return the transitions.
         return self.pad(results)
+    
+    def is_empty(self):
+        """
+        Checks whether this replay buffer is empty.
+        :return: true if this replay buffer is empty, false otherwise
+        :rtype: int
+        """
+        return self._size == 0
+    
+    def is_full(self):
+        """
+        Checks whether this replay buffer has reached the max length.
+        :return: true if this replay buffer is full, false otherwise
+        :rtype: int
+        """
+        return self._size == self.max_length
     
     def pad(self, transitions):
         """
@@ -132,6 +160,17 @@ class ReplayBuffer:
         return [self.empty_trans for _ in
                range(self.history_length - len(transitions))] + transitions
     
+    def peak_frame(self):
+        """
+        Returns the last frame if the buffer is non-empty and an empty
+        transition frame otherwise.
+        :return: the last frame added to the buffer
+        :rtype: TransitionFrame
+        """
+        if (self.is_empty()):
+            return self.empty_trans
+        return self._transitions[self._cur_idx - 1]
+    
     def sample(self, batch_size):
         """
         Gets a number of samples equal equal to the batch size, each length
@@ -143,11 +182,3 @@ class ReplayBuffer:
         for i in random.sample(range(len(self)), batch_size):
             result.append(self.get_transitions(i))
         return result
-    
-    def __len__(self):
-        """
-        Returns the length of this replay buffer.
-        :return: the length of the buffer
-        :rtype: int
-        """
-        return len(self._transitions)
