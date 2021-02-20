@@ -4,6 +4,7 @@ from django.conf.urls import include
 from . import  views as view
 
 urlpatterns = [
+
     path('', view.index, name="index"),
     path('login/', view.login, name='login'),
     path('logout/', view.logout, name='logout'),

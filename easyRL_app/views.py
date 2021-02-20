@@ -20,7 +20,7 @@ session = boto3.session.Session()
 
 def index(request):
     # send the user back to the login form if the user did not sign in or session expired
-    print(request.session.keys())
+    debug_sessions(request)
     if 'aws_succeed' not in request.session :#or not request.session['aws_succeed']:
         #return HttpResponseRedirect("/easyRL_app/login/")
         pass
@@ -53,6 +53,15 @@ def login(request):
             request.session['aws_secret_key'] = form.cleaned_data["aws_secret_key"]
             request.session['aws_security_token'] = form.cleaned_data["aws_security_token"]
             request.session['aws_succeed'] = True
+            request.session['job_id'] = generate_jobID()
+            # create ec2 instance
+            debug_sessions(request)
+            lambda_create_instance(
+                request.session['aws_access_key'],
+                request.session['aws_secret_key'],
+                request.session['aws_security_token'],
+                request.session['job_id']
+            )
             return HttpResponseRedirect("/easyRL_app/")
         else:
             request.session['aws_succeed'] = False
@@ -61,10 +70,43 @@ def login(request):
 def logout(request):
     # store the keys (to avoid deep copy)
     keys = [key for key in request.session.keys()]
+    # terminate the instance for the user
+    lambda_terminate_instance(
+        request.session['aws_access_key'],
+        request.session['aws_secret_key'],
+        request.session['aws_security_token'],
+        request.session['job_id']
+    )
     # clear up all sessions
     for key in keys:
         del request.session[key]
     return HttpResponseRedirect("/easyRL_app/login/")
+
+def lambda_create_instance(aws_access_key, aws_secret_key, aws_security_token, job_id):
+    lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
+    data = {
+        "accessKey": aws_access_key,
+        "secretKey": aws_secret_key,
+        "sessionToken": aws_security_token,
+        "jobID": job_id,
+        "task": "createInstance",
+        "arguments": {"instanceType": "c4.xlarge"},
+    }
+    invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+
+def lambda_terminate_instance(aws_access_key, aws_secret_key, aws_security_token, job_id):
+    # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/lambda.html
+    lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
+    data = {
+        "accessKey": aws_access_key,
+        "secretKey": aws_secret_key,
+        "sessionToken": aws_security_token,
+        "jobID": job_id,
+        "task": "terminateInstance",
+        "arguments": "",
+    }
+    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+    return HttpResponse(str(response))
 
 def test_data(request):
     if request.method == 'GET' and 'name' in request.GET:
@@ -80,7 +122,7 @@ def test_create_instance(request):
         "sessionToken": os.getenv("AWS_SECRET_ACCESS_KEY"),
         "jobID": DEBUG_JOB_ID,
         "task": "createInstance",
-        "arguments": "",
+        "arguments": {"instanceType": "c4.xlarge"},
     }
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
     return HttpResponse(str(response))
@@ -99,22 +141,7 @@ def test_terminate_instance(request):
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
     return HttpResponse(str(response))
 
-def test_run_job(request):
-    # create instance
-    lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
-    data = {
-        "accessKey": os.getenv("AWS_ACCESS_KEY_ID"),
-        "secretKey": os.getenv("AWS_SECRET_ACCESS_KEY"),
-        "sessionToken": os.getenv("AWS_SECRET_ACCESS_KEY"),
-        "jobID": DEBUG_JOB_ID,
-        "task": "createInstance",
-        "arguments": "",
-    }
-    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
-    
-    # need to determine if the instance is already created or not from the "response"
-    # before executing the training job
-    
-    return HttpResponse(str(response))
-
+def debug_sessions(request):
+    for key in request.session.keys():
+        print("{}={}".format(key, request.session[key]))
 
