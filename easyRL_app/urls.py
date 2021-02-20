@@ -8,5 +8,7 @@ urlpatterns = [
     path('', v.index, name="index"),
     path('login/', v.login, name='login'),
     path('logout/', v.logout, name='logout'),
-    path('test/', v.test_terminate_instance, name='s3'),
+    path('test_ci/', v.test_create_instance, name='create_instance'),
+    path('test_ti/', v.test_terminate_instance, name='terminate_instance'),
+    path('test_rj/', v.test_run_job, name='run_job'),
 ]

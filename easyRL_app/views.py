@@ -12,6 +12,8 @@ import os
 from easyRL_app.utilities import get_aws_s3, get_aws_lambda,\
     invoke_aws_lambda_func, is_valid_aws_credential
 
+DEBUG_JOB_ID = "Test_1"
+
 session = boto3.session.Session()
 
 # Create your views here.
@@ -72,7 +74,7 @@ def test_create_instance(request):
         "accessKey": os.getenv("AWS_ACCESS_KEY_ID"),
         "secretKey": os.getenv("AWS_SECRET_ACCESS_KEY"),
         "sessionToken": os.getenv("AWS_SECRET_ACCESS_KEY"),
-        "jobID": "Test4", # change the job ID for creating new instance
+        "jobID": DEBUG_JOB_ID,
         "task": "createInstance",
         "arguments": "",
     }
@@ -86,10 +88,29 @@ def test_terminate_instance(request):
         "accessKey": os.getenv("AWS_ACCESS_KEY_ID"),
         "secretKey": os.getenv("AWS_SECRET_ACCESS_KEY"),
         "sessionToken": os.getenv("AWS_SECRET_ACCESS_KEY"),
-        "jobID": "Test4", # change the job ID for creating new instance
+        "jobID": DEBUG_JOB_ID,
         "task": "terminateInstance",
         "arguments": "",
     }
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
     return HttpResponse(str(response))
+
+def test_run_job(request):
+    # create instance
+    lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
+    data = {
+        "accessKey": os.getenv("AWS_ACCESS_KEY_ID"),
+        "secretKey": os.getenv("AWS_SECRET_ACCESS_KEY"),
+        "sessionToken": os.getenv("AWS_SECRET_ACCESS_KEY"),
+        "jobID": DEBUG_JOB_ID,
+        "task": "createInstance",
+        "arguments": "",
+    }
+    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+    
+    # need to determine if the instance is already created or not from the "response"
+    # before executing the training job
+    
+    return HttpResponse(str(response))
+
 
