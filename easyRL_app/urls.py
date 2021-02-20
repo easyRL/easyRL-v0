@@ -11,5 +11,4 @@ urlpatterns = [
     path('test/', v.test_data, name='test'),
     path('test_ci/', v.test_create_instance, name='create_instance'),
     path('test_ti/', v.test_terminate_instance, name='terminate_instance'),
-    path('test_rj/', v.test_run_job, name='run_job'),
 ]
