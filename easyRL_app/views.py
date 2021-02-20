@@ -9,6 +9,8 @@ from . import forms
 
 import boto3
 import os
+from easyRL_app.utilities import get_aws_s3, get_aws_lambda,\
+    invoke_aws_lambda_func
 
 session = boto3.session.Session()
 
@@ -48,18 +50,31 @@ def login(request):
         return HttpResponseRedirect("/easyRL_app/")
 
 
-def get_bucket_contents():
-        # s3 = boto3.client(
-    #     's3',
-    #     aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-    #     aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-    #     endpoint_url=settings.AWS_S3_ENDPOINT_URL
-    # )
+def test_create_instance(request):
+    # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/lambda.html
+    lambdas = get_aws_lambda('AAA', 'BBB')
+    data = {
+        "accessKey": "AAA",
+        "secretKey": "BBB",
+        "sessionToken": "",
+        "jobID": "Test4", # change the job ID for creating new instance
+        "task": "createInstance",
+        "arguments": "",
+    }
+    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+    return HttpResponse(str(response))
 
-    # for bucket in s3.buckets.all():
-    #     print(bucket.name)
-    #     # to see items inside buckets
-    #     for item in bucket.objects.all():
-    #         print(item)  
-    pass
+def test_terminate_instance(request):
+    # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/lambda.html
+    lambdas = get_aws_lambda('AAA', 'BBB')
+    data = {
+        "accessKey": "AAA",
+        "secretKey": "BBB",
+        "sessionToken": "",
+        "jobID": "Test4", # change the job ID for creating new instance
+        "task": "terminateInstance",
+        "arguments": "",
+    }
+    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+    return HttpResponse(str(response))
 
