@@ -24,6 +24,7 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
+        print(self.action_size)
 
     def choose_action(self, state):
         qval = self.predict(state, False)
@@ -50,6 +51,16 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
 
         X_train, Y_train = self.calculateTargetValues(mini_batch)
         loss = self.model.train_on_batch(X_train, Y_train)
+        '''
+        If the memory is PrioritiedReplayBuffer then calculate the loss and
+        update the priority of the sampled transitions
+        '''
+        if (isinstance(self.memory, ExperienceReplay.PrioritizedReplayBuffer)):
+            # Calculate the loss of the batch as the TD error
+            td_errors = self.compute_loss(mini_batch, np.amax(Y_train, axis = 1))
+            # Update the priorities.
+            for idx, td_error in zip(batch_idxes, td_errors):
+                self.memory.update_error(idx, td_error)
         self.updateTarget()
         return loss
 
@@ -117,6 +128,45 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
             else:
                 Y_train[index_rep][transition.action] = transition.reward + qnext[index_rep] * self.gamma
         return X_train, Y_train
+    
+    def compute_loss(self, mini_batch, q_target: list = None):
+        """
+        Computes the loss of each sample in the mini_batch. The loss is
+        calculated as the TD Error of the Q-Network Will use the given
+        list of q_target value if provided instead of calculating.
+        :param mini_batch: is the mini batch to compute the loss of.
+        :param q_target: is a list of q_target values to use in the
+        calculation of the loss. This is optional. The q_target values
+        will be calculated if q_target is not provided.
+        :type q_target: list
+        """
+        # Get the states from the batch.
+        states = np.zeros((self.batch_size,) + self.state_size)
+        for batch_idx, transition in enumerate(mini_batch):
+            states[batch_idx] = transition.state
+        # Get the actions from the batch.
+        actions = [transition.action for transition in mini_batch]
+        
+        '''
+        If the q_target is None then calculate the target q-value using the
+        target QNetwork.
+        '''
+        if (q_target is None):
+            next_states = np.zeros((self.batch_size,) + self.state_size)
+            for batch_idx, transition in enumerate(mini_batch):
+                next_states[batch_idx] = transition.next_state
+            rewards = [transition.reward for transition in mini_batch]
+            is_dones = np.array([transition.is_done for transition in mini_batch]).astype(float)
+            q_target = self.target.predict([next_states, self.allBatchMask])
+            q_target = rewards + (1 - is_dones) * self.gamma * np.amax(q_target, 1)
+        
+        # Get from the current q-values from the QNetwork.
+        q = self.model.predict([states, self.allBatchMask])
+        q = np.choose(actions, q.T)
+        
+        # Calculate and return the loss (TD Error).
+        loss = (q_target - q) ** 2
+        return loss
 
     def __deepcopy__(self, memodict={}):
         pass

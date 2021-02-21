@@ -199,26 +199,26 @@ class ReplayBuffer:
         :return: the sum of all priorities
         :rtype: float
         """
-        return 0.0
+        pass
     
-    def update(self, idx: int, priority: float):
+    def update_error(self, idx: int, error: float):
         """
-        Updates the priority of the transition frame at the given idx.
+        Updates the priority of the transition frame at the given idx given
+        the error of the transition.
+        :param idx: is the index of the transition to update the priority of
+        :type idx: int
+        :param error: is error of the transition
+        :type error: float
+        """
+        pass
+    
+    def update_priority(self, idx: int, priority: float):
+        """
+        Updates the priority of the transition frame at the given idx directly.
         :param idx: is the index of the transition to update the priority of
         :type idx: int
         :param priority: is priority to give the transition
         :type priority: float
-        """
-        pass
-    
-    def update_priorities(self, idxes, priorities):
-        """
-        Updates a list of transitions given a list of indexes and a
-        corresponding list of priorities.
-        :param idxes: a list of idxes of transition to update
-        :type idxes: Iterable
-        :param priorities: a list of corresponding priorities
-        :type priorities: Iterable
         """
         pass
 
@@ -227,17 +227,18 @@ class PrioritizedReplayBuffer(ReplayBuffer):
     An Experience Replay Buffer for looking back and resampling transitions
     using a prioritized sampling technique based on loss.
     """
-    def __init__(self, learner, max_length, empty_trans, history_length: int = 1):
+    def __init__(self, learner, max_length, empty_trans, history_length: int = 1, alpha: float = 0.6, epsilon: float = 0.00001, max_priority: float = 1.0):
         super().__init__(learner, max_length, empty_trans, history_length)
-        self._alpha = 0.6
-        self._max_priority = 1.0
+        self._alpha = alpha
+        self._epsilon = epsilon
+        self._max_priority = max_priority
         '''
         A SumTree that stores the priorities of the transitions. The leaf
         nodes, the second half tree array, are the direct priorities of the
         transitions and the parent nodes contain the sum of the priorities
         of all of their children.
         '''
-        self._priority_tree = np.zeros(2 * self._capacity - 1)
+        self._priority_tree = np.zeros(2 * self.max_length - 1)
     
     def append_frame(self, transition_frame):
         """
@@ -250,7 +251,7 @@ class PrioritizedReplayBuffer(ReplayBuffer):
         super().append_frame(transition_frame)
         
         # Set the priority for this transition as the max priority.
-        self.update(self._cur_idx - 1, self._max_priority)
+        self.update_priority((self._cur_idx - 1) % self.max_length, self._max_priority)
     
     def sample(self, batch_size: int):
         """
@@ -284,9 +285,26 @@ class PrioritizedReplayBuffer(ReplayBuffer):
         """
         return self._priority_tree[0]
     
-    def update(self, idx: int, priority: float):
+    def update_error(self, idx: int, error: float):
         """
-        Updates the priority of the transition frame at the given idx.
+        Updates the priority of the transition frame at the given idx given
+        the error of the transition.
+        :param idx: is the index of the transition to update the priority of
+        :type idx: int
+        :param error: is error of the transition
+        :type error: float
+        """
+        if (not isinstance(error, float)):
+            raise ValueError("The error should be a float")
+            
+        # Calculate the priority from the error.
+        priority = self._calculate_priority(error)
+        # Update the transition with the calculated priority.
+        self.update_priority(idx, priority)
+    
+    def update_priority(self, idx: int, priority: float):
+        """
+        Updates the priority of the transition frame at the given idx directly.
         :param idx: is the index of the transition to update the priority of
         :type idx: int
         :param priority: is priority to give the transition
@@ -300,31 +318,20 @@ class PrioritizedReplayBuffer(ReplayBuffer):
         # Update the priority of the given transition and propagate to
         # change to the parent nodes.
         tree_idx = self._to_tree_idx(idx)
-        self._propagate(tree_idx, (priority ** self._alpha) - self._tree[tree_idx])
+        self._propagate(tree_idx, (priority ** self._alpha) - self._priority_tree[tree_idx])
         
         # Update the max priority if necessary.
         self._max_priority = max(self._max_priority, priority)
     
-    def update_priorities(self, idxes, priorities):
+    def _calculate_priority(self, error: float):
         """
-        Updates a list of transitions given a list of indexes and a
-        corresponding list of priorities.
-        :param idxes: a list of idxes of transition to update
-        :type idxes: Iterable
-        :param priorities: a list of corresponding priorities
-        :type priorities: Iterable
+        Calculates the priority from the given error.
+        :param error: is the error
+        :type error: float
+        :return: the calculated priority
+        :rtype: float
         """
-        if (not isinstance(idxes, Iterable)):
-            raise ValueError("idxes must be an iterable object.")
-        if (not isinstance(priorities, Iterable)):
-            raise ValueError("priorities must be an iterable object.")
-        if (len(idxes) != len(priorities)):
-            raise ValueError("The list of idxes and priorities must have equal length.")
-        
-        # Update each transition with the given priorities at the
-        # corresponding index.
-        for idx, priority in zip(idxes, priorities):
-            self.update(idx, priority)
+        return (np.abs(error) + self._epsilon) ** self._alpha
     
     def _propagate(self, idx: int, change: float):
         """
@@ -361,13 +368,13 @@ class PrioritizedReplayBuffer(ReplayBuffer):
         """ 
         idx_left = 2 * idx + 1
 
-        if idx_left >= len(self._tree):
-            return self.to_transition_idx(idx)
+        if idx_left >= len(self._priority_tree):
+            return self._to_transition_idx(idx)
 
-        if s <= self._tree[idx_left]:
+        if s <= self._priority_tree[idx_left]:
             return self._sample_helper(idx_left, s)
         else:
-            return self._sample_helper(idx_left + 1, s - self._tree[idx_left])
+            return self._sample_helper(idx_left + 1, s - self._priority_tree[idx_left])
     
     def _to_transition_idx(self, tree_idx: int):
         """
@@ -379,7 +386,7 @@ class PrioritizedReplayBuffer(ReplayBuffer):
         tree node.
         :rtype: int
         """
-        return tree_idx - self._capacity + 1
+        return tree_idx - self.max_length + 1
     
     def _to_tree_idx(self, idx: int):
         """
@@ -391,4 +398,4 @@ class PrioritizedReplayBuffer(ReplayBuffer):
         transition.
         :rtype: int
         """
-        return idx + self._capacity - 1
+        return idx + self.max_length - 1
