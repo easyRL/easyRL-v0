@@ -15,7 +15,7 @@ class HyperParameterForm(forms.Form):
     target_update =forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"target-update","name":"target-update" }))
     
     gamma = forms.CharField(widget=forms.TextInput(attrs={'type': 'range', 'min': 0, 'max': 1, "step":0.001, 'class': 'col-md-4 form-range slider', 'id':'gamma-slider', 'name':'gamma-slider'}))
-    gamma_text = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "id":'gamma-text','class':  'col-md-4 form-control'}))
+    gamma_text = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "id":'gamma-text','class':  'form-control'}))
 
     batch = forms.CharField(widget=forms.TextInput(attrs={'type': 'range', 'min': 0, 'max': 2000, 'class': "form-range slider", 'id':'batch-slider', 'name':'batch-slider'}))
     batch_text = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "id":'batch-text','class':'form-control'}))
