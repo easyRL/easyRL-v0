@@ -26,6 +26,7 @@ def index(request):
         return HttpResponseRedirect("/easyRL_app/login/")
 
     my_dict = {}
+    my_dict["list"]=[1,2,3]
     files = os.listdir(os.path.join(settings.BASE_DIR, "static/easyRL_app/images"))
     my_dict['files'] = files
     form = forms.HyperParameterForm()
