@@ -3,6 +3,7 @@ import numpy as np
 from Agents import drqn
 import cProfile
 from MVC import cloudBridge
+import os.path
 
 class Model:
     def __init__(self):
@@ -15,11 +16,12 @@ class Model:
         self.agent = None
         self.loadFilename = None
         self.cloudBridge = None
+        
 
     def createBridge(self, jobID, secretKey, accessKey, sessionToken):
         print("Bridge Created")
         if (self.cloudBridge is None):
-            cloudBridge.CloudBridge(jobID, secretKey, accessKey, sessionToken)
+            self.cloudBridge = cloudBridge.CloudBridge(jobID, secretKey, accessKey, sessionToken)
 
     # def run_learning(self, messageQueue, total_episodes, max_steps, *model_args):
     #     cProfile.runctx('self.run_learning2(messageQueue, total_episodes, max_steps, *model_args)', globals(), locals(),
@@ -181,6 +183,9 @@ class Model:
     def save(self, filename):
         if self.agent:
             self.agent.save(filename)
+            if (self.cloudBridge is not None):
+                if os.path.exists(filename):
+                    self.cloudBridge.upload(filename)
 
     def load(self, filename):
         self.loadFilename = filename
