@@ -85,8 +85,8 @@
                 <option value="ADRQN">ADRQN</option>
                 <option value="Double Dueling Deep Q Native">Double Dueling Deep Q Native</option>
                 <option value="DRQN Native">DRQN Native</option>
-                <option value="1">Conv. DRQN Native</option>
-                <option value="Conv DRQN Native">PPO Native</option>
+                <option value="Conv DRQN Native">Conv. DRQN Native</option>
+                <option value="PPO Native">PPO Native</option>
                 <option value="Reinforce Native">Reinforce Native</option>
                 <option value="ActorCritic Native">ActorCritic Native</option>
                 <option value="SARSA">SARSA</option>
@@ -138,75 +138,73 @@
         </div>  
       </div> 
       <div class="col">
-            <form method="post" style="margin-top: 15px;">{% csrf_token %}
-              <div class="container-fluid">
-                <div class="row">
-                  <div class="slider-container col-6">
-                    <label>Gamma</label>
-                    <div class=""  >{{form.gamma}}</div>
-                    <div class="" style="margin: 0px 100px 0px 100px;">{{form.gamma_text}}</div>
-                  </div>
-                  <div class="col-md-6">
-                    <label>Number of Episodes</label>
-                  <div class="col-md-12"  >{{form.num_episodes}}</div>
-                </div>
-                </div>
-                <div class="row">
-                  <div class="slider-container col-6">
-                    <label>Min Epsilon</label>
-                    <div class="">{{form.min_epsilon}}</div>
-                    <div class="" style="margin: 0px 100px 0px 100px;">{{form.min_text}}</div>
-                  </div>
-                  <div class="col-md-6">
-                  <label>Max Memory</label>
-                  <div class="col-md-12" >{{form.max_memory}}</div>
-                  </div>
-                </div> 
-                <div class="row">
-                  <div class="slider-container col-6">
-                    <label>Max Epsilon</label>
-                    <div class=""  >{{form.max_epsilon}}</div>
-                    <div class="" style="margin: 0px 100px 0px 100px;">{{form.max_text}}</div>
-                  </div>
-                  <div class="col-6">
-                  <!-- <label>Target Update Iterval</label> -->
-                  <div class="col-12"  >{{form.target_update}}</div>
-                  </div>
-                </div> 
-                <div class="row">
-                  <div class="slider-container col-6">
-                    <label>Batch Size</label>
-                    <div class=""  >{{form.batch}}</div>
-                    <div class="" style="margin: 0px 100px 0px 100px;">{{form.batch_text}}</div>
-                  </div>
-                  <div class="col-6">
-                  <label>Max Size</label>
-                  <div class="col-12">{{form.max_size}}</div>
-                  </div>
-                </div> 
-                <div class="row">
-                  <div class="slider-container col-6">
-                    <label>Decay Rate</label>
-                    <div class=""  >{{form.decay_rate}}</div>
-                    <div class="" style="margin: 0px 100px 0px 100px;">{{form.decay_text}}</div>
-                  </div>
-                  <div class="slider-container col-12">
-                    <label>Display Episode Speed</label>
-                    <div class=""  >{{form.display_ep_speed}}</div>
-                    <div class="" style="margin: 0px 200px 0px 200px;">{{form.display_text}}</div>
-                  </div>
-                </div>                                      
-                <br/>                
-                <button class="btn btn-primary  float-end type="submit">Submit form</button>
-              </div>  
-            </form>
+        <form method="post" style="margin-top: 15px;">{% csrf_token %}
+          <div id="form-div" class="container-fluid">
+            <!-- <div class="row">
+              <div class="slider-container col-6">
+                <label>Gamma</label>
+                <div class=""  >{{form.gamma}}</div>
+                <div class="" style="margin: 0px 100px 0px 100px;">{{form.gamma_text}}</div>
+              </div>
+              <div class="col-md-6">
+                <label>Number of Episodes</label>
+              <div class="col-md-12"  >{{form.num_episodes}}</div>
+            </div>
+            </div>
+            <div class="row">
+              <div class="slider-container col-6">
+                <label>Min Epsilon</label>
+                <div class="">{{form.min_epsilon}}</div>
+                <div class="" style="margin: 0px 100px 0px 100px;">{{form.min_text}}</div>
+              </div>
+              <div class="col-md-6">
+              <label>Max Memory</label>
+              <div class="col-md-12" >{{form.max_memory}}</div>
+              </div>
+            </div> 
+            <div class="row">
+              <div class="slider-container col-6">
+                <label>Max Epsilon</label>
+                <div class=""  >{{form.max_epsilon}}</div>
+                <div class="" style="margin: 0px 100px 0px 100px;">{{form.max_text}}</div>
+              </div>
+              <div class="col-6">
+              <label>Target Update Iterval</label>
+              <div class="col-12"  >{{form.target_update}}</div>
+              </div>
+            </div> 
+            <div class="row">
+              <div class="slider-container col-6">
+                <label>Batch Size</label>
+                <div class=""  >{{form.batch}}</div>
+                <div class="" style="margin: 0px 100px 0px 100px;">{{form.batch_text}}</div>
+              </div>
+              <div class="col-6">
+              <label>Max Size</label>
+              <div class="col-12">{{form.max_size}}</div>
+              </div>
+            </div> 
+            <div class="row">
+              <div class="slider-container col-6">
+                <label>Decay Rate</label>
+                <div class=""  >{{form.decay_rate}}</div>
+                <div class="" style="margin: 0px 100px 0px 100px;">{{form.decay_text}}</div>
+              </div>
+              <div class="slider-container col-12">
+                <label>Display Episode Speed</label>
+                <div class=""  >{{form.display_ep_speed}}</div>
+                <div class="" style="margin: 0px 200px 0px 200px;">{{form.display_text}}</div>
+              </div>
+            </div>                                      
+            <br/>                
+            <button class="btn btn-primary  float-end type="submit">Submit form</button>
+          </div>  
+        </form> -->
       </div>        
     </div>
   </div>
-  <script src="{% static 'easyRL_app/scripts/jquery-3.5.1.min.js' %}"></script> 
+  <script src="{% static 'easyRL_app/scripts/jquery-3.5.1.min.js' %}"></script>
   <script type="text/javascript"> 
-    
-
     // Sets the Environment label
     $(document).ready(function(){
       $("#agent-select option").prop('disabled', true);  
@@ -246,68 +244,7 @@
       
       $("#myTab li:nth-child(2)").before($('<li class="nav-item" role="presentation"><button class="nav-link" id="hp-tab'+nextTab+'" data-bs-toggle="tab" data-bs-target="#hp'+nextTab+'" type="button" role="tab" aria-controls="hp'+nextTab+'" aria-selected="false">Hyper Parameters'+nextTab+' <i class="bi-dash-circle-fill"  style="color: red"></i></button></li>'));
       // create the tab content
-    
-        var form =       '<form method="post" style="margin-top: 15px;">{% csrf_token %}'+
-                    '<div class="container-fluid">'+
-                      '<div class="row">'+
-                       '<div class="slider-container col-3">'+
-                          '<label>Gamma</label>'+
-                          '<div class=""  >{{form.gamma}}</div>'+
-                          '<div class="" style="margin: 0px 100px 0px 100px;">{{form.gamma_text}}</div>'+
-                        '</div>'+
-                        '<div class="col-md-3">'+
-                          '<label>Number of Episodes</label>'+
-                        '<div class="col-md-7"  >{{form.num_episodes}}</div>'+
-                      '</div>'+
-                      '</div>'+
-                      '<div class="row">'+
-                        '<div class="slider-container col-3">'+
-                          '<label>Min Epsilon</label>'+
-                          '<div class="">{{form.min_epsilon}}</div>'+
-                          '<div class="" style="margin: 0px 100px 0px 100px;">{{form.min_text}}</div>'+
-                        '</div>'+
-                        '<div class="col-md-3">'+
-                          '<label>Max Memory</label>'+
-                          '<div class="col-md-7" >{{form.max_memory}}</div>'+
-                          '</div>'+
-                          '</div>'+ 
-                          '<div class="row">'+
-                            '<div class="slider-container col-3">'+
-                              '<label>Max Epsilon</label>'+
-                              '<div class=""  >{{form.max_epsilon}}</div>'+
-                              '<div class="" style="margin: 0px 100px 0px 100px;">{{form.max_text}}</div>'+
-                              '</div>'+
-                              '<div class="col-md-3">'+
-                                '<label>Target Update Iterval</label>'+
-                                '<div class="col-md-7"  >{{form.target_update}}</div>'+
-                                '</div>'+ 
-                                '<div class="row">'+
-                                  '<div class="slider-container col-3">'+
-                                    '<label>Batch Size</label>'+
-                                    '<div class=""  >{{form.batch}}</div>'+
-                                    '<div class="" style="margin: 0px 100px 0px 100px;">{{form.batch_text}}</div>'+
-                                    '</div>'+
-                                    '<div class="col-md-3">'+
-                                      '<label>Max Size</label>'+
-                                      '<div class="col-md-7">{{form.max_size}}</div>'+
-                                      '</div>'+
-                                      '</div>'+ 
-                                      '<div class="row">'+
-                                        '<div class="slider-container col-3">'+
-                                          '<label>Decay Rate</label>'+
-                          '<div class=""  >{{form.decay_rate}}</div>'+
-                          '<div class="" style="margin: 0px 100px 0px 100px;">{{form.decay_text}}</div>'+
-                          '</div>'+
-                        '<div class="slider-container col-3">'+
-                          '<label>Display Episode Speed</label>'+
-                          '<div class=""  >{{form.display_ep_speed}}</div>'+
-                          '<div class="" style="margin: 0px 100px 0px 100px;">{{form.display_text}}</div>'+
-                          '</div>'+
-                      '</div>'+                                      
-                    '</div>'+  
-                    '<br/>'+              
-                   '<button class="btn btn-primary" type="submit">Submit form</button>' +
-                  '</form>';
+
       $('<div class="tab-pane fade" id="hp'+nextTab+'" role="tabpanel" aria-labelledby="hp-tab'+nextTab+'">'+form+'</div>').appendTo('.tab-content');;
       // make the new tab active
       $('#myTab').on('click', function (e) {
@@ -315,8 +252,6 @@
         $(this).tab('show')
       });
     });
-
-    // updates the environment label.   
 
     $('#carouselExampleControlsNoTouching').on('slid.bs.carousel', function () {
       var src = $('div > .active').find('img').attr('src');
@@ -331,10 +266,16 @@
       $("#select-containers").show();
       updateSelect($('#file-name').text())
     });
+    $( "#agent-select" ).change(function () {
+      var str = $( "#agent-select option:selected" ).text();
+      str = simpleFormFactory(str);
+      $( "#form-div" ).html(str);
+    }).change();
+
     function updateSelect(fileName){
       var games = {
             'Cart Pole' : ['Deep Q', 'DRQN', 'ADRQN','Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native']
-            ,'Cart Pole Descrete' : ['Deep Q', 'Q Learning', 'DRQN', 'ADRQN','Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native','SARSA']
+            ,'Cart Pole Discrete' : ['Deep Q', 'Q Learning', 'DRQN', 'ADRQN','Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native','SARSA']
             ,'Frozen Lake': ['Deep Q', 'Q Learning', 'DRQN', 'ADRQN','Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native','SARSA']
             ,'Pendulum' : ['Deep Q', 'DRQN', 'ADRQN','Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native']
             ,'acrobot': ['Deep Q', 'DRQN', 'ADRQN','Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native']
@@ -357,7 +298,7 @@
                 }
             });
             break;
-          case 'Cart Pole Descrete':
+          case 'Cart Pole Discrete':
             $("#agent-select > option").each(function() {   
               if (games[fileName].indexOf(this.text) !== -1){
                   this.disabled = false;
@@ -421,6 +362,210 @@
 			}
 		});
 	});
-    
+  
+var defaults = '<div class="container-fluid">'
+            +     '<div class="row">'
+            +       '<div class="slider-container col-6">'
+            +         '<label>Gamma</label>'
+            +         '<div class=""  >{{form.gamma}}</div>'
+            +         '<div class="" style="margin: 0px 100px 0px 100px;">{{form.gamma_text}}</div>'
+            +       '</div>'
+            +       '<div class="col-md-6">'
+            +         '<label>Number of Episodes</label>'
+            +       '<div class="col-md-12"  >{{form.num_episodes}}</div>'
+            +     '</div>'
+            +     '</div>'
+            +     '<div class="row">'
+            +       '<div class="slider-container col-6">'
+            +         '<label>Min Epsilon</label>'
+            +         '<div class="">{{form.min_epsilon}}</div>'
+            +'         <div class="" style="margin: 0px 100px 0px 100px;">{{form.min_text}}</div>'
+            +'       </div>'
+            +'       <div cass="col-6">'
+            +'       <label>Max Size</lael>'
+            +'       <div class="col-12">{{form.max_size}}</div>'
+            +'       </div>'
+            +'     </div> '
+            +'     <div class="row">'
+            +'       <div class="slider-container col-6">'
+            +'         <label>Max Epsilon</label>'
+            +'         <div class=""  >{{form.max_epsilon}}</div>'
+            +'         <div class="" style="margin: 0px 100px 0px 100px;">{{form.max_text}}</div>'
+            +'       </div>'
+            +'       <div class="slider-container col-6">'
+            +'         <label>Decay Rate</label>'
+            +'         <div class=""  >{{form.decay_rate}}</div>'
+            +'         <div class="" style="margin: 0px 100px 0p 100px;">{{form.decay_text}}</div>'
+            +'       </div>'
+            +'     </div>';
+
+var deepQ = defaults +
+        +'     <div class="row">'
+        +'       <div class="col-6">'
+        +'       <label>Target Update Iterval</label>'
+        +'       <div class="col-12"  >{{form.target_update}}</div>'
+        +'       </div>'
+        +'       <div class="col-md-6">'
+        +'          <label>Max Memory</label>'
+        +'          <div class="col-md-12" >{{form.max_memory}}</div>'
+        +'       </div>'
+        +'     </div>' 
+        +'     <div clss="row">'
+        +'       <div class="slider-container col-6">'
+        +'         <label>Batch Size</label>'
+        +'         <div class=""  >{{form.batch}}</div>'
+        +'         <div class="" style="margin: 0px 100px 0px 100px;">{{form.batch_text}}</div>'
+        +'       </div>'
+        +'       <div class="slider-container col-12">'
+        +'         <label>Display Episode Speed</label>'
+        +'         <div class=""  >{{form.display_ep_speed}}</div>'
+        +'         <div class="" style="margin: 0px 200px 0px 200px;">{{form.display_text}}</div>'
+        +'       </div>'
+        +'     </div>                                      '
+        +'     <br/>                '
+        +'   </div>  ';
+
+var qLearning = defaults  
++'      <div class="row>'
++'       <div class="slider-container col-6">'
++'         <label>Alpha</label>'
++'         <div class=""  >{{form.alpha_rate}}</div>'
++'         <div class="" style="margin: 0px 100px 0p 100px;">{{form.alpha_text}}</div>'
++'       </div>' 
++'       <div class="slider-container col-12">'
++'         <label>Display Episode Speed</label>'
++'         <div class=""  >{{form.display_ep_speed}}</div>'
++'         <div class="" style="margin: 0px 200px 0px 200px;">{{form.display_text}}</div>'
++'       </div>' 
++'      </div>';
+
+var drqn = deepQ +
++'      <div class="row">'
++'       <div class="col-md-6">'
++'          <label>History Length</label>'
++'          <div class="col-md-12" >{{form.history_length}}</div>'
++'       </div>'
++'       <div class="slider-container col-12">'
++'         <label>Display Episode Speed</label>'
++'         <div class=""  >{{form.display_ep_speed}}</div>'
++'         <div class="" style="margin: 0px 200px 0px 200px;">{{form.display_text}}</div>'
++'       </div>'
++'      </div>';
+
+var doubleDueling = deepQ 
++'      <div class="row>'
++'       <div class="slider-container col-6">'
++'         <label>Learning Rate</label>'
++'         <div class=""  >{{form.learning_rate}}</div>'
++'         <div class="" style="margin: 0px 100px 0p 100px;">{{form.learn_text}}</div>'
++'       </div>' 
++'       <div class="slider-container col-12">'
++'         <label>Display Episode Speed</label>'
++'         <div class=""  >{{form.display_ep_speed}}</div>'
++'         <div class="" style="margin: 0px 200px 0px 200px;">{{form.display_text}}</div>'
++'       </div>' 
++'      </div>';
+
+var convDRQNNative = drqn + doubleDueling;
+
+var actorCritc = defaults 
++     '<div class="row">'
++       '<div class="slider-container col-6">'
++         '<label>Policy Learn Rate</label>'
++         '<div class=""  >{{form.policy_learn_rate}}</div>'
++         '<div class="" style="margin: 0px 100px 0px 100px;">{{form.plr_text}}</div>'
++       '</div>'
++       '<div class="col-md-6">'
++         '<label>History</label>'
++       '<div class="col-md-12"  >{{form.history}}</div>'
++     '</div>'
++     '</div>'
++     '<div class="row">'
++       '<div class="slider-container col-6">'
++         '<label>Value Learn Rate</label>'
++         '<div class="">{{form.value_learn_rate}}</div>'
++'         <div class="" style="margin: 0px 100px 0px 100px;">{{form.vlr_text}}</div>'
++'       </div>'
++'       <div cass="col-6">'
++'       <label>Epoch</lael>'
++'       <div class="col-12">{{form.epoch}}</div>'
++'       </div>'
++'     </div> '
++'    <div class="row">'
++'       <div class="slider-container col-12">'
++'         <label>Display Episode Speed</label>'
++'         <div class=""  >{{form.display_ep_speed}}</div>'
++'         <div class="" style="margin: 0px 200px 0px 200px;">{{form.display_text}}</div>'
++'       </div>'
++'    </div>';
+
+var reinforceNative = defaults
++'      <div class="row>'
++'       <div class="slider-container col-6">'
++'         <label>Learning Rate</label>'
++'         <div class=""  >{{form.policy_learn_rate}}</div>'
++'         <div class="" style="margin: 0px 100px 0p 100px;">{{form.plr_text}}</div>'
++'       </div>'
++'       <div class="slider-container col-12">'
++'         <label>Display Episode Speed</label>'
++'         <div class=""  >{{form.display_ep_speed}}</div>'
++'         <div class="" style="margin: 0px 200px 0px 200px;">{{form.display_text}}</div>'
++'       </div>'  
++'      </div>';
+
+var ppoNative = actorCritc
++'     <div clss="row">'
++'       <div class="slider-container col-6">'
++'         <label>Batch Size</label>'
++'         <div class=""  >{{form.batch}}</div>'
++'         <div class="" style="margin: 0px 100px 0px 100px;">{{form.batch_text}}</div>'
++'       </div>'
++'       <div class="slider-container col-12">'
++'         <label>Display Episode Speed</label>'
++'         <div class=""  >{{form.display_ep_speed}}</div>'
++'         <div class="" style="margin: 0px 200px 0px 200px;">{{form.display_text}}</div>'
++'       </div>'
++'     </div>';
+
+var sarsa = qLearning;
+
+function simpleFormFactory(agent){
+    var result = "";
+    switch(agent){
+        case "Deep Q":
+            result = deepQ;
+            break;
+        case "Q Learning":
+            result = qLearning;
+            break;
+        case "DRQN":
+            result = drqn;
+            break;
+        case "ADRQN":
+            result = drqn;
+            break;
+        case "Double Dueling Deep Q Native":
+            result = doubleDueling;
+            break;
+        case "DRQN Native":
+            result = drqn;
+            break;
+        case "Conv. DRQN Native":
+            result =convDRQNNative;
+        case "PPO Native":
+            result = ppoNative;
+            break;
+        case "Reinforce Native":
+            result = reinforceNative;
+            break;
+        case "ActorCritic Native":
+            result = actorCritc;
+            break;
+        case "SARSA":
+            result = sarsa;
+            break;
+    }
+    return result
+}
   </script>  
 {%endblock%}

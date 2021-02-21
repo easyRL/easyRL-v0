@@ -54,12 +54,12 @@ class HyperParametersDoubleDuelingForm(HyperParameterFormDeepQ):
     learning_rate = forms.CharField(widget=forms.TextInput(attrs={'type': 'range', 'min': 0, 'max': 100,  'step':0.001, 'class': "form-range slider", 'id':'learning-slider', 'name':'learing-slider','value': '32'}))
     learn_text = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "id":'learning-text','class':'form-control','readonly':'','value': '0.001'}))   
 
-class HyperParameterDRQN(HyperParameterFormDeepQ):
+class HyperParameterDRQNForm(HyperParameterFormDeepQ):
     history_length = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"history-length","name":"history-length","value":"10" }))
 
 class HyperParameterQLearningForm(HyperParameterBase):
     alpha = forms.CharField(widget=forms.TextInput(attrs={'type': 'range', 'min': 0, 'max': 0.2, 'step': 0.001,'class': "form-range slider", 'id':'alpha-slider', 'name':'alpha-slider','value': '0.018'}))
     alpha_text = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "id":'alpha-text','class':'form-control','readonly':'','value': '0.018'}))
 
-class HyperParameterConvDRQN(HyperParametersDoubleDuelingForm):
+class HyperParameterConvDRQNForm(HyperParametersDoubleDuelingForm):
     history_length = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"history-length","name":"history-length","value":"10" }))
