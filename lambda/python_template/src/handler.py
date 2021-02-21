@@ -113,7 +113,7 @@ def yourFunction(request, context):
             )
             inspector.addAttribute("instance", str(instance))
         else:
-            inspector.addAttribute("error", "Instance already exists")
+            inspector.addAttribute("error", "Instance already exists.")
 
     elif (task == "runJob"):
         ec2Client = botoSession.client('ec2')
@@ -161,7 +161,7 @@ def yourFunction(request, context):
             inspector.addAttribute("stdout", stdout)
             ssh.close()
         else:
-            inspector.addAttribute('error', 'Instance does not exist.')
+            inspector.addAttribute('error', 'Instance not found.')
     elif (task == "instanceState"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
@@ -170,7 +170,8 @@ def yourFunction(request, context):
             if 'State' in ourInstance and 'Name' in ourInstance['State']:
                 instanceState = ourInstance['State']
                 inspector.addAttribute("instanceState", instanceState['Name'])
-        pass
+        else:
+            inspector.addAttribute("error", "Instance not found.")
     elif (task == "haltJob"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
@@ -191,6 +192,39 @@ def yourFunction(request, context):
             stdout=ssh_stdout.readlines()
             inspector.addAttribute("stdout", stdout)
             ssh.close()
+        else:
+            inspector.addAttribute("error", "Instance not found.")
+    elif (task == "isRunning"):
+        ec2Client = botoSession.client('ec2')
+        ec2Resource = botoSession.resource('ec2')
+
+        ourInstance = findOurInstance(ec2Client, jobID)
+        if (ourInstance is not None):
+            ip = ourInstance['PublicIpAddress']
+            inspector.addAttribute("ip", str(ip))
+
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username='tcss556', password='secretPassword')
+            
+            command = "ps -aux | grep EasyRL.py"
+            inspector.addAttribute("command", command)
+
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+            stdout=ssh_stdout.readlines()
+            inspector.addAttribute("stdout", stdout)
+
+            results = ""
+            for line in stdout:
+                results += line
+
+            if ("terminal" in results):
+                inspector.addAttribute("isRunning", 1)
+            else:
+                inspector.addAttribute("isRunning", 0)
+            ssh.close()
+        else:
+            inspector.addAttribute("error", "Instance not found.")
     elif (task == "pullFile"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
@@ -212,6 +246,8 @@ def yourFunction(request, context):
             stdout=ssh_stdout.readlines()
             inspector.addAttribute("stdout", stdout)
             ssh.close()
+        else:
+            inspector.addAttribute("error", "Instance not found.")
     elif (task == "updateEasyRL"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
@@ -231,6 +267,8 @@ def yourFunction(request, context):
             stdout=ssh_stdout.readlines()
             inspector.addAttribute("stdout", stdout)
             ssh.close()
+        else:
+            inspector.addAttribute("error", "Instance not found.")
     elif (task == "terminateInstance"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
@@ -241,7 +279,7 @@ def yourFunction(request, context):
             instance.terminate()
             inspector.addAttribute("message", "Terminated")
         else:
-            inspector.addAttribute("message", "Instance not found.")
+            inspector.addAttribute("error", "Instance not found.")
     elif (task == "createBucket"):
         s3Client = botoSession.client('s3')
         bucketName = 'easyrl-' + str(jobID)
