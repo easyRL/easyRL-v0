@@ -127,20 +127,24 @@ def yourFunction(request, context):
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, username='tcss556', password='secretPassword')
-            
+
             command = 'printf "'
             command += str(arguments['environment']) + '\n'
             command += str(arguments['agent']) + '\n'
             command += '1\n'
-            command += str(arguments['episodes']) + '\n'
-            command += str(arguments['steps']) + '\n'
-            command += str(arguments['gamma']) + '\n'
-            command += str(arguments['minEpsilon']) + '\n'
-            command += str(arguments['maxEpsilon']) + '\n'
-            command += str(arguments['decayRate']) + '\n'
-            command += str(arguments['batchSize']) + '\n'
-            command += str(arguments['memorySize']) + '\n'
-            command += str(arguments['targetInterval']) + '\n'
+
+            paraMap = {
+                '1': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval'],
+                '2': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
+                '3': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
+                '4': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
+                '5': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
+            }
+
+            paramList = paraMap[str(arguments['agent'])]
+            for param in paramList:
+                command += str(arguments[param]) + '\n'
+
             command += '4\n'
             command += 'trainedAgent.bin\n'
             command += '5\n'
