@@ -10,7 +10,7 @@
 	"lambdaEnvironment": "Variables={}",
 	"lambdaRuntime": "python3.7",
 
-	"googleHandler": "hello_world",
+	"googleHandler": "hello_world2",
 	"googleRuntime": "python37",
 
 	"ibmRuntime": "python:3",
@@ -18,11 +18,25 @@
 	"azureRuntime": "python",
 
 	"test": {
-		"accessKey": "AKIAIS6Y4Q25GCAINIQA",
-		"secretKey": "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",
+		"accessKey": "",
+		"secretKey": "",
 		"sessionToken": "",
-		"jobID": "bingusmingus5",
+		"jobID": "bingusmingus32",
 		"task": "createInstance",
-		"arguments": {}
+		"arguments": {
+			"instanceType": "c4.xlarge",
+			"environment": 1,
+			"agent": 1,
+			"episodes": 50,
+			"steps": 200,
+			"gamma": 0.97,
+			"minEpsilon": 0.1,
+			"maxEpsilon": 1.0,
+			"decayRate": 0.018,
+			"batchSize": 32,
+			"memorySize": 1000,
+			"targetInterval": 200,
+			"path": "./easyRL-v0/data.json"
+		}
 	}
 }
