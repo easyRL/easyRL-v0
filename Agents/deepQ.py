@@ -189,3 +189,17 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
     def memload(self, mem):
         self.model.set_weights(mem)
         self.target.set_weights(mem)
+
+
+
+class DeepQPrioritized(DeepQ):
+    displayName = 'Deep Q Prioritized'
+    newParameters = [DeepQ.Parameter('Alpha', 0.00, 1.00, 0.001, 0.60, True, True, "The amount of prioritization that gets used.")]
+    parameters = DeepQ.parameters + newParameters
+
+    def __init__(self, *args):
+        paramLen = len(DeepQPrioritized.newParameters)
+        super().__init__(*args[:-paramLen])
+        self.alpha = float(args[-paramLen])
+        empty_state = self.get_empty_state()
+        self.memory = ExperienceReplay.PrioritizedReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False), alpha = self.alpha)

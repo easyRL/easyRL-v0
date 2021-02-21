@@ -226,12 +226,16 @@ class PrioritizedReplayBuffer(ReplayBuffer):
     """
     An Experience Replay Buffer for looking back and resampling transitions
     using a prioritized sampling technique based on loss.
+    
+    Requires the agent to have a compute_loss function. The agent needs to
+    compute the loss of a sample and call either update_error or
+    update_priority to update the sample's priority.
     """
-    def __init__(self, learner, max_length, empty_trans, history_length: int = 1, alpha: float = 0.6, epsilon: float = 0.00001, max_priority: float = 1.0):
+    def __init__(self, learner, max_length, empty_trans, history_length: int = 1, alpha: float = 0.6):
         super().__init__(learner, max_length, empty_trans, history_length)
         self._alpha = alpha
-        self._epsilon = epsilon
-        self._max_priority = max_priority
+        self._epsilon = 0.00001
+        self._max_priority = 1.0
         '''
         A SumTree that stores the priorities of the transitions. The leaf
         nodes, the second half tree array, are the direct priorities of the

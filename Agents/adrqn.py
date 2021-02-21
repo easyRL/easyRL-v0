@@ -148,3 +148,16 @@ class ADRQN(drqn.DRQN):
         # Calculate and return the loss (TD Error).
         loss = (q_target - q) ** 2
         return loss
+
+class ADRQNPrioritized(ADRQN):
+    displayName = 'ADRQN Prioritized'
+    newParameters = [ADRQN.Parameter('Alpha', 0.00, 1.00, 0.001, 0.60, True, True, "The amount of prioritization that gets used.")]
+    parameters = ADRQN.parameters + newParameters
+
+    def __init__(self, *args):
+        paramLen = len(ADRQNPrioritized.newParameters)
+        super().__init__(*args[:-paramLen])
+        self.alpha = float(args[-paramLen])
+        empty_state = self.get_empty_state()
+        self.memory = ExperienceReplay.PrioritizedReplayBuffer(self, self.memory_size, ActionTransitionFrame(-1, empty_state, -1, 0, empty_state, False),
+                                                                history_length = self.historylength, alpha = self.alpha)

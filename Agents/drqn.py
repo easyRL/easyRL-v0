@@ -128,3 +128,16 @@ class DRQN(deepQ.DeepQ):
         else:
             result = self.model.predict([state, self.allMask])
         return result
+
+class DRQNPrioritized(DRQN):
+    displayName = 'DRQN Prioritized'
+    newParameters = [DRQN.Parameter('Alpha', 0.00, 1.00, 0.001, 0.60, True, True, "The amount of prioritization that gets used.")]
+    parameters = DRQN.parameters + newParameters
+
+    def __init__(self, *args):
+        paramLen = len(DRQNPrioritized.newParameters)
+        super().__init__(*args[:-paramLen])
+        self.alpha = float(args[-paramLen])
+        empty_state = self.get_empty_state()
+        self.memory = ExperienceReplay.PrioritizedReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False),
+                                                                history_length = self.historylength, alpha = self.alpha)
