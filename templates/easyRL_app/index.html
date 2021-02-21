@@ -73,7 +73,7 @@
       </div>
       <br/>
       <!-- Tabs & dropdowns-->
-           <!-- Drop downs -->
+      <!-- Drop downs -->
       <div class="row justify-content-center">
            <div class="col-md-3">
               <select class="form-select" id="agent-select" size="3" aria-label="Default select example">
@@ -112,8 +112,7 @@
             </div> 
           <br/>
 
-        </div>                                       
-      </div>   
+      </div>                                          
       <br/>  
       <div class="row">
           <!-- Tabs -->
@@ -126,73 +125,75 @@
                   <button class="nav-link" id="add-model-tab" type="button" >Add <i class="bi-plus-circle-fill" style="color: #0b5ed7"></i></button>
                 </li>
             </ul>
-            <div class="col-md-12">
-              <div class="tab-content" id="myTabContent" style="width: 100%;">
-                <div class="tab-pane fade show active" id="hp" role="tabpanel" aria-labelledby="hp-tab-0">
-                  <form method="post" style="margin-top: 15px;">{% csrf_token %}
-                    <div class="container-fluid">
-                      <div class="row">
-                        <div class="slider-container col-3">
-                          <label>Gamma</label>
-                          <div class=""  >{{form.gamma}}</div>
-                          <div class="" style="margin: 0px 100px 0px 100px;">{{form.gamma_text}}</div>
-                        </div>
-                        <div class="col-md-3">
-                          <label>Number of Episodes</label>
-                        <div class="col-md-7"  >{{form.num_episodes}}</div>
+            
+            <div class="tab-content" id="myTabContent" style="width: 100%;">
+              <div class="tab-pane fade show active" id="hp" role="tabpanel" aria-labelledby="hp-tab-0">
+                
+                <form method="post" style="margin-top: 15px;">{% csrf_token %}
+                  <div class="container-fluid">
+                    
+                    <div class="row">
+                      <div class="slider-container col-3">
+                        <label>Gamma</label>
+                        <div class=""  >{{form.gamma}}</div>
+                        <div class="" style="margin: 0px 100px 0px 100px;">{{form.gamma_text}}</div>
                       </div>
+                      <div class="col-md-3">
+                        <label>Number of Episodes</label>
+                      <div class="col-md-7"  >{{form.num_episodes}}</div>
+                    </div>
+                    </div>
+                    <div class="row">
+                      <div class="slider-container col-3">
+                        <label>Min Epsilon</label>
+                        <div class="">{{form.min_epsilon}}</div>
+                        <div class="" style="margin: 0px 100px 0px 100px;">{{form.min_text}}</div>
                       </div>
-                      <div class="row">
-                        <div class="slider-container col-3">
-                          <label>Min Epsilon</label>
-                          <div class="">{{form.min_epsilon}}</div>
-                          <div class="" style="margin: 0px 100px 0px 100px;">{{form.min_text}}</div>
-                        </div>
-                        <div class="col-md-3">
-                        <label>Max Memory</label>
-                        <div class="col-md-7" >{{form.max_memory}}</div>
-                        </div>
-                      </div> 
-                      <div class="row">
-                        <div class="slider-container col-3">
-                          <label>Max Epsilon</label>
-                          <div class=""  >{{form.max_epsilon}}</div>
-                          <div class="" style="margin: 0px 100px 0px 100px;">{{form.max_text}}</div>
-                        </div>
-                        <div class="col-md-3">
-                        <label>Target Update Iterval</label>
-                        <div class="col-md-7"  >{{form.target_update}}</div>
-                      </div> 
-                      <div class="row">
-                        <div class="slider-container col-3">
-                          <label>Batch Size</label>
-                          <div class=""  >{{form.batch}}</div>
-                          <div class="" style="margin: 0px 100px 0px 100px;">{{form.batch_text}}</div>
-                        </div>
-                        <div class="col-md-3">
-                        <label>Max Size</label>
-                        <div class="col-md-7">{{form.max_size}}</div>
-                        </div>
-                      </div> 
-                      <div class="row">
-                        <div class="slider-container col-3">
-                          <label>Decay Rate</label>
-                          <div class=""  >{{form.decay_rate}}</div>
-                          <div class="" style="margin: 0px 100px 0px 100px;">{{form.decay_text}}</div>
-                        </div>
-                        <div class="slider-container col-3">
-                          <label>Display Episode Speed</label>
-                          <div class=""  >{{form.display_ep_speed}}</div>
-                          <div class="" style="margin: 0px 100px 0px 100px;">{{form.display_text}}</div>
-                        </div>
-                      </div>                                      
-                    </div>  
-                    <br/>                
-                    <button class="btn btn-primary" type="submit">Submit form</button>
-                  </form>
-                </div>
+                      <div class="col-md-3">
+                      <label>Max Memory</label>
+                      <div class="col-md-7" >{{form.max_memory}}</div>
+                      </div>
+                    </div> 
+                    <div class="row">
+                      <div class="slider-container col-3">
+                        <label>Max Epsilon</label>
+                        <div class=""  >{{form.max_epsilon}}</div>
+                        <div class="" style="margin: 0px 100px 0px 100px;">{{form.max_text}}</div>
+                      </div>
+                      <div class="col-md-3">
+                      <label>Target Update Iterval</label>
+                      <div class="col-md-7"  >{{form.target_update}}</div>
+                    </div> 
+                    <div class="row">
+                      <div class="slider-container col-3">
+                        <label>Batch Size</label>
+                        <div class=""  >{{form.batch}}</div>
+                        <div class="" style="margin: 0px 100px 0px 100px;">{{form.batch_text}}</div>
+                      </div>
+                      <div class="col-md-3">
+                      <label>Max Size</label>
+                      <div class="col-md-7">{{form.max_size}}</div>
+                      </div>
+                    </div> 
+                    <div class="row">
+                      <div class="slider-container col-3">
+                        <label>Decay Rate</label>
+                        <div class=""  >{{form.decay_rate}}</div>
+                        <div class="" style="margin: 0px 100px 0px 100px;">{{form.decay_text}}</div>
+                      </div>
+                      <div class="slider-container col-3">
+                        <label>Display Episode Speed</label>
+                        <div class=""  >{{form.display_ep_speed}}</div>
+                        <div class="" style="margin: 0px 100px 0px 100px;">{{form.display_text}}</div>
+                      </div>
+                    </div>                                      
+                  </div>  
+                  <br/>                
+                  <button class="btn btn-primary" type="submit">Submit form</button>
+                </form>
               </div>
             </div>
+            
           </div>
       </div>
   </div> 
