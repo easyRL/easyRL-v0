@@ -158,6 +158,11 @@ def lambda_run_job(aws_access_key, aws_secret_key, aws_security_token, job_id, a
         return True
     return False
 
+def test_image(request):
+    s3 = get_aws_s3(request.session['aws_access_key'], request.session['aws_secret_key'])
+    for item in s3.list_objects(Bucket="easyrl-{}".format(request.session['job_id']))['Contents']:
+        print(item['Key'])
+
 def test_data(request):
     if request.method == 'GET' and 'name' in request.GET:
         return HttpResponse("Hello {}".format(request.GET['name']))
@@ -166,4 +171,6 @@ def test_data(request):
 def debug_sessions(request):
     for key in request.session.keys():
         print("{}{}{}={}".format(apps.FORMAT_CYAN, key, apps.FORMAT_RESET, request.session[key]))
+
+
 
