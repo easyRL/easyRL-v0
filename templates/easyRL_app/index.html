@@ -113,27 +113,25 @@
           </div> 
         <br/>
 
-    </div>                                          
-    <br/>  
-    <div class="row">
-      <!-- Tabs -->   
-      <div class="col">
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="hp-tab-0" data-bs-toggle="tab" data-bs-target="#hp" type="button" role="tab" aria-controls="hp" aria-selected="true">Hyper Parameters <i class="bi-dash-circle-fill"  style="color: red"></i></button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link" id="add-model-tab" type="button" >Add <i class="bi-plus-circle-fill" style="color: #0b5ed7"></i></button>
-            </li>
-        </ul>
-        <div class="tab-content" id="myTabContent">
-          <div class="tab-pane fade show active" id="hp" role="tabpanel" aria-labelledby="hp-tab-0">
-            <div class="image-container">
-              <img id="graph-image" src="{% static 'easyRL_app/images/alien.jpg' %}"/>
-            </div>
-            <div class="image-container">
-              <img id="game-image" src="{% static 'easyRL_app/images/alien.jpg' %}"/>
-            </div>            
+      </div>                                          
+      <br/>  
+      <div class="row">
+        <!-- Tabs -->   
+        <div class="col">
+          <ul class="nav nav-tabs" id="myTab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="hp-tab-0" data-bs-toggle="tab" data-bs-target="#hp" type="button" role="tab" aria-controls="hp" aria-selected="true">Hyper Parameters <i class="bi-dash-circle-fill"  style="color: red"></i></button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="add-model-tab" type="button" >Add <i class="bi-plus-circle-fill" style="color: #0b5ed7"></i></button>
+              </li>
+          </ul>
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="hp" role="tabpanel" aria-labelledby="hp-tab-0">
+              <div class="image_container">
+                <img id="training_image" src="{% static 'easyRL_app/images/alien.jpg' %}" onError="this.onerror = '';this.style.visibility='hidden';"/>
+                <p id="training_summary"></>
+              </div>        
           </div>
         </div>  
       </div> 
@@ -329,6 +327,38 @@
         }     
     }
     
+    function track_training_progress() {  
+			var image = document.getElementById("graph-image");   
+			var value = "True";  
+			var loop = setInterval(load_image, 1000);  
+			
+			function load_image() {    
+				if (value != "True"){
+					clearInterval(loop)
+				} 
+				else {      
+					$.ajax({
+						url: '/easyRL_app/test/',
+						dataType: 'text',
+						success: function (data) {
+							value = data;
+						}
+					});
+					
+					$.ajax({
+						url: '/easyRL_app/image/',
+						dataType: 'image/gif',
+						success: function (data) {
+							alert("test");
+							if (data) {
+								$("#graph-image").attr("src", data);
+							}
+						}
+					});
+				}  
+			}
+		}
+    
     // Train button
 	$("#btn_train").click(function () {
 		// get values from sliders
@@ -353,14 +383,36 @@
 			success: function (data) {
 				if (data == "0") {
 					// code to display images from S3
-					alert("The job is running")
+					// alert("The job is running");
 				}
 				else {
 					// something wrong in here
-					alert("something wrong in here")
+					alert("something wrong in here");
 				}
 			}
 		});
+		
+		var isRunning = "True";
+		var interval = setInterval(function() {
+
+			$.ajax({
+				url: '/easyRL_app/is_job_running/',
+				dataType: 'text',
+				success: function (data) {
+					isRunning = data;
+				}
+			});
+					
+			if(isRunning == "False") {
+			    clearInterval(interval);
+			    $("#training_summary").html("Hello");
+			    return;
+			}
+			
+			$("#training_image").attr("src", '/easyRL_app/image/?' + (new Date()).getTime());
+			
+		}, 5000);
+	    
 	});
   
 var defaults = '<div class="container-fluid">'

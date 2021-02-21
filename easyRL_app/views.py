@@ -7,11 +7,14 @@ from django.shortcuts import render, redirect
 from pymemcache.client import base
 from . import forms
 
+import json
 import boto3
 import os
 from easyRL_app.utilities import get_aws_s3, get_aws_lambda,\
-    invoke_aws_lambda_func, is_valid_aws_credential, generate_jobID
+    invoke_aws_lambda_func, is_valid_aws_credential, generate_jobID,\
+    download_item_in_bucket, get_recent_training_data
 from easyRL_app import apps
+import core
 
 DEBUG_JOB_ID = generate_jobID()
 
@@ -108,7 +111,14 @@ def train(request):
         }
     )
     return HttpResponse(apps.ERROR_NONE)
-    
+
+def image(request):
+    _, _, _, _, image_data = get_recent_training_data(
+        request.session['aws_access_key'], 
+        request.session['aws_secret_key'], 
+        "easyrl-{}".format(request.session['job_id']))
+    return HttpResponse(image_data, content_type="image/png")
+
 def lambda_create_instance(aws_access_key, aws_secret_key, aws_security_token, job_id):
     lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
     data = {
@@ -122,6 +132,8 @@ def lambda_create_instance(aws_access_key, aws_secret_key, aws_security_token, j
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
     print("{}lambda_create_instance{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
     if response['StatusCode'] == 200:
+        streambody = response['Payload'].read().decode()
+        print("{}stream_body{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, streambody))
         return True
     return False
 
@@ -139,6 +151,8 @@ def lambda_terminate_instance(aws_access_key, aws_secret_key, aws_security_token
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
     print("{}lambda_terminate_instance{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
     if response['StatusCode'] == 200:
+        streambody = response['Payload'].read().decode()
+        print("{}stream_body{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, streambody))
         return True
     return False
 
@@ -155,18 +169,36 @@ def lambda_run_job(aws_access_key, aws_secret_key, aws_security_token, job_id, a
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
     print("{}lambda_run_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
     if response['StatusCode'] == 200:
+        streambody = response['Payload'].read().decode()
+        print("{}stream_body{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, streambody))
         return True
     return False
 
-def test_image(request):
-    s3 = get_aws_s3(request.session['aws_access_key'], request.session['aws_secret_key'])
-    for item in s3.list_objects(Bucket="easyrl-{}".format(request.session['job_id']))['Contents']:
-        print(item['Key'])
+def lambda_is_job_running(aws_access_key, aws_secret_key, aws_security_token, job_id):
+    lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
+    data = {
+        "accessKey": aws_access_key,
+        "secretKey": aws_secret_key,
+        "sessionToken": aws_security_token,
+        "jobID": job_id,
+        "task": apps.TASK_IS_JOB_RUNNING,
+        "arguments": "",
+    }
+    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+    print("{}lambda_is_job_running{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response))
+    if response['StatusCode'] == 200:
+        streambody = response['Payload'].read().decode()
+        print("{}stream_body{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, streambody))
+        if json.loads(streambody)['isRunning'] == 1:
+            return True
+    return False
 
-def test_data(request):
-    if request.method == 'GET' and 'name' in request.GET:
-        return HttpResponse("Hello {}".format(request.GET['name']))
-    return HttpResponse("Hello World")
+def is_job_running(request):
+    return HttpResponse(lambda_is_job_running(
+        request.session['aws_access_key'], 
+        request.session['aws_secret_key'], 
+        request.session['aws_security_token'], 
+        request.session['job_id']))
 
 def debug_sessions(request):
     for key in request.session.keys():
