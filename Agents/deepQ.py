@@ -24,7 +24,6 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
-        print(self.action_size)
 
     def choose_action(self, state):
         qval = self.predict(state, False)
