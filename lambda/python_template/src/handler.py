@@ -170,6 +170,11 @@ def yourFunction(request, context):
             if 'State' in ourInstance and 'Name' in ourInstance['State']:
                 instanceState = ourInstance['State']
                 inspector.addAttribute("instanceState", instanceState['Name'])
+            response = ec2Client.describe_instance_status(InstanceIds=[ourInstance['InstanceId']])
+            #inspector.addAttribute("response", str(response))
+            if 'InstanceStatuses' in response:
+                inspector.addAttribute("InstanceStatus", response['InstanceStatuses'][0]['InstanceStatus']['Status'])
+                inspector.addAttribute("SystemStatus", response['InstanceStatuses'][0]['SystemStatus']['Status'])
         else:
             inspector.addAttribute("error", "Instance not found.")
     elif (task == "haltJob"):
