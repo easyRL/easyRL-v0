@@ -8,7 +8,6 @@ urlpatterns = [
     path('', v.index, name="index"),
     path('login/', v.login, name='login'),
     path('logout/', v.logout, name='logout'),
+    path('train/', v.train, name='train'),
     path('test/', v.test_data, name='test'),
-    path('test_ci/', v.test_create_instance, name='create_instance'),
-    path('test_ti/', v.test_terminate_instance, name='terminate_instance'),
 ]

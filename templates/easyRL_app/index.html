@@ -350,13 +350,30 @@ var form2 = '<div style="margin-top:50px;"><input type="text">TEST</input></div>
 		//var slider = $(this).val();
 		
 		$.ajax({
-			url: '/easyRL_app/test/',
+			url: '/easyRL_app/train/',
 			data: {
-				'name': 'Varik'
+				"environment": 1,
+	            "agent": 1,
+	            "episodes": 50,
+	            "steps": 200,
+	            "gamma": 0.97,
+	            "minEpsilon": 0.1,
+	            "maxEpsilon": 1.0,
+	            "decayRate": 0.018,
+	            "batchSize": 32,
+	            "memorySize": 1000,
+	            "targetInterval": 200
 			},
 			dataType: 'text',
 			success: function (data) {
-				alert(data);
+				if (data == "0") {
+					// code to display images from S3
+					alert("The job is running")
+				}
+				else {
+					// something wrong in here
+					alert("something wrong in here")
+				}
 			}
 		});
 	});

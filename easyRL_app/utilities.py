@@ -37,4 +37,4 @@ def invoke_aws_lambda_func(lambdas, data='{}'):
     )
 
 def generate_jobID():
-    return 'jobID'.join(['bingusmingus32', str(uuid.uuid4())])
+    return str(uuid.uuid4())
