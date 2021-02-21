@@ -119,7 +119,11 @@ def lambda_create_instance(aws_access_key, aws_secret_key, aws_security_token, j
         "task": apps.TASK_CREATE_INSTANCE,
         "arguments": {"instanceType": "c4.xlarge"},
     }
-    print("lambda_create_instance={}".format(invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))))
+    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+    print("{}lambda_create_instance{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
+    if response['StatusCode'] == 200:
+        return True
+    return False
 
 def lambda_terminate_instance(aws_access_key, aws_secret_key, aws_security_token, job_id):
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/lambda.html
@@ -132,7 +136,11 @@ def lambda_terminate_instance(aws_access_key, aws_secret_key, aws_security_token
         "task": apps.TASK_TERMINAL_INSTANCE,
         "arguments": "",
     }
-    print("lambda_terminate_instance={}".format(invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))))
+    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+    print("{}lambda_terminate_instance{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
+    if response['StatusCode'] == 200:
+        return True
+    return False
 
 def lambda_run_job(aws_access_key, aws_secret_key, aws_security_token, job_id, arguments):
     lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
@@ -144,7 +152,11 @@ def lambda_run_job(aws_access_key, aws_secret_key, aws_security_token, job_id, a
         "task": apps.TASK_RUN_JOB,
         "arguments": arguments,
     }
-    print("lambda_run_job={}".format(invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))))
+    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+    print("{}lambda_run_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
+    if response['StatusCode'] == 200:
+        return True
+    return False
 
 def test_data(request):
     if request.method == 'GET' and 'name' in request.GET:
@@ -153,5 +165,5 @@ def test_data(request):
 
 def debug_sessions(request):
     for key in request.session.keys():
-        print("{}={}".format(key, request.session[key]))
+        print("{}{}{}={}".format(apps.FORMAT_CYAN, key, apps.FORMAT_RESET, request.session[key]))
 
