@@ -3,6 +3,7 @@ from django.apps import AppConfig
 TASK_CREATE_INSTANCE = "createInstance"
 TASK_TERMINAL_INSTANCE = "terminateInstance"
 TASK_RUN_JOB = "runJob"
+TASK_IS_JOB_RUNNING = "isRunning"
 
 ERROR_NONE = 0
 ERROR_UNAUTHENTICATED = 1
@@ -18,6 +19,11 @@ FORMAT_FAIL = '\033[91m'
 FORMAT_RESET = "\033[0;0m"
 FORMAT_BOLD = "\033[;1m"
 FORMAT_UNDERLINE = '\033[4m'
+
+IMAGE_FILE = "Training-episode-{}.gif"
+DATA_JSON_FILE = "data.json"
+LOCAL_JSON_FILE = "/tmp/{}.json"
+
 
 class EasyrlAppConfig(AppConfig):
     name = 'easyRL_app'
