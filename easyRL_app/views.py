@@ -32,13 +32,13 @@ def index(request):
     my_dict["list"]=[1,2,3]
     files = os.listdir(os.path.join(settings.BASE_DIR, "static/easyRL_app/images"))
     my_dict['files'] = files
-    form = forms.HyperParameterForm()
+    form = forms.HyperParameterFormDeepQ()
     if request.method == "GET":
         my_dict['form'] = form
         return render(request, "easyRL_app/index.html", context=my_dict)
     
     elif request.method == "POST":
-        form = forms.HyperParameterForm(request.POST)
+        form = forms.HyperParameterFormDeepQ(request.POST)
         if form.is_valid():
             my_dict['form'] = form
         return render(request, "easyRL_app/index.html", context=my_dict)
