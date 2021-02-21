@@ -9,8 +9,18 @@ class AwsCredentialForm(forms.Form):
 
 class HyperParameterForm(forms.Form):
 
-    num_episodes = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"num-episodes","name":"num-episodes" }))
-    max_memory = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"max-memory","name":"max-memory" }))
+    	        #     ,"episodes": 50
+	            # ,"steps": 200
+	            # ,"gamma": 0.97
+	            # ,"minEpsilon": 0.1
+	            # ,"maxEpsilon": 1.0
+	            # ,"decayRate": 0.018
+	            # ,"batchSize": 32
+	            # ,"memorySize": 1000
+	            # ,"targetInterval": 200
+
+    num_episodes = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"num-episodes","name":"num-episodes","value":"50","readonly":"" }))
+    max_memory = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"max-memory","name":"max-memory","value":"1000" }))
     max_size  = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"max-size","name":"max-size" }))
     target_update =forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"target-update","name":"target-update" }))
     

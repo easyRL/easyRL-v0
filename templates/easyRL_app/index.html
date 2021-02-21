@@ -37,7 +37,7 @@
             <!-- Carousel -->
             <div class="card-body">
                 <h4>Environment</h4>
-                <div class="row justify-content-center">
+                <div class="row justify-content-center"style="margin-top: 0px">
                     <div id="carouselExampleControlsNoTouching" class="carousel mbr-slider slide col-md-3" data-bs-touch="false" data-bs-interval="false">
                         <div class="carousel-inner">
                           {% for file in files %}
@@ -76,7 +76,7 @@
       <br/>
       <!-- Tabs & dropdowns-->
       <!-- Drop downs -->
-      <div class="row justify-content-center " id="select-containers" style="display: none;">
+      <div class="row justify-content-center " id="select-containers">
            <div class="col-md-3">
               <select class="form-select" id="agent-select" size="3" aria-label="Default select example">
                   <option value ="0" selected>--Select Agent--</option>
@@ -87,8 +87,8 @@
                   <option value="Double Dueling Deep Q Native">Double Dueling Deep Q Native</option>
                   <option value="DRQN Native">DRQN Native</option>
                   <option value="1">Conv. DRQN Native</option>
-                  <option value="Converging DRQN Native">PPO Native</option>
-                  <option value="Reinforcemnt Native">Reinforcemnt Native</option>
+                  <option value="Conv DRQN Native">PPO Native</option>
+                  <option value="Reinforce Native">Reinforce Native</option>
                   <option value="ActorCritic Native">ActorCritic Native</option>
                   <option value="SARSA">SARSA</option>
               </select>
@@ -205,7 +205,7 @@
 
     // Sets the Environment label
     $(document).ready(function(){
-      
+      $("#agent-select option").prop('disabled', true);  
       var src = $('.active').find('img').attr('src');
       src = src.slice(26,-4);
       $("#file-name").html(src);
@@ -318,9 +318,9 @@
       var src = $('div > .active').find('img').attr('src');
       var b = src.slice(26,-4);
       $("#file-name").html(b);
-      $("#select-containers").attr('style','display:none');
       $('#agent-select').val(0);
       $('#buffer-select').val(0);
+      $("#agent-select option").prop('disabled', true);  
     });
 
     $('#set-environment').click(function() {
@@ -329,35 +329,57 @@
     });
     function updateSelect(fileName){
       var games = {
-            'Cart Pole' : ['Deep Q', 'DRQN', 'ADRQN','Double, Dueling Deep Q Native', 'DRQN Native, PPO Native', 'Reinforce Native', 'ActorCritic Native'],
-            'Cart Pole Descrete' : ['Deep Q', 'Q Learning', 'DRQN', 'ADRQN','Double, Dueling Deep Q Native', 'DRQN Native, PPO Native', 'Reinforce Native', 'ActorCritic Native','SARSA'],
-            'Frozen Lake': ['Deep Q', 'Q Learning', 'DRQN', 'ADRQN','Double, Dueling Deep Q Native', 'DRQN Native, PPO Native', 'Reinforce Native', 'ActorCritic Native','SARSA'],
-            'Pendulum' : ['Deep Q', 'DRQN', 'ADRQN','Double, Dueling Deep Q Native', 'DRQN Native, PPO Native', 'Reinforce Native', 'ActorCritic Native'],
-            'Acrobot': ['Deep Q', 'DRQN', 'ADRQN','Double, Dueling Deep Q Native', 'DRQN Native, PPO Native', 'Reinforce Native', 'ActorCritic Native'],
-            'Mountain Car' : ['Deep Q', 'DRQN', 'ADRQN','Double, Dueling Deep Q Native', 'DRQN Native, PPO Native', 'Reinforce Native', 'ActorCritic Native'],
-            'default' : ['DRQN', 'ADRQN', 'Conv DRQN Native']
+            'Cart Pole' : ['Deep Q', 'DRQN', 'ADRQN','Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native']
+            ,'Cart Pole Descrete' : ['Deep Q', 'Q Learning', 'DRQN', 'ADRQN','Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native','SARSA']
+            ,'Frozen Lake': ['Deep Q', 'Q Learning', 'DRQN', 'ADRQN','Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native','SARSA']
+            ,'Pendulum' : ['Deep Q', 'DRQN', 'ADRQN','Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native']
+            ,'acrobot': ['Deep Q', 'DRQN', 'ADRQN','Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native']
+            ,'Mountain Car' : ['Deep Q', 'DRQN', 'ADRQN','Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native']
+            ,'default' : ['DRQN', 'ADRQN', 'Conv. DRQN Native']
           };
        
         var options = "";
         switch(fileName){
+          case 'acrobot':
+            $("#agent-select > option").each(function() {   
+              if (games[fileName].indexOf(this.text) !== -1){
+                  this.disabled = false;
+                }
+            });
+            break;
           case 'Cart Pole':
-              for(var i = 0; i < games[fileName].length; i++){
-                $("#selectId > option").each(function() {
-                        
-                  });
-              }
+            $("#agent-select > option").each(function() {   
+                if (games[fileName].indexOf(this.text) !== -1){
+                  this.disabled = false;
+                }
+            });
             break;
           case 'Cart Pole Descrete':
+            $("#agent-select > option").each(function() {   
+              if (games[fileName].indexOf(this.text) !== -1){
+                  this.disabled = false;
+                }
+            });           
             break;
           case 'Fronzen Lake':
+            $("#agent-select > option").each(function() {   
+              if (games[fileName].indexOf(this.text) !== -1){
+                  this.disabled = false;
+                }
+            });
             break;
           case 'Mountain Car':
+            $("#agent-select > option").each(function() {   
+              if (games[fileName].indexOf(this.text) !== -1){
+                  this.disabled = false;
+                }
+            });
             break;           
           default:
             $("#agent-select > option").each(function() {   
-              for(var i = 0; i < games['default'].length; i++){
-
-                  }
+              if (games['default'].indexOf(this.text) !== -1){
+                  this.disabled = false;
+                }
             });
             break;
         }     
@@ -371,17 +393,17 @@
 		$.ajax({
 			url: '/easyRL_app/train/',
 			data: {
-				"environment": 1,
-	            "agent": 1,
-	            "episodes": 50,
-	            "steps": 200,
-	            "gamma": 0.97,
-	            "minEpsilon": 0.1,
-	            "maxEpsilon": 1.0,
-	            "decayRate": 0.018,
-	            "batchSize": 32,
-	            "memorySize": 1000,
-	            "targetInterval": 200
+				"environment": 1
+	            ,"agent": 1
+	            ,"episodes": 50
+	            ,"steps": 200
+	            ,"gamma": 0.97
+	            ,"minEpsilon": 0.1
+	            ,"maxEpsilon": 1.0
+	            ,"decayRate": 0.018
+	            ,"batchSize": 32
+	            ,"memorySize": 1000
+	            ,"targetInterval": 200
 			},
 			dataType: 'text',
 			success: function (data) {
