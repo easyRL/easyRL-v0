@@ -136,7 +136,7 @@ class View:
             while not loaded:
                 text = 'Type the filename of the agent to load:\n'
                 filename = input(text)
-                fullpath = workingDir + '\\' + filename
+                fullpath = workingDir + '/' + filename
                 try:
                     self.listener.load(fullpath, 0)
                     loaded = True
@@ -155,7 +155,7 @@ class View:
             text = 'Type the filename to save the agent as:\n'
             workingDir = os.getcwd()
             filename = input(text)
-            fullpath = workingDir + '\\' + filename
+            fullpath = workingDir + '/' + filename
             self.listener.save(fullpath, 0)
 
 
