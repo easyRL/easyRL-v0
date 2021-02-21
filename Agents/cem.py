@@ -4,10 +4,6 @@ from Agents import drqn
 import cProfile
 from MVC import cloudBridge
 
-class ModelBasedAgent(agent.Agent, ABC):
-    displayName = 'Model Based Agent'
-
-
 
 import math
 import numpy as np
@@ -19,7 +15,7 @@ from torch.autograd import Variable
 
 
 
-class Agent(nn.Module):
+class cem(Policyiteration):
     def __init__(self, env, h_size=16):
         super(Agent, self).__init__()
         self.env = env
@@ -77,6 +73,8 @@ def cem(n_iterations=500, max_t=1000, gamma=1.0, print_every=10, pop_size=50, el
     scores_deque = deque(maxlen=100)
     scores = []
     best_weight = sigma*np.random.randn(agent.get_weights_dim())
+    
+#Call train method here    
 
     for i_iteration in range(1, n_iterations+1):
         weights_pop = [best_weight + (sigma*np.random.randn(agent.get_weights_dim())) for i in range(pop_size)]
