@@ -21,9 +21,12 @@ from collections import namedtuple
 
 class TRPO(ppo.PPO):
     displayName = 'TRPO Agent'
+    newParameters = ppo.PPO.newParameters
+    parameters = ppo.PPO.parameters
+    paramLen = len(newParameters)
+    
     #Invoke constructor
     def __init__(self, *args):
-        paramLen = len(super().newParameters)
         super().__init__(*args[:-paramLen])
         self.Rollout = namedtuple('Rollout', ['states', 'actions', 'rewards', 'next_states',])
         self.rewards = []
@@ -82,7 +85,7 @@ class TRPO(ppo.PPO):
                 actions = torch.as_tensor(actions).unsqueeze(1)
                 rewards = torch.as_tensor(rewards).unsqueeze(1)
 
-                rollouts.append(Rollout(states, actions, rewards, next_states))
+                rollouts.append(self.Rollout(states, actions, rewards, next_states))
         self.updateAgent(rollouts)
 
     def get_action(self, state):
@@ -97,7 +100,7 @@ class TRPO(ppo.PPO):
         states = torch.cat([r.states for r in rollouts], dim=0)
         actions = torch.cat([r.actions for r in rollouts], dim=0).flatten()
 
-        self.advantages = [estimate_advantages(states, next_states[-1], rewards) for states, _, rewards, next_states in rollouts]
+        self.advantages = [self.estimate_advantages(states, next_states[-1], rewards) for states, _, rewards, next_states in rollouts]
         self.advantages = torch.cat(self.advantages, dim=0).flatten()
 
         self.advantages = (self.advantages - self.advantages.mean()) / self.advantages.std()
@@ -110,40 +113,40 @@ class TRPO(ppo.PPO):
 
         probabilities = distribution[range(distribution.shape[0]), actions]
 
-        self.L = surrogate_loss(probabilities, probabilities.detach(), self.advantages)
-        self.KL = kl_div(distribution, distribution)
+        self.L = self.surrogate_loss(probabilities, probabilities.detach())
+        self.KL = self.kl_div(distribution, distribution)
 
-        self.g = flat_grad(L, self.parameters, retain_graph=True)
-        self.d_kl = flat_grad(KL, self.parameters, create_graph=True)
+        self.g = self.flat_grad(self.L, self.parameters, retain_graph=True)
+        self.d_kl = self.flat_grad(self.KL, self.parameters, create_graph=True)
 
         def HVP(v):
-            return flat_grad(self.d_kl @ v, self.parameters, retain_graph=True)
+            return self.flat_grad(self.d_kl @ v, self.parameters, retain_graph=True)
 
-        search_dir = conjugate_gradient(HVP, self.g)
+        search_dir = self.conjugate_gradient(HVP, self.g)
         delta = 0.01
         max_length = torch.sqrt(2 * delta / (search_dir @ HVP(search_dir)))
         max_step = max_length * search_dir
 
         def criterion(step):
-            apply_update(step)
+            self.apply_update(step)
 
             with torch.no_grad():
                 distribution_new = super().actorModel(states)
                 distribution_new = torch.distributions.utils.clam_probs(distribution_new)
-                probabilities_new = distribution_new[range(distribution_new_shape[0]), actions]
+                probabilities_new = distribution_new[range(distribution_new.shape[0]), actions]
 
-                self.L_new = surrogate_loss(probabilities_new, probabilities, self.advantages)
-                self.KL_new = kl_div(distribution, distribution_new)
+                self.L_new = self.surrogate_loss(probabilities_new, probabilities)
+                self.KL_new = self.kl_div(distribution, distribution_new)
 
             L_improvement = self.L_new - self.L_improvement
             if L_improvement > 0 and self.KL_new <= delta:
                 return True
         
-            apply_update(-step)
+            self.apply_update(-step)
             return False
 
             i = 0
-            while not criterion((0.9 ** i) * agent.max) and i < 10:
+            while not criterion((0.9 ** i) * max_steps) and i < 10:
                 i += 1
 
     def estimate_advantages(self, states, last_state, rewards):
@@ -200,16 +203,16 @@ class TRPO(ppo.PPO):
 
     def apply_update(self, grad_flattened):
         n = 0
-        for p in super().parameters():
+        for p in self.parameters():
             numel = p.numel()
             g = grad_flattened[n:n + numel].view(p.shape)
             p.data += g
             n += numel
 
+    def update(self):
+        self.train(num_rollouts=10)
 
     def remember(self, state, action, reward, new_state, done): 
-        self.states.append(state)
-        train(num_rollouts=10)
         super().remember(action, state, reward, new_state, done)
 
     def reset(self):

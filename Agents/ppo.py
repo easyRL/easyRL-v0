@@ -12,8 +12,8 @@ from tensorflow.keras.losses import KLDivergence
 from tensorflow.keras.optimizers import Adam
 
 class PPO:
-    def __init__(self, parameters, newParameters, action_size, state_size, mini_batch, gamma, horizon, epoch, episodes, policy_lr, value_lr):
-        self.newParameters = newParameters = [modelFreeAgent.ModelFreeAgent.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
+
+    newParameters = newParameters = [modelFreeAgent.ModelFreeAgent.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
                      modelFreeAgent.ModelFreeAgent.Parameter('Policy learning rate', 0.00001, 1, 0.00001, 0.001, True, True,
                                                              "A learning rate that the Adam optimizer starts at"),
                      modelFreeAgent.ModelFreeAgent.Parameter('Value learning rate', 0.00001, 1, 0.00001, 0.001,
@@ -31,8 +31,10 @@ class PPO:
                      modelFreeAgent.ModelFreeAgent.Parameter('PPO Lambda', 0.5, 1, 0.001, 0.95,
                                                              True, True,
                                                              "A parameter that when set below 1, can decrease variance while maintaining reasonable bias")]
-        self.parameters = modelFreeAgent.ModelFreeAgent.parameters + newParameters
-        paramLen = len(self.newParameters)
+    parameters = modelFreeAgent.ModelFreeAgent.parameters + newParameters
+
+    def __init__(self, parameters, newParameters, action_size, state_size, mini_batch, gamma, horizon, epoch, episodes, policy_lr, value_lr):
+        paramLen = len(ewParameters)
         # Initialize parameters
         self.action_size = agent.action_size
         self.state_size = agent.state_size
