@@ -7,6 +7,6 @@
     border-radius: 3px;
 }
   .carousel-item img{
-      height: 30vw;
+      height: 20vw;
       object-fit: cover;
   }
