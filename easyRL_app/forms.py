@@ -3,9 +3,9 @@ from django import forms
 import uuid
 
 class AwsCredentialForm(forms.Form):
-    aws_access_key = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    aws_secret_key = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    aws_security_token = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
+    aws_access_key = forms.CharField(label="AWS Access Key", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    aws_secret_key = forms.CharField(label="AWS Secret Key",widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    aws_security_token = forms.CharField(label="AWS Security Token",widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
 
 class HyperParameterBase(forms.Form):
     max_size  = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"max-size","name":"max-size","value":"200" }))    

@@ -28,20 +28,19 @@ def index(request):
     if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
         return HttpResponseRedirect("/easyRL_app/login/")
 
-    my_dict = {}
-    my_dict["list"]=[1,2,3]
+    index_dict = {}
     files = os.listdir(os.path.join(settings.BASE_DIR, "static/easyRL_app/images"))
-    my_dict['files'] = files
+    index_dict['files'] = files
     form = forms.HyperParameterFormDeepQ()
     if request.method == "GET":
-        my_dict['form'] = form
-        return render(request, "easyRL_app/index.html", context=my_dict)
+        index_dict['form'] = form
+        return render(request, "easyRL_app/index.html", context=index_dict)
     
     elif request.method == "POST":
         form = forms.HyperParameterFormDeepQ(request.POST)
         if form.is_valid():
-            my_dict['form'] = form
-        return render(request, "easyRL_app/index.html", context=my_dict)
+            index_dict['form'] = form
+        return render(request, "easyRL_app/index.html", context=index_dict)
 
 def login(request):
     form = forms.AwsCredentialForm()
