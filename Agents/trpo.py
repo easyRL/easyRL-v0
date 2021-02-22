@@ -15,6 +15,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import random
+import joblib
 from torch.optim import Adam
 from torch.distributions import Categorical
 from collections import namedtuple
@@ -24,12 +25,13 @@ class TRPO(ppo.PPO):
     newParameters = ppo.PPO.newParameters
     parameters = ppo.PPO.parameters
     paramLen = len(newParameters)
-    
+
     #Invoke constructor
     def __init__(self, *args):
         super().__init__(*args[:-paramLen])
         self.Rollout = namedtuple('Rollout', ['states', 'actions', 'rewards', 'next_states',])
         self.rewards = []
+        self.rollouts = []
         self.advantages = 0
     '''def optimize(self, action, state, policy, parameters, newParameters):
         advantage = 0
@@ -41,16 +43,6 @@ class TRPO(ppo.PPO):
             #optimize surrogate loss using recurrent neural network 
             parameters = newParameters
             super.updateCritic()'''
-    
-    def choose_action(self, state):
-        qval = self.predict(state, False)
-        epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * self.time_steps)
-        # TODO: Put epsilon at a level near this
-        if random.random() > epsilon:
-            action = np.argmax(qval)
-        else:
-            action = self.state_size.sample()
-        return action
 
     '''def choose_action(self, state):
         observation = Tensor(state).unsqueeze(0)
@@ -58,8 +50,44 @@ class TRPO(ppo.PPO):
         action = probabilities.multimonial(1)
         return action, probabilities'''
 
-    def train(self, num_rollouts=10):
-        for epoch in range(super().epoch):
+    def remember(self, state, action, reward, new_state, done): 
+        self.addToMemory(state, action, reward, new_state, done)
+        loss = 0
+        if len(self.memory) < 2*self.batch_size:
+            return 0
+        mini_batch = self.sample()
+        num_rollouts = 10
+        for t in range(num_rollouts): 
+            DeepQ.reset()
+            state = DeepQ.get_empty_state()
+            done = False
+            samples = []
+            self.rewards = []
+            while not done:
+                with torch.no_grad():
+                    action = self.choose_action(state)
+                    next_state, reward, done, _ = self.action(state)
+
+                    samples.append((state, action, reward, next_state))
+
+                    state = next_state
+                
+            states, actions, rewards, next_states = zip(*samples)
+
+            states = torch.stack([torch.from_numpy(state) for state in states], dim=0).float()
+            next_states = torch.stack([torch.from_numpy(state) for state in next_states], dim=0).float()
+            actions = torch.as_tensor(actions).unsqueeze(1)
+            rewards = torch.as_tensor(rewards).unsqueeze(1)
+
+            self.rollouts.append(self.Rollout(states, actions, rewards, next_states))
+        super().updateNetworks(mini_batch)
+        self.updateAgent(self.rollouts)
+        return self.surrogate_loss
+
+
+
+    '''def train(self, num_rollouts=10):
+        for epoch in range(super().epochSize):
             rollouts = []
 
             for t in range(num_rollouts):
@@ -87,8 +115,9 @@ class TRPO(ppo.PPO):
 
                 rollouts.append(self.Rollout(states, actions, rewards, next_states))
         self.updateAgent(rollouts)
+        return self.surrogate_loss '''
 
-    def get_action(self, state):
+    def choose_action(self, state):
         state = torch.tensor(state).float().unsqueeze(0)
         dist = Categorical(super().actorModel(state))
         return dist.sample().item()
@@ -116,16 +145,16 @@ class TRPO(ppo.PPO):
         self.L = self.surrogate_loss(probabilities, probabilities.detach())
         self.KL = self.kl_div(distribution, distribution)
 
-        self.g = self.flat_grad(self.L, self.parameters, retain_graph=True)
-        self.d_kl = self.flat_grad(self.KL, self.parameters, create_graph=True)
+        self.g = self.flat_grad(self.L, parameters, retain_graph=True)
+        self.d_kl = self.flat_grad(self.KL, parameters, create_graph=True)
 
         def HVP(v):
-            return self.flat_grad(self.d_kl @ v, self.parameters, retain_graph=True)
+            return self.flat_grad(self.d_kl @ v, parameters, retain_graph=True)
 
         search_dir = self.conjugate_gradient(HVP, self.g)
         delta = 0.01
         max_length = torch.sqrt(2 * delta / (search_dir @ HVP(search_dir)))
-        max_step = max_length * search_dir
+        max_steps = max_length * search_dir
 
         def criterion(step):
             self.apply_update(step)
@@ -151,7 +180,7 @@ class TRPO(ppo.PPO):
 
     def estimate_advantages(self, states, last_state, rewards):
         values = super().criticModel(states)
-        last_value = super.criticModel(last_state.unsqueeze(0))
+        last_value = super().criticModel(last_state.unsqueeze(0))
         next_values = torch.zeros_like(rewards)
         for i in reversed(range(rewards.shape[0])):
             last_value = next_values[i] = rewards[i] + 0.99 * last_value
@@ -203,7 +232,7 @@ class TRPO(ppo.PPO):
 
     def apply_update(self, grad_flattened):
         n = 0
-        for p in self.parameters():
+        for p in parameters:
             numel = p.numel()
             g = grad_flattened[n:n + numel].view(p.shape)
             p.data += g
@@ -212,8 +241,30 @@ class TRPO(ppo.PPO):
     def update(self):
         self.train(num_rollouts=10)
 
-    def remember(self, state, action, reward, new_state, done): 
-        super().remember(action, state, reward, new_state, done)
+    def save(self, filename):
+        mem1 = super().actorMdel.get_weights()
+        joblib.dump((TRPO.displayName, mem1), filename)
+        mem2 = super().criticModel.get_weights
+        joblib.dump((TRPO.displayName, mem2), filename)
+
+    def load(self, filename):
+        name, mem = joblib.load(filename)
+        if name != TRPO.displayName:
+            print('load failed')
+        else:
+            super().actorModel.set_weights(mem)
+            super().actorTarget.set_weights(mem)
+            super().criticModel.set_weights(mem)
+            super().criticTarget.set_weights(mem)
+
+    def memsave(self):
+        return self.actorModel.get_weights(), self.criticModel.get_weights()
+
+    def memload(self, mem):
+        self.actorModel.set_weights(mem)
+        self.actorTarget.set_weights(mem)
+        self.criticModel.set_weights(mem)
+        self.criticTarget.set_weights(mem)
 
     def reset(self):
         pass

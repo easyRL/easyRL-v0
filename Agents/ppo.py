@@ -1,4 +1,4 @@
-from Agents import agent, modelFreeAgent
+from Agents import agent, modelFreeAgent, trpo
 from Agents.deepQ import DeepQ
 from Agents.Collections import ExperienceReplay, TransitionFrame
 import numpy as np
@@ -33,19 +33,22 @@ class PPO:
                                                              "A parameter that when set below 1, can decrease variance while maintaining reasonable bias")]
     parameters = modelFreeAgent.ModelFreeAgent.parameters + newParameters
 
-    def __init__(self, parameters, newParameters, action_size, state_size, mini_batch, gamma, horizon, epoch, episodes, policy_lr, value_lr):
-        paramLen = len(ewParameters)
+    def __init__(self, *args, action_size, state_size, mini_batch):
+        paramLen = len(newParameters)
         # Initialize parameters
         self.action_size = agent.action_size
         self.state_size = agent.state_size
+        self.batch_size, _, _, self.horizon, self.epochSize, _, _ = [int(arg) for arg in args[-paramLen:]]
+        _, self.policy_lr, self.value_lr, _, _, self.epsilon, self.lam = [arg for arg in args[-paramLen:]]
         self.mini_batch = mini_batch
+        '''self.mini_batch = mini_batch
         self.gamma = gamma
         self.horizon = horizon
         self.epoch = epoch
         self.episodes = episodes
         self.policy_lr = policy_lr
         self.value_lr = value_lr
-        self.rewards = []
+        self.rewards = []'''
 
         # Set up actor neural network
         self.actorModel = self.buildActorNetwork()
@@ -68,7 +71,7 @@ class PPO:
         model = nn.Sequential(nn.Linear(self.state_size, 32),
                               nn.ReLU(),
                               nn.Linear(32, self.action_size),
-                              nn.SoftMax(dim=1))
+                              nn.Softmax(dim=1))
         #model.compile(loss='mse', optimizer=Adam(lr=self.value_lr, clipvalue=1), metrics=[metrics.mean_squared_error], steps_per_execution=10)
         '''inputA = Input(shape=self.state_size)
         inputB = Input(shape=(self.action_size,))
@@ -102,7 +105,7 @@ class PPO:
     def addToMemory(self, state, action, reward, new_state, done):
         self.memory.append_frame(TransitionFrame(state, action, reward, new_state, done))
    
-    def remember(self, state, action, reward, new_state, done): 
+    '''def remember(self, state, action, reward, new_state, done): 
         self.addToMemory(state, action, reward, new_state, done)
         actor_loss = 0
         critic_loss = 0
@@ -116,10 +119,21 @@ class PPO:
         critic_loss = self.criticModel.train_on_batch(Z_train, K_train)
         self.updateActorNetwork()
         self.updateCriticNetwork()
-        return actor_loss, critic_loss
+        return actor_loss, critic_loss'''
+
+    def remember(self, state, action, reward, new_state, done): 
+        pass
+
+    def updateNetworks(self, mini_batch):
+        X_train, Y_train = self.calculateTargetActor(mini_batch)
+        self.actorModel.train_on_batch(X_train, Y_train)
+        self.calculateTargetCritic(mini_batch)
+        Z_train, K_train = self.calculateTargetCritic(mini_batch)
+        self.criticModel.train_on_batch(Z_train, K_train)
+        self.updateActorNetwork()
+        self.updateCriticNetwork()
 
     def predict(self, state, isTarget):
-
         shape = (1,) + self.state_size
         state = np.reshape(state, shape)
         if isTarget:
