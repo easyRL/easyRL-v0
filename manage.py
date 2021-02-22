@@ -5,8 +5,8 @@ import sys
 
 
 def main():
-    if os.getenv("AWS_ACCESS_KEY_ID") is None or os.getenv("AWS_SECRET_ACCESS_KEY") is None:
-        raise ImportError("You must export AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY")
+    # if os.getenv("AWS_ACCESS_KEY_ID") is None or os.getenv("AWS_SECRET_ACCESS_KEY") is None:
+    #     raise ImportError("You must export AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY")
 
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
