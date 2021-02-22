@@ -10,9 +10,8 @@ from tensorflow.keras.layers import Flatten, TimeDistributed, LSTM, multiply
 from tensorflow.keras import utils
 from tensorflow.keras.losses import KLDivergence
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.metrics import metrics
 
-class ppo:
+class PPO:
     def __init__(self, parameters, newParameters, action_size, state_size, mini_batch, gamma, horizon, epoch, episodes, policy_lr, value_lr):
         self.newParameters = newParameters = [modelFreeAgent.ModelFreeAgent.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
                      modelFreeAgent.ModelFreeAgent.Parameter('Policy learning rate', 0.00001, 1, 0.00001, 0.001, True, True,

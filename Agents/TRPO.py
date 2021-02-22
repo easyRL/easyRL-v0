@@ -1,8 +1,8 @@
-from Agents import ppo, agent
+from Agents import agent, ppo
+from Agents.ppo import PPO
 from Agents.deepQ import DeepQ
 import tensorflow as tf
 #from tensorflow.linalg.experimental import conjugate_gradient
-from scipy.stats import multimonial
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Conv2D
@@ -14,18 +14,18 @@ from tensorflow.keras.optimizers import Adam
 import numpy as np
 import torch
 import torch.nn as nn
-import matplotlib.pyplot as plt
+import random
 from torch.optim import Adam
 from torch.distributions import Categorical
 from collections import namedtuple
 
-class TRPO(ppo):
+class TRPO(ppo.PPO):
     displayName = 'TRPO Agent'
     #Invoke constructor
     def __init__(self, *args):
         paramLen = len(super().newParameters)
         super().__init__(*args[:-paramLen])
-        self.Rollout = namedtuple('Rollout', '[states', 'actions', 'rewards', 'next_states',])
+        self.Rollout = namedtuple('Rollout', ['states', 'actions', 'rewards', 'next_states',])
         self.rewards = []
         self.advantages = 0
     '''def optimize(self, action, state, policy, parameters, newParameters):
@@ -55,7 +55,7 @@ class TRPO(ppo):
         action = probabilities.multimonial(1)
         return action, probabilities'''
 
-    def train(num_rollouts=10):
+    def train(self, num_rollouts=10):
         for epoch in range(super().epoch):
             rollouts = []
 
@@ -77,15 +77,13 @@ class TRPO(ppo):
                 
                 states, actions, rewards, next_states = zip(*samples)
 
-                states = torch.stack([torch.from_numpy(state) for state in states], dim=0).float())
-                next_states = torch.stack([torch.from_numpy(state) for state in next_states], dim=0).float())
+                states = torch.stack([torch.from_numpy(state) for state in states], dim=0).float()
+                next_states = torch.stack([torch.from_numpy(state) for state in next_states], dim=0).float()
                 actions = torch.as_tensor(actions).unsqueeze(1)
                 rewards = torch.as_tensor(rewards).unsqueeze(1)
 
                 rollouts.append(Rollout(states, actions, rewards, next_states))
         self.updateAgent(rollouts)
-
-    max_d_kl = 0.01
 
     def get_action(self, state):
         state = torch.tensor(state).float().unsqueeze(0)
@@ -148,24 +146,24 @@ class TRPO(ppo):
             while not criterion((0.9 ** i) * agent.max) and i < 10:
                 i += 1
 
-    def estimate_advantages(states, last_state, rewards):
+    def estimate_advantages(self, states, last_state, rewards):
         values = super().criticModel(states)
-        last_value = critic(last_state.unsqueeze(0))
+        last_value = super.criticModel(last_state.unsqueeze(0))
         next_values = torch.zeros_like(rewards)
         for i in reversed(range(rewards.shape[0])):
             last_value = next_values[i] = rewards[i] + 0.99 * last_value
         self.advantages = next_values - values
         return self.advantages
 
-    def surrogate_loss(new_probabilities, old_probabilities):
+    def surrogate_loss(self, new_probabilities, old_probabilities):
         return (new_probabilities / old_probabilities * self.advantages).mean()
 
-    def kl_div(p, q):
+    def kl_div(self, p, q):
         p = p.detach()
         return (p * (p.log() - q.log())).sum(-1).mean()
 
 
-    def flat_grad(y, x, retain_graph=False, create_graph=False):
+    def flat_grad(self, y, x, retain_graph=False, create_graph=False):
         if create_graph:
             retain_graph = True
 
@@ -173,36 +171,36 @@ class TRPO(ppo):
         g = torch.cat([t.view(-1) for t in g])
         return g
 
-    def conjugate_gradient(A, b, delta=0., max_iterations=10):
-    x = torch.zeros_like(b)
-    r = b.clone()
-    p = b.clone()
+    def conjugate_gradient(self, A, b, delta=0., max_iterations=10):
+        x = torch.zeros_like(b)
+        r = b.clone()
+        p = b.clone()
 
-    i = 0
-    while i < max_iterations:
-        AVP = A(p)
+        i = 0
+        while i < max_iterations:
+            AVP = A(p)
 
-        dot_old = r @ r
-        alpha = dot_old / (p @ AVP)
+            dot_old = r @ r
+            alpha = dot_old / (p @ AVP)
 
-        x_new = x + alpha * p
+            x_new = x + alpha * p
 
-        if (x - x_new).norm() <= delta:
-            return x_new
+            if (x - x_new).norm() <= delta:
+                return x_new
 
-        i += 1
-        r = r - alpha * AVP
+            i += 1
+            r = r - alpha * AVP
 
-        beta = (r @ r) / dot_old
-        p = r + beta * p
+            beta = (r @ r) / dot_old
+            p = r + beta * p
 
-        x = x_new
-    return x
+            x = x_new
+        return x
 
 
-    def apply_update(grad_flattened):
+    def apply_update(self, grad_flattened):
         n = 0
-        for p in actor.parameters():
+        for p in super().parameters():
             numel = p.numel()
             g = grad_flattened[n:n + numel].view(p.shape)
             p.data += g
@@ -211,6 +209,7 @@ class TRPO(ppo):
 
     def remember(self, state, action, reward, new_state, done): 
         self.states.append(state)
+        train(num_rollouts=10)
         super().remember(action, state, reward, new_state, done)
 
     def reset(self):
@@ -218,5 +217,3 @@ class TRPO(ppo):
 
     def __deepcopy__(self, memodict={}):
         pass
-
-train(num_rollouts=10)
