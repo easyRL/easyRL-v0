@@ -9,27 +9,25 @@ import torch.nn.functional as F
 from Agents import policyIteration
 from collections import deque
 
-class CEM(nn.Module):
+class CEM(policyIteration.PolicyIteration):
     displayName = 'Cross Entropy Method'
     newParameters = [policyIteration.PolicyIteration.Parameter('Sigma', 0, 1.0, 0.001, 0.5, True, True, "The standard deviation of additive noise"),
-    policyIteration.PolicyIteration.Parameter('Population Size', 0, 1.0, 0.001, 0.5, True, True, "The standard deviation of additive noise"),
-    policyIteration.PolicyIteration.Parameter('Elite Fraction', 0, 1.0, 0.001, 0.5, True, True, "The standard deviation of additive noise")]
-    parameters =  policyIteration.PolicyIteration.parameters + newParameters
+                     policyIteration.PolicyIteration.Parameter('Population Size', 0, 1.0, 0.001, 0.5, True, True, "The standard deviation of additive noise"),
+                     policyIteration.PolicyIteration.Parameter('Elite Fraction', 0, 1.0, 0.001, 0.5, True, True, "The standard deviation of additive noise")]
+    parameters = policyIteration.PolicyIteration.parameters + newParameters
 
 
-    def __init__(self,*args) 
-        paramLen = len(CEM.newparameters)
-        super()._init_(*args[:-paramLen])
+    def __init__(self,*args):
+        paramLen = len(CEM.newParameters)
+        super().__init__(*args[:-paramLen])
         self.sigma, self.pop_size, self.elite_frac = [int(arg) for arg in args[-paramLen:]]
         
         self.elite = int(self.pop_size*self.elite_frac)
-        # state, hidden layer, action sizes
-        self.s_size = env.observation_space.shape[0]
-        self.h_size = 16 #Hidden layer size
-        self.a_size = env.action_space.shape[0]
+        # Hidden layer size
+        self.h_size = 16
         # define layers
-        self.fc1 = nn.Linear(self.s_size, self.h_size)
-        self.fc2 = nn.Linear(self.h_size, self.a_size)
+        self.fc1 = nn.Linear(self.state_size[0], self.h_size)
+        self.fc2 = nn.Linear(self.h_size, self.action_size)
         # Weights of the model
         self.best_weight = self.sigma*np.random.randn(self._get_weights_dim())
         self.weights_pop = [self.best_weight + (self.sigma*np.random.randn(self._get_weights_dim())) for i in range(self.pop_size)]
@@ -51,9 +49,10 @@ class CEM(nn.Module):
         return self.weights_pop
         
     def set_policy(self, weights):
-        s_size = self.s_size
+        s_size = self.state_size[0]
         h_size = self.h_size
-        a_size = self.a_size
+        a_size = self.action_size
+        print(s_size, h_size, a_size)
         # separate the weights for each layer
         fc1_end = (s_size*h_size)+h_size
         fc1_W = torch.from_numpy(weights[:s_size*h_size].reshape(s_size, h_size))
@@ -67,7 +66,7 @@ class CEM(nn.Module):
         self.fc2.bias.data.copy_(fc2_b.view_as(self.fc2.bias.data))
 
 
-    def_build_network(self):
+    def _build_network(self):
         from tensorflow.python.keras.optimizer_v2.adam import Adam
         from tensorflow.keras.models import Model
         from tensorflow.keras.layers import Dense, Input, Flatten, multiply
@@ -83,4 +82,16 @@ class CEM(nn.Module):
     
     
     def _get_weights_dim(self):
-        return (self.s_size+1)*self.h_size + (self.h_size+1)*self.a_size
+        return (self.state_size[0]+1)*self.h_size + (self.h_size+1)*self.action_size
+
+    def save(self, filename):
+        pass
+
+    def load(self, filename):
+        pass
+    
+    def memsave(self):
+        pass
+
+    def memload(self, mem):
+        pass

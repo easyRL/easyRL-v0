@@ -5,8 +5,8 @@ class PolicyIteration(modelBasedAgent.ModelBasedAgent):
     newParameters = []
     parameters = modelBasedAgent.ModelBasedAgent.parameters + newParameters
     
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args):
+        super().__init__(*args)
         self.value = []
         self.policy = []
 
