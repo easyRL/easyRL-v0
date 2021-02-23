@@ -107,6 +107,8 @@ def train(request):
             "batchSize": int(request.GET['batchSize']),
             "memorySize": int(request.GET['memorySize']),
             "targetInterval": int(request.GET['targetInterval']),
+            "historyLength": int(request.GET['historyLength']),
+            #"path": request.GET['path'],
         }
     )
     return HttpResponse(apps.ERROR_NONE)

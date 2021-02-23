@@ -485,30 +485,29 @@
 	$("#btn_train").click(function () {
 		// get values from sliders
 		//var slider = $(this).val();
-		var data = {
-            "environment": $('#env-hidden').val()
-            ,"agent": $("#agent-hidden").val()
-            ,"episodes": $("#num-episodes-text").val()
-            ,"steps": 200
-            ,"gamma": $('#gamma-text').val()
-            ,"minEpsilon": $('#min-epsilon-text').val()
-            ,"maxEpsilon": $('#max-epsilon-text').val()
-            ,"decayRate": $('#decay-text').val()
-            ,"batchSize": $('#batch-text').val()
-            ,"memorySize": $('#memory-size-text').val()
-            ,"targetInterval": $('#target-update-interval-text').val()
-            ,"alpha": $('#alpha-text').val()
-            ,"historyLength": $('#history-text').val()
-            ,"path": "./easyRL-v0/data.json"
-    }
 		$.ajax({
 			url: '/easyRL_app/train/',
-			data: JSON.stringify(data),
+			data: {
+				"environment": $('#env-hidden').val()
+	            ,"agent": $("#agent-hidden").val()
+	            ,"episodes": $("#num-episodes-text").val()
+	            ,"steps": $('#max-size-text').val()
+	            ,"gamma": $('#gamma-text').val()
+	            ,"minEpsilon": $('#min-epsilon-text').val()
+	            ,"maxEpsilon": $('#max-epsilon-text').val()
+	            ,"decayRate": $('#decay-text').val()
+	            ,"batchSize": $('#batch-text').val()
+	            ,"memorySize": $('#memory-size-text').val()
+	            ,"targetInterval": $('#target-update-interval-text').val()
+	            ,"alpha": $('#alpha-text').val()
+	            ,"historyLength": $('#history-text').val()
+	            //,"path": "./easyRL-v0/data.json"
+			},
 			dataType: 'text',
 			success: function (data) {
 				if (data == "0") {
 					// code to display images from S3
-					// alert("The job is running");
+					alert("The job is running");
 				}
 				else {
 					// something wrong in here
@@ -530,7 +529,7 @@
             
         if(isRunning == "False") {
             clearInterval(interval);
-            $("#training_summary").html("Hello");
+            $("#training_summary").html("<button id='btn_reload' class='btn btn-primary' onclick='reload_images()' style='margin:5px;'>Reload</button>");
             return;
         }
         
@@ -539,6 +538,34 @@
       }, 5000);
 	    
 	  });
+	  
+	  // Reload button
+	function reload_images() {
+	
+	$("#training_summary").html("");
+	
+      var isRunning = "True";
+      var interval = setInterval(function() {
+
+        $.ajax({
+          url: '/easyRL_app/is_job_running/',
+          dataType: 'text',
+          success: function (data) {
+            isRunning = data;
+          }
+        });
+            
+        if(isRunning == "False") {
+            clearInterval(interval);
+            $("#training_summary").html("<button id='btn_reload' class='btn btn-primary' onclick='reload_images()' style='margin:5px;'>Reload</button>");
+            return;
+        }
+        
+        $("#training_image").attr("src", '/easyRL_app/image/?' + (new Date()).getTime());
+        
+      }, 5000);
+	    
+	  }
   
 var defaults =     '<div class="row">'
             +       '<div class="slider-container col-6">'
