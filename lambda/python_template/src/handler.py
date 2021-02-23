@@ -162,6 +162,53 @@ def yourFunction(request, context):
             ssh.close()
         else:
             inspector.addAttribute('error', 'Instance not found.')
+    elif (task == "runTest"):
+        ec2Client = botoSession.client('ec2')
+        ec2Resource = botoSession.resource('ec2')
+
+        ourInstance = findOurInstance(ec2Client, jobID)
+        if (ourInstance is not None):
+            ip = ourInstance['PublicIpAddress']
+            inspector.addAttribute("ip", str(ip))
+
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username='tcss556', password='secretPassword')
+
+            command = 'printf "'
+            command += str(arguments['environment']) + '\n'
+            command += str(arguments['agent']) + '\n'
+            command += '2\n'
+            command += 'trainedAgent.bin\n'
+            command += '3\n'
+
+            paraMap = {
+                '1': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval'],
+                '2': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
+                '3': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
+                '4': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
+                '5': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
+            }
+
+            paramList = paraMap[str(arguments['agent'])]
+            for param in paramList:
+                command += str(arguments[param]) + '\n'
+
+            command += '5\n'
+            if (sessionToken != ""):
+                command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + ' --accessKey ' + accessKey + ' --sessionToken ' + sessionToken + ' --jobID ' + jobID
+            else:
+                command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + ' --accessKey ' + accessKey + ' --jobID ' + jobID
+            command += ' &> /dev/null & sleep 1'
+
+            inspector.addAttribute("command", command)
+
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+            stdout=ssh_stdout.readlines()
+            inspector.addAttribute("stdout", stdout)
+            ssh.close()
+        else:
+            inspector.addAttribute('error', 'Instance not found.')
     elif (task == "instanceState"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
