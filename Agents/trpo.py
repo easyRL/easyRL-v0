@@ -1,6 +1,9 @@
-from Agents import agent, ppo
+from Agents import agent, modelFreeAgent
 from Agents.ppo import PPO
 from Agents.deepQ import DeepQ
+from Agents.Collections import ExperienceReplay
+from Agents.Collections.TransitionFrame import TransitionFrame
+
 import tensorflow as tf
 #from tensorflow.linalg.experimental import conjugate_gradient
 from tensorflow.keras.models import Sequential
@@ -20,19 +23,21 @@ from torch.optim import Adam
 from torch.distributions import Categorical
 from collections import namedtuple
 
-class TRPO(ppo.PPO):
+class TRPO(PPO):
     displayName = 'TRPO Agent'
-    newParameters = ppo.PPO.newParameters
-    parameters = ppo.PPO.parameters
-    paramLen = len(newParameters)
+    newParameters = PPO.newParameters
+    parameters = PPO.parameters
 
     #Invoke constructor
     def __init__(self, *args):
-        super().__init__(*args[:-paramLen])
+        paramLen = len(TRPO.parameters)
+        super().__init__()
         self.Rollout = namedtuple('Rollout', ['states', 'actions', 'rewards', 'next_states',])
         self.rewards = []
         self.rollouts = []
         self.advantages = 0
+        '''self.action_size = super().action_size
+        self.state_size = super().state_size'''
     '''def optimize(self, action, state, policy, parameters, newParameters):
         advantage = 0
         for critic in range(10):
@@ -50,16 +55,24 @@ class TRPO(ppo.PPO):
         action = probabilities.multimonial(1)
         return action, probabilities'''
 
+    def get_empty_state(self):
+        return super().get_empty_state()
+
+    def sample(self):
+        return self.memory.sample(self.batch_size)
+
+    def addToMemory(self, state, action, reward, new_state, done):
+        self.memory.append_frame(TransitionFrame(state, action, reward, new_state, done))
+
     def remember(self, state, action, reward, new_state, done): 
         self.addToMemory(state, action, reward, new_state, done)
-        loss = 0
         if len(self.memory) < 2*self.batch_size:
-            return 0
+            0
         mini_batch = self.sample()
         num_rollouts = 10
         for t in range(num_rollouts): 
-            DeepQ.reset()
-            state = DeepQ.get_empty_state()
+            self.reset()
+            state = super().get_empty_state()
             done = False
             samples = []
             self.rewards = []
@@ -145,11 +158,11 @@ class TRPO(ppo.PPO):
         self.L = self.surrogate_loss(probabilities, probabilities.detach())
         self.KL = self.kl_div(distribution, distribution)
 
-        self.g = self.flat_grad(self.L, parameters, retain_graph=True)
-        self.d_kl = self.flat_grad(self.KL, parameters, create_graph=True)
+        self.g = self.flat_grad(self.L, TRPO.parameters, retain_graph=True)
+        self.d_kl = self.flat_grad(self.KL, TRPO.parameters, create_graph=True)
 
         def HVP(v):
-            return self.flat_grad(self.d_kl @ v, parameters, retain_graph=True)
+            return self.flat_grad(self.d_kl @ v, TRPO.parameters, retain_graph=True)
 
         search_dir = self.conjugate_gradient(HVP, self.g)
         delta = 0.01
@@ -232,7 +245,7 @@ class TRPO(ppo.PPO):
 
     def apply_update(self, grad_flattened):
         n = 0
-        for p in parameters:
+        for p in TRPO.parameters:
             numel = p.numel()
             g = grad_flattened[n:n + numel].view(p.shape)
             p.data += g
@@ -242,7 +255,7 @@ class TRPO(ppo.PPO):
         self.train(num_rollouts=10)
 
     def save(self, filename):
-        mem1 = super().actorMdel.get_weights()
+        mem1 = super().actorModel.get_weights()
         joblib.dump((TRPO.displayName, mem1), filename)
         mem2 = super().criticModel.get_weights
         joblib.dump((TRPO.displayName, mem2), filename)

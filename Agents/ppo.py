@@ -1,6 +1,7 @@
-from Agents import agent, modelFreeAgent, trpo
+from Agents import agent, modelFreeAgent
 from Agents.deepQ import DeepQ
-from Agents.Collections import ExperienceReplay, TransitionFrame
+from Agents.Collections import ExperienceReplay
+from Agents.Collections.TransitionFrame import TransitionFrame
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
@@ -13,7 +14,7 @@ from tensorflow.keras.optimizers import Adam
 
 class PPO:
 
-    newParameters = newParameters = [modelFreeAgent.ModelFreeAgent.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
+    newParameters = [modelFreeAgent.ModelFreeAgent.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
                      modelFreeAgent.ModelFreeAgent.Parameter('Policy learning rate', 0.00001, 1, 0.00001, 0.001, True, True,
                                                              "A learning rate that the Adam optimizer starts at"),
                      modelFreeAgent.ModelFreeAgent.Parameter('Value learning rate', 0.00001, 1, 0.00001, 0.001,
@@ -33,14 +34,22 @@ class PPO:
                                                              "A parameter that when set below 1, can decrease variance while maintaining reasonable bias")]
     parameters = modelFreeAgent.ModelFreeAgent.parameters + newParameters
 
-    def __init__(self, *args, action_size, state_size, mini_batch):
-        paramLen = len(newParameters)
+    def __init__(self, *args):
+        paramLen = len(PPO.newParameters)
+        super().__init__(*args[:-paramLen])
+        empty_state = self.get_empty_state()
         # Initialize parameters
-        self.action_size = agent.action_size
-        self.state_size = agent.state_size
-        self.batch_size, _, _, self.horizon, self.epochSize, _, _ = [int(arg) for arg in args[-paramLen:]]
-        _, self.policy_lr, self.value_lr, _, _, self.epsilon, self.lam = [arg for arg in args[-paramLen:]]
-        self.mini_batch = mini_batch
+        self.memory_size = DeepQ.memory_size
+        self.batch_size = DeepQ.batch_size
+        self.target_update_interval = DeepQ.target_update_interval
+        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
+        self.total_steps = 0
+        self.allMask = np.full((1, self.action_size), 1)
+        self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
+        '''self.action_size = DeepQ.action_size
+        self.state_size = DeepQ.state_size'''
+        #self.batch_size, _, _, self.horizon, self.epochSize, _, _ = [int(arg) for arg in args[-paramLen:]]
+        #_, self.policy_lr, self.value_lr, _, _, self.epsilon, self.lam = [arg for arg in args[-paramLen:]]
         '''self.mini_batch = mini_batch
         self.gamma = gamma
         self.horizon = horizon
@@ -57,13 +66,6 @@ class PPO:
         # Set up critic neural network
         self.criticModel = self.buildCriticNetwork()
         self.criticTarget = self.buildCriticNetwork()
-        # Set up replay buffer
-        empty_state = DeepQ.get_empty_state()
-        self.batch_size, self.memory_size, self.target_update_interval = [int(arg) for arg in args[-paramLen:]]
-        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
-        self.total_steps = 0
-        self.allMask = np.full((1, self.action_size), 1)
-        self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
 
     def buildActorNetwork(self):
         import torch.nn as nn
@@ -98,6 +100,9 @@ class PPO:
                               nn.ReLU(),
                               nn.Linear(32, 1))
         return model
+
+    def get_empty_state(self):
+        return agent.Agent.get_empty_state(self)
 
     def sample(self):
         return self.memory.sample(self.batch_size)
