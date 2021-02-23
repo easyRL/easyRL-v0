@@ -25,13 +25,18 @@ from collections import namedtuple
 
 class TRPO(PPO):
     displayName = 'TRPO Agent'
-    newParameters = PPO.newParameters
-    parameters = PPO.parameters
+    newParameters = [DeepQ.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001,
+                                                             True, True,
+                                                             "A learning rate that the Adam optimizer starts at")
+                     ]
+    parameters = PPO.parameters + newParameters
 
     #Invoke constructor
     def __init__(self, *args):
-        paramLen = len(TRPO.parameters)
-        super().__init__()
+        print("Stuff TRPO:")
+        print(str(args))
+        paramLen = len(TRPO.newParameters)
+        super().__init__(*args[:-paramLen])
         self.Rollout = namedtuple('Rollout', ['states', 'actions', 'rewards', 'next_states',])
         self.rewards = []
         self.rollouts = []

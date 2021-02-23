@@ -12,36 +12,37 @@ from tensorflow.keras import utils
 from tensorflow.keras.losses import KLDivergence
 from tensorflow.keras.optimizers import Adam
 
-class PPO:
-
-    newParameters = [modelFreeAgent.ModelFreeAgent.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('Policy learning rate', 0.00001, 1, 0.00001, 0.001, True, True,
+class PPO(DeepQ):
+#DeepQ.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
+    newParameters = [DeepQ.Parameter('Policy learning rate', 0.00001, 1, 0.00001, 0.001, True, True,
                                                              "A learning rate that the Adam optimizer starts at"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('Value learning rate', 0.00001, 1, 0.00001, 0.001,
+                     DeepQ.Parameter('Value learning rate', 0.00001, 1, 0.00001, 0.001,
                                                              True, True,
                                                              "A learning rate that the Adam optimizer starts at"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('Horizon', 10, 10000, 1, 50,
+                     DeepQ.Parameter('Horizon', 10, 10000, 1, 50,
                                                              True, True,
                                                              "The number of timesteps over which the returns are calculated"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('Epoch Size', 10, 100000, 1, 500,
+                     DeepQ.Parameter('Epoch Size', 10, 100000, 1, 500,
                                                              True, True,
                                                              "The length of each epoch (likely should be the same as the max episode length)"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('PPO Epsilon', 0.00001, 0.5, 0.00001, 0.2,
+                     DeepQ.Parameter('PPO Epsilon', 0.00001, 0.5, 0.00001, 0.2,
                                                              True, True,
                                                              "A measure of how much a policy can change w.r.t. the states it's trained on"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('PPO Lambda', 0.5, 1, 0.001, 0.95,
+                     DeepQ.Parameter('PPO Lambda', 0.5, 1, 0.001, 0.95,
                                                              True, True,
                                                              "A parameter that when set below 1, can decrease variance while maintaining reasonable bias")]
-    parameters = modelFreeAgent.ModelFreeAgent.parameters + newParameters
+    parameters = DeepQ.parameters + newParameters
 
     def __init__(self, *args):
+        print("Stuff PPO:")
+        print(str(args))
         paramLen = len(PPO.newParameters)
         super().__init__(*args[:-paramLen])
         empty_state = self.get_empty_state()
         # Initialize parameters
-        self.memory_size = DeepQ.memory_size
-        self.batch_size = DeepQ.batch_size
-        self.target_update_interval = DeepQ.target_update_interval
+        #self.memory_size = DeepQ.memory_size
+        #self.batch_size = DeepQ.batch_size
+        #self.target_update_interval = DeepQ.target_update_interval
         self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
