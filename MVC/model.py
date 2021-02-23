@@ -124,12 +124,12 @@ class Model:
                         
                         # Render and save the step.
                         frame = self.environment.render()
-                        modelState = Model.State(frame, epsilon, reward, loss)
 
                         if (self.cloudBridge is not None):
-                            self.cloudBridge.submitStep(frame, epsilon, reward, loss)
+                            self.cloudBridge.submitStep(frame, 0, reward, 0)
                         
                         # Send the state from the step.
+                        modelState = Model.State(frame, None, reward, None)
                         message = Model.Message(Model.Message.STATE, modelState)
                         messageQueue.put(message)
 
@@ -138,6 +138,9 @@ class Model:
                     
                     # Add the policy rewards to the episode rewards.
                     episode_rewards = np.append(episode_rewards, policy_reward)
+                
+                    if self.environment.done or self.isHalted:
+                        break
                     
                     
                 
@@ -151,8 +154,6 @@ class Model:
 
                 message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
                 messageQueue.put(message)
-
-                epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
 
                 if self.isHalted:
                     self.isHalted = False
@@ -187,6 +188,9 @@ class Model:
 
         if self.agent:
             if (isinstance(self.agent, modelFreeAgent.ModelFreeAgent)):
+                '''
+                Testing algorithm for Model Free Agents.
+                '''
                 min_epsilon, max_epsilon, decay_rate = self.agent.min_epsilon, self.agent.max_epsilon, self.agent.decay_rate
                 epsilon = max_epsilon
 
@@ -213,6 +217,7 @@ class Model:
                         if (self.cloudBridge is not None):
                             self.cloudBridge.submitStep(frame, 0, reward, 0)
                         
+                        # Send the state from the step.
                         modelState = Model.State(frame, None, reward, None)
                         message = Model.Message(Model.Message.STATE, modelState)
                         messageQueue.put(message)
@@ -227,6 +232,43 @@ class Model:
                     messageQueue.put(message)
 
                     epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
+
+                    if self.isHalted:
+                        self.isHalted = False
+                        break
+            elif (isinstance(self.agent, modelBasedAgent.ModelBasedAgent)):
+                '''
+                Testing algorithm for Model Based Agents.
+                '''
+                for episode in range(int(total_episodes)):
+                    # Reset the environment.
+                    self.environment.reset()
+
+                    # Execute this episode.
+                    for step in range(int(max_steps)):
+                        # Execute one step.
+                        old_state = self.environment.state
+                        action = self.agent.choose_action(old_state)
+                        reward = self.environment.step(action)
+                        
+                        # Render the step
+                        frame = self.environment.render()
+                        
+                        if (self.cloudBridge is not None):
+                            self.cloudBridge.submitStep(frame, 0, reward, 0)
+                        
+                        modelState = Model.State(frame, None, reward, None)
+                        message = Model.Message(Model.Message.STATE, modelState)
+                        messageQueue.put(message)
+
+                        if self.environment.done or self.isHalted:
+                            break
+
+                    if (self.cloudBridge is not None):
+                        self.cloudBridge.submitEpisode(episode)
+
+                    message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
+                    messageQueue.put(message)
 
                     if self.isHalted:
                         self.isHalted = False
