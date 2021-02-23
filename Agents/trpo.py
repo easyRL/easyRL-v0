@@ -25,7 +25,11 @@ from collections import namedtuple
 
 class TRPO(PPO):
     displayName = 'TRPO Agent'
+<<<<<<< HEAD
     newParameters = [PPO.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001,
+=======
+    newParameters = [DeepQ.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001,
+>>>>>>> 69e928f70957543f7597edffb9600322894a6b24
                                                              True, True,
                                                              "A learning rate that the Adam optimizer starts at")
                      ]
