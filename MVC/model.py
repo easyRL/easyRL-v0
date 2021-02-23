@@ -138,8 +138,8 @@ class Model:
                     
                     # Add the policy rewards to the episode rewards.
                     episode_rewards = np.append(episode_rewards, policy_reward)
-                
-                    if self.environment.done or self.isHalted:
+                    
+                    if self.isHalted:
                         break
                     
                     
