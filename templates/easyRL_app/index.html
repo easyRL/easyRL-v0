@@ -73,7 +73,6 @@
       </div>
     </div>
     <br/>
-    <!-- Tabs & dropdowns-->
     <!-- Drop downs -->
     <div class="row justify-content-center " id="select-containers">
           <div class="col-md-3">
@@ -214,7 +213,6 @@
       $("#file-name").html(src);            
     });
 
-    // TODO: FINISH ADDED SLIDERS AND TEXT BOXES
     function sliderUpdater(){
 
       $("#batch-text").val($("#batch-slider").val());
@@ -281,7 +279,7 @@
         var nextTab = $('#myTab li').length+1;    
       // create the tab
       
-      $("#myTab li:nth-child(2)").before($('<li class="nav-item" role="presentation"><button class="nav-link" id="hp-tab'+nextTab+'" data-bs-toggle="tab" data-bs-target="#hp'+nextTab+'" type="button" role="tab" aria-controls="hp'+nextTab+'" aria-selected="false">Hyper Parameters'+nextTab+' <i class="bi-dash-circle-fill"  style="color: red"></i></button></li>'));
+      $("#myTab li:nth-child(2)").before($('<li class="nav-item" role="presentation"><button class="nav-link" id="hp-tab'+nextTab+'" data-bs-toggle="tab" data-bs-target="#hp'+nextTab+'" type="button" role="tab" aria-controls="hp'+nextTab+'" aria-selected="false">'+$("#file-name").text()+' <i class="bi-dash-circle-fill"  style="color: red"></i></button></li>'));
       // create the tab content
 
       $('<div class="tab-pane fade" id="hp'+nextTab+'" role="tabpanel" aria-labelledby="hp-tab'+nextTab+'">'+form+'</div>').appendTo('.tab-content');;
@@ -539,8 +537,9 @@
       }, 5000);
 	    
 	  });
-  
-var defaults =     '<div class="row">'
+    
+  function simpleFormFactory(agent){
+  var defaults =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Gamma</label>'
             +         '<div class=""  ><input type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
@@ -1127,7 +1126,6 @@ var sarsa =     '<div class="row">'
             +'      </div>';                     
 
 
-function simpleFormFactory(agent){
     var result = "";
     switch(agent){
         case "Deep Q":
@@ -1164,6 +1162,6 @@ function simpleFormFactory(agent){
             break;
     }
     return result
-}
+  }
   </script>  
 {%endblock%}

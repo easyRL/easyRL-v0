@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 
 from django.shortcuts import redirect, render
 from django.shortcuts import render, redirect
-from pymemcache.client import base
+
 from . import forms
 
 import json
