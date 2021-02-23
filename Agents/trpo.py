@@ -25,41 +25,33 @@ from collections import namedtuple
 
 class TRPO(PPO):
     displayName = 'TRPO Agent'
-    newParameters = PPO.newParameters
-    parameters = PPO.parameters
+    newParameters = [PPO.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001,
+                                                             True, True,
+                                                             "A learning rate that the Adam optimizer starts at")
+                     ]
+    parameters = PPO.parameters + newParameters
 
     #Invoke constructor
     def __init__(self, *args):
-        paramLen = len(TRPO.parameters)
-        super().__init__()
+        print("Stuff TRPO:")
+        print(str(args))
+        paramLen = len(TRPO.newParameters)
+        super().__init__(*args[:-paramLen])
         self.Rollout = namedtuple('Rollout', ['states', 'actions', 'rewards', 'next_states',])
         self.rewards = []
         self.rollouts = []
         self.advantages = 0
-        '''self.action_size = super().action_size
-        self.state_size = super().state_size'''
-    '''def optimize(self, action, state, policy, parameters, newParameters):
-        advantage = 0
-        for critic in range(10):
-            for actor in range(10):
-                # compute advantage
-                advantage = 0
-                super().updateActor()
-            #optimize surrogate loss using recurrent neural network 
-            parameters = newParameters
-            super.updateCritic()'''
 
-    '''def choose_action(self, state):
-        observation = Tensor(state).unsqueeze(0)
-        probabilities = super().criticModel(Variable(observation, requires_grad=True))
-        action = probabilities.multimonial(1)
-        return action, probabilities'''
+        self.actorModel = super().buildActorNetwork()
+        self.actorTarget = super().buildActorNetwork()
+        self.criticModel = super().buildCriticNetwork()
+        self.criticTarget = super().buildCriticNetwork()
 
     def get_empty_state(self):
         return super().get_empty_state()
 
     def sample(self):
-        return self.memory.sample(self.batch_size)
+        pass
 
     def addToMemory(self, state, action, reward, new_state, done):
         self.memory.append_frame(TransitionFrame(state, action, reward, new_state, done))
@@ -79,11 +71,11 @@ class TRPO(PPO):
             while not done:
                 with torch.no_grad():
                     action = self.choose_action(state)
-                    next_state, reward, done, _ = self.action(state)
+                    #next_state, reward, done, _ = self.action(state)
 
-                    samples.append((state, action, reward, next_state))
+                    samples.append((state, action, reward, new_state))
 
-                    state = next_state
+                    #state = next_state
                 
             states, actions, rewards, next_states = zip(*samples)
 
@@ -97,43 +89,21 @@ class TRPO(PPO):
         self.updateAgent(self.rollouts)
         return self.surrogate_loss
 
-
-
-    '''def train(self, num_rollouts=10):
-        for epoch in range(super().epochSize):
-            rollouts = []
-
-            for t in range(num_rollouts):
-                DeepQ.reset()
-                state = DeepQ.get_empty_state()
-                done = False
-
-                samples = []
-                self.rewards = []
-                while not done:
-                    with torch.no_grad():
-                        action = self.choose_action(state)
-                        next_state, reward, done, _ = self.action(state)
-
-                        samples.append((state, action, reward, next_state))
-
-                        state = next_state
-                
-                states, actions, rewards, next_states = zip(*samples)
-
-                states = torch.stack([torch.from_numpy(state) for state in states], dim=0).float()
-                next_states = torch.stack([torch.from_numpy(state) for state in next_states], dim=0).float()
-                actions = torch.as_tensor(actions).unsqueeze(1)
-                rewards = torch.as_tensor(rewards).unsqueeze(1)
-
-                rollouts.append(self.Rollout(states, actions, rewards, next_states))
-        self.updateAgent(rollouts)
-        return self.surrogate_loss '''
-
     def choose_action(self, state):
         state = torch.tensor(state).float().unsqueeze(0)
-        dist = Categorical(super().actorModel(state))
+        dist = Categorical(self.actorModel(state))
         return dist.sample().item()
+
+
+    '''def choose_action(self, state):
+        qval = self.predict(state, False)
+        epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * self.time_steps)
+        # TODO: Put epsilon at a level near this
+        if random.random() > epsilon:
+            action = np.argmax(qval)
+        # else:
+            # action = self.state_size.sample()
+        return action'''
 
     def calculateTargetValues(self, mini_batch):
         pass
@@ -142,6 +112,7 @@ class TRPO(PPO):
         states = torch.cat([r.states for r in rollouts], dim=0)
         actions = torch.cat([r.actions for r in rollouts], dim=0).flatten()
 
+        # Compute advantage function used for computing loss function.
         self.advantages = [self.estimate_advantages(states, next_states[-1], rewards) for states, _, rewards, next_states in rollouts]
         self.advantages = torch.cat(self.advantages, dim=0).flatten()
 
@@ -149,10 +120,13 @@ class TRPO(PPO):
 
         super().updateCritic(self.advantages)
 
-        distribution = super().actorModel(states)
+        # Computes distribution and performs importance sampling.
+        # Computes distribution of dataset to use for calculating probabiities.
+        distribution = self.actorModel(states)
 
         distribution = torch.distributions.utils.clam_prob(distribution)
 
+        # Computes probabilities via Importance Sampling in order to compute loss function.
         probabilities = distribution[range(distribution.shape[0]), actions]
 
         self.L = self.surrogate_loss(probabilities, probabilities.detach())
@@ -164,16 +138,18 @@ class TRPO(PPO):
         def HVP(v):
             return self.flat_grad(self.d_kl @ v, TRPO.parameters, retain_graph=True)
 
+        # Compute search direction in the gradient.
         search_dir = self.conjugate_gradient(HVP, self.g)
         delta = 0.01
         max_length = torch.sqrt(2 * delta / (search_dir @ HVP(search_dir)))
         max_steps = max_length * search_dir
 
+        # Defines the size of policy update and computes loss.
         def criterion(step):
             self.apply_update(step)
 
             with torch.no_grad():
-                distribution_new = super().actorModel(states)
+                distribution_new = self.actorModel(states)
                 distribution_new = torch.distributions.utils.clam_probs(distribution_new)
                 probabilities_new = distribution_new[range(distribution_new.shape[0]), actions]
 
@@ -191,15 +167,18 @@ class TRPO(PPO):
             while not criterion((0.9 ** i) * max_steps) and i < 10:
                 i += 1
 
+    # Estimate the advantages used for advantage function.
     def estimate_advantages(self, states, last_state, rewards):
-        values = super().criticModel(states)
-        last_value = super().criticModel(last_state.unsqueeze(0))
+        values = self.criticModel(states)
+        last_value = PPO.criticModel(last_state.unsqueeze(0))
         next_values = torch.zeros_like(rewards)
         for i in reversed(range(rewards.shape[0])):
             last_value = next_values[i] = rewards[i] + 0.99 * last_value
         self.advantages = next_values - values
         return self.advantages
 
+    # Uses probabilities and advantage value to compute surrogate loss
+    # Calculates the mean for expected value
     def surrogate_loss(self, new_probabilities, old_probabilities):
         return (new_probabilities / old_probabilities * self.advantages).mean()
 
@@ -207,7 +186,7 @@ class TRPO(PPO):
         p = p.detach()
         return (p * (p.log() - q.log())).sum(-1).mean()
 
-
+    # Performs grid search.
     def flat_grad(self, y, x, retain_graph=False, create_graph=False):
         if create_graph:
             retain_graph = True
@@ -216,6 +195,7 @@ class TRPO(PPO):
         g = torch.cat([t.view(-1) for t in g])
         return g
 
+    # Uses conjugate gradient to ensure policy upates aren't too big or too small.
     def conjugate_gradient(self, A, b, delta=0., max_iterations=10):
         x = torch.zeros_like(b)
         r = b.clone()
@@ -242,7 +222,7 @@ class TRPO(PPO):
             x = x_new
         return x
 
-
+    # Performs a policy update by updating parameters. 
     def apply_update(self, grad_flattened):
         n = 0
         for p in TRPO.parameters:
@@ -255,9 +235,9 @@ class TRPO(PPO):
         self.train(num_rollouts=10)
 
     def save(self, filename):
-        mem1 = super().actorModel.get_weights()
+        mem1 = self.actorModel.get_weights()
         joblib.dump((TRPO.displayName, mem1), filename)
-        mem2 = super().criticModel.get_weights
+        mem2 = self.criticModel.get_weights()
         joblib.dump((TRPO.displayName, mem2), filename)
 
     def load(self, filename):
@@ -265,13 +245,13 @@ class TRPO(PPO):
         if name != TRPO.displayName:
             print('load failed')
         else:
-            super().actorModel.set_weights(mem)
-            super().actorTarget.set_weights(mem)
-            super().criticModel.set_weights(mem)
-            super().criticTarget.set_weights(mem)
+            self.actorModel.set_weights(mem)
+            self.actorTarget.set_weights(mem)
+            self.criticModel.set_weights(mem)
+            self.criticTarget.set_weights(mem)
 
     def memsave(self):
-        return self.actorModel.get_weights(), self.criticModel.get_weights()
+        return self.criticModel.get_weights()
 
     def memload(self, mem):
         self.actorModel.set_weights(mem)

@@ -12,52 +12,43 @@ from tensorflow.keras import utils
 from tensorflow.keras.losses import KLDivergence
 from tensorflow.keras.optimizers import Adam
 
-class PPO:
-
-    newParameters = [modelFreeAgent.ModelFreeAgent.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('Policy learning rate', 0.00001, 1, 0.00001, 0.001, True, True,
+class PPO(DeepQ):
+#DeepQ.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
+    newParameters = [DeepQ.Parameter('Policy learning rate', 0.00001, 1, 0.00001, 0.001, True, True,
                                                              "A learning rate that the Adam optimizer starts at"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('Value learning rate', 0.00001, 1, 0.00001, 0.001,
+                     DeepQ.Parameter('Value learning rate', 0.00001, 1, 0.00001, 0.001,
                                                              True, True,
                                                              "A learning rate that the Adam optimizer starts at"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('Horizon', 10, 10000, 1, 50,
+                     DeepQ.Parameter('Horizon', 10, 10000, 1, 50,
                                                              True, True,
                                                              "The number of timesteps over which the returns are calculated"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('Epoch Size', 10, 100000, 1, 500,
+                     DeepQ.Parameter('Epoch Size', 10, 100000, 1, 500,
                                                              True, True,
                                                              "The length of each epoch (likely should be the same as the max episode length)"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('PPO Epsilon', 0.00001, 0.5, 0.00001, 0.2,
+                     DeepQ.Parameter('PPO Epsilon', 0.00001, 0.5, 0.00001, 0.2,
                                                              True, True,
                                                              "A measure of how much a policy can change w.r.t. the states it's trained on"),
-                     modelFreeAgent.ModelFreeAgent.Parameter('PPO Lambda', 0.5, 1, 0.001, 0.95,
+                     DeepQ.Parameter('PPO Lambda', 0.5, 1, 0.001, 0.95,
                                                              True, True,
                                                              "A parameter that when set below 1, can decrease variance while maintaining reasonable bias")]
-    parameters = modelFreeAgent.ModelFreeAgent.parameters + newParameters
+    parameters = DeepQ.parameters + newParameters
 
     def __init__(self, *args):
+        print("Stuff PPO:")
+        print(str(args))
         paramLen = len(PPO.newParameters)
         super().__init__(*args[:-paramLen])
         empty_state = self.get_empty_state()
         # Initialize parameters
-        self.memory_size = DeepQ.memory_size
-        self.batch_size = DeepQ.batch_size
-        self.target_update_interval = DeepQ.target_update_interval
+        #self.memory_size = DeepQ.memory_size
+        #self.batch_size = DeepQ.batch_size
+        #self.target_update_interval = DeepQ.target_update_interval
         self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
-        '''self.action_size = DeepQ.action_size
-        self.state_size = DeepQ.state_size'''
         #self.batch_size, _, _, self.horizon, self.epochSize, _, _ = [int(arg) for arg in args[-paramLen:]]
         #_, self.policy_lr, self.value_lr, _, _, self.epsilon, self.lam = [arg for arg in args[-paramLen:]]
-        '''self.mini_batch = mini_batch
-        self.gamma = gamma
-        self.horizon = horizon
-        self.epoch = epoch
-        self.episodes = episodes
-        self.policy_lr = policy_lr
-        self.value_lr = value_lr
-        self.rewards = []'''
 
         # Set up actor neural network
         self.actorModel = self.buildActorNetwork()
@@ -67,38 +58,52 @@ class PPO:
         self.criticModel = self.buildCriticNetwork()
         self.criticTarget = self.buildCriticNetwork()
 
+        self.policy_lr = 0.0001
+        self.value_lr = 0.0001
+
     def buildActorNetwork(self):
         import torch.nn as nn
-
-        model = nn.Sequential(nn.Linear(self.state_size, 32),
+        import tensorflow.keras as k
+        import tensorflow as tf 
+        '''from tensorflow.python.keras.optimizer_v2.adam import Adam
+        from tensorflow.keras.models import Model
+        from tensorflow.keras.layers import Dense, Input, Flatten, multiply'''
+        model = nn.Sequential(nn.Linear(self.state_size[0], 32),
                               nn.ReLU(),
                               nn.Linear(32, self.action_size),
                               nn.Softmax(dim=1))
-        #model.compile(loss='mse', optimizer=Adam(lr=self.value_lr, clipvalue=1), metrics=[metrics.mean_squared_error], steps_per_execution=10)
+        return model
+        #model.compile(loss='mse', optimizer=Adam(lr=self.value_lr, clipvalue=1), metrics=[metrics.mean_squared_error], steps_per_execution=10)'''
         '''inputA = Input(shape=self.state_size)
         inputB = Input(shape=(self.action_size,))
-
-        if len(self.state_size) == 1:
-            x = TimeDistributed(Dense(10, input_shape=self.state_size, activation='relu'))(inputA)
-        else:
-            x = TimeDistributed(Conv2D(16, 8, strides=4, activation='relu'))(inputA)
-            x = TimeDistributed(Conv2D(32, 4, strides=2, activation='relu'))(x)
-        x = TimeDistributed(Flatten())(x)
-        x = LSTM(256)(x)
-        x = Dense(10, activation='relu')(x)  # fully connected
-        x = Dense(10, activation='relu')(x)
-        x = Dense(self.action_size)(x)
+        x = Flatten()(inputA)
+        x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
+        x = Dense(24, activation='relu')(x)
+        x = Dense(self.action_size, activation='linear')(x)
         outputs = multiply([x, inputB])
-        model = Model(inputs=[inputA, inputB], outputs=outputs)'''
-        #model.compile(loss=kl, optimizer=Adam(lr=0.0001, clipvalue=1))
+        kl = tf.keras.losses.KLDivergence()
+        model = Model(inputs=[inputA, inputB], outputs=outputs)
+        model.compile(loss=kl, optimizer=Adam(lr=0.0001, clipvalue=1))'''
         return model
 
     def buildCriticNetwork(self):
         import torch.nn as nn
-
-        model = nn.Sequential(nn.Linear(self.state_size, 32),
+        '''from tensorflow.python.keras.optimizer_v2.adam import Adam
+        from tensorflow.keras.models import Model
+        from tensorflow.keras.layers import Dense, Input, Flatten, multiply'''
+        model =nn.Sequential(nn.Linear(self.state_size[0], 32),
                               nn.ReLU(),
                               nn.Linear(32, 1))
+        '''inputA = Input(shape=self.state_size)
+        inputB = Input(shape=(self.action_size,))
+        x = Flatten()(inputA)
+        x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
+        x = Dense(24, activation='relu')(x)
+        x = Dense(self.action_size, activation='linear')(x)
+        outputs = multiply([x, inputB])
+        outputs = multiply([x, inputB])
+        model = Model(inputs=[inputA, inputB], outputs=outputs)
+        model.compile(loss='mse', optimizer=Adam(lr=0.0001, clipvalue=1))'''
         return model
 
     def get_empty_state(self):
@@ -109,22 +114,6 @@ class PPO:
 
     def addToMemory(self, state, action, reward, new_state, done):
         self.memory.append_frame(TransitionFrame(state, action, reward, new_state, done))
-   
-    '''def remember(self, state, action, reward, new_state, done): 
-        self.addToMemory(state, action, reward, new_state, done)
-        actor_loss = 0
-        critic_loss = 0
-        if len(self.memory) < 2*self.batch_size:
-            return actor_loss, critic_loss
-        mini_batch = self.sample()
-
-        X_train, Y_train = self.calculateTargetActor(mini_batch)
-        actor_loss = self.actorModel.train_on_batch(X_train, Y_train)
-        Z_train, K_train = self.calculateTargetCritic(mini_batch)
-        critic_loss = self.criticModel.train_on_batch(Z_train, K_train)
-        self.updateActorNetwork()
-        self.updateCriticNetwork()
-        return actor_loss, critic_loss'''
 
     def remember(self, state, action, reward, new_state, done): 
         pass
@@ -143,11 +132,9 @@ class PPO:
         state = np.reshape(state, shape)
         if isTarget:
             value = self.actorTarget.predict([state, self.allMask])
-            policy = self.criticTarget.predict([state, self.allMask])
         else:
             value = self.actorModel.predict([state, self.allMask])
-            policy = self.criticModel.predict([state, self.allMask])
-        return value, policy
+        return value
 
     def updateActorNetwork(self):
         if self.total_steps >= 2*self.batch_size and self.total_steps % self.target_update_interval == 0:
@@ -162,7 +149,7 @@ class PPO:
         self.total_steps += 1
 
     def updateCritic(self, advantages):
-        critic_optim = Adam(self.parameters(), lr=self.policy_lr)
+        critic_optim = Adam(self.parameters, lr=0.0001)
         loss = 0.5 * (advantages ** 2).mean()
         critic_optim.zero_grad()
         loss.backward()
