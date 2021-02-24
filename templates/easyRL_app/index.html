@@ -447,6 +447,7 @@
         }     
     }
     
+  
     function track_training_progress() {  
 			var image = document.getElementById("graph-image");   
 			var value = "True";  
@@ -478,38 +479,37 @@
 				}  
 			}
 		}
-  $('#btn-halt').click(function() {
+  
+    $('#btn-halt').click(function() {
     var data = {};
     $.post('/easyRL_app/halt/', data, function(result, status, jqxhr) {
         // do something
     })
   });
-    // Train button
+  
+  // Train button
 	$("#btn-train").click(function () {
 		// get values from sliders
 		//var slider = $(this).val();
-		$.ajax({
-      type: "POST",
-			url: '/easyRL_app/train/',
-			data: {
-				"environment": $('#env-hidden').val()
-	            ,"agent": $("#agent-hidden").val()
-	            ,"episodes": $("#num-episodes-text").val()
-	            ,"steps": $('#max-size-text').val()
-	            ,"gamma": $('#gamma-text').val()
-	            ,"minEpsilon": $('#min-epsilon-text').val()
-	            ,"maxEpsilon": $('#max-epsilon-text').val()
-	            ,"decayRate": $('#decay-text').val()
-	            ,"batchSize": $('#batch-text').val()
-	            ,"memorySize": $('#memory-size-text').val()
-	            ,"targetInterval": $('#target-update-interval-text').val()
-	            ,"alpha": $('#alpha-text').val()
-	            ,"historyLength": $('#history-text').val()
-	            //,"path": "./easyRL-v0/data.json"
-			},
-			dataType: 'text',
-			success: function (data) {
-				if (data == "0") {
+
+    var data = {
+      "environment": $('#env-hidden').val()
+            ,"agent": $("#agent-hidden").val()
+            ,"episodes": $("#num-episodes-text").val()
+            ,"steps": $('#max-size-text').val()
+            ,"gamma": $('#gamma-text').val()
+            ,"minEpsilon": $('#min-epsilon-text').val()
+            ,"maxEpsilon": $('#max-epsilon-text').val()
+            ,"decayRate": $('#decay-text').val()
+            ,"batchSize": $('#batch-text').val()
+            ,"memorySize": $('#memory-size-text').val()
+            ,"targetInterval": $('#target-update-interval-text').val()
+            ,"alpha": $('#alpha-text').val()
+            ,"historyLength": $('#history-text').val()
+            //,"path": "./easyRL-v0/data.json"
+    };
+    var posting = $.post('/easyRL_app/train/', data, function(result, status, jqXHR){
+      if (result == "0") {
 					// code to display images from S3
 					alert("The job is running");
 				}
@@ -517,9 +517,25 @@
 					// something wrong in here
 					alert("something wrong in here");
 				}
-			}
-		});
-		
+			
+    });
+
+		// $.ajax({
+    //   type: "POST",
+		// 	url: '/easyRL_app/train/',
+		// 	dataType: 'text',
+		// 	success: function (data) {
+		// 		if (data == "0") {
+		// 			// code to display images from S3
+		// 			alert("The job is running");
+		// 		}
+		// 		else {
+		// 			// something wrong in here
+		// 			alert("something wrong in here");
+		// 		}
+		// 	}
+		// });
+		posting.done(function () {
       var isRunning = "True";
       var interval = setInterval(function() {
 
@@ -540,8 +556,8 @@
         $("#training_image").attr("src", '/easyRL_app/image/?' + (new Date()).getTime());
         
       }, 5000);
-	    
-	  });
+    });
+  });
 
 	  
 	  // Reload button

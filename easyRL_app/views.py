@@ -91,29 +91,29 @@ def train(request):
     debug_sessions(request)
     if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
         return HttpResponse(apps.ERROR_UNAUTHENTICATED)
-    
     lambda_run_job(
         request.session['aws_access_key'],
         request.session['aws_secret_key'],
         request.session['aws_security_token'],
         request.session['job_id'],
         {
-            "environment": int(request.Post.get("environment", 0)),
-            "agent": int(request.Post.get('agent', 5)),
-            "episodes": int(request.Post.get('episodes',20)),
-            "steps": int(request.Post.get('steps', 50)),
-            "gamma": float(request.Post.get('gamma', 0.97)),
-            "minEpsilon": float(request.Post.get('minEpsilon',0)),
-            "maxEpsilon": float(request.Post.get('maxEpsilon',1)),
-            "decayRate": float(request.Post.get('decayRate',0.01)),
-            "batchSize": int(request.Post.get('batchSize', 32)),
-            "memorySize": int(request.Post.get('memorySize', 1000)),
-            "targetInterval": int(request.Post.get('targetInterval', 10)),
-            "historyLength": int(request.Post.get('historyLength', 10)),
+            "environment": int(request.POST.get("environment", 5)),
+            "agent": int(request.POST.get('agent', 5)),
+            "episodes": int(request.POST.get('episodes',20)),
+            "steps": int(request.POST.get('steps', 50)),
+            "gamma": float(request.POST.get('gamma', 0.97)),
+            "minEpsilon": float(request.POST.get('minEpsilon',0)),
+            "maxEpsilon": float(request.POST.get('maxEpsilon',1)),
+            "decayRate": float(request.POST.get('decayRate',0.01)),
+            "batchSize": int(request.POST.get('batchSize', 32)),
+            "memorySize": int(request.POST.get('memorySize', 1000)),
+            "targetInterval": int(request.POST.get('targetInterval', 10)),
+            "historyLength": int(request.POST.get('historyLength', 10)),
             #"path": request.GET['path'],
         }
     )
     return HttpResponse(apps.ERROR_NONE)
+    
 @csrf_exempt
 def halt(request):
     debug_sessions(request)
