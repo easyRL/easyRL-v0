@@ -13,7 +13,7 @@ from tensorflow.keras.losses import KLDivergence
 from tensorflow.keras.optimizers import Adam
 
 class PPO(DeepQ):
-#DeepQ.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
+    displayName = 'PPO'
     newParameters = [DeepQ.Parameter('Policy learning rate', 0.00001, 1, 0.00001, 0.001, True, True,
                                                              "A learning rate that the Adam optimizer starts at"),
                      DeepQ.Parameter('Value learning rate', 0.00001, 1, 0.00001, 0.001,
@@ -105,9 +105,6 @@ class PPO(DeepQ):
         model = Model(inputs=[inputA, inputB], outputs=outputs)
         model.compile(loss='mse', optimizer=Adam(lr=0.0001, clipvalue=1))'''
         return model
-
-    def get_empty_state(self):
-        return agent.Agent.get_empty_state(self)
 
     def sample(self):
         return self.memory.sample(self.batch_size)
