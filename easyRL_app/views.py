@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.shortcuts import render, redirect
 
+from django.views.decorators.csrf import csrf_exempt
 from . import forms
 
 import json
@@ -85,6 +86,7 @@ def logout(request):
         del request.session[key]
     return HttpResponseRedirect("/easyRL_app/login/")
 
+@csrf_exempt
 def train(request):
     debug_sessions(request)
     if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
@@ -96,25 +98,37 @@ def train(request):
         request.session['aws_security_token'],
         request.session['job_id'],
         {
-            "environment": int(request.GET.get("environment", 0)),
-            "agent": int(request.GET['agent']),
-            "episodes": int(request.GET['episodes']),
-            "steps": int(request.GET['steps']),
-            "gamma": float(request.GET['gamma']),
-            "minEpsilon": float(request.GET['minEpsilon']),
-            "maxEpsilon": float(request.GET['maxEpsilon']),
-            "decayRate": float(request.GET['decayRate']),
-            "batchSize": int(request.GET['batchSize']),
-            "memorySize": int(request.GET['memorySize']),
-            "targetInterval": int(request.GET['targetInterval']),
-            "historyLength": int(request.GET['historyLength']),
+            "environment": int(request.Post.get("environment", 0)),
+            "agent": int(request.Post.get('agent', 5)),
+            "episodes": int(request.Post.get('episodes',20)),
+            "steps": int(request.Post.get('steps', 50)),
+            "gamma": float(request.Post.get('gamma', 0.97)),
+            "minEpsilon": float(request.Post.get('minEpsilon',0)),
+            "maxEpsilon": float(request.Post.get('maxEpsilon',1)),
+            "decayRate": float(request.Post.get('decayRate',0.01)),
+            "batchSize": int(request.Post.get('batchSize', 32)),
+            "memorySize": int(request.Post.get('memorySize', 1000)),
+            "targetInterval": int(request.Post.get('targetInterval', 10)),
+            "historyLength": int(request.Post.get('historyLength', 10)),
             #"path": request.GET['path'],
         }
     )
     return HttpResponse(apps.ERROR_NONE)
-
+@csrf_exempt
 def halt(request):
-    pass
+    debug_sessions(request)
+    if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
+        return HttpResponse(apps.ERROR_UNAUTHENTICATED)
+    
+    lambda_halt_job(
+        request.session['aws_access_key'],
+        request.session['aws_secret_key'],
+        request.session['aws_security_token'],
+        request.session['job_id'],
+        )
+    return HttpResponse(apps.ERROR_NONE)
+
+
 def image(request):
     _, _, _, _, image_data = get_recent_training_data(
         request.session['aws_access_key'], 
@@ -170,7 +184,7 @@ def lambda_halt_job(aws_access_key, aws_secret_key, aws_security_token, job_id):
     }
     print(data)
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
-    print("{}lambda_run_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
+    print("{}lambda_halt_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
     if response['StatusCode'] == 200:
         streambody = response['Payload'].read().decode()
         print("{}stream_body{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, streambody))
