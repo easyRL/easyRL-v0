@@ -8,6 +8,7 @@ urlpatterns = [
     path('login/', view.login, name='login'),
     path('logout/', view.logout, name='logout'),
     path('train/', view.train, name='train'),
+    path('halt/', view.halt, name='halt'),
     path('image/', view.image, name='image'),
     path('is_job_running/', view.is_job_running, name='test'),
 ]

@@ -4,6 +4,7 @@ TASK_CREATE_INSTANCE = "createInstance"
 TASK_TERMINAL_INSTANCE = "terminateInstance"
 TASK_RUN_JOB = "runJob"
 TASK_IS_JOB_RUNNING = "isRunning"
+TASK_HALT_JOB = "haltJob"
 
 ERROR_NONE = 0
 ERROR_UNAUTHENTICATED = 1

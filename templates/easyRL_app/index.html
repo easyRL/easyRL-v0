@@ -7,7 +7,7 @@
         <div class="card-header">
           <ul class="nav nav-pills card-header-pills">
             <li class="nav-item">
-              <button id="btn_train" class="btn btn-primary" style="margin:5px;">Train</button>
+              <button id="btn-train" class="btn btn-primary" style="margin:5px;">Train</button>
             </li>
             <li class="nav-item">
               <button id="btn-halt" class="btn btn-primary"style="margin:5px;">Halt</button>
@@ -128,7 +128,7 @@
           <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="hp" role="tabpanel" aria-labelledby="hp-tab-0">
               <div class="image_container">
-                <img id="training_image" src="{% static 'easyRL_app/images/alien.jpg' %}" onError="this.onerror = '';this.style.visibility='hidden';"/>
+                <img id="training_image" src="" onError="this.onerror = '';this.style.visibility='hidden';"/>
                 <p id="training_summary"></p>
               </div>        
           </div>
@@ -478,12 +478,18 @@
 				}  
 			}
 		}
-    
+  $('#btn-halt').click(function() {
+    var data = {};
+    $.post('/easyRL_app/halt/', data, function(result, status, jqxhr) {
+        // do something
+    }).success()
+  });
     // Train button
-	$("#btn_train").click(function () {
+	$("#btn-train").click(function () {
 		// get values from sliders
 		//var slider = $(this).val();
 		$.ajax({
+      type: "POST",
 			url: '/easyRL_app/train/',
 			data: {
 				"environment": $('#env-hidden').val()

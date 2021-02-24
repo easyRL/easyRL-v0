@@ -25,8 +25,8 @@ session = boto3.session.Session()
 def index(request):
     # send the user back to the login form if the user did not sign in or session expired
     debug_sessions(request)
-    if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
-        return HttpResponseRedirect("/easyRL_app/login/")
+    # if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
+    #     return HttpResponseRedirect("/easyRL_app/login/")
 
     index_dict = {}
     files = os.listdir(os.path.join(settings.BASE_DIR, "static/easyRL_app/images"))
@@ -96,7 +96,7 @@ def train(request):
         request.session['aws_security_token'],
         request.session['job_id'],
         {
-            "environment": int(request.GET['environment']),
+            "environment": int(request.GET.get("environment", 0)),
             "agent": int(request.GET['agent']),
             "episodes": int(request.GET['episodes']),
             "steps": int(request.GET['steps']),
@@ -113,6 +113,8 @@ def train(request):
     )
     return HttpResponse(apps.ERROR_NONE)
 
+def halt(request):
+    pass
 def image(request):
     _, _, _, _, image_data = get_recent_training_data(
         request.session['aws_access_key'], 
@@ -151,6 +153,24 @@ def lambda_terminate_instance(aws_access_key, aws_secret_key, aws_security_token
     }
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
     print("{}lambda_terminate_instance{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
+    if response['StatusCode'] == 200:
+        streambody = response['Payload'].read().decode()
+        print("{}stream_body{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, streambody))
+        return True
+    return False
+
+def lambda_halt_job(aws_access_key, aws_secret_key, aws_security_token, job_id):
+    lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
+    data = {
+        "accessKey": aws_access_key,
+        "secretKey": aws_secret_key,
+        "sessionToken": aws_security_token,
+        "jobID": job_id,
+        "task": apps.TASK_HALT_JOB,
+    }
+    print(data)
+    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+    print("{}lambda_run_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
     if response['StatusCode'] == 200:
         streambody = response['Payload'].read().decode()
         print("{}stream_body{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, streambody))
