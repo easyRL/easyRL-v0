@@ -167,13 +167,10 @@ def yourFunction(request, context):
                             "sleep " + str(arguments['killTime']) + " && python3.7 easyRL-v0/lambda/killSelf.py " + jobID + " " + accessKey + " " + secretKey + " " + sessionToken + " &")
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
                         "git clone --branch dataExport https://github.com/RobertCordingly/easyRL-v0")
-                    stdout = ssh_stdout.readlines()
-                    stderr = ssh_stderr.readlines()
-                    inspector.addAttribute("STDOUT", str(stdout))
-                    inspector.addAttribute("STDERR", str(stderr))
+                    stdout = ssh_stdout.readlines() # DO NOT REMOVE
+                    stderr = ssh_stderr.readlines() # DO NOT REMOVE
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
                         "echo " + arguments['instanceType'] + " > tag.txt")
-                    # stdout=ssh_stdout.readlines()
                     inspector.addAttribute("instanceState", "updated")
                 else:
                     # Instance type match the tag? If not reboot...

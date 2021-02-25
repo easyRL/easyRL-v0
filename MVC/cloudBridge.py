@@ -13,6 +13,7 @@ class CloudBridge:
         self.accessKey = accessKey
         self.s3Client = None
         self.episodeData = []
+        self.gifURLs = []
         self.delayTime = 1000
 
         self.lastSave = 0
@@ -94,18 +95,6 @@ class CloudBridge:
         if (currentTime - self.lastSave) > self.delayTime:
             self.lastSave = currentTime
 
-            payload =  {
-                "totalReward": self.episodeAccReward,
-                "avgReward": self.episodeAccReward / self.trainingEpisodes,
-                "episodes": self.episodeData
-            }
-
-            with open('data.json', 'w+') as f:
-                json.dump(payload, f)
-
-            # Submit Data to S3
-            self.s3Client.put_object(Body=json.dumps(payload), Bucket='easyrl-' + str(self.jobID), Key="data.json")
-
             self.curEpisodeSteps = 0
             self.episodeAccLoss = 0
             self.episodeAccReward = 0
@@ -118,6 +107,20 @@ class CloudBridge:
                 self.s3Client.upload_file(filename, 'easyrl-' + str(self.jobID), filename)
                 self.animationFrames = []
                 os.remove("./" + filename)
+                self.gifURLs.append("https://easyrl-" + str(self.jobID) + ".s3.amazonaws.com/" + filename)
+
+            payload =  {
+                "totalReward": self.episodeAccReward,
+                "avgReward": self.episodeAccReward / self.trainingEpisodes,
+                "episodes": self.episodeData,
+                "gifs": self.gifURLs
+            }
+
+            with open('data.json', 'w+') as f:
+                json.dump(payload, f)
+
+            # Submit Data to S3
+            #self.s3Client.put_object(Body=json.dumps(payload), Bucket='easyrl-' + str(self.jobID), Key="data.json")
         
     def submitTrainFinish(self):
         totalReward = self.episodeAccReward
