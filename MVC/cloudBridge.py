@@ -104,7 +104,7 @@ class CloudBridge:
             if (len(self.animationFrames) > 0):
                 filename = self.state + '-episode-' + str(episode) + ".gif"
                 self.animationFrames[0].save("./" + filename, save_all=True, append_images=self.animationFrames)
-                self.s3Client.upload_file(filename, 'easyrl-' + str(self.jobID), filename)
+                self.s3Client.upload_file(filename, 'easyrl-' + str(self.jobID), filename, ExtraArgs={'ACL': 'public-read'})
                 self.animationFrames = []
                 os.remove("./" + filename)
                 self.gifURLs.append("https://easyrl-" + str(self.jobID) + ".s3.amazonaws.com/" + filename)
