@@ -1,25 +1,25 @@
 # This is just to support Azure.
 # If you are not deploying there this can be removed.
+import paramiko
+import boto3
+import time
+from Inspector import *
+import logging
+import json
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 
-import json
-import logging
-from Inspector import *
-import time
-
-import boto3
-import paramiko
 
 #
 # Define your FaaS Function here.
 # Each platform handler will call and pass parameters to this function.
-# 
+#
 # @param request A JSON object provided by the platform handler.
 # @param context A platform specific object used to communicate with the cloud platform.
 # @returns A JSON object to use as a response.
 #
+
 
 def listInstances(ec2Client, inspector):
     instances = []
@@ -28,6 +28,7 @@ def listInstances(ec2Client, inspector):
         for instance in reservation["Instances"]:
             instances.append(instance)
     return instances
+
 
 def findOurInstance(ec2Client, jobID, inspector):
     instances = listInstances(ec2Client, inspector)
@@ -54,13 +55,13 @@ def createInstance(ec2Client, ec2Resource, jobID, arguments, inspector):
             GroupId=security_group_id,
             IpPermissions=[
                 {'IpProtocol': 'tcp',
-                'FromPort': 80,
-                'ToPort': 80,
-                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
+                 'FromPort': 80,
+                 'ToPort': 80,
+                 'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
                 {'IpProtocol': 'tcp',
-                'FromPort': 22,
-                'ToPort': 22,
-                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]}
+                 'FromPort': 22,
+                 'ToPort': 22,
+                 'IpRanges': [{'CidrIp': '0.0.0.0/0'}]}
             ])
         #inspector.addAttribute("securityGroupData", str(data))
 
@@ -81,7 +82,7 @@ def createInstance(ec2Client, ec2Resource, jobID, arguments, inspector):
         MaxCount=1,
         InstanceType=arguments['instanceType'],
         SecurityGroupIds=[security_group_id],
-        TagSpecifications = [{
+        TagSpecifications=[{
             "ResourceType": "instance",
             "Tags": [
                 {
@@ -93,6 +94,7 @@ def createInstance(ec2Client, ec2Resource, jobID, arguments, inspector):
     )
     inspector.addAttribute("message", "created instance")
 
+
 def terminateInstance(ec2Client, ec2Resource, ourInstance, inspector):
     if (ourInstance is not None):
         instance = ec2Resource.Instance(ourInstance['InstanceId'])
@@ -100,6 +102,7 @@ def terminateInstance(ec2Client, ec2Resource, ourInstance, inspector):
         inspector.addAttribute("message", "terminated instance")
     else:
         inspector.addAttribute("error", "Instance not found.")
+
 
 def yourFunction(request, context):
     # Import the module and collect data
@@ -112,80 +115,96 @@ def yourFunction(request, context):
     task = request['task']
     arguments = request['arguments']
 
-    botoSession = boto3.Session (
-        aws_access_key_id = accessKey,
-        aws_secret_access_key = secretKey,
-        aws_session_token = sessionToken, 
-        region_name = 'us-east-1'
+    botoSession = boto3.Session(
+        aws_access_key_id=accessKey,
+        aws_secret_access_key=secretKey,
+        aws_session_token=sessionToken,
+        region_name='us-east-1'
     )
     if (task == "poll"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
+        s3Resource = botoSession.resource('s3')
         try:
             ourInstance = findOurInstance(ec2Client, jobID, inspector)
             inspector.addAttribute("validCredentials", 1)
         except:
             inspector.addAttribute("validCredentials", 0)
             return inspector.finish()
-
-        #inspector.addAttribute("instance", str(ourInstance))
-        #return inspector.finish()
         if (ourInstance is None):
             createInstance(ec2Client, ec2Resource, jobID, arguments, inspector)
             inspector.addAttribute("message", "creating instance")
             inspector.addAttribute("instanceState", "booting")
         else:
             # Check if it is ready to SSH...
-
             try:
                 ip = ourInstance['PublicIpAddress']
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh.connect(ip, username='tcss556', password='secretPassword')
-                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("echo test")
-                stdout=ssh_stdout.readlines()
+                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                    "echo test")
+                stdout = ssh_stdout.readlines()
             except:
-                inspector.addAttribute("error", "Problem creating ssh connection to " + str(ip) + " try again")
+                inspector.addAttribute(
+                    "error", "Problem creating ssh connection to " + str(ip) + " try again")
                 return inspector.finish()
 
             if (stdout[0] == "test\n"):
-                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("cat tag.txt")
-                instanceData=ssh_stdout.readlines()
+                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                    "cat tag.txt")
+                instanceData = ssh_stdout.readlines()
                 # Has the tag? If not update
                 if (instanceData == []):
-                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("mv easyRL-v0/ OLD/")
-                    stdout=ssh_stdout.readlines()
+                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                        "mv easyRL-v0/ OLD/")
+                    stdout = ssh_stdout.readlines()
                     if (sessionToken == ""):
-                        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("sleep " + str(arguments['killTime']) + " && python3.7 easyRL-v0/lambda/killSelf.py " + jobID + " " + accessKey + " " + secretKey + " &")
+                        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                            "sleep " + str(arguments['killTime']) + " && python3.7 easyRL-v0/lambda/killSelf.py " + jobID + " " + accessKey + " " + secretKey + " &")
                     else:
-                        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("sleep " + str(arguments['killTime']) + " && python3.7 easyRL-v0/lambda/killSelf.py " + jobID + " " + accessKey + " " + secretKey + " " + sessionToken + " &")
-                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("git clone --branch dataExport https://github.com/RobertCordingly/easyRL-v0")
-                    stdout=ssh_stdout.readlines()
-                    stderr=ssh_stderr.readlines()
+                        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                            "sleep " + str(arguments['killTime']) + " && python3.7 easyRL-v0/lambda/killSelf.py " + jobID + " " + accessKey + " " + secretKey + " " + sessionToken + " &")
+                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                        "git clone --branch dataExport https://github.com/RobertCordingly/easyRL-v0")
+                    stdout = ssh_stdout.readlines()
+                    stderr = ssh_stderr.readlines()
                     inspector.addAttribute("STDOUT", str(stdout))
                     inspector.addAttribute("STDERR", str(stderr))
-                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("echo " + arguments['instanceType'] + " > tag.txt")
-                    #stdout=ssh_stdout.readlines()
+                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                        "echo " + arguments['instanceType'] + " > tag.txt")
+                    # stdout=ssh_stdout.readlines()
                     inspector.addAttribute("instanceState", "updated")
                 else:
                     # Instance type match the tag? If not reboot...
                     if (arguments['instanceType'] not in instanceData[0]):
-                        terminateInstance(ec2Client, ec2Resource, ourInstance, inspector)
-                        createInstance(ec2Client, ec2Resource, jobID, arguments, inspector)
+                        terminateInstance(
+                            ec2Client, ec2Resource, ourInstance, inspector)
+                        createInstance(ec2Client, ec2Resource,
+                                       jobID, arguments, inspector)
+                        try:
+                            bucket = s3Resource.Bucket('easyrl-' + jobID)
+                            bucket.objects.all().delete()
+                        except:
+                            pass
                         inspector.addAttribute('instanceState', "rebooting")
                     else:
                         # Is job running? If it is get progress. Else return idle.
-                        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("ps -aux | grep EasyRL.py")
-                        stdout=ssh_stdout.readlines()
+                        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                            "ps -aux | grep EasyRL.py")
+                        stdout = ssh_stdout.readlines()
                         results = ""
                         for line in stdout:
                             results += line
                         if ("terminal" in results):
-                            inspector.addAttribute('instanceState', "runningJob")
-                            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("cat ./data.json")
-                            stdout=ssh_stdout.readlines()
+                            inspector.addAttribute(
+                                'instanceState', "runningJob")
+                            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                                "cat ./data.json")
+                            stdout = ssh_stdout.readlines()
                             if (stdout != []):
-                                inspector.addAttribute("progress", json.loads(stdout[0]))
+                                inspector.addAttribute(
+                                    "progress", json.loads(stdout[0]))
                             else:
                                 inspector.addAttribute("progress", "waiting")
                         else:
@@ -243,15 +262,18 @@ def yourFunction(request, context):
             command += 'trainedAgent.bin\n'
             command += '5\n'
             if (sessionToken != ""):
-                command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + ' --accessKey ' + accessKey + ' --sessionToken ' + sessionToken + ' --jobID ' + jobID
+                command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + \
+                    ' --accessKey ' + accessKey + ' --sessionToken ' + \
+                    sessionToken + ' --jobID ' + jobID
             else:
-                command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + ' --accessKey ' + accessKey + ' --jobID ' + jobID
+                command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + \
+                    secretKey + ' --accessKey ' + accessKey + ' --jobID ' + jobID
             command += ' &> /dev/null & sleep 1'
 
             inspector.addAttribute("command", command)
 
             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-            stdout=ssh_stdout.readlines()
+            stdout = ssh_stdout.readlines()
             inspector.addAttribute("stdout", stdout)
             ssh.close()
         else:
@@ -296,15 +318,18 @@ def yourFunction(request, context):
 
             command += '5\n'
             if (sessionToken != ""):
-                command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + ' --accessKey ' + accessKey + ' --sessionToken ' + sessionToken + ' --jobID ' + jobID
+                command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + \
+                    ' --accessKey ' + accessKey + ' --sessionToken ' + \
+                    sessionToken + ' --jobID ' + jobID
             else:
-                command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + ' --accessKey ' + accessKey + ' --jobID ' + jobID
+                command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + \
+                    secretKey + ' --accessKey ' + accessKey + ' --jobID ' + jobID
             command += ' &> /dev/null & sleep 1'
 
             inspector.addAttribute("command", command)
 
             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-            stdout=ssh_stdout.readlines()
+            stdout = ssh_stdout.readlines()
             inspector.addAttribute("stdout", stdout)
             ssh.close()
         else:
@@ -327,7 +352,7 @@ def yourFunction(request, context):
 
                 #inspector.addAttribute("command", command)
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-                stdout=ssh_stdout.readlines()
+                stdout = ssh_stdout.readlines()
                 #inspector.addAttribute("stdout", stdout)
                 ssh.close()
 
@@ -349,11 +374,14 @@ def yourFunction(request, context):
             if 'State' in ourInstance and 'Name' in ourInstance['State']:
                 instanceState = ourInstance['State']
                 inspector.addAttribute("instanceState", instanceState['Name'])
-            response = ec2Client.describe_instance_status(InstanceIds=[ourInstance['InstanceId']])
+            response = ec2Client.describe_instance_status(
+                InstanceIds=[ourInstance['InstanceId']])
             #inspector.addAttribute("response", str(response))
             if 'InstanceStatuses' in response:
-                inspector.addAttribute("InstanceStatus", response['InstanceStatuses'][0]['InstanceStatus']['Status'])
-                inspector.addAttribute("SystemStatus", response['InstanceStatuses'][0]['SystemStatus']['Status'])
+                inspector.addAttribute(
+                    "InstanceStatus", response['InstanceStatuses'][0]['InstanceStatus']['Status'])
+                inspector.addAttribute(
+                    "SystemStatus", response['InstanceStatuses'][0]['SystemStatus']['Status'])
         else:
             inspector.addAttribute("error", "Instance not found.")
     elif (task == "haltJob"):
@@ -368,12 +396,12 @@ def yourFunction(request, context):
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, username='tcss556', password='secretPassword')
-            
+
             command = "pkill python3.7"
             inspector.addAttribute("command", command)
 
             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-            stdout=ssh_stdout.readlines()
+            stdout = ssh_stdout.readlines()
             inspector.addAttribute("stdout", stdout)
             ssh.close()
         else:
@@ -390,12 +418,12 @@ def yourFunction(request, context):
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, username='tcss556', password='secretPassword')
-            
+
             command = "ps -aux | grep EasyRL.py"
             inspector.addAttribute("command", command)
 
             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-            stdout=ssh_stdout.readlines()
+            stdout = ssh_stdout.readlines()
             inspector.addAttribute("stdout", stdout)
 
             results = ""
@@ -423,11 +451,11 @@ def yourFunction(request, context):
             ssh.connect(ip, username='tcss556', password='secretPassword')
 
             filename = arguments['path']
-            
+
             command = "cat " + filename
 
             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-            stdout=ssh_stdout.readlines()
+            stdout = ssh_stdout.readlines()
             inspector.addAttribute("stdout", stdout)
             ssh.close()
         else:
@@ -444,11 +472,11 @@ def yourFunction(request, context):
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, username='tcss556', password='secretPassword')
-            
+
             command = "git clone --branch dataExport https://github.com/RobertCordingly/easyRL-v0"
 
             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-            stdout=ssh_stdout.readlines()
+            stdout = ssh_stdout.readlines()
             inspector.addAttribute("stdout", stdout)
             ssh.close()
         else:
@@ -456,6 +484,12 @@ def yourFunction(request, context):
     elif (task == "terminateInstance"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
+        s3Resource = botoSession.resource('s3')
+        try:
+            bucket = s3Resource.Bucket('easyrl-' + jobID)
+            bucket.objects.all().delete()
+        except:
+            pass
 
         ourInstance = findOurInstance(ec2Client, jobID, inspector)
         terminateInstance(ec2Client, ec2Resource, ourInstance, inspector)
