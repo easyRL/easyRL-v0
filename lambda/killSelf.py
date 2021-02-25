@@ -35,6 +35,8 @@ secretKey = sys.argv[3]
 
 if (len(sys.argv) == 5):
 	sessionToken = sys.argv[4]
+else:
+	sessionToken = ""
 
 botoSession = boto3.Session (
 	aws_access_key_id = accessKey,
