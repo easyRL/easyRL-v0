@@ -136,24 +136,36 @@ def yourFunction(request, context):
             inspector.addAttribute("instanceState", "booting")
         else:
             # Check if it is ready to SSH...
-            ip = ourInstance['PublicIpAddress']
-            ssh = paramiko.SSHClient()
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(ip, username='tcss556', password='secretPassword')
-            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("echo test")
-            stdout=ssh_stdout.readlines()
+
+            try:
+                ip = ourInstance['PublicIpAddress']
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(ip, username='tcss556', password='secretPassword')
+                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("echo test")
+                stdout=ssh_stdout.readlines()
+            except:
+                inspector.addAttribute("error", "Problem creating ssh connection to " + str(ip) + " try again")
+                return inspector.finish()
 
             if (stdout[0] == "test\n"):
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("cat tag.txt")
                 instanceData=ssh_stdout.readlines()
                 # Has the tag? If not update
                 if (instanceData == []):
-                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("rm -rf easyRL-v0")
+                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("mv easyRL-v0/ OLD/")
                     stdout=ssh_stdout.readlines()
+                    if (sessionToken == ""):
+                        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("sleep " + str(arguments['killTime']) + " && python3.7 easyRL-v0/lambda/killSelf.py " + jobID + " " + accessKey + " " + secretKey + " &")
+                    else:
+                        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("sleep " + str(arguments['killTime']) + " && python3.7 easyRL-v0/lambda/killSelf.py " + jobID + " " + accessKey + " " + secretKey + " " + sessionToken + " &")
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("git clone --branch dataExport https://github.com/RobertCordingly/easyRL-v0")
                     stdout=ssh_stdout.readlines()
+                    stderr=ssh_stderr.readlines()
+                    inspector.addAttribute("STDOUT", str(stdout))
+                    inspector.addAttribute("STDERR", str(stderr))
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("echo " + arguments['instanceType'] + " > tag.txt")
-                    stdout=ssh_stdout.readlines()
+                    #stdout=ssh_stdout.readlines()
                     inspector.addAttribute("instanceState", "updated")
                 else:
                     # Instance type match the tag? If not reboot...
@@ -194,6 +206,12 @@ def yourFunction(request, context):
     elif (task == "runJob"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
+        s3Resource = botoSession.resource('s3')
+        try:
+            bucket = s3Resource.Bucket('easyrl-' + jobID)
+            bucket.objects.all().delete()
+        except:
+            pass
 
         ourInstance = findOurInstance(ec2Client, jobID, inspector)
         if (ourInstance is not None):
@@ -241,6 +259,12 @@ def yourFunction(request, context):
     elif (task == "runTest"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
+        s3Resource = botoSession.resource('s3')
+        try:
+            bucket = s3Resource.Bucket('easyrl-' + jobID)
+            bucket.objects.all().delete()
+        except:
+            pass
 
         ourInstance = findOurInstance(ec2Client, jobID, inspector)
         if (ourInstance is not None):
