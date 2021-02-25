@@ -21,7 +21,7 @@ import paramiko
 # @returns A JSON object to use as a response.
 #
 
-def listInstances(ec2Client):
+def listInstances(ec2Client, inspector):
     instances = []
     response = ec2Client.describe_instances()
     for reservation in response["Reservations"]:
@@ -29,15 +29,77 @@ def listInstances(ec2Client):
             instances.append(instance)
     return instances
 
-def findOurInstance(ec2Client, jobID):
-    instances = listInstances(ec2Client)
+def findOurInstance(ec2Client, jobID, inspector):
+    instances = listInstances(ec2Client, inspector)
     for instance in instances:
-        if 'Tags' in instance:
+        if 'Tags' in instance and 'State' in instance:
+            if instance['State']['Name'] != 'pending' and instance['State']['Name'] != 'running':
+                continue
             tags = instance['Tags']
             for keyPair in tags:
                 if keyPair['Key'] == 'jobID' and keyPair['Value'] == str(jobID):
                     return instance
     return None
+
+
+def createInstance(ec2Client, ec2Resource, jobID, arguments, inspector):
+    try:
+        response = ec2Client.create_security_group(
+            GroupName='easyrlsecurity',
+            Description='EasyRL Security Group',
+        )
+        security_group_id = response['GroupId']
+
+        data = ec2Client.authorize_security_group_ingress(
+            GroupId=security_group_id,
+            IpPermissions=[
+                {'IpProtocol': 'tcp',
+                'FromPort': 80,
+                'ToPort': 80,
+                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
+                {'IpProtocol': 'tcp',
+                'FromPort': 22,
+                'ToPort': 22,
+                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]}
+            ])
+        #inspector.addAttribute("securityGroupData", str(data))
+
+    except:
+        group_name = 'easyrlsecurity'
+        response = ec2Client.describe_security_groups(
+            Filters=[
+                dict(Name='group-name', Values=[group_name])
+            ]
+        )
+        security_group_id = response['SecurityGroups'][0]['GroupId']
+
+    #inspector.addAttribute("securityGroupId", str(security_group_id))
+
+    instance = ec2Resource.create_instances(
+        ImageId='ami-01b4fa5b09c9741a8',
+        MinCount=1,
+        MaxCount=1,
+        InstanceType=arguments['instanceType'],
+        SecurityGroupIds=[security_group_id],
+        TagSpecifications = [{
+            "ResourceType": "instance",
+            "Tags": [
+                {
+                    'Key': 'jobID',
+                    'Value': str(jobID)
+                }
+            ]
+        }]
+    )
+    inspector.addAttribute("message", "created instance")
+
+def terminateInstance(ec2Client, ec2Resource, ourInstance, inspector):
+    if (ourInstance is not None):
+        instance = ec2Resource.Instance(ourInstance['InstanceId'])
+        instance.terminate()
+        inspector.addAttribute("message", "terminated instance")
+    else:
+        inspector.addAttribute("error", "Instance not found.")
 
 def yourFunction(request, context):
     # Import the module and collect data
@@ -56,62 +118,76 @@ def yourFunction(request, context):
         aws_session_token = sessionToken, 
         region_name = 'us-east-1'
     )
-    
-    if (task == "createInstance"):
+    if (task == "poll"):
+        ec2Client = botoSession.client('ec2')
+        ec2Resource = botoSession.resource('ec2')
+        try:
+            ourInstance = findOurInstance(ec2Client, jobID, inspector)
+            inspector.addAttribute("validCredentials", 1)
+        except:
+            inspector.addAttribute("validCredentials", 0)
+            return inspector.finish()
+
+        #inspector.addAttribute("instance", str(ourInstance))
+        #return inspector.finish()
+        if (ourInstance is None):
+            createInstance(ec2Client, ec2Resource, jobID, arguments, inspector)
+            inspector.addAttribute("message", "creating instance")
+            inspector.addAttribute("instanceState", "booting")
+        else:
+            # Check if it is ready to SSH...
+            ip = ourInstance['PublicIpAddress']
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username='tcss556', password='secretPassword')
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("echo test")
+            stdout=ssh_stdout.readlines()
+
+            if (stdout[0] == "test\n"):
+                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("cat tag.txt")
+                instanceData=ssh_stdout.readlines()
+                # Has the tag? If not update
+                if (instanceData == []):
+                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("rm -rf easyRL-v0")
+                    stdout=ssh_stdout.readlines()
+                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("git clone --branch dataExport https://github.com/RobertCordingly/easyRL-v0")
+                    stdout=ssh_stdout.readlines()
+                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("echo " + arguments['instanceType'] + " > tag.txt")
+                    stdout=ssh_stdout.readlines()
+                    inspector.addAttribute("instanceState", "updated")
+                else:
+                    # Instance type match the tag? If not reboot...
+                    if (arguments['instanceType'] not in instanceData[0]):
+                        terminateInstance(ec2Client, ec2Resource, ourInstance, inspector)
+                        createInstance(ec2Client, ec2Resource, jobID, arguments, inspector)
+                        inspector.addAttribute('instanceState', "rebooting")
+                    else:
+                        # Is job running? If it is get progress. Else return idle.
+                        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("ps -aux | grep EasyRL.py")
+                        stdout=ssh_stdout.readlines()
+                        results = ""
+                        for line in stdout:
+                            results += line
+                        if ("terminal" in results):
+                            inspector.addAttribute('instanceState', "runningJob")
+                            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("cat ./data.json")
+                            stdout=ssh_stdout.readlines()
+                            if (stdout != []):
+                                inspector.addAttribute("progress", json.loads(stdout[0]))
+                            else:
+                                inspector.addAttribute("progress", "waiting")
+                        else:
+                            inspector.addAttribute('instanceState', "idle")
+            else:
+                inspector.addAttribute('instanceState', "initializing")
+            ssh.close()
+
+    elif (task == "createInstance"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
 
-        if (findOurInstance(ec2Client, jobID) is None):
-
-            try:
-                response = ec2Client.create_security_group(
-                    GroupName='easyrlsecurity',
-                    Description='EasyRL Security Group',
-                )
-                security_group_id = response['GroupId']
-
-                data = ec2Client.authorize_security_group_ingress(
-                    GroupId=security_group_id,
-                    IpPermissions=[
-                        {'IpProtocol': 'tcp',
-                        'FromPort': 80,
-                        'ToPort': 80,
-                        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]},
-                        {'IpProtocol': 'tcp',
-                        'FromPort': 22,
-                        'ToPort': 22,
-                        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]}
-                    ])
-                inspector.addAttribute("securityGroupData", str(data))
-
-            except:
-                group_name = 'easyrlsecurity'
-                response = ec2Client.describe_security_groups(
-                    Filters=[
-                        dict(Name='group-name', Values=[group_name])
-                    ]
-                )
-                security_group_id = response['SecurityGroups'][0]['GroupId']
-
-            inspector.addAttribute("securityGroupId", str(security_group_id))
-
-            instance = ec2Resource.create_instances(
-                ImageId='ami-01b4fa5b09c9741a8',
-                MinCount=1,
-                MaxCount=1,
-                InstanceType=arguments['instanceType'],
-                SecurityGroupIds=[security_group_id],
-                TagSpecifications = [{
-                    "ResourceType": "instance",
-                    "Tags": [
-                        {
-                            'Key': 'jobID',
-                            'Value': str(jobID)
-                        }
-                    ]
-                }]
-            )
-            inspector.addAttribute("instance", str(instance))
+        if (findOurInstance(ec2Client, jobID, inspector) is None):
+            createInstance(ec2Client, ec2Resource, jobID, arguments, inspector)
         else:
             inspector.addAttribute("error", "Instance already exists.")
 
@@ -119,7 +195,7 @@ def yourFunction(request, context):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
 
-        ourInstance = findOurInstance(ec2Client, jobID)
+        ourInstance = findOurInstance(ec2Client, jobID, inspector)
         if (ourInstance is not None):
             ip = ourInstance['PublicIpAddress']
             inspector.addAttribute("ip", str(ip))
@@ -166,7 +242,7 @@ def yourFunction(request, context):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
 
-        ourInstance = findOurInstance(ec2Client, jobID)
+        ourInstance = findOurInstance(ec2Client, jobID, inspector)
         if (ourInstance is not None):
             ip = ourInstance['PublicIpAddress']
             inspector.addAttribute("ip", str(ip))
@@ -209,10 +285,42 @@ def yourFunction(request, context):
             ssh.close()
         else:
             inspector.addAttribute('error', 'Instance not found.')
+    elif (task == "isReady"):
+        try:
+            ec2Client = botoSession.client('ec2')
+            ec2Resource = botoSession.resource('ec2')
+
+            ourInstance = findOurInstance(ec2Client, jobID, inspector)
+            if (ourInstance is not None):
+                ip = ourInstance['PublicIpAddress']
+                inspector.addAttribute("ip", str(ip))
+
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(ip, username='tcss556', password='secretPassword')
+
+                command = "echo test"
+
+                #inspector.addAttribute("command", command)
+                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+                stdout=ssh_stdout.readlines()
+                #inspector.addAttribute("stdout", stdout)
+                ssh.close()
+
+                if (stdout[0] == "test\n"):
+                    inspector.addAttribute('isReady', 1)
+                else:
+                    inspector.addAttribute('isReady', 0)
+
+            else:
+                inspector.addAttribute('error', 'Instance not found.')
+                inspector.addAttribute('isReady', 0)
+        except:
+            inspector.addAttribute('isReady', 0)
     elif (task == "instanceState"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
-        ourInstance = findOurInstance(ec2Client, jobID)
+        ourInstance = findOurInstance(ec2Client, jobID, inspector)
         if (ourInstance is not None):
             if 'State' in ourInstance and 'Name' in ourInstance['State']:
                 instanceState = ourInstance['State']
@@ -228,7 +336,7 @@ def yourFunction(request, context):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
 
-        ourInstance = findOurInstance(ec2Client, jobID)
+        ourInstance = findOurInstance(ec2Client, jobID, inspector)
         if (ourInstance is not None):
             ip = ourInstance['PublicIpAddress']
             inspector.addAttribute("ip", str(ip))
@@ -237,7 +345,7 @@ def yourFunction(request, context):
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, username='tcss556', password='secretPassword')
             
-            command = "pKill python3.7"
+            command = "pkill python3.7"
             inspector.addAttribute("command", command)
 
             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
@@ -250,7 +358,7 @@ def yourFunction(request, context):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
 
-        ourInstance = findOurInstance(ec2Client, jobID)
+        ourInstance = findOurInstance(ec2Client, jobID, inspector)
         if (ourInstance is not None):
             ip = ourInstance['PublicIpAddress']
             inspector.addAttribute("ip", str(ip))
@@ -281,7 +389,7 @@ def yourFunction(request, context):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
 
-        ourInstance = findOurInstance(ec2Client, jobID)
+        ourInstance = findOurInstance(ec2Client, jobID, inspector)
         if (ourInstance is not None):
             ip = ourInstance['PublicIpAddress']
             inspector.addAttribute("ip", str(ip))
@@ -304,7 +412,7 @@ def yourFunction(request, context):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
 
-        ourInstance = findOurInstance(ec2Client, jobID)
+        ourInstance = findOurInstance(ec2Client, jobID, inspector)
         if (ourInstance is not None):
             ip = ourInstance['PublicIpAddress']
             inspector.addAttribute("ip", str(ip))
@@ -325,13 +433,8 @@ def yourFunction(request, context):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
 
-        ourInstance = findOurInstance(ec2Client, jobID)
-        if (ourInstance is not None):
-            instance = ec2Resource.Instance(ourInstance['InstanceId'])
-            instance.terminate()
-            inspector.addAttribute("message", "Terminated")
-        else:
-            inspector.addAttribute("error", "Instance not found.")
+        ourInstance = findOurInstance(ec2Client, jobID, inspector)
+        terminateInstance(ec2Client, ec2Resource, ourInstance, inspector)
     elif (task == "createBucket"):
         s3Client = botoSession.client('s3')
         bucketName = 'easyrl-' + str(jobID)
