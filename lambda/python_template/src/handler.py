@@ -196,6 +196,14 @@ def yourFunction(request, context):
                         if ("terminal" in results):
                             inspector.addAttribute(
                                 'instanceState', "runningJob")
+                            
+                            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                                "cat ./arguments.json")
+                            stdout = ssh_stdout.readlines()
+                            if (stdout != []):
+                                inspector.addAttribute(
+                                    "jobArguments", json.loads(stdout[0]))
+
                             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
                                 "cat ./data.json")
                             stdout = ssh_stdout.readlines()
@@ -243,6 +251,11 @@ def yourFunction(request, context):
             for line in stdout:
                 results += line
             if ("terminal" not in results):
+
+                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                                "echo " + json.dumps(arguments) + " > arguments.json")
+                stdout = ssh_stdout.readlines()
+
                 command = 'printf "'
                 command += str(arguments['environment']) + '\n'
                 command += str(arguments['agent']) + '\n'
@@ -316,6 +329,10 @@ def yourFunction(request, context):
             for line in stdout:
                 results += line
             if ("terminal" not in results):
+
+                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                                "echo " + json.dumps(arguments) + " > arguments.json")
+                stdout = ssh_stdout.readlines()
 
                 command = 'printf "'
                 command += str(arguments['environment']) + '\n'
