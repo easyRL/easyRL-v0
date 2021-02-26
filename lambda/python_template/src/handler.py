@@ -200,6 +200,10 @@ def yourFunction(request, context):
                             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
                                 "cat ./arguments.json")
                             stdout = ssh_stdout.readlines()
+
+                            #inspector.addAttribute("Test", str(stdout))
+                            #return inspctor.finish()
+
                             if (stdout != []):
                                 inspector.addAttribute(
                                     "jobArguments", json.loads(stdout[0]))
@@ -253,7 +257,7 @@ def yourFunction(request, context):
             if ("terminal" not in results):
 
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
-                                "echo " + json.dumps(arguments) + " > arguments.json")
+                                "echo \'" + json.dumps(arguments) + "\' > arguments.json")
                 stdout = ssh_stdout.readlines()
 
                 command = 'printf "'
@@ -331,7 +335,7 @@ def yourFunction(request, context):
             if ("terminal" not in results):
 
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
-                                "echo " + json.dumps(arguments) + " > arguments.json")
+                                "echo \'" + json.dumps(arguments) + "\' > arguments.json")
                 stdout = ssh_stdout.readlines()
 
                 command = 'printf "'
