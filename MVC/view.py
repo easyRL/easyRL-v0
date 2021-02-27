@@ -49,7 +49,8 @@ class View:
         ppoNative.PPONative: singleDimEnvs,
         reinforceNative.ReinforceNative: singleDimEnvs,
         actorCriticNative.ActorCriticNative: singleDimEnvs,
-        sarsa: [cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv]
+        sarsa: [cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv],
+        cem.CEM: environments
     }
 
     allowedEnvs = {agent.displayName:[env.displayName for env in envs] for (agent, envs) in allowedEnvs.items()}
