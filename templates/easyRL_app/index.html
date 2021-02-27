@@ -491,7 +491,6 @@
 
 	// start function draw_graph()
 	google.charts.load('current', {'packages':['corechart']});
-	//google.charts.setOnLoadCallback(draw_graph);
 	function draw_graph(episodes)
 	{
 		var length = episodes.length;
@@ -596,27 +595,6 @@
 			{
 				$("#training_image").attr("src", gifs[gifs.length-1]);
 				draw_graph(episodes);
-				/*var array = [];
-				array.push(['Episode', 'Average Loss']);
-				
-				for (var index = 0; index < episodes.length; index++)
-				{
-					array.push([
-						episodes[index]["episode"],
-						episodes[index]["avgLoss"]
-					]);
-				}
-				
-				var data = google.visualization.arrayToDataTable(array);
-				var options =
-				{
-					title: 'Training Average Losses',
-					curveType: 'function',
-					legend: { position: 'bottom' }
-		        };
-		
-		        var chart = new google.visualization.LineChart(document.getElementById('training_graph'));
-		        chart.draw(data, options);*/
 			}
         
 		}, 5000);
