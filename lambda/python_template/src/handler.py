@@ -20,6 +20,61 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 # @returns A JSON object to use as a response.
 #
 
+paraMap = {
+    '1': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval'],
+    '2': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
+    '3': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
+    '4': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
+    '5': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
+}
+
+paramConditions = {
+    "episodes": {
+        "min": 1,
+        "max": 1000000000
+    },
+    "steps": {
+        "min": 1,
+        "max": 1000000000
+    },
+    "gamma": {
+        "min": 0,
+        "max": 1
+    },
+    "minEpsilon": {
+        "min": 0,
+        "max": 1
+    },
+    "maxEpsilon": {
+        "min": 0,
+        "max": 1
+    },
+    "decayRate": {
+        "min": 0,
+        "max": 0.2
+    },
+    "batchSize": {
+        "min": 0,
+        "max": 256
+    },
+    "memorySize": {
+        "min": 0,
+        "max": 655360
+    },
+    "targetInterval": {
+        "min": 0,
+        "max": 100000
+    },
+    "historyLength": {
+        "min": 0,
+        "max": 20
+    },
+    "alpha": {
+        "min": 0,
+        "max": 1
+    }
+}
+
 
 def listInstances(ec2Client, inspector):
     instances = []
@@ -256,6 +311,35 @@ def yourFunction(request, context):
                 results += line
             if ("terminal" not in results):
 
+                # Error Checking
+                if (str(arguments['agent']) in paraMap):
+                    missingAttributes = []
+                    outOfRange = []
+                    valid = True
+                    for pp in paraMap[str(arguments['agent'])]:
+                        pp = str(pp)
+                        if pp not in arguments:
+                            missingAttributes.append(pp)
+                        else:
+                            val = arguments[pp]
+                            if (val < paramConditions[pp]['min'] or val > paramConditions[pp]['max']):
+                                outOfRange.append(pp)
+                    if len(missingAttributes) > 0:
+                        inspector.addAttribute("error-Missing", "Missing hyperparameters for agent: " + str(missingAttributes))
+                        valid = False
+                    if len(outOfRange) > 0:
+                        errorMessage = "Attributes with invalid value: "
+                        for error in outOfRange:
+                            errorMessage += error + " min: " + str(paramConditions[error]['min']) + " max: " + str(paramConditions[error]['max']) + " used: " + str(arguments[error] + " ")
+                        inspector.addAttribute("error-Range", errorMessage)
+                        valid = False
+                    if (valid == False):
+                        return inspector.finish()
+                else:
+                    inspector.addAttribute("error", "Unknown Agent " + str(arguments['agent']))
+                    return inspector.finish()
+
+
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
                                 "echo \'" + json.dumps(arguments) + "\' > arguments.json")
                 stdout = ssh_stdout.readlines()
@@ -264,15 +348,6 @@ def yourFunction(request, context):
                 command += str(arguments['environment']) + '\n'
                 command += str(arguments['agent']) + '\n'
                 command += '1\n'
-
-                paraMap = {
-                    '1': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval'],
-                    '2': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
-                    '3': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
-                    '4': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
-                    '5': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
-                }
-
                 paramList = paraMap[str(arguments['agent'])]
                 for param in paramList:
                     command += str(arguments[param]) + '\n'
@@ -334,6 +409,35 @@ def yourFunction(request, context):
                 results += line
             if ("terminal" not in results):
 
+                # Error Checking
+                if (str(arguments['agent']) in paraMap):
+                    missingAttributes = []
+                    outOfRange = []
+                    valid = True
+                    for pp in paraMap[str(arguments['agent'])]:
+                        pp = str(pp)
+                        if pp not in arguments:
+                            missingAttributes.append(pp)
+                        else:
+                            val = arguments[pp]
+                            if (val < paramConditions[pp]['min'] or val > paramConditions[pp]['max']):
+                                outOfRange.append(pp)
+                    if len(missingAttributes) > 0:
+                        inspector.addAttribute("error-Missing", "Missing hyperparameters for agent: " + str(missingAttributes))
+                        valid = False
+                    if len(outOfRange) > 0:
+                        errorMessage = "Attributes with invalid value: "
+                        for error in outOfRange:
+                            errorMessage += error + " min: " + str(paramConditions[error]['min']) + " max: " + str(paramConditions[error]['max']) + " used: " + str(arguments[error] + " ")
+                        inspector.addAttribute("error-Range", errorMessage)
+                        valid = False
+                    if (valid == False):
+                        return inspector.finish()
+                else:
+                    inspector.addAttribute("error", "Unknown Agent " + str(arguments['agent']))
+                    return inspector.finish()
+
+
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
                                 "echo \'" + json.dumps(arguments) + "\' > arguments.json")
                 stdout = ssh_stdout.readlines()
@@ -344,14 +448,6 @@ def yourFunction(request, context):
                 command += '2\n'
                 command += 'trainedAgent.bin\n'
                 command += '3\n'
-
-                paraMap = {
-                    '1': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval'],
-                    '2': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
-                    '3': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
-                    '4': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
-                    '5': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
-                }
 
                 paramList = paraMap[str(arguments['agent'])]
                 for param in paramList:
