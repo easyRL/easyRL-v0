@@ -89,31 +89,105 @@ def logout(request):
 @csrf_exempt
 def train(request):
     debug_sessions(request)
-    if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
-        return HttpResponse(apps.ERROR_UNAUTHENTICATED)
-    lambda_run_job(
-        request.session['aws_access_key'],
-        request.session['aws_secret_key'],
-        request.session['aws_security_token'],
-        request.session['job_id'],
-        {
-            "environment": int(request.POST.get("environment", 5)),
-            "agent": int(request.POST.get('agent', 5)),
-            "episodes": int(request.POST.get('episodes',20)),
-            "steps": int(request.POST.get('steps', 50)),
-            "gamma": float(request.POST.get('gamma', 0.97)),
-            "minEpsilon": float(request.POST.get('minEpsilon',0)),
-            "maxEpsilon": float(request.POST.get('maxEpsilon',1)),
-            "decayRate": float(request.POST.get('decayRate',0.01)),
-            "batchSize": int(request.POST.get('batchSize', 32)),
-            "memorySize": int(request.POST.get('memorySize', 1000)),
-            "targetInterval": int(request.POST.get('targetInterval', 10)),
-            "historyLength": int(request.POST.get('historyLength', 10)),
-            #"path": request.GET['path'],
-        }
-    )
-    return HttpResponse(apps.ERROR_NONE)
-    
+#     if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
+#         return HttpResponse(apps.ERROR_UNAUTHENTICATED)
+    return HttpResponse(lambda_run_job(
+          "AKIARNM6CAZHHJAGNJPR",
+          "i7nPrQQkK8kkqQ03+yeJ9DS7YSA/XUHjdo0J2IX/",
+          "",
+          "eb8ee889-3525-45fe-9d1a-0df28c46d2a9",
+          {
+            "instanceType": "c4.xlarge",
+            "killTime": 600,
+            "environment": 1,
+            "agent": 1,
+            "episodes": 2,
+            "steps": 10,
+            "gamma": 0.97,
+            "minEpsilon": 0.1,
+            "maxEpsilon": 1.0,
+            "decayRate": 0.018,
+            "batchSize": 32,
+            "memorySize": 1000,
+            "targetInterval": 200,
+            "alpha": 0.18,
+            "historyLength": 10
+          }
+
+#         request.session['aws_access_key'],
+#         request.session['aws_secret_key'],
+#         request.session['aws_security_token'],
+#         request.session['job_id'],
+#         {
+#             "instanceType": "c4.xlarge",
+#             "killTime": 600,
+#             "environment": int(request.POST.get("environment", 5)),
+#             "agent": int(request.POST.get('agent', 5)),
+#             "episodes": int(request.POST.get('episodes',20)),
+#             "alpha": float(request.POST.get('alpha', 0.9)),
+#             "steps": int(request.POST.get('steps', 50)),
+#             "gamma": float(request.POST.get('gamma', 0.97)),
+#             "minEpsilon": float(request.POST.get('minEpsilon',0)),
+#             "maxEpsilon": float(request.POST.get('maxEpsilon',1)),
+#             "decayRate": float(request.POST.get('decayRate',0.01)),
+#             "batchSize": int(request.POST.get('batchSize', 32)),
+#             "memorySize": int(request.POST.get('memorySize', 1000)),
+#             "targetInterval": int(request.POST.get('targetInterval', 10)),
+#             "historyLength": int(request.POST.get('historyLength', 10)),
+#         }
+    ))
+
+@csrf_exempt
+def poll(request):
+    debug_sessions(request)
+#     if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
+#         return HttpResponse(apps.ERROR_UNAUTHENTICATED)
+    return HttpResponse(lambda_poll(
+        "AKIARNM6CAZHHJAGNJPR",
+          "i7nPrQQkK8kkqQ03+yeJ9DS7YSA/XUHjdo0J2IX/",
+          "",
+          "eb8ee889-3525-45fe-9d1a-0df28c46d2a9",
+          {
+            "instanceType": "c4.xlarge",
+            "killTime": 600,
+            "environment": 1,
+            "agent": 1,
+            "episodes": 2,
+            "steps": 10,
+            "gamma": 0.97,
+            "minEpsilon": 0.1,
+            "maxEpsilon": 1.0,
+            "decayRate": 0.018,
+            "batchSize": 32,
+            "memorySize": 1000,
+            "targetInterval": 200,
+            "alpha": 0.18,
+            "historyLength": 10
+          }
+        
+#         request.session['aws_access_key'],
+#         request.session['aws_secret_key'],
+#         request.session['aws_security_token'],
+#         request.session['job_id'],
+#         {
+#             "instanceType": "c4.xlarge",
+#             "killTime": 600,
+#             "environment": int(request.POST.get("environment", 5)),
+#             "agent": int(request.POST.get('agent', 5)),
+#             "episodes": int(request.POST.get('episodes',20)),
+#             "alpha": float(request.POST.get('alpha', 0.9)),
+#             "steps": int(request.POST.get('steps', 50)),
+#             "gamma": float(request.POST.get('gamma', 0.97)),
+#             "minEpsilon": float(request.POST.get('minEpsilon',0)),
+#             "maxEpsilon": float(request.POST.get('maxEpsilon',1)),
+#             "decayRate": float(request.POST.get('decayRate',0.01)),
+#             "batchSize": int(request.POST.get('batchSize', 32)),
+#             "memorySize": int(request.POST.get('memorySize', 1000)),
+#             "targetInterval": int(request.POST.get('targetInterval', 10)),
+#             "historyLength": int(request.POST.get('historyLength', 10)),
+#         }
+    ))
+
 @csrf_exempt
 def halt(request):
     debug_sessions(request)
@@ -191,6 +265,24 @@ def lambda_halt_job(aws_access_key, aws_secret_key, aws_security_token, job_id):
         return True
     return False
 
+def lambda_poll(aws_access_key, aws_secret_key, aws_security_token, job_id, arguments):
+    lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
+    data = {
+        "accessKey": aws_access_key,
+        "secretKey": aws_secret_key,
+        "sessionToken": aws_security_token,
+        "jobID": job_id,
+        "task": apps.TASK_POLL,
+        "arguments": arguments,
+    }
+    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+    payload = response['Payload'].read()
+    print("{}lambda_poll{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, payload))
+    if len(payload) != 0:
+        return "{}".format(payload)[2:-1]
+    else:
+        return ""
+
 def lambda_run_job(aws_access_key, aws_secret_key, aws_security_token, job_id, arguments):
     lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
     data = {
@@ -202,38 +294,12 @@ def lambda_run_job(aws_access_key, aws_secret_key, aws_security_token, job_id, a
         "arguments": arguments,
     }
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
-    print("{}lambda_run_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
-    if response['StatusCode'] == 200:
-        streambody = response['Payload'].read().decode()
-        print("{}stream_body{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, streambody))
-        return True
-    return False
-
-def lambda_is_job_running(aws_access_key, aws_secret_key, aws_security_token, job_id):
-    lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
-    data = {
-        "accessKey": aws_access_key,
-        "secretKey": aws_secret_key,
-        "sessionToken": aws_security_token,
-        "jobID": job_id,
-        "task": apps.TASK_IS_JOB_RUNNING,
-        "arguments": "",
-    }
-    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
-    print("{}lambda_is_job_running{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response))
-    if response['StatusCode'] == 200:
-        streambody = response['Payload'].read().decode()
-        print("{}stream_body{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, streambody))
-        if json.loads(streambody)['isRunning'] == 1:
-            return True
-    return False
-
-def is_job_running(request):
-    return HttpResponse(lambda_is_job_running(
-        request.session['aws_access_key'], 
-        request.session['aws_secret_key'], 
-        request.session['aws_security_token'], 
-        request.session['job_id']))
+    payload = response['Payload'].read()
+    print("{}lambda_run_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, payload))
+    if len(payload) != 0:
+        return "{}".format(payload)[2:-1]
+    else:
+        return ""
 
 def debug_sessions(request):
     for key in request.session.keys():
