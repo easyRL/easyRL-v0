@@ -13,9 +13,10 @@ import boto3
 import os
 from easyRL_app.utilities import get_aws_s3, get_aws_lambda,\
     invoke_aws_lambda_func, is_valid_aws_credential, generate_jobID,\
-    download_item_in_bucket, get_recent_training_data
+    download_item_in_bucket#, get_recent_training_data
 from easyRL_app import apps
 import core
+from builtins import format
 
 DEBUG_JOB_ID = generate_jobID()
 
@@ -91,61 +92,59 @@ def train(request):
     debug_sessions(request)
 #     if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
 #         return HttpResponse(apps.ERROR_UNAUTHENTICATED)
-   
+    print("{}request_parameters{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, debug_parameters(request)))
     return HttpResponse(lambda_run_job(
-
         request.session['aws_access_key'],
         request.session['aws_secret_key'],
         request.session['aws_security_token'],
         request.session['job_id'],
         {
-            'instanceType': 'c4.xlarge',
-            'killTime': 600,
-            'environment': int(request.POST.get('environment', '1')),
-            'agent': int(request.POST.get('agent', '5')),
-            'episodes': int(request.POST.get('episodes','20')),
-            'alpha': float(request.POST.get('alpha', '0.9')),
-            'steps': int(request.POST.get('steps', '50')),
-            'gamma': float(request.POST.get('gamma', '0.97')),
-            'minEpsilon': float(request.POST.get('minEpsilon','0.0')),
-            'maxEpsilon': float(request.POST.get('maxEpsilon','1.0')),
-            'decayRate': float(request.POST.get('decayRate','0.01')),
-            'batchSize': int(request.POST.get('batchSize', '32')),
-            'memorySize': int(request.POST.get('memorySize', '1000')),
-            'targetInterval': int(request.POST.get('targetInterval', '10')),
-            'historyLength': int(request.POST.get('historyLength', '10')),
-        }
+            "instanceType": get_safe_value(str, "c4.xlarge", "c4.xlarge"),
+            "killTime": get_safe_value(int, 600, 600),
+            "environment": get_safe_value(int, request.POST.get("environment"), 1),
+            "agent": get_safe_value(int, request.POST.get("agent"), 1),
+            "episodes": get_safe_value(int, request.POST.get("episodes"), 20),
+            "steps": get_safe_value(int, request.POST.get("steps"), 50),
+            "gamma": get_safe_value(float, request.POST.get("gamma"), 0.97),
+            "minEpsilon": get_safe_value(int, request.POST.get("minEpsilon"), 0.01),
+            "maxEpsilon": get_safe_value(int, request.POST.get("maxEpsilon"), 0.99),
+            "decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01),
+            "batchSize": get_safe_value(int, request.POST.get("batchSize"), 32),
+            "memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000),
+            "targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10),
+            "alpha": get_safe_value(float, request.POST.get("alpha"), 0.9),
+            "historyLength": get_safe_value(int, request.POST.get("historyLength"), 10),
+        } 
     ))
 
 @csrf_exempt
 def poll(request):
     debug_sessions(request)
-#     if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
-#         return HttpResponse(apps.ERROR_UNAUTHENTICATED)
-    
-    return HttpResponse(lambda_poll(     
+    if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
+        return HttpResponse(apps.ERROR_UNAUTHENTICATED)
+    print("{}request_parameters{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, debug_parameters(request)))
+    return HttpResponse(lambda_poll(
         request.session['aws_access_key'],
         request.session['aws_secret_key'],
         request.session['aws_security_token'],
         request.session['job_id'],
         {
-            
-            'instanceType': 'c4.xlarge',
-            'killTime': 600,
-            'environment': int(request.POST['environment']),
-            'agent': int(request.POST.get('agent', '5')),
-            'episodes': int(request.POST.get('episodes','20')),
-            'alpha': float(request.POST.get('alpha', '0.9')),
-            'steps': int(request.POST.get('steps', '50')),
-            'gamma': float(request.POST.get('gamma', '0.97')),
-            'minEpsilon': float(request.POST.get('minEpsilon','0.0')),
-            'maxEpsilon': float(request.POST.get('maxEpsilon','1.0')),
-            'decayRate': float(request.POST.get('decayRate','0.01')),
-            'batchSize': int(request.POST.get('batchSize', '32')),
-            'memorySize': int(request.POST.get('memorySize', '1000')),
-            'targetInterval': int(request.POST.get('targetInterval', '10')),
-            'historyLength': int(request.POST.get('historyLength', '10')),
-        }
+            "instanceType": get_safe_value(str, "c4.xlarge", "c4.xlarge"),
+            "killTime": get_safe_value(int, 600, 600),
+            "environment": get_safe_value(int, request.POST.get("environment"), 1),
+            "agent": get_safe_value(int, request.POST.get("agent"), 1),
+            "episodes": get_safe_value(int, request.POST.get("episodes"), 20),
+            "steps": get_safe_value(int, request.POST.get("steps"), 50),
+            "gamma": get_safe_value(float, request.POST.get("gamma"), 0.97),
+            "minEpsilon": get_safe_value(int, request.POST.get("minEpsilon"), 0.01),
+            "maxEpsilon": get_safe_value(int, request.POST.get("maxEpsilon"), 0.99),
+            "decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01),
+            "batchSize": get_safe_value(int, request.POST.get("batchSize"), 32),
+            "memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000),
+            "targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10),
+            "alpha": get_safe_value(float, request.POST.get("alpha"), 0.9),
+            "historyLength": get_safe_value(int, request.POST.get("historyLength"), 10),
+        }                
     ))
 
 @csrf_exempt
@@ -153,22 +152,30 @@ def halt(request):
     debug_sessions(request)
     if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
         return HttpResponse(apps.ERROR_UNAUTHENTICATED)
-    
-    lambda_halt_job(
+    print("{}request_parameters{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, debug_parameters(request)))
+    return HttpResponse(lambda_halt_job(
         request.session['aws_access_key'],
         request.session['aws_secret_key'],
         request.session['aws_security_token'],
         request.session['job_id'],
-        )
-    return HttpResponse(apps.ERROR_NONE)
-
-
-def image(request):
-    _, _, _, _, image_data = get_recent_training_data(
-        request.session['aws_access_key'], 
-        request.session['aws_secret_key'], 
-        "easyrl-{}".format(request.session['job_id']))
-    return HttpResponse(image_data, content_type="image/png")
+        {
+            "instanceType": get_safe_value(str, "c4.xlarge", "c4.xlarge"),
+            "killTime": get_safe_value(int, 600, 600),
+            "environment": get_safe_value(int, request.POST.get("environment"), 1),
+            "agent": get_safe_value(int, request.POST.get("agent"), 1),
+            "episodes": get_safe_value(int, request.POST.get("episodes"), 20),
+            "steps": get_safe_value(int, request.POST.get("steps"), 50),
+            "gamma": get_safe_value(float, request.POST.get("gamma"), 0.97),
+            "minEpsilon": get_safe_value(int, request.POST.get("minEpsilon"), 0.01),
+            "maxEpsilon": get_safe_value(int, request.POST.get("maxEpsilon"), 0.99),
+            "decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01),
+            "batchSize": get_safe_value(int, request.POST.get("batchSize"), 32),
+            "memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000),
+            "targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10),
+            "alpha": get_safe_value(float, request.POST.get("alpha"), 0.9),
+            "historyLength": get_safe_value(int, request.POST.get("historyLength"), 10),
+        }
+    ))
 
 def lambda_create_instance(aws_access_key, aws_secret_key, aws_security_token, job_id):
     lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
@@ -207,7 +214,7 @@ def lambda_terminate_instance(aws_access_key, aws_secret_key, aws_security_token
         return True
     return False
 
-def lambda_halt_job(aws_access_key, aws_secret_key, aws_security_token, job_id):
+def lambda_halt_job(aws_access_key, aws_secret_key, aws_security_token, job_id, arguments):
     lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
     data = {
         "accessKey": aws_access_key,
@@ -215,15 +222,15 @@ def lambda_halt_job(aws_access_key, aws_secret_key, aws_security_token, job_id):
         "sessionToken": aws_security_token,
         "jobID": job_id,
         "task": apps.TASK_HALT_JOB,
+        "arguments": arguments
     }
-    print(data)
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
-    print("{}lambda_halt_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
-    if response['StatusCode'] == 200:
-        streambody = response['Payload'].read().decode()
-        print("{}stream_body{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, streambody))
-        return True
-    return False
+    payload = response['Payload'].read()
+    print("{}lambda_halt_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, payload))
+    if len(payload) != 0:
+        return "{}".format(payload)[2:-1]
+    else:
+        return ""
 
 def lambda_poll(aws_access_key, aws_secret_key, aws_security_token, job_id, arguments):
     lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
@@ -260,6 +267,17 @@ def lambda_run_job(aws_access_key, aws_secret_key, aws_security_token, job_id, a
         return "{}".format(payload)[2:-1]
     else:
         return ""
+
+def get_safe_value(convert_function, input_value, default_value):
+    try:
+        return convert_function(input_value)
+    except ValueError as _:
+        return default_value
+    except Exception as _:
+        return default_value
+
+def debug_parameters(request):
+    return ' '.join(["{}={}".format(key, value) for key, value in request.POST.items()])
 
 def debug_sessions(request):
     for key in request.session.keys():

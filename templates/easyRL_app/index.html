@@ -128,7 +128,7 @@
           <div class="tab-content" id="myTabContent">
             <div class="tab-pane fade show active" id="hp" role="tabpanel" aria-labelledby="hp-tab-0">
               <div class="image_container">
-                <img id="training_image" src="" onError="this.onerror = '';this.style.visibility='hidden';"/>
+				<img id="training_image" src=""/>
                 <p id="training_summary"></p>
               </div>        
           </div>
@@ -491,16 +491,16 @@
 	// start function reload_image()
 	function reload_image()
 	{
-		var jsonData = "";
+		var gifs = "";
 		var isRunning = true;
 		var interval = setInterval(function() {
 			
 			var data = 
 			{
-	      		"environment": $('#env-hidden').val()
-	            ,"instanceType": "c4.xlarge"
-				,"agent": $("#agent-hidden").val()
-				,"killTime": 600
+              "environment": $('#env-hidden').val()
+              ,"instanceType": "c4.xlarge"
+              ,"agent": $("#agent-hidden").val()
+              ,"killTime": 600
 	            ,"episodes": $("#num-episodes-text").val()
 	            ,"steps": $('#max-size-text').val()
 	            ,"gamma": $('#gamma-text').val()
@@ -513,33 +513,39 @@
 	            ,"alpha": $('#alpha-text').val()
 	            ,"historyLength": $('#history-text').val()
 	    	};
-console.log(data);
-	        $.post('/easyRL_app/poll/', {lucky: data},function (data){
-					if (data == "")
+
+	        $.post('/easyRL_app/poll/', data,function (result){
+					if (result == "")
 					{
 						alert("The response is empty");
 					}
-				
-					data = JSON.parse(data)
-					if (data["error"] !== null)
+
+					result = JSON.parse(result)
+					if (result["error"] !== null)
 					{
-						alert("There is no poll"); // problem creating ssh connection
+						// keep this line for debugging purpose
+						//alert("There is no poll");
 					}
 					// assume that cloudBridge won't remove the key [instanceState]
-					state = data["instanceState"]
+					state = result["instanceState"]
 					if (state === "idle")
 					{
 						isRunning = false;
 					}
 					if (state === "booting" || state === "updated")
 					{
-						alert("Booting or updated");
+						// keep this line for debugging purpose
+						//alert("Booting or updated");
 					}
 					else if (state === "runningJob")
 					{
 						// loading data
 						// data["jobArguments"]["environment"] -> 5
-						alert(data["progress"]); // always [waiting]
+						// alert(data["progress"]);
+						if (result["progress"] != "waiting")
+						{
+							gifs = result["progress"]["gifs"];
+						}
 					}
 				
 	        });
@@ -547,12 +553,14 @@ console.log(data);
 	        if(isRunning === false)
 			    {
 	            clearInterval(interval);
-	            $("#training_summary").html("<button id='btn_reload' class='btn btn-primary' onclick='reload_image()' style='margin:5px;'>Reload</button>");
+	            // $("#training_summary").html("<button id='btn_reload' class='btn btn-primary' onclick='reload_image()' style='margin:5px;'>Reload</button>");
 	            return;
 	        }
 
 	        // $("#training_image").attr("src", '/easyRL_app/image/?' + (new Date()).getTime());
-			$("#training_summary").html(jsonData);
+			if (gifs.length > 0)
+				$("#training_image").attr("src", gifs[gifs.length-1]);
+			//$("#training_summary").html(jsonData);
         
 		}, 5000);
 	}
@@ -565,10 +573,10 @@ console.log(data);
 		//var slider = $(this).val();
     	var data = 
 		{
-      		"environment": $('#env-hidden').val()
+            "environment": $('#env-hidden').val()
             ,"instanceType": "c4.xlarge"
-			,"agent": $("#agent-hidden").val()
-			,"killTime": 600
+            ,"agent": $("#agent-hidden").val()
+            ,"killTime": 600
             ,"episodes": $("#num-episodes-text").val()
             ,"steps": $('#max-size-text').val()
             ,"gamma": $('#gamma-text').val()
@@ -582,22 +590,23 @@ console.log(data);
             ,"historyLength": $('#history-text').val()
     	};
 
-		$.post('/easyRL_app/train/',data).done(function (data){
-				if (data == "")
+		$.post('/easyRL_app/train/',data,function (result){
+				if (result == "")
 				{
-					alert("The response is empty");
+					//alert("The response is empty");
+					return;
+				}
+				alert(result);
+				result = JSON.parse(result);
+				if (result["error"] !== null)
+				{
+					//alert("Could not start the training"); // instance not found
 					return;
 				}
 				
-				data = JSON.parse(data);
-				if (data["error"] !== null)
-				{
-					alert("Could not start the training"); // instance not found
-					return;
-				}
-				
-				alert("The training in progress");
-			});
+				// alert("The training in progress");
+			
+		});
 		
 		reload_image();
 	}); // Train Button - End
