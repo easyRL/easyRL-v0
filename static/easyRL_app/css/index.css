@@ -17,6 +17,8 @@
     border-color: #b7a57a ;
 }
 
+
+
 [contenteditable] {
     border: solid 1px lightgreen;
     padding: 5px;

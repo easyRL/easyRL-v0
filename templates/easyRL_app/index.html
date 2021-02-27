@@ -1,7 +1,7 @@
 {% extends "easyRL_app/base.html" %}
 {% load static %}
 {% block content %}
-  <div class="container-fluid">
+  <div class="container-fluid" style="padding: 0px">
     <div class="row">
       <div class="card text-center">
         <div class="card-header">
@@ -68,7 +68,7 @@
             </div>  
             <br/>               
             <h5 id="file-name" class="card-title"></h5>
-            <button id="set-environment" class="btn btn-primary"><span class=""><i class="bi-card-image"></i></span> Select Environment</button>
+            <button id="set-environment" class="btn btn-secondary"><span class=""><i class="bi-card-image"></i></span> Select Environment</button>
         </div>
       </div>
     </div>
@@ -77,17 +77,17 @@
     <div class="row justify-content-center " id="select-containers">
           <div class="col-md-3">
             <select class="form-select" id="agent-select" size="3" aria-label="Default select example">
-                <option value ="0" selected>--Select Agent--</option>
+                <option value="0" selected>--Select Agent--</option>
                 <option value="1">Deep Q</option>
                 <option value="2">Q Learning</option>
                 <option value="3">DRQN</option>
                 <option value="4">ADRQN</option>
-                <option value="Double Dueling Deep Q Native">Double Dueling Deep Q Native</option>
-                <option value="DRQN Native">DRQN Native</option>
-                <option value="Conv DRQN Native">Conv. DRQN Native</option>
-                <option value="PPO Native">PPO Native</option>
-                <option value="Reinforce Native">Reinforce Native</option>
-                <option value="ActorCritic Native">ActorCritic Native</option>
+                <option value="6">Double Dueling Deep Q Native</option>
+                <option value="7">DRQN Native</option>
+                <option value="8">Conv. DRQN Native</option>
+                <option value="9">PPO Native</option>
+                <option value="10">Reinforce Native</option>
+                <option value="11">ActorCritic Native</option>
                 <option value="5">SARSA</option>
             </select>
           </div> 
@@ -103,100 +103,49 @@
           <div class="col-md-3">           
             <select class="form-select" size="3" aria-label="Default select example">
               <option value="0" selected>--Select Host Environment--</option>
-              <option value="1">EC2</option>
-              <option value="2">Kubeflow</option>
-              <option value="3">...</option>
-              <option value="3">...</option>
-              <option value="3">...</option>                               
+              <optgroup label="ECS">
+                <option value="1">c4.large</option>
+                <option value="2">c4.xlarge</option>
+                <option value="3">c4.2xlarge</option>
+                <option value="4">c4.4xlarge</option>
+                <option value="5">c4.8xlarge</option>
+              </optgroup>
+              <optgroup label="Kubeflow">
+                <option value="6">...</option>
+                <option value="7">...</option>
+                <option value="8">...</option>
+                <option value="9">...</option>    
+              </optgroup>                           
             </select> 
           </div> 
         <br/>
-
     </div>                                          
-      <br/>  
-      <div class="row">
-        <!-- Tabs -->   
-        <div class="col">
-          <ul class="nav nav-tabs" id="myTab" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="hp-tab-0" data-bs-toggle="tab" data-bs-target="#hp" type="button" role="tab" aria-controls="hp" aria-selected="true">Hyper Parameters <i class="bi-dash-circle-fill"  style="color: red"></i></button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="add-model-tab" type="button" >Add <i class="bi-plus-circle-fill" style="color: #0b5ed7"></i></button>
-              </li>
-          </ul>
-          <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade show active" id="hp" role="tabpanel" aria-labelledby="hp-tab-0">
-              <div class="image_container">
-				<img id="training_image" src=""/>
-				<div id="training_graph" style="width: 900px; height: 500px"></div>
-              </div>        
-          </div>
-        </div>  
+    <br/>  
+    <div class="row">
+      <!-- Tabs -->   
+      <div class="col">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="hp-tab-0" data-bs-toggle="tab" data-bs-target="#hp" type="button" role="tab" aria-controls="hp" aria-selected="true">Hyper Parameters <i class="bi-dash-circle-fill"  style="color: red"></i></button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="add-model-tab" type="button" >Add <i class="bi-plus-circle-fill" style="color: #0b5ed7"></i></button>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade show active" id="hp" role="tabpanel" aria-labelledby="hp-tab-0">
+            <div class="image-container">
+              <img id="training_image" src=""/>
+              <div id="training_graph" style="width: 900px; height: 500px"></div>
+            </div>        
+        </div>
+      </div>  
       </div> 
       <div class="col">
         <form method="post" style="margin-top: 15px;" >{% csrf_token %}
           <div id="form-div" class="container-fluid"></div>
-            <!-- <div class="row">
-              <div class="slider-container col-6">
-                <label>Gamma</label>
-                <div class=""  >{{form.gamma}}</div>
-                <div class="" style="margin: 0px 100px 0px 100px;">{{form.gamma_text}}</div>
-              </div>
-              <div class="col-md-6">
-                <label>Number of Episodes</label>
-              <div class="col-md-12"  >{{form.num_episodes}}</div>
-            </div>
-            </div>
-            <div class="row">
-              <div class="slider-container col-6">
-                <label>Min Epsilon</label>
-                <div class="">{{form.min_epsilon}}</div>
-                <div class="" style="margin: 0px 100px 0px 100px;">{{form.min_text}}</div>
-              </div>
-              <div class="col-md-6">
-              <label>Memory Size</label>
-              <div class="col-md-12" >{{form.max_memory}}</div>
-              </div>
-            </div> 
-            <div class="row">
-              <div class="slider-container col-6">
-                <label>Max Epsilon</label>
-                <div class=""  >{{form.max_epsilon}}</div>
-                <div class="" style="margin: 0px 100px 0px 100px;">{{form.max_text}}</div>
-              </div>
-              <div class="col-6">
-              <label>Target Update Iterval</label>
-              <div class="col-12"  >{{form.target_update}}</div>
-              </div>
-            </div> 
-            <div class="row">
-              <div class="slider-container col-6">
-                <label>Batch Size</label>
-                <div class=""  >{{form.batch}}</div>
-                <div class="" style="margin: 0px 100px 0px 100px;">{{form.batch_text}}</div>
-              </div>
-              <div class="col-6">
-              <label>Max Size</label>
-              <div class="col-12">{{form.max_size}}</div>
-              </div>
-            </div> 
-            <div class="row">
-              <div class="slider-container col-6">
-                <label>Decay Rate</label>
-                <div class=""  >{{form.decay_rate}}</div>
-                <div class="" style="margin: 0px 100px 0px 100px;">{{form.decay_text}}</div>
-              </div>
-              <div class="slider-container col-12">
-                <label>Display Episode Speed</label>
-                <div class=""  >{{form.display_ep_speed}}</div>
-                <div class="" style="margin: 0px 200px 0px 200px;">{{form.display_text}}</div>
-              </div>
-            </div>                                      
-            <br/>                
-            <button class="btn btn-primary  float-end type="submit">Submit form</button>
-          </div>  
-        </form> -->
+            
+        </form> 
       </div>        
     </div>
   </div>
@@ -208,6 +157,7 @@
       $(document).ready(function(){
         $('[data-toggle="tooltip"]').tooltip();   
       });
+      $("select option:selected").css('backgroundColor', '#FFFFFF');
       $("#agent-select option").prop('disabled', true);  
       var src = $('.active').find('img').attr('src');
       src = src.slice(26,-4);
@@ -651,7 +601,7 @@
             +       '<div class="slider-container col-6">'
             +         '<label>Gamma</label>'
             +         '<div class=""  ><input type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
             +       '</div>'
             +       '<div class="col-md-6">'
             +         '<label>Number of Episodes</label>'
@@ -662,10 +612,10 @@
             +       '<div class="slider-container col-6">'
             +         '<label>Min Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
             +'       </div>'
             +'       <div class="col-6">'
-            +'       <label>Max Size</label>'
+            +'       <label>Steps</label>'
             +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
             +'       </div>'
             +'     </div> '
@@ -673,12 +623,12 @@
             +'       <div class="slider-container col-6">'
             +'         <label>Max Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
             +'       </div>'
             +'       <div class="slider-container col-6">'
             +'         <label>Decay Rate</label>'
             +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
             +'       </div>'
             +'     </div>';
 
@@ -686,7 +636,7 @@ var deepQ =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Gamma</label>'
             +         '<div class=""><input type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
             +       '</div>'
             +       '<div class="col-md-6">'
             +         '<label>Number of Episodes</label>'
@@ -697,10 +647,10 @@ var deepQ =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Min Epsilon</label>'
             +         '<div class=""  ><input type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
             +'       </div>'
             +'       <div class="col-6">'
-            +'       <label>Max Size</label>'
+            +'       <label>Steps</label>'
             +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
             +'       </div>'
             +'     </div> '
@@ -708,12 +658,12 @@ var deepQ =     '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Max Epsilon</label>'
             +         '<div class=""  ><input type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
             +'       </div>'
             +'       <div class="slider-container col-6">'
             +'         <label>Decay Rate</label>'
             +         '<div class=""  ><input type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
             +'       </div>'
             +'     </div>'
             +'     <div class="row">'
@@ -729,12 +679,12 @@ var deepQ =     '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Batch Size</label>'
             +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
             +'       </div>'
             +'       <div class="slider-container col-12">'
             +'         <label>Display Episode Speed</label>'
             +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
             +'       </div>'
             +'        <input type="hidden" id="env-hidden" class="form-control">'
             +'        <input type="hidden" id="agent-hidden" class="form-control">'
@@ -744,7 +694,7 @@ var qLearning =      '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Gamma</label>'
             +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
             +       '</div>'
             +       '<div class="col-md-6">'
             +         '<label>Number of Episodes</label>'
@@ -755,10 +705,10 @@ var qLearning =      '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Min Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
             +'       </div>'
             +'       <div class="col-6">'
-            +'       <label>Max Size</label>'
+            +'       <label>Steps</label>'
             +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
             +'       </div>'
             +'     </div> '
@@ -766,24 +716,24 @@ var qLearning =      '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Max Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
             +'       </div>'
             +'       <div class="slider-container col-6">'
             +'         <label>Decay Rate</label>'
             +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
             +'       </div>'
             +'     </div>'
             +'      <div class="row>'
             +'       <div class="slider-container col-6">'
             +'         <label>Alpha</label>'
             +         '<div class=""  ><input   type="range" id="alpha-slider" class="form-range" name="alpha-slider" min="0" max="1" step="0.001" value="0.18"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="alpha-text" value="0.18" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="alpha-text" value="0.18" readonly></div>'
             +'       </div>' 
             +'       <div class="slider-container col-12">'
             +'         <label>Display Episode Speed</label>'
             +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
             +'       </div>'
             +'        <input type="hidden" id="env-hidden" class="form-control">'
             +'        <input type="hidden" id="agent-hidden" class="form-control">'
@@ -793,7 +743,7 @@ var drqn =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Gamma</label>'
             +         '<div class=""  ><input type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
             +       '</div>'
             +       '<div class="col-md-6">'
             +         '<label>Number of Episodes</label>'
@@ -804,10 +754,10 @@ var drqn =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Min Epsilon</label>'
             +         '<div class=""  ><input type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
             +'       </div>'
             +'       <div class="col-6">'
-            +'       <label>Max Size</label>'
+            +'       <label>Steps</label>'
             +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
             +'       </div>'
             +'     </div> '
@@ -815,18 +765,18 @@ var drqn =     '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Max Epsilon</label>'
             +         '<div class=""  ><input type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
             +'       </div>'
-            +'       <div class="slider-container col-6">'
-            +'         <label>Decay Rate</label>'
-            +         '<div class=""  ><input type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
-            +'       </div>'
-            +'     </div>'
-            +'     <div class="row">'
             +'       <div class="col-6">'
             +'       <label>Target Update Interval</label>'
             +'       <div class="col-12"  ><input type="text" id="target-update-interval-text" class="form-control " value="200"></div>'
+            +'       </div>'
+            +'     </div>'
+            +'     <div class="row">'
+            +'       <div class="slider-container col-6">'
+            +'         <label>Decay Rate</label>'
+            +         '<div class=""  ><input type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
             +'       </div>'
             +'       <div class="col-md-6">'
             +'          <label>Memory Size</label>'
@@ -837,7 +787,7 @@ var drqn =     '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Batch Size</label>'
             +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
             +'       </div>'
             +'       <div class="col-md-6">'
             +'          <label>History Length</label>'
@@ -847,7 +797,7 @@ var drqn =     '<div class="row">'
             +'        <div class="slider-container col-12">'
             +'         <label>Display Episode Speed</label>'
             +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
             +'        </div>'
             +'        <input type="hidden" id="env-hidden" class="form-control">'
             +'        <input type="hidden" id="agent-hidden" class="form-control">'
@@ -857,7 +807,7 @@ var doubleDueling =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Gamma</label>'
             +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
             +       '</div>'
             +       '<div class="col-md-6">'
             +         '<label>Number of Episodes</label>'
@@ -868,10 +818,10 @@ var doubleDueling =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Min Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
             +'       </div>'
             +'       <div class="col-6">'
-            +'       <label>Max Size</label>'
+            +'       <label>Steps</label>'
             +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
             +'       </div>'
             +'     </div> '
@@ -879,12 +829,12 @@ var doubleDueling =     '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Max Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
             +'       </div>'
             +'       <div class="slider-container col-6">'
             +'         <label>Decay Rate</label>'
             +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
             +'       </div>'
             +'     </div>'
             +'     <div class="row">'
@@ -901,18 +851,18 @@ var doubleDueling =     '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Batch Size</label>'
             +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
             +'       </div>'
             +'       <div class="slider-container col-6">'
             +'         <label>Learning Rate</label>'
             +         '<div class=""  ><input   type="range" id="learning-rate-slider" class="form-range" name="learning-rate-slider" min="0" max="100" step="0.001" value="0.001"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="learning-rate-text" value="0.001" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="learning-rate-text" value="0.001" readonly></div>'
             +'       </div>' 
             +'      <div class="row>'
             +'       <div class="slider-container col-12">'
             +'         <label>Display Episode Speed</label>'
             +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
             +'       </div>'
             +'      </div>'  
             +'        <input type="hidden" id="env-hidden" class="form-control">'
@@ -923,7 +873,7 @@ var convDRQNNative =      '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Gamma</label>'
             +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
             +       '</div>'
             +       '<div class="col-md-6">'
             +         '<label>Number of Episodes</label>'
@@ -934,10 +884,10 @@ var convDRQNNative =      '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Min Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
             +'       </div>'
             +'       <div class="col-6">'
-            +'       <label>Max Size</label>'
+            +'       <label>Steps</label>'
             +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
             +'       </div>'
             +'     </div> '
@@ -945,12 +895,12 @@ var convDRQNNative =      '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Max Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
             +'       </div>'
             +'       <div class="slider-container col-6">'
             +'         <label>Decay Rate</label>'
             +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
             +'       </div>'
             +'     </div>';
             +'     <div class="row">'
@@ -967,7 +917,7 @@ var convDRQNNative =      '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Batch Size</label>'
             +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
             +'       </div>'
             +'       <div class="col-md-6">'
             +'          <label>History Length</label>'
@@ -977,20 +927,20 @@ var convDRQNNative =      '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Batch Size</label>'
             +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
             +'       </div>'
             +'      <div class="row>'
             +'       <div class="slider-container col-6">'
             +'         <label>Learning Rate</label>'
             +         '<div class=""  ><input   type="range" id="learning-rate-slider" class="form-range" name="learning-rate-slider" min="0" max="100" step="0.001" value="0.001"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="learning-rate-text" value="0.001" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="learning-rate-text" value="0.001" readonly></div>'
             +'       </div>'
             +'        </div>'
             +'        <div class="row">'          
             +'       <div class="slider-container col-12">'
             +'         <label>Display Episode Speed</label>'
             +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
             +'       </div>'
             +'        <input type="hidden" id="env-hidden" class="form-control">'
             +'        <input type="hidden" id="agent-hidden" class="form-control">'
@@ -1001,7 +951,7 @@ var actorCritc =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Gamma</label>'
             +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
             +       '</div>'
             +       '<div class="col-md-6">'
             +         '<label>Number of Episodes</label>'
@@ -1012,10 +962,10 @@ var actorCritc =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Min Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
             +'       </div>'
             +'       <div class="col-6">'
-            +'       <label>Max Size</label>'
+            +'       <label>Steps</label>'
             +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
             +'       </div>'
             +'     </div> '
@@ -1023,19 +973,19 @@ var actorCritc =     '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Max Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
             +'       </div>'
             +'       <div class="slider-container col-6">'
             +'         <label>Decay Rate</label>'
             +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
             +'       </div>'
             +'     </div>' 
             +     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Policy Learn Rate</label>'
             +         '<div class=""  ><input   type="range" id="plr-slider" class="form-range" name="plr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="plr-text" value="" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="plr-text" value="" readonly></div>'
             +       '</div>'
             +       '<div class="col-md-6">'
             +         '<label>History</label>'
@@ -1046,7 +996,7 @@ var actorCritc =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Value Learn Rate</label>'
             +         '<div class=""  ><input   type="range" id="vlr-slider" class="form-range" name="vlr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="vlr-text" value="0.001" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="vlr-text" value="0.001" readonly></div>'
             +'       </div>'
             +'       <div class="col-6">'
             +'       <label>Epoch</label>'
@@ -1056,7 +1006,7 @@ var actorCritc =     '<div class="row">'
             +'       <div class="slider-container col-12">'
             +'         <label>Display Episode Speed</label>'
             +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
             +'       </div>'
             +'        <input type="hidden" id="env-hidden" class="form-control">'
             +'        <input type="hidden" id="agent-hidden" class="form-control">'           
@@ -1066,7 +1016,7 @@ var reinforceNative =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Gamma</label>'
             +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
             +       '</div>'
             +       '<div class="col-md-6">'
             +         '<label>Number of Episodes</label>'
@@ -1077,10 +1027,10 @@ var reinforceNative =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Min Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
             +'       </div>'
             +'       <div class="col-6">'
-            +'       <label>Max Size</label>'
+            +'       <label>Steps</label>'
             +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
             +'       </div>'
             +'     </div> '
@@ -1088,24 +1038,24 @@ var reinforceNative =     '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Max Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
             +'       </div>'
             +'       <div class="slider-container col-6">'
             +'         <label>Decay Rate</label>'
             +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
             +'       </div>'
             +'     </div>'
             +'      <div class="row>'
             +'       <div class="slider-container col-6">'
             +'         <label>Learning Rate</label>'
             +         '<div class=""  ><input   type="range" id="plt-slider" class="form-range" name="plr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="plr-text" value="" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="plr-text" value="" readonly></div>'
             +'       </div>'
             +'       <div class="slider-container col-12">'
             +'         <label>Display Episode Speed</label>'
             +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
             +'       </div>'
             +'        <input type="hidden" id="env-hidden" class="form-control">'
             +'        <input type="hidden" id="agent-hidden" class="form-control">'
@@ -1115,7 +1065,7 @@ var ppoNative =      '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Gamma</label>'
             +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
             +       '</div>'
             +       '<div class="col-md-6">'
             +         '<label>Number of Episodes</label>'
@@ -1126,10 +1076,10 @@ var ppoNative =      '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Min Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
             +'       </div>'
             +'       <div class="col-6">'
-            +'       <label>Max Size</label>'
+            +'       <label>Steps</label>'
             +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
             +'       </div>'
             +'     </div> '
@@ -1137,25 +1087,25 @@ var ppoNative =      '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Max Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
             +'       </div>'
             +'       <div class="slider-container col-6">'
             +'         <label>Decay Rate</label>'
             +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
             +'       </div>'
             +'     </div>' 
             +'     <div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Batch Size</label>'
             +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
             +'       </div>'
             +     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Policy Learn Rate</label>'
             +         '<div class=""  ><input   type="range" id="plr-slider" class="form-range" name="plr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="plr-text" value="" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="plr-text" value="" readonly></div>'
             +       '</div>'
             +       '<div class="col-md-6">'
             +         '<label>History</label>'
@@ -1166,7 +1116,7 @@ var ppoNative =      '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Value Learn Rate</label>'
             +         '<div class=""  ><input   type="range" id="vlr-slider" class="form-range" name="vlr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="vlr-text" value="0.001" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="vlr-text" value="0.001" readonly></div>'
             +'       </div>'
             +'       <div class="col-6">'
             +'       <label>Epoch</label>'
@@ -1176,7 +1126,7 @@ var ppoNative =      '<div class="row">'
             +'       <div class="slider-container col-12">'
             +'         <label>Display Episode Speed</label>'
             +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
             +'       </div>'
             +'        <input type="hidden" id="env-hidden" class="form-control">'
             +'        <input type="hidden" id="agent-hidden" class="form-control">'           
@@ -1188,7 +1138,7 @@ var sarsa =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Gamma</label>'
             +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range col-4" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
             +       '</div>'
             +       '<div class="col-md-6">'
             +         '<label>Number of Episodes</label>'
@@ -1199,10 +1149,10 @@ var sarsa =     '<div class="row">'
             +       '<div class="slider-container col-6">'
             +         '<label>Min Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
             +'       </div>'
             +'       <div class="col-6">'
-            +'       <label>Max Size</label>'
+            +'       <label>Steps</label>'
             +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
             +'       </div>'
             +'     </div> '
@@ -1210,24 +1160,24 @@ var sarsa =     '<div class="row">'
             +'       <div class="slider-container col-6">'
             +'         <label>Max Epsilon</label>'
             +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
             +'       </div>'
             +'       <div class="slider-container col-6">'
             +'         <label>Decay Rate</label>'
             +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
             +'       </div>'
             +'     </div>';
             +'      <div class="row>'
             +'       <div class="slider-container col-6">'
             +'         <label>Alpha</label>'
             +         '<div class=""  ><input   type="range" id="alpha-slider" class="form-range" name="alpha-slider" min="0" max="1" step="0.001" value="0.18"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="alpha-text" value="0.18" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="alpha-text" value="0.18" readonly></div>'
             +'       </div>' 
             +'       <div class="slider-container col-12">'
             +'         <label>Display Episode Speed</label>'
             +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-            +         '<div class="" style="margin: 0px 100px 0px 100px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
             +'       </div>'
             +'        <input type="hidden" id="env-hidden" class="form-control">'
             +'        <input type="hidden" id="agent-hidden" class="form-control">'
