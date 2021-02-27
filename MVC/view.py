@@ -10,7 +10,7 @@ from PIL import ImageTk
 from PIL.ImageTk import PhotoImage
 import ttkwidgets
 
-from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, doubleDuelingQNative, drqnNative, drqnConvNative, ppoNative, reinforceNative, actorCriticNative,cem
+from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, doubleDuelingQNative, drqnNative, drqnConvNative, ppoNative, reinforceNative, actorCriticNative, cem
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, \
     mountainCarEnv
 from MVC import helptext
