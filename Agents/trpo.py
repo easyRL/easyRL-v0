@@ -25,11 +25,7 @@ from collections import namedtuple
 
 class TRPO(PPO):
     displayName = 'TRPO Agent'
-<<<<<<< HEAD
-    newParameters = [PPO.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001,
-=======
     newParameters = [DeepQ.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001,
->>>>>>> 69e928f70957543f7597edffb9600322894a6b24
                                                              True, True,
                                                              "A learning rate that the Adam optimizer starts at")
                      ]
@@ -46,6 +42,11 @@ class TRPO(PPO):
         self.rollouts = []
         self.advantages = 0
 
+        Qparams = []
+        for i in range(3):
+            Qparams.append(DeepQ.newParameters[i].default)
+        self.batch_size, self.memory_size, self.target_update_interval = [int(param) for param in Qparams]
+
         self.actorModel = super().buildActorNetwork()
         self.actorTarget = super().buildActorNetwork()
         self.criticModel = super().buildCriticNetwork()
@@ -55,62 +56,59 @@ class TRPO(PPO):
         return super().get_empty_state()
 
     def sample(self):
-        pass
+        return self.memory.sample(self.batch_size)
 
     def addToMemory(self, state, action, reward, new_state, done):
         self.memory.append_frame(TransitionFrame(state, action, reward, new_state, done))
 
-    def remember(self, state, action, reward, new_state, done): 
+    def remember(self, state, action, reward, new_state, done):
         self.addToMemory(state, action, reward, new_state, done)
+        surrogate_loss = 0
         if len(self.memory) < 2*self.batch_size:
-            0
+            return surrogate_loss
         mini_batch = self.sample()
-        num_rollouts = 10
-        for t in range(num_rollouts): 
-            self.reset()
-            state = super().get_empty_state()
-            done = False
-            samples = []
-            self.rewards = []
-            while not done:
-                with torch.no_grad():
-                    action = self.choose_action(state)
-                    #next_state, reward, done, _ = self.action(state)
+        surrogate_loss = self.calculateTargetValues(mini_batch)
+        return surrogate_loss
 
-                    samples.append((state, action, reward, new_state))
+    '''def choose_action(self, state):
+        state = torch.tensor(state).float().unsqueeze(0)
+        dist = Categorical(self.actorModel(state, self.action_size))
+        return dist.sample().item()'''
 
-                    #state = next_state
-                
-            states, actions, rewards, next_states = zip(*samples)
+
+    '''def choose_action(self, state):
+        val = self.predict(state, False)
+        epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * self.time_steps)
+        # TODO: Put epsilon at a level near this
+        #if random.random() > epsilon:
+        action = np.argmax(val)
+        #else:
+        #    action = self.state_size.sample()
+        return action'''
+
+    def calculateTargetValues(self, mini_batch):
+        X_train = [np.zeros((self.batch_size,) + self.state_size), np.zeros((self.batch_size,) + (self.action_size,))]
+        next_states = np.zeros((self.batch_size,) + self.state_size)
+        self.rewards = []
+        for index_rep, transition in enumerate(mini_batch):
+            print("length of mini_batch: " + str(len(mini_batch[0])))
+            print("MINI BATCH: \n")
+            for i in range(len(mini_batch)):
+                print("length of batch: " + str(len(mini_batch[i])))
+            states, actions, rewards, next_state, dones = mini_batch
+            X_train[0][index_rep] = transition.state
+            X_train[1][index_rep] = self.create_one_hot(self.action_size, transition.action)
+            next_states[index_rep] = transition.next_state
 
             states = torch.stack([torch.from_numpy(state) for state in states], dim=0).float()
             next_states = torch.stack([torch.from_numpy(state) for state in next_states], dim=0).float()
             actions = torch.as_tensor(actions).unsqueeze(1)
             rewards = torch.as_tensor(rewards).unsqueeze(1)
-
             self.rollouts.append(self.Rollout(states, actions, rewards, next_states))
-        super().updateNetworks(mini_batch)
         self.updateAgent(self.rollouts)
-        return self.surrogate_loss
+        super().updateNetworks(mini_batch)
+        return self.surr_new
 
-    def choose_action(self, state):
-        state = torch.tensor(state).float().unsqueeze(0)
-        dist = Categorical(self.actorModel(state))
-        return dist.sample().item()
-
-
-    '''def choose_action(self, state):
-        qval = self.predict(state, False)
-        epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * self.time_steps)
-        # TODO: Put epsilon at a level near this
-        if random.random() > epsilon:
-            action = np.argmax(qval)
-        # else:
-            # action = self.state_size.sample()
-        return action'''
-
-    def calculateTargetValues(self, mini_batch):
-        pass
 
     def updateAgent(self, rollouts):
         states = torch.cat([r.states for r in rollouts], dim=0)
@@ -133,7 +131,7 @@ class TRPO(PPO):
         # Computes probabilities via Importance Sampling in order to compute loss function.
         probabilities = distribution[range(distribution.shape[0]), actions]
 
-        self.L = self.surrogate_loss(probabilities, probabilities.detach())
+        self.surr_loss = self.surrogate_loss(probabilities, probabilities.detach())
         self.KL = self.kl_div(distribution, distribution)
 
         self.g = self.flat_grad(self.L, TRPO.parameters, retain_graph=True)
@@ -157,10 +155,10 @@ class TRPO(PPO):
                 distribution_new = torch.distributions.utils.clam_probs(distribution_new)
                 probabilities_new = distribution_new[range(distribution_new.shape[0]), actions]
 
-                self.L_new = self.surrogate_loss(probabilities_new, probabilities)
+                self.surr_new = self.surrogate_loss(probabilities_new, probabilities)
                 self.KL_new = self.kl_div(distribution, distribution_new)
 
-            L_improvement = self.L_new - self.L_improvement
+            L_improvement = self.surr_new - self.surr_loss
             if L_improvement > 0 and self.KL_new <= delta:
                 return True
         
@@ -236,7 +234,7 @@ class TRPO(PPO):
             n += numel
 
     def update(self):
-        self.train(num_rollouts=10)
+        pass
 
     def save(self, filename):
         mem1 = self.actorModel.get_weights()

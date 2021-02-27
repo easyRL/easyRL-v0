@@ -30,7 +30,7 @@ class PPO(DeepQ):
                                                              "A measure of how much a policy can change w.r.t. the states it's trained on"),
                      DeepQ.Parameter('PPO Lambda', 0.5, 1, 0.001, 0.95,
                                                              True, True,
-                                                             "A parameter that when set below 1, can decrease variance while maintaining reasonable bias")]
+                                                            "A parameter that when set below 1, can decrease variance while maintaining reasonable bias")]
     parameters = DeepQ.parameters + newParameters
 
     def __init__(self, *args):
@@ -40,10 +40,6 @@ class PPO(DeepQ):
         super().__init__(*args[:-paramLen])
         empty_state = self.get_empty_state()
         # Initialize parameters
-        #self.memory_size = DeepQ.memory_size
-        #self.batch_size = DeepQ.batch_size
-        #self.target_update_interval = DeepQ.target_update_interval
-        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
@@ -65,16 +61,16 @@ class PPO(DeepQ):
         import torch.nn as nn
         import tensorflow.keras as k
         import tensorflow as tf 
-        '''from tensorflow.python.keras.optimizer_v2.adam import Adam
+        from tensorflow.python.keras.optimizer_v2.adam import Adam
         from tensorflow.keras.models import Model
-        from tensorflow.keras.layers import Dense, Input, Flatten, multiply'''
-        model = nn.Sequential(nn.Linear(self.state_size[0], 32),
+        from tensorflow.keras.layers import Dense, Input, Flatten, multiply
+        '''model = nn.Sequential(nn.Linear(self.state_size[0], 32),
                               nn.ReLU(),
                               nn.Linear(32, self.action_size),
                               nn.Softmax(dim=1))
-        return model
+        return model'''
         #model.compile(loss='mse', optimizer=Adam(lr=self.value_lr, clipvalue=1), metrics=[metrics.mean_squared_error], steps_per_execution=10)'''
-        '''inputA = Input(shape=self.state_size)
+        inputA = Input(shape=self.state_size)
         inputB = Input(shape=(self.action_size,))
         x = Flatten()(inputA)
         x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
@@ -83,18 +79,19 @@ class PPO(DeepQ):
         outputs = multiply([x, inputB])
         kl = tf.keras.losses.KLDivergence()
         model = Model(inputs=[inputA, inputB], outputs=outputs)
-        model.compile(loss=kl, optimizer=Adam(lr=0.0001, clipvalue=1))'''
+        model.compile(loss=kl, optimizer=Adam(lr=0.0001, clipvalue=1))
         return model
 
     def buildCriticNetwork(self):
         import torch.nn as nn
-        '''from tensorflow.python.keras.optimizer_v2.adam import Adam
+        from tensorflow.python.keras.optimizer_v2.adam import Adam
         from tensorflow.keras.models import Model
-        from tensorflow.keras.layers import Dense, Input, Flatten, multiply'''
-        model =nn.Sequential(nn.Linear(self.state_size[0], 32),
+        from tensorflow.keras.layers import Dense, Input, Flatten, multiply
+
+        '''model =nn.Sequential(nn.Linear(self.state_size[0], 32),
                               nn.ReLU(),
-                              nn.Linear(32, 1))
-        '''inputA = Input(shape=self.state_size)
+                              nn.Linear(32, 1))'''
+        inputA = Input(shape=self.state_size)
         inputB = Input(shape=(self.action_size,))
         x = Flatten()(inputA)
         x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
@@ -103,7 +100,7 @@ class PPO(DeepQ):
         outputs = multiply([x, inputB])
         outputs = multiply([x, inputB])
         model = Model(inputs=[inputA, inputB], outputs=outputs)
-        model.compile(loss='mse', optimizer=Adam(lr=0.0001, clipvalue=1))'''
+        model.compile(loss='mse', optimizer=Adam(lr=0.0001, clipvalue=1))
         return model
 
     def get_empty_state(self):
