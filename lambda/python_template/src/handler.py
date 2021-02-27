@@ -497,6 +497,33 @@ def yourFunction(request, context):
             ssh.close()
         else:
             inspector.addAttribute("error", "Instance not found.")
+    
+    elif (task == "exportModel"):
+        ec2Client = botoSession.client('ec2')
+        ec2Resource = botoSession.resource('ec2')
+
+        ourInstance = findOurInstance(ec2Client, jobID, inspector)
+        if (ourInstance is not None):
+            ip = ourInstance['PublicIpAddress']
+            #inspector.addAttribute("ip", str(ip))
+
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username='tcss556', password='secretPassword')
+
+            if (sessionToken == ""):
+                command = "python3.7 easyRL-v0/lambda/upload.py trainedAgent.bin " + jobID + " " + accessKey + " " + secretKey 
+            else:
+                command = "python3.7 easyRL-v0/lambda/upload.py trainedAgent.bin " + jobID + " " + accessKey + " " + secretKey + " " + sessionToken 
+
+            #inspector.addAttribute("command", command)
+
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+            stdout = ssh_stdout.readlines()
+            inspector.addAttribute("url", "https://easyrl-" + str(jobID) + ".s3.amazonaws.com/trainedAgent.bin")
+            ssh.close()
+        else:
+            inspector.addAttribute("error", "Instance not found.")
 
     elif (task == "terminateInstance"):
         ec2Client = botoSession.client('ec2')
