@@ -1,21 +1,20 @@
 from Agents import modelBasedAgent
-from Agents import agent
+from abc import ABC, abstractmethod
 
-class PolicyIteration(modelBasedAgent.ModelBasedAgent):
+class PolicyIteration(modelBasedAgent.ModelBasedAgent, ABC):
+    displayName = 'Policy Iteration Method'
     newParameters = []
     parameters = modelBasedAgent.ModelBasedAgent.parameters + newParameters
     
     def __init__(self, *args):
         super().__init__(*args)
-        self.value = []
-        self.policy = []
-
-
-    def update(self):
-        super().update()
-
-    def choose_action(self, state):
-        super().choose_action(state)
-
-    def __deepcopy__(self, memodict={}):
+        self._policy = None
+    
+    @abstractmethod
+    def update(self, rewards):
+        """
+        Updates the current policy given an array of rewards.
+        :param rewards: an array of rewards from the episode
+        :type rewards: numpy.ndarray
+        """
         pass

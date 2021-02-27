@@ -1,6 +1,5 @@
-from abc import ABC
-
 from Agents import agent
+from abc import ABC
 
 class ModelBasedAgent(agent.Agent, ABC):
     displayName = 'Model Based Agent'
