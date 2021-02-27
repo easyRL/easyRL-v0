@@ -91,50 +91,30 @@ def train(request):
     debug_sessions(request)
 #     if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
 #         return HttpResponse(apps.ERROR_UNAUTHENTICATED)
+   
     return HttpResponse(lambda_run_job(
-          "AKIARNM6CAZHHJAGNJPR",
-          "i7nPrQQkK8kkqQ03+yeJ9DS7YSA/XUHjdo0J2IX/",
-          "",
-          "eb8ee889-3525-45fe-9d1a-0df28c46d2a9",
-          {
-            "instanceType": "c4.xlarge",
-            "killTime": 600,
-            "environment": 1,
-            "agent": 1,
-            "episodes": 2,
-            "steps": 10,
-            "gamma": 0.97,
-            "minEpsilon": 0.1,
-            "maxEpsilon": 1.0,
-            "decayRate": 0.018,
-            "batchSize": 32,
-            "memorySize": 1000,
-            "targetInterval": 200,
-            "alpha": 0.18,
-            "historyLength": 10
-          }
 
-#         request.session['aws_access_key'],
-#         request.session['aws_secret_key'],
-#         request.session['aws_security_token'],
-#         request.session['job_id'],
-#         {
-#             "instanceType": "c4.xlarge",
-#             "killTime": 600,
-#             "environment": int(request.POST.get("environment", 5)),
-#             "agent": int(request.POST.get('agent', 5)),
-#             "episodes": int(request.POST.get('episodes',20)),
-#             "alpha": float(request.POST.get('alpha', 0.9)),
-#             "steps": int(request.POST.get('steps', 50)),
-#             "gamma": float(request.POST.get('gamma', 0.97)),
-#             "minEpsilon": float(request.POST.get('minEpsilon',0)),
-#             "maxEpsilon": float(request.POST.get('maxEpsilon',1)),
-#             "decayRate": float(request.POST.get('decayRate',0.01)),
-#             "batchSize": int(request.POST.get('batchSize', 32)),
-#             "memorySize": int(request.POST.get('memorySize', 1000)),
-#             "targetInterval": int(request.POST.get('targetInterval', 10)),
-#             "historyLength": int(request.POST.get('historyLength', 10)),
-#         }
+        request.session['aws_access_key'],
+        request.session['aws_secret_key'],
+        request.session['aws_security_token'],
+        request.session['job_id'],
+        {
+            'instanceType': 'c4.xlarge',
+            'killTime': 600,
+            'environment': int(request.POST.get('environment', '1')),
+            'agent': int(request.POST.get('agent', '5')),
+            'episodes': int(request.POST.get('episodes','20')),
+            'alpha': float(request.POST.get('alpha', '0.9')),
+            'steps': int(request.POST.get('steps', '50')),
+            'gamma': float(request.POST.get('gamma', '0.97')),
+            'minEpsilon': float(request.POST.get('minEpsilon','0.0')),
+            'maxEpsilon': float(request.POST.get('maxEpsilon','1.0')),
+            'decayRate': float(request.POST.get('decayRate','0.01')),
+            'batchSize': int(request.POST.get('batchSize', '32')),
+            'memorySize': int(request.POST.get('memorySize', '1000')),
+            'targetInterval': int(request.POST.get('targetInterval', '10')),
+            'historyLength': int(request.POST.get('historyLength', '10')),
+        }
     ))
 
 @csrf_exempt
@@ -142,50 +122,30 @@ def poll(request):
     debug_sessions(request)
 #     if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
 #         return HttpResponse(apps.ERROR_UNAUTHENTICATED)
-    return HttpResponse(lambda_poll(
-        "AKIARNM6CAZHHJAGNJPR",
-          "i7nPrQQkK8kkqQ03+yeJ9DS7YSA/XUHjdo0J2IX/",
-          "",
-          "eb8ee889-3525-45fe-9d1a-0df28c46d2a9",
-          {
-            "instanceType": "c4.xlarge",
-            "killTime": 600,
-            "environment": 1,
-            "agent": 1,
-            "episodes": 2,
-            "steps": 10,
-            "gamma": 0.97,
-            "minEpsilon": 0.1,
-            "maxEpsilon": 1.0,
-            "decayRate": 0.018,
-            "batchSize": 32,
-            "memorySize": 1000,
-            "targetInterval": 200,
-            "alpha": 0.18,
-            "historyLength": 10
-          }
-        
-#         request.session['aws_access_key'],
-#         request.session['aws_secret_key'],
-#         request.session['aws_security_token'],
-#         request.session['job_id'],
-#         {
-#             "instanceType": "c4.xlarge",
-#             "killTime": 600,
-#             "environment": int(request.POST.get("environment", 5)),
-#             "agent": int(request.POST.get('agent', 5)),
-#             "episodes": int(request.POST.get('episodes',20)),
-#             "alpha": float(request.POST.get('alpha', 0.9)),
-#             "steps": int(request.POST.get('steps', 50)),
-#             "gamma": float(request.POST.get('gamma', 0.97)),
-#             "minEpsilon": float(request.POST.get('minEpsilon',0)),
-#             "maxEpsilon": float(request.POST.get('maxEpsilon',1)),
-#             "decayRate": float(request.POST.get('decayRate',0.01)),
-#             "batchSize": int(request.POST.get('batchSize', 32)),
-#             "memorySize": int(request.POST.get('memorySize', 1000)),
-#             "targetInterval": int(request.POST.get('targetInterval', 10)),
-#             "historyLength": int(request.POST.get('historyLength', 10)),
-#         }
+    
+    return HttpResponse(lambda_poll(     
+        request.session['aws_access_key'],
+        request.session['aws_secret_key'],
+        request.session['aws_security_token'],
+        request.session['job_id'],
+        {
+            
+            'instanceType': 'c4.xlarge',
+            'killTime': 600,
+            'environment': int(request.POST['environment']),
+            'agent': int(request.POST.get('agent', '5')),
+            'episodes': int(request.POST.get('episodes','20')),
+            'alpha': float(request.POST.get('alpha', '0.9')),
+            'steps': int(request.POST.get('steps', '50')),
+            'gamma': float(request.POST.get('gamma', '0.97')),
+            'minEpsilon': float(request.POST.get('minEpsilon','0.0')),
+            'maxEpsilon': float(request.POST.get('maxEpsilon','1.0')),
+            'decayRate': float(request.POST.get('decayRate','0.01')),
+            'batchSize': int(request.POST.get('batchSize', '32')),
+            'memorySize': int(request.POST.get('memorySize', '1000')),
+            'targetInterval': int(request.POST.get('targetInterval', '10')),
+            'historyLength': int(request.POST.get('historyLength', '10')),
+        }
     ))
 
 @csrf_exempt

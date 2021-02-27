@@ -41,7 +41,7 @@
               <div id="carouselExampleControlsNoTouching" class="carousel mbr-slider slide col-md-3" data-bs-touch="false" data-bs-interval="false">
                 <div class="carousel-inner">
                   {% for file in files %}
-                  {% if file == 'Acrobot.jpg' %}
+                  {% if file == 'Cart Pole.jpg' %}
                   <div class="carousel-item active">
                     <div class="d-flex justify-content-center w-100 h-100">
                         <img src="{% static 'easyRL_app/images/'%}{{file}}" data-name="{{file}}" alt="...">
@@ -513,24 +513,18 @@
 	            ,"alpha": $('#alpha-text').val()
 	            ,"historyLength": $('#history-text').val()
 	    	};
-
-	        $.ajax(
-			{
-				url: '/easyRL_app/poll/',
-				dataType: 'text',
-				success: function (data)
-				{
+console.log(data);
+	        $.post('/easyRL_app/poll/', {lucky: data},function (data){
 					if (data == "")
 					{
 						alert("The response is empty");
 					}
 				
-					data = JSON.parse(data);
+					data = JSON.parse(data)
 					if (data["error"] !== null)
 					{
 						alert("There is no poll"); // problem creating ssh connection
 					}
-					
 					// assume that cloudBridge won't remove the key [instanceState]
 					state = data["instanceState"]
 					if (state === "idle")
@@ -547,12 +541,11 @@
 						// data["jobArguments"]["environment"] -> 5
 						alert(data["progress"]); // always [waiting]
 					}
-					
-				}
+				
 	        });
 	
 	        if(isRunning === false)
-			{
+			    {
 	            clearInterval(interval);
 	            $("#training_summary").html("<button id='btn_reload' class='btn btn-primary' onclick='reload_image()' style='margin:5px;'>Reload</button>");
 	            return;
@@ -589,13 +582,7 @@
             ,"historyLength": $('#history-text').val()
     	};
 
-		$.ajax(
-		{
-			type: "POST",
-			url: '/easyRL_app/train/',
-			dataType: 'text',
-			success: function (data)
-			{
+		$.post('/easyRL_app/train/',data).done(function (data){
 				if (data == "")
 				{
 					alert("The response is empty");
@@ -610,8 +597,7 @@
 				}
 				
 				alert("The training in progress");
-			}
-		});
+			});
 		
 		reload_image();
 	}); // Train Button - End
