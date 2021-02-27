@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from approximator import Approximator
+from Agents.Policy.approximator import Approximator
 
 from abc import ABC, abstractmethod
 from torch.distributions import Categorical
