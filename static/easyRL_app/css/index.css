@@ -3,17 +3,17 @@
 
 .btn-secondary {
     color: #fff;
-    background-color:  rgba(75, 46, 131, 1);
+    background-color:  rgb(158, 157, 160);
     border-color: #371588; /*set the color you want here*/
 }
 .btn-secondary:hover, .btn-secondary:focus, .btn-secondary:active, .btn-secondary.active {
     color: #fff;
-    background-color: #987fc7;
-    border-color: #38195c; /*set the color you want here*/
+    background-color:  rgb(86, 85, 88);;
+    border-color: #b7a57a; /*set the color you want here*/
 }
 .carousel-control-next-icon, .carousel-control-prev-icon{
     color: #fff ;
-    background-color: rgba(75, 46, 131, 1);
+    background-color: rgb(143, 143, 143);
     border-color: #b7a57a ;
 }
 
