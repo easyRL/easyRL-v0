@@ -574,8 +574,8 @@
 						// alert(data["progress"]);
 						if (result["progress"] != "waiting")
 						{
-							gifs = data["progress"]["gifs"];
-							episodes = data["progress"]["episodes"];
+							gifs = result["progress"]["gifs"];
+							episodes = result["progress"]["episodes"];
 						}
 					}
 				
@@ -629,7 +629,6 @@
 					//alert("The response is empty");
 					return;
 				}
-				alert(result);
 				result = JSON.parse(result);
 				if (result["error"] !== null)
 				{
