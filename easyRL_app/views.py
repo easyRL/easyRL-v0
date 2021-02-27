@@ -114,8 +114,7 @@ def train(request):
             "targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10),
             "alpha": get_safe_value(float, request.POST.get("alpha"), 0.9),
             "historyLength": get_safe_value(int, request.POST.get("historyLength"), 10),
-        }
-        
+        } 
     ))
 
 @csrf_exempt
@@ -145,7 +144,7 @@ def poll(request):
             "targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10),
             "alpha": get_safe_value(float, request.POST.get("alpha"), 0.9),
             "historyLength": get_safe_value(int, request.POST.get("historyLength"), 10),
-        }
+        }                
     ))
 
 @csrf_exempt

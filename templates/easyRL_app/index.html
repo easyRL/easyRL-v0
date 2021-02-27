@@ -7,16 +7,16 @@
         <div class="card-header">
           <ul class="nav nav-pills card-header-pills">
             <li class="nav-item">
-              <button id="btn-train" class="btn btn-primary" style="margin:5px;">Train</button>
+              <button id="btn-train" class="btn btn-secondary" style="margin:5px;">Train</button>
             </li>
             <li class="nav-item">
-              <button id="btn-halt" class="btn btn-primary"style="margin:5px;">Halt</button>
+              <button id="btn-halt" class="btn btn-secondary"style="margin:5px;">Halt</button>
             </li>
             <li class="nav-item">
-              <button id="btn-test" class="btn btn-primary"style="margin:5px;">Test</button>
+              <button id="btn-test" class="btn btn-secondary"style="margin:5px;">Test</button>
             </li>
             <li class="nav-item">
-              <button id="btn-reset" class="btn btn-primary"style="margin:5px;">Reset</button>
+              <button id="btn-reset" class="btn btn-secondary"style="margin:5px;">Reset</button>
               </li>  
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" style="margin:5px;">Model </a>
@@ -27,10 +27,10 @@
                 </div>
               </li> 
               <li class="nav-item">
-                <button class="btn btn-primary"style="margin:5px;">Save Result</button>
+                <button class="btn btn-secondary"style="margin:5px;">Save Result</button>
               </li>  
               <li class="nav-item"><a href='/easyRL_app/logout'>
-                <button class="btn btn-primary"style="margin:5px;">Sign out</button></a>
+                <button class="btn btn-secondary"style="margin:5px;">Sign out</button></a>
               </li>                                                                               
           </ul>
         </div>
@@ -41,7 +41,7 @@
               <div id="carouselExampleControlsNoTouching" class="carousel mbr-slider slide col-md-3" data-bs-touch="false" data-bs-interval="false">
                 <div class="carousel-inner">
                   {% for file in files %}
-                  {% if file == 'Acrobot.jpg' %}
+                  {% if file == 'Cart Pole.jpg' %}
                   <div class="carousel-item active">
                     <div class="d-flex justify-content-center w-100 h-100">
                         <img src="{% static 'easyRL_app/images/'%}{{file}}" data-name="{{file}}" alt="...">
@@ -527,10 +527,10 @@
 			
 			var data = 
 			{
-	      		"environment": $('#env-hidden').val()
-	            ,"instanceType": "c4.xlarge"
-				,"agent": $("#agent-hidden").val()
-				,"killTime": 600
+              "environment": $('#env-hidden').val()
+              ,"instanceType": "c4.xlarge"
+              ,"agent": $("#agent-hidden").val()
+              ,"killTime": 600
 	            ,"episodes": $("#num-episodes-text").val()
 	            ,"steps": $('#max-size-text').val()
 	            ,"gamma": $('#gamma-text').val()
@@ -544,21 +544,20 @@
 	            ,"historyLength": $('#history-text').val()
 	    	};
 
-	        $.ajax(
-			{
-				url: '/easyRL_app/poll/',
-				dataType: 'text',
-				success: function (data)
-				{
-					data = JSON.parse(data);
-					if (data["error"] !== null)
+	        $.post('/easyRL_app/poll/', data,function (result){
+					if (result == "")
+					{
+						alert("The response is empty");
+					}
+
+					result = JSON.parse(result)
+					if (result["error"] !== null)
 					{
 						// keep this line for debugging purpose
 						//alert("There is no poll");
 					}
-					
 					// assume that cloudBridge won't remove the key [instanceState]
-					state = data["instanceState"]
+					state = result["instanceState"]
 					if (state === "idle")
 					{
 						isRunning = false;
@@ -573,18 +572,17 @@
 						// loading data
 						// data["jobArguments"]["environment"] -> 5
 						// alert(data["progress"]);
-						if (data["progress"] != "waiting")
+						if (result["progress"] != "waiting")
 						{
 							gifs = data["progress"]["gifs"];
 							episodes = data["progress"]["episodes"];
 						}
 					}
-					
-				}
+				
 	        });
 	
 	        if(isRunning === false)
-			{
+			    {
 	            clearInterval(interval);
 	            // $("#training_summary").html("<button id='btn_reload' class='btn btn-primary' onclick='reload_image()' style='margin:5px;'>Reload</button>");
 	            return;
@@ -608,10 +606,10 @@
 		//var slider = $(this).val();
     	var data = 
 		{
-      		"environment": $('#env-hidden').val()
+            "environment": $('#env-hidden').val()
             ,"instanceType": "c4.xlarge"
-			,"agent": $("#agent-hidden").val()
-			,"killTime": 600
+            ,"agent": $("#agent-hidden").val()
+            ,"killTime": 600
             ,"episodes": $("#num-episodes-text").val()
             ,"steps": $('#max-size-text').val()
             ,"gamma": $('#gamma-text').val()
@@ -625,28 +623,22 @@
             ,"historyLength": $('#history-text').val()
     	};
 
-		$.ajax(
-		{
-			type: "POST",
-			url: '/easyRL_app/train/',
-			dataType: 'text',
-			success: function (data)
-			{
-				if (data == "")
+		$.post('/easyRL_app/train/',data,function (result){
+				if (result == "")
 				{
 					//alert("The response is empty");
 					return;
 				}
-				
-				data = JSON.parse(data);
-				if (data["error"] !== null)
+				alert(result);
+				result = JSON.parse(result);
+				if (result["error"] !== null)
 				{
 					//alert("Could not start the training"); // instance not found
 					return;
 				}
 				
 				// alert("The training in progress");
-			}
+			
 		});
 		
 		reload_image();

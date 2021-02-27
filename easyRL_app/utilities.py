@@ -47,31 +47,31 @@ def download_item_in_bucket(aws_access_key, aws_secret_key, bucket_name, bucket_
     except botocore.exceptions.ClientError:
         return False
 
-# def get_recent_training_data(aws_access_key, aws_secret_key, bucket_name):
-#     local_data_file = apps.LOCAL_JSON_FILE.format(bucket_name)
-#     download_item_in_bucket(aws_access_key, aws_secret_key, bucket_name, apps.DATA_JSON_FILE, local_data_file)
-# 
-#     # read the data.json local file the name is changed to JOB_ID.json in /tmp directory
-#     file_content = get_file_content_then_delete_file(local_data_file, 'r')
-#     
-#     # parse the JSON content to JSON object
-#     json_content = json.loads(file_content)
-#     last_episode = json_content['episodes'][-1]
-#     episodeNo = last_episode['episode']
-#     
-#     # store the values
-#     avgLoss = last_episode['avgLoss']
-#     avgEpsilon = last_episode['avgEpsilon']
-#     totalReward = last_episode['totalReward']
-#     avgReward = json_content['avgReward']
-# 
-#     # read the image data
-#     image_file = apps.IMAGE_FILE.format(episodeNo)
-#     image_local_file = "{}/static/{}-{}".format(str(core.settings.BASE_DIR), bucket_name, image_file)
-#     download_item_in_bucket(aws_access_key, aws_secret_key, bucket_name, image_file, image_local_file)
-#     image_data = get_file_content_then_delete_file(image_local_file, 'rb')
-#     
-#     return avgLoss, avgEpsilon, totalReward, avgReward, image_data
+def get_recent_training_data(aws_access_key, aws_secret_key, bucket_name):
+    local_data_file = apps.LOCAL_JSON_FILE.format(bucket_name)
+    download_item_in_bucket(aws_access_key, aws_secret_key, bucket_name, apps.DATA_JSON_FILE, local_data_file)
+
+    # read the data.json local file the name is changed to JOB_ID.json in /tmp directory
+    file_content = get_file_content_then_delete_file(local_data_file, 'r')
+    
+    # parse the JSON content to JSON object
+    json_content = json.loads(file_content)
+    last_episode = json_content['episodes'][-1]
+    episodeNo = last_episode['episode']
+    
+    # store the values
+    avgLoss = last_episode['avgLoss']
+    avgEpsilon = last_episode['avgEpsilon']
+    totalReward = last_episode['totalReward']
+    avgReward = json_content['avgReward']
+
+    # read the image data
+    image_file = apps.IMAGE_FILE.format(episodeNo)
+    image_local_file = "{}/static/{}-{}".format(str(core.settings.BASE_DIR), bucket_name, image_file)
+    download_item_in_bucket(aws_access_key, aws_secret_key, bucket_name, image_file, image_local_file)
+    image_data = get_file_content_then_delete_file(image_local_file, 'rb')
+    
+    return avgLoss, avgEpsilon, totalReward, avgReward, image_data
 
 def invoke_aws_lambda_func(lambdas, data='{}'):
     # lambdas.list_functions()
