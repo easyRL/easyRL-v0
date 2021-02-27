@@ -1,4 +1,4 @@
-# EasyRL-Framework - WEB
+# EasyRL-Framework
 
 # Installation for Windows x64 (releases):
   
