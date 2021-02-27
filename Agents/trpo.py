@@ -24,11 +24,16 @@ from torch.distributions import Categorical
 from collections import namedtuple
 
 class TRPO(PPO):
+<<<<<<< HEAD
     displayName = 'TRPO Agent'
     newParameters = [DeepQ.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001,
                                                              True, True,
                                                              "A learning rate that the Adam optimizer starts at")
                      ]
+=======
+    displayName = 'TRPO'
+    newParameters = [PPO.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001, True, True, "A learning rate that the Adam optimizer starts at")]
+>>>>>>> 1b51932679684081c2d16e439b04d8a8765667e4
     parameters = PPO.parameters + newParameters
 
     #Invoke constructor
