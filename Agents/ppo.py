@@ -40,6 +40,7 @@ class PPO(DeepQ):
         super().__init__(*args[:-paramLen])
         empty_state = self.get_empty_state()
         # Initialize parameters
+        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)

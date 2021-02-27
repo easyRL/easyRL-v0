@@ -24,16 +24,11 @@ from torch.distributions import Categorical
 from collections import namedtuple
 
 class TRPO(PPO):
-<<<<<<< HEAD
     displayName = 'TRPO Agent'
     newParameters = [DeepQ.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001,
                                                              True, True,
                                                              "A learning rate that the Adam optimizer starts at")
                      ]
-=======
-    displayName = 'TRPO'
-    newParameters = [PPO.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001, True, True, "A learning rate that the Adam optimizer starts at")]
->>>>>>> 1b51932679684081c2d16e439b04d8a8765667e4
     parameters = PPO.parameters + newParameters
 
     #Invoke constructor
@@ -42,16 +37,17 @@ class TRPO(PPO):
         print(str(args))
         paramLen = len(TRPO.newParameters)
         super().__init__(*args[:-paramLen])
-        self.Rollout = namedtuple('Rollout', ['states', 'actions', 'rewards', 'next_states',])
+        self.Rollout = namedtuple('Rollout', ['states', 'actions', 'rewards', 'new_states',])
         self.rewards = []
         self.rollouts = []
         self.advantages = 0
 
         Qparams = []
+        empty_state = self.get_empty_state()
         for i in range(3):
             Qparams.append(DeepQ.newParameters[i].default)
         self.batch_size, self.memory_size, self.target_update_interval = [int(param) for param in Qparams]
-
+        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
         self.actorModel = super().buildActorNetwork()
         self.actorTarget = super().buildActorNetwork()
         self.criticModel = super().buildCriticNetwork()
@@ -96,31 +92,51 @@ class TRPO(PPO):
         next_states = np.zeros((self.batch_size,) + self.state_size)
         self.rewards = []
         for index_rep, transition in enumerate(mini_batch):
-            print("length of mini_batch: " + str(len(mini_batch[0])))
+            '''print("length of mini_batch: " + str(len(mini_batch[0])))
             print("MINI BATCH: \n")
             for i in range(len(mini_batch)):
                 print("length of batch: " + str(len(mini_batch[i])))
-            states, actions, rewards, next_state, dones = mini_batch
+                print("batch iteration: " + str(mini_batch[i]))
+            print("index: " + str(index_rep))
+            print("transition: " + str(transition))'''
+            states, actions, rewards, new_states, dones = transition
             X_train[0][index_rep] = transition.state
             X_train[1][index_rep] = self.create_one_hot(self.action_size, transition.action)
             next_states[index_rep] = transition.next_state
 
+            # Convert lists to numpy array 
+            states = np.expand_dims(states, -1)
+            actions = np.expand_dims(actions, -1)
+            rewards = np.expand_dims(rewards, -1)
+            new_states = np.expand_dims(new_states, -1)
+
             states = torch.stack([torch.from_numpy(state) for state in states], dim=0).float()
-            next_states = torch.stack([torch.from_numpy(state) for state in next_states], dim=0).float()
+            new_states = torch.stack([torch.from_numpy(state) for state in new_states], dim=0).float()
             actions = torch.as_tensor(actions).unsqueeze(1)
             rewards = torch.as_tensor(rewards).unsqueeze(1)
-            self.rollouts.append(self.Rollout(states, actions, rewards, next_states))
+            self.rollouts.append(self.Rollout(states, actions, rewards, new_states))
         self.updateAgent(self.rollouts)
         super().updateNetworks(mini_batch)
         return self.surr_new
 
+    def outputs(self):
+        inputA = Input(shape=self.state_size)
+        inputB = Input(shape=(self.action_size,))
+        x = Flatten()(inputA)
+        x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
+        x = Dense(24, activation='relu')(x)
+        x = Dense(self.action_size, activation='linear')(x)
+        outputs = multiply([x, inputB])
+        return outputs
 
     def updateAgent(self, rollouts):
         states = torch.cat([r.states for r in rollouts], dim=0)
-        actions = torch.cat([r.actions for r in rollouts], dim=0).flatten()
+        actions = torch.cat([r.actions for r in rollouts], dim=0)
+        rewards = torch.cat([r.rewards for r in rollouts], dim=0).flatten()
+        new_states = torch.cat([r.new_states for r in rollouts], dim=0)
 
         # Compute advantage function used for computing loss function.
-        self.advantages = [self.estimate_advantages(states, next_states[-1], rewards) for states, _, rewards, next_states in rollouts]
+        self.advantages = [self.estimate_advantages(states, actions, new_states[-1], rewards) for states, actions, rewards, new_states in rollouts]
         self.advantages = torch.cat(self.advantages, dim=0).flatten()
 
         self.advantages = (self.advantages - self.advantages.mean()) / self.advantages.std()
@@ -129,7 +145,7 @@ class TRPO(PPO):
 
         # Computes distribution and performs importance sampling.
         # Computes distribution of dataset to use for calculating probabiities.
-        distribution = self.actorModel(states)
+        distribution = self.actorModel(states, actions)
 
         distribution = torch.distributions.utils.clam_prob(distribution)
 
@@ -156,7 +172,7 @@ class TRPO(PPO):
             self.apply_update(step)
 
             with torch.no_grad():
-                distribution_new = self.actorModel(states)
+                distribution_new = self.actorModel(states, actions)
                 distribution_new = torch.distributions.utils.clam_probs(distribution_new)
                 probabilities_new = distribution_new[range(distribution_new.shape[0]), actions]
 
@@ -175,9 +191,10 @@ class TRPO(PPO):
                 i += 1
 
     # Estimate the advantages used for advantage function.
-    def estimate_advantages(self, states, last_state, rewards):
-        values = self.criticModel(states)
-        last_value = PPO.criticModel(last_state.unsqueeze(0))
+    def estimate_advantages(self, states, actions, last_state, rewards):
+        print("Actions: " + str(actions))
+        values = self.criticModel(states, actions)
+        last_value = self.criticModel(last_state.unsqueeze(0))
         next_values = torch.zeros_like(rewards)
         for i in reversed(range(rewards.shape[0])):
             last_value = next_values[i] = rewards[i] + 0.99 * last_value
