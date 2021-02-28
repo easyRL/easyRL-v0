@@ -90,8 +90,8 @@ def logout(request):
 @csrf_exempt
 def train(request):
     debug_sessions(request)
-#     if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
-#         return HttpResponse(apps.ERROR_UNAUTHENTICATED)
+    if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
+        return HttpResponse(apps.ERROR_UNAUTHENTICATED)
     print("{}request_parameters{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, debug_parameters(request)))
     return HttpResponse(lambda_run_job(
         request.session['aws_access_key'],
@@ -150,6 +150,7 @@ def poll(request):
 @csrf_exempt
 def import_model(request):
     pass
+
 @csrf_exempt
 def export_model(request):
     debug_sessions(request)
@@ -179,6 +180,7 @@ def export_model(request):
             "historyLength": get_safe_value(int, request.POST.get("historyLength"), 10),
         }
     ))
+
 @csrf_exempt
 def halt(request):
     debug_sessions(request)
@@ -207,6 +209,35 @@ def halt(request):
             "alpha": get_safe_value(float, request.POST.get("alpha"), 0.9),
             "historyLength": get_safe_value(int, request.POST.get("historyLength"), 10),
         }
+    ))
+
+@csrf_exempt
+def test_job(request):
+    if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
+        return HttpResponse(apps.ERROR_UNAUTHENTICATED)
+    print("{}request_parameters{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, debug_parameters(request)))
+    return HttpResponse(lambda_test_job(
+        request.session['aws_access_key'],
+        request.session['aws_secret_key'],
+        request.session['aws_security_token'],
+        request.session['job_id'],
+        {
+            "instanceType": get_safe_value(str, "c4.xlarge", "c4.xlarge"),
+            "killTime": get_safe_value(int, 600, 600),
+            "environment": get_safe_value(int, request.POST.get("environment"), 1),
+            "agent": get_safe_value(int, request.POST.get("agent"), 1),
+            "episodes": get_safe_value(int, request.POST.get("episodes"), 20),
+            "steps": get_safe_value(int, request.POST.get("steps"), 50),
+            "gamma": get_safe_value(float, request.POST.get("gamma"), 0.97),
+            "minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01),
+            "maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99),
+            "decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01),
+            "batchSize": get_safe_value(int, request.POST.get("batchSize"), 32),
+            "memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000),
+            "targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10),
+            "alpha": get_safe_value(float, request.POST.get("alpha"), 0.9),
+            "historyLength": get_safe_value(int, request.POST.get("historyLength"), 10),
+        } 
     ))
 
 def lambda_create_instance(aws_access_key, aws_secret_key, aws_security_token, job_id):
@@ -263,6 +294,7 @@ def lambda_halt_job(aws_access_key, aws_secret_key, aws_security_token, job_id, 
         return "{}".format(payload)[2:-1]
     else:
         return ""
+
 def lambda_export_model(aws_access_key, aws_secret_key, aws_security_token, job_id, arguments):
     lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
     data = {
@@ -280,6 +312,7 @@ def lambda_export_model(aws_access_key, aws_secret_key, aws_security_token, job_
         return "{}".format(payload)[2:-1]
     else:
         return ""
+
 def lambda_poll(aws_access_key, aws_secret_key, aws_security_token, job_id, arguments):
     lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
     data = {
@@ -306,6 +339,24 @@ def lambda_run_job(aws_access_key, aws_secret_key, aws_security_token, job_id, a
         "sessionToken": aws_security_token,
         "jobID": job_id,
         "task": apps.TASK_RUN_JOB,
+        "arguments": arguments,
+    }
+    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+    payload = response['Payload'].read()
+    print("{}lambda_run_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, payload))
+    if len(payload) != 0:
+        return "{}".format(payload)[2:-1]
+    else:
+        return ""
+
+def lambda_test_job(aws_access_key, aws_secret_key, aws_security_token, job_id, arguments):
+    lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
+    data = {
+        "accessKey": aws_access_key,
+        "secretKey": aws_secret_key,
+        "sessionToken": aws_security_token,
+        "jobID": job_id,
+        "task": apps.TASK_RUN_TEST,
         "arguments": arguments,
     }
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))

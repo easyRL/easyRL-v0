@@ -1,12 +1,13 @@
 from django.apps import AppConfig
 
 TASK_CREATE_INSTANCE = "createInstance"
+TASK_EXPORT_MODEL = "exportModel"
 TASK_TERMINAL_INSTANCE = "terminateInstance"
 TASK_RUN_JOB = "runJob"
+TASK_RUN_TEST = "runTest"
 TASK_POLL = "poll"
 TASK_IS_JOB_RUNNING = "isRunning"
 TASK_HALT_JOB = "haltJob"
-TASK_EXPORT_MODEL = "exportModel"
 
 ERROR_NONE = 0
 ERROR_UNAUTHENTICATED = 1
