@@ -65,34 +65,30 @@ class PPO(DeepQ):
         from tensorflow.python.keras.optimizer_v2.adam import Adam
         from tensorflow.keras.models import Model
         from tensorflow.keras.layers import Dense, Input, Flatten, multiply
-        '''model = nn.Sequential(nn.Linear(self.state_size[0], 32),
-                              nn.ReLU(),
-                              nn.Linear(32, self.action_size),
-                              nn.Softmax(dim=1))
-        return model'''
         #model.compile(loss='mse', optimizer=Adam(lr=self.value_lr, clipvalue=1), metrics=[metrics.mean_squared_error], steps_per_execution=10)'''
-        inputA = Input(shape=self.state_size)
+        '''inputA = Input(shape=self.state_size)
         inputB = Input(shape=(self.action_size,))
         x = Flatten()(inputA)
         x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
         x = Dense(24, activation='relu')(x)
         x = Dense(self.action_size, activation='linear')(x)
         outputs = multiply([x, inputB])
-        kl = tf.keras.losses.KLDivergence()
-        model = Model(inputs=[inputA, inputB], outputs=outputs)
-        model.compile(loss=kl, optimizer=Adam(lr=0.0001, clipvalue=1))
+        outputs = multiply([x, inputB])
+        model = Model(inputs=[inputA, inputB], outputs=outputs)'''
+        model = nn.Sequential(nn.Linear(self.state_size[0], 32),
+                      nn.ReLU(),
+                      nn.Linear(32, self.action_size),
+                      nn.Softmax(dim=1))
+       #kl = tf.keras.losses.KLDivergence()
+        #model.compile(loss=kl, optimizer=Adam(lr=0.0001, clipvalue=1))'''
         return model
 
     def buildCriticNetwork(self):
         import torch.nn as nn
         from tensorflow.python.keras.optimizer_v2.adam import Adam
         from tensorflow.keras.models import Model
-        from tensorflow.keras.layers import Dense, Input, Flatten, multiply
-
-        '''model =nn.Sequential(nn.Linear(self.state_size[0], 32),
-                              nn.ReLU(),
-                              nn.Linear(32, 1))'''
-        inputA = Input(shape=self.state_size)
+        from tensorflow.keras.layers import Dense, Input, Flatten, Multiply
+        '''inputA = Input(shape=self.state_size)
         inputB = Input(shape=(self.action_size,))
         x = Flatten()(inputA)
         x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
@@ -101,7 +97,10 @@ class PPO(DeepQ):
         outputs = multiply([x, inputB])
         outputs = multiply([x, inputB])
         model = Model(inputs=[inputA, inputB], outputs=outputs)
-        model.compile(loss='mse', optimizer=Adam(lr=0.0001, clipvalue=1))
+        model.compile(loss='mse', optimizer=Adam(lr=0.0001, clipvalue=1))'''
+        model = nn.Sequential(nn.Linear(self.state_size[0], 32),
+                       nn.ReLU(),
+                       nn.Linear(32, 1))
         return model
 
     def sample(self):
@@ -126,9 +125,9 @@ class PPO(DeepQ):
         shape = (1,) + self.state_size
         state = np.reshape(state, shape)
         if isTarget:
-            value = self.actorTarget.predict([state, self.allMask])
+            value = self.criticTarget.predict([state, self.allMask])
         else:
-            value = self.actorModel.predict([state, self.allMask])
+            value = self.criticModel.predict([state, self.allMask])
         return value
 
     def updateActorNetwork(self):
@@ -144,7 +143,7 @@ class PPO(DeepQ):
         self.total_steps += 1
 
     def updateCritic(self, advantages):
-        critic_optim = Adam(self.parameters, lr=0.0001)
+        critic_optim = Adam(PPO.parameters, lr=0.0001)
         loss = 0.5 * (advantages ** 2).mean()
         critic_optim.zero_grad()
         loss.backward()
