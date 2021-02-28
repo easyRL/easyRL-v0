@@ -194,6 +194,7 @@ def yourFunction(request, context):
             # Check if it is ready to SSH...
             try:
                 ip = ourInstance['PublicIpAddress']
+                inspector.addAttribute("ip", ip)
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh.connect(ip, username='tcss556', password='secretPassword')

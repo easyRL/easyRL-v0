@@ -47,9 +47,4 @@ botoSession = boto3.Session (
 )
 
 s3Client = botoSession.client('s3')
-bucketName = 'easyrl-' + str(jobID)
-ec2Client = botoSession.client('ec2')
-ec2Resource = botoSession.resource('ec2')
-ourInstance = findOurInstance(ec2Client, jobID)
-terminateInstance(ec2Client, ec2Resource, ourInstance)
 s3Client.upload_file(path, 'easyrl-' + str(jobID), path, ExtraArgs={'ACL': 'public-read'})
