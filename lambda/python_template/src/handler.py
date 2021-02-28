@@ -512,16 +512,21 @@ def yourFunction(request, context):
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(ip, username='tcss556', password='secretPassword')
 
-            if (sessionToken == ""):
-                command = "python3.7 easyRL-v0/lambda/upload.py trainedAgent.bin " + jobID + " " + accessKey + " " + secretKey 
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                    "md5sum trainedAgent.bin")
+            instanceData = ssh_stdout.readlines()
+            # Has the tag? If not update
+            if (instanceData != []):
+                if (sessionToken == ""):
+                    command = "python3.7 easyRL-v0/lambda/upload.py trainedAgent.bin " + jobID + " " + accessKey + " " + secretKey 
+                else:
+                    command = "python3.7 easyRL-v0/lambda/upload.py trainedAgent.bin " + jobID + " " + accessKey + " " + secretKey + " " + sessionToken 
+
+                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+                stdout = ssh_stdout.readlines()
+                inspector.addAttribute("url", "https://easyrl-" + str(jobID) + ".s3.amazonaws.com/trainedAgent.bin")
             else:
-                command = "python3.7 easyRL-v0/lambda/upload.py trainedAgent.bin " + jobID + " " + accessKey + " " + secretKey + " " + sessionToken 
-
-            #inspector.addAttribute("command", command)
-
-            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-            stdout = ssh_stdout.readlines()
-            inspector.addAttribute("url", "https://easyrl-" + str(jobID) + ".s3.amazonaws.com/trainedAgent.bin")
+                inspector.addAttribute("error", "Model not trained yet!")
             ssh.close()
         else:
             inspector.addAttribute("error", "Instance not found.")
@@ -543,8 +548,6 @@ def yourFunction(request, context):
                 command = "python3.7 easyRL-v0/lambda/upload.py lastJobLog.txt " + jobID + " " + accessKey + " " + secretKey 
             else:
                 command = "python3.7 easyRL-v0/lambda/upload.py lastJobLog.txt " + jobID + " " + accessKey + " " + secretKey + " " + sessionToken 
-
-            #inspector.addAttribute("command", command)
 
             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
             stdout = ssh_stdout.readlines()
