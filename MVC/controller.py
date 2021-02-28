@@ -3,7 +3,6 @@ import tkinter
 from MVC import view, model
 import threading
 import queue
-import sys
 
 # pip install pillow
 # pip install gym
@@ -26,7 +25,6 @@ class Controller:
         self.viewListener = self.ViewListener(self)
         self.view = view.View(self.viewListener) # ------ COMMENT THIS TO DISABLE GUI VIEW
         #self.view = terminalView.View(self.viewListener) # ------ UNCOMMENT THIS TO ENABLE CONSOLE VIEW
-        
     class ViewListener:
         def __init__(self, controller):
             self.controller = controller
