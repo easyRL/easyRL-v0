@@ -363,7 +363,7 @@ def yourFunction(request, context):
                 else:
                     command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + \
                         secretKey + ' --accessKey ' + accessKey + ' --jobID ' + jobID
-                command += ' &> /dev/null & sleep 1'
+                command += ' &> lastJobLog.txt & sleep 1'
 
                 inspector.addAttribute("command", command)
 
@@ -522,6 +522,33 @@ def yourFunction(request, context):
             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
             stdout = ssh_stdout.readlines()
             inspector.addAttribute("url", "https://easyrl-" + str(jobID) + ".s3.amazonaws.com/trainedAgent.bin")
+            ssh.close()
+        else:
+            inspector.addAttribute("error", "Instance not found.")
+
+    elif (task == "jobLog"):
+        ec2Client = botoSession.client('ec2')
+        ec2Resource = botoSession.resource('ec2')
+
+        ourInstance = findOurInstance(ec2Client, jobID, inspector)
+        if (ourInstance is not None):
+            ip = ourInstance['PublicIpAddress']
+            #inspector.addAttribute("ip", str(ip))
+
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username='tcss556', password='secretPassword')
+
+            if (sessionToken == ""):
+                command = "python3.7 easyRL-v0/lambda/upload.py lastJobLog.txt " + jobID + " " + accessKey + " " + secretKey 
+            else:
+                command = "python3.7 easyRL-v0/lambda/upload.py lastJobLog.txt " + jobID + " " + accessKey + " " + secretKey + " " + sessionToken 
+
+            #inspector.addAttribute("command", command)
+
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+            stdout = ssh_stdout.readlines()
+            inspector.addAttribute("url", "https://easyrl-" + str(jobID) + ".s3.amazonaws.com/lastJobLog.txt")
             ssh.close()
         else:
             inspector.addAttribute("error", "Instance not found.")
