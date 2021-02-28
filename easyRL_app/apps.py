@@ -6,6 +6,7 @@ TASK_RUN_JOB = "runJob"
 TASK_POLL = "poll"
 TASK_IS_JOB_RUNNING = "isRunning"
 TASK_HALT_JOB = "haltJob"
+TASK_EXPORT_MODEL = "exportModel"
 
 ERROR_NONE = 0
 ERROR_UNAUTHENTICATED = 1
