@@ -1,6 +1,6 @@
 import tkinter
 
-from MVC import view, model, terminalView
+from MVC import view, model
 import threading
 import queue
 import sys
@@ -21,38 +21,12 @@ import sys
 # pip install ttkwidgets
 
 class Controller:
-    def __init__(self, argv):
+    def __init__(self):
         self.models = {}
         self.viewListener = self.ViewListener(self)
-        self.arguments = {}
-
-        self.jobID = None
-        self.secretKey = None
-        self.accessKey = None
-        self.sessionToken = None
-        self.name = None
-
-        if "--terminal" in argv: 
-            self.view = terminalView.View(self.viewListener)
-        else:
-            self.view = view.View(self.viewListener)
-        flagName = ""
-        for arg in argv:
-            if "--" in arg:
-                flagName = arg[2:]
-                self.arguments[flagName] = ""
-            elif flagName != "":
-                self.arguments[flagName] += arg
-
-        # Process arguments
-        if "jobID" in self.arguments:
-            self.jobID = self.arguments["jobID"]
-        if "secretKey" in self.arguments:
-            self.secretKey = self.arguments["secretKey"]
-        if "accessKey" in self.arguments:
-            self.accessKey = self.arguments["accessKey"]
-        if "sessionToken" in self.arguments:
-            self.sessionToken = self.arguments["sessionToken"]
+        self.view = view.View(self.viewListener) # ------ COMMENT THIS TO DISABLE GUI VIEW
+        #self.view = terminalView.View(self.viewListener) # ------ UNCOMMENT THIS TO ENABLE CONSOLE VIEW
+        
     class ViewListener:
         def __init__(self, controller):
             self.controller = controller
@@ -62,10 +36,6 @@ class Controller:
             curModel = self.controller.models.get(tabID)
             if not curModel:
                 curModel = model.Model()
-
-                if (self.controller.secretKey is not None and self.controller.accessKey is not None):
-                    curModel.createBridge(self.controller.jobID, self.controller.secretKey, self.controller.accessKey, self.controller.sessionToken)
-
                 self.controller.models[tabID] = curModel
             return curModel
 
