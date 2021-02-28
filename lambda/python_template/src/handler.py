@@ -443,34 +443,43 @@ def yourFunction(request, context):
                                 "echo \'" + json.dumps(arguments) + "\' > arguments.json")
                 stdout = ssh_stdout.readlines()
 
-                command = 'printf "'
-                command += str(arguments['environment']) + '\n'
-                command += str(arguments['agent']) + '\n'
-                command += '2\n'
-                command += 'trainedAgent.bin\n'
-                command += '3\n'
+                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                    "md5sum trainedAgent.bin")
+                instanceData = ssh_stdout.readlines()
+                # Has the tag? If not update
+                if (instanceData != []):
 
-                paramList = paraMap[str(arguments['agent'])]
-                for param in paramList:
-                    command += str(arguments[param]) + '\n'
+                    command = 'printf "'
+                    command += str(arguments['environment']) + '\n'
+                    command += str(arguments['agent']) + '\n'
+                    command += '2\n'
+                    command += 'trainedAgent.bin\n'
+                    command += '3\n'
 
-                command += '5\n'
-                if (sessionToken != ""):
-                    command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + \
-                        ' --accessKey ' + accessKey + ' --sessionToken ' + \
-                        sessionToken + ' --jobID ' + jobID
+                    paramList = paraMap[str(arguments['agent'])]
+                    for param in paramList:
+                        command += str(arguments[param]) + '\n'
+
+                    command += '5\n'
+                    if (sessionToken != ""):
+                        command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + \
+                            ' --accessKey ' + accessKey + ' --sessionToken ' + \
+                            sessionToken + ' --jobID ' + jobID
+                    else:
+                        command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + \
+                            secretKey + ' --accessKey ' + accessKey + ' --jobID ' + jobID
+                    command += ' &> /dev/null & sleep 1'
+
+                    inspector.addAttribute("command", command)
+
+                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+                    stdout = ssh_stdout.readlines()
+                    #inspector.addAttribute("stdout", stdout)
+                    ssh.close()
+                    inspector.addAttribute("message", "Test started")
                 else:
-                    command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + \
-                        secretKey + ' --accessKey ' + accessKey + ' --jobID ' + jobID
-                command += ' &> /dev/null & sleep 1'
-
-                inspector.addAttribute("command", command)
-
-                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-                stdout = ssh_stdout.readlines()
-                #inspector.addAttribute("stdout", stdout)
-                ssh.close()
-                inspector.addAttribute("message", "Test started")
+                    ssh.close()
+                    inspector.addAttribute("error", "No trained agent found")
             else:
                 inspector.addAttribute("message", "Test already running")
         else:
@@ -496,6 +505,7 @@ def yourFunction(request, context):
             stdout = ssh_stdout.readlines()
             #inspector.addAttribute("stdout", stdout)
             ssh.close()
+            inspector.addAttribute("message", "Job halted.")
         else:
             inspector.addAttribute("error", "Instance not found.")
     
