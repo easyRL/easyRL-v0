@@ -170,6 +170,14 @@ def yourFunction(request, context):
     task = request['task']
     arguments = request['arguments']
 
+    continuousTraining = False
+    if ("continuousTraining" in arguments):
+        continuousTraining = arguments["continuousTraining"]
+
+    modelName = "trainedAgent.bin"
+    if continuousTraining:
+        modelName = "continuousTraining.bin"
+
     botoSession = boto3.Session(
         aws_access_key_id=accessKey,
         aws_secret_access_key=secretKey,
@@ -261,8 +269,13 @@ def yourFunction(request, context):
                             #return inspctor.finish()
 
                             if (stdout != []):
+                                jobArguments = json.loads(stdout[0])
                                 inspector.addAttribute(
-                                    "jobArguments", json.loads(stdout[0]))
+                                    "jobArguments", jobArguments)
+                            
+                                if continuousTraining and jobArguments != arguments:
+                                    inspector.addAttribute('instanceState', "changingJob")
+                                    task = "haltJob"
 
                             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
                                 "cat ./data.json")
@@ -274,11 +287,15 @@ def yourFunction(request, context):
                                 inspector.addAttribute("progress", "waiting")
                         else:
                             inspector.addAttribute('instanceState', "idle")
+
+                            if continuousTraining:
+                                task = "runJob"
+                                inspector.addAttribute('instanceState', "startingJob")
             else:
                 inspector.addAttribute('instanceState', "initializing")
             ssh.close()
 
-    elif (task == "runJob"):
+    if (task == "runJob"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
         s3Resource = botoSession.resource('s3')
@@ -354,7 +371,7 @@ def yourFunction(request, context):
                     command += str(arguments[param]) + '\n'
 
                 command += '4\n'
-                command += 'trainedAgent.bin\n'
+                command += modelName + '\n'
                 command += '5\n'
                 if (sessionToken != ""):
                     command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + secretKey + \
@@ -365,7 +382,7 @@ def yourFunction(request, context):
                         secretKey + ' --accessKey ' + accessKey + ' --jobID ' + jobID
                 command += ' &> lastJobLog.txt & sleep 1'
 
-                inspector.addAttribute("command", command)
+                #inspector.addAttribute("command", command)
 
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
                 stdout = ssh_stdout.readlines()
@@ -376,7 +393,8 @@ def yourFunction(request, context):
                 inspector.addAttribute("message", "Job already running")
         else:
             inspector.addAttribute('error', 'Instance not found.')
-    elif (task == "runTest"):
+    
+    if (task == "runTest"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
         s3Resource = botoSession.resource('s3')
@@ -444,7 +462,7 @@ def yourFunction(request, context):
                 stdout = ssh_stdout.readlines()
 
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
-                    "md5sum trainedAgent.bin")
+                    "md5sum " + modelName)
                 instanceData = ssh_stdout.readlines()
                 # Has the tag? If not update
                 if (instanceData != []):
@@ -453,7 +471,7 @@ def yourFunction(request, context):
                     command += str(arguments['environment']) + '\n'
                     command += str(arguments['agent']) + '\n'
                     command += '2\n'
-                    command += 'trainedAgent.bin\n'
+                    command += modelName + '\n'
                     command += '3\n'
 
                     paramList = paraMap[str(arguments['agent'])]
@@ -470,7 +488,7 @@ def yourFunction(request, context):
                             secretKey + ' --accessKey ' + accessKey + ' --jobID ' + jobID
                     command += ' &> /dev/null & sleep 1'
 
-                    inspector.addAttribute("command", command)
+                    #inspector.addAttribute("command", command)
 
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
                     stdout = ssh_stdout.readlines()
@@ -485,7 +503,7 @@ def yourFunction(request, context):
         else:
             inspector.addAttribute('error', 'Instance not found.')
 
-    elif (task == "haltJob"):
+    if (task == "haltJob"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
 
@@ -509,7 +527,7 @@ def yourFunction(request, context):
         else:
             inspector.addAttribute("error", "Instance not found.")
     
-    elif (task == "exportModel"):
+    if (task == "exportModel"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
 
@@ -523,25 +541,25 @@ def yourFunction(request, context):
             ssh.connect(ip, username='tcss556', password='secretPassword')
 
             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
-                    "md5sum trainedAgent.bin")
+                    "md5sum " + modelName)
             instanceData = ssh_stdout.readlines()
             # Has the tag? If not update
             if (instanceData != []):
                 if (sessionToken == ""):
-                    command = "python3.7 easyRL-v0/lambda/upload.py trainedAgent.bin " + jobID + " " + accessKey + " " + secretKey 
+                    command = "python3.7 easyRL-v0/lambda/upload.py " + modelName + " " + jobID + " " + accessKey + " " + secretKey 
                 else:
-                    command = "python3.7 easyRL-v0/lambda/upload.py trainedAgent.bin " + jobID + " " + accessKey + " " + secretKey + " " + sessionToken 
+                    command = "python3.7 easyRL-v0/lambda/upload.py " + modelName + " " + jobID + " " + accessKey + " " + secretKey + " " + sessionToken 
 
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
                 stdout = ssh_stdout.readlines()
-                inspector.addAttribute("url", "https://easyrl-" + str(jobID) + ".s3.amazonaws.com/trainedAgent.bin")
+                inspector.addAttribute("url", "https://easyrl-" + str(jobID) + ".s3.amazonaws.com/" + modelName)
             else:
                 inspector.addAttribute("error", "Model not trained yet!")
             ssh.close()
         else:
             inspector.addAttribute("error", "Instance not found.")
 
-    elif (task == "jobLog"):
+    if (task == "jobLog"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
 
@@ -566,7 +584,7 @@ def yourFunction(request, context):
         else:
             inspector.addAttribute("error", "Instance not found.")
 
-    elif (task == "terminateInstance"):
+    if (task == "terminateInstance"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
         s3Resource = botoSession.resource('s3')
@@ -578,105 +596,5 @@ def yourFunction(request, context):
 
         ourInstance = findOurInstance(ec2Client, jobID, inspector)
         terminateInstance(ec2Client, ec2Resource, ourInstance, inspector)
-
-
-        """
-            Deprecated PROBABLY WILL BE REMOVED. 
-            Use poll instead for the vast majority of these functions.
-        """
-
-    elif (task == "isRunning"):
-        ec2Client = botoSession.client('ec2')
-        ec2Resource = botoSession.resource('ec2')
-
-        ourInstance = findOurInstance(ec2Client, jobID, inspector)
-        if (ourInstance is not None):
-            ip = ourInstance['PublicIpAddress']
-            inspector.addAttribute("ip", str(ip))
-
-            ssh = paramiko.SSHClient()
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(ip, username='tcss556', password='secretPassword')
-
-            command = "ps -aux | grep EasyRL.py"
-            inspector.addAttribute("command", command)
-
-            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-            stdout = ssh_stdout.readlines()
-            inspector.addAttribute("stdout", stdout)
-
-            results = ""
-            for line in stdout:
-                results += line
-
-            if ("terminal" in results):
-                inspector.addAttribute("isRunning", 1)
-            else:
-                inspector.addAttribute("isRunning", 0)
-            ssh.close()
-        else:
-            inspector.addAttribute("error", "Instance not found.")
-
-
-    elif (task == "instanceState"):
-        ec2Client = botoSession.client('ec2')
-        ec2Resource = botoSession.resource('ec2')
-        ourInstance = findOurInstance(ec2Client, jobID, inspector)
-        if (ourInstance is not None):
-            if 'State' in ourInstance and 'Name' in ourInstance['State']:
-                instanceState = ourInstance['State']
-                inspector.addAttribute("instanceState", instanceState['Name'])
-            response = ec2Client.describe_instance_status(
-                InstanceIds=[ourInstance['InstanceId']])
-            #inspector.addAttribute("response", str(response))
-            if 'InstanceStatuses' in response:
-                inspector.addAttribute(
-                    "InstanceStatus", response['InstanceStatuses'][0]['InstanceStatus']['Status'])
-                inspector.addAttribute(
-                    "SystemStatus", response['InstanceStatuses'][0]['SystemStatus']['Status'])
-        else:
-            inspector.addAttribute("error", "Instance not found.")
-            
-    elif (task == "isReady"):
-        try:
-            ec2Client = botoSession.client('ec2')
-            ec2Resource = botoSession.resource('ec2')
-
-            ourInstance = findOurInstance(ec2Client, jobID, inspector)
-            if (ourInstance is not None):
-                ip = ourInstance['PublicIpAddress']
-                inspector.addAttribute("ip", str(ip))
-
-                ssh = paramiko.SSHClient()
-                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh.connect(ip, username='tcss556', password='secretPassword')
-
-                command = "echo test"
-
-                #inspector.addAttribute("command", command)
-                ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
-                stdout = ssh_stdout.readlines()
-                #inspector.addAttribute("stdout", stdout)
-                ssh.close()
-
-                if (stdout[0] == "test\n"):
-                    inspector.addAttribute('isReady', 1)
-                else:
-                    inspector.addAttribute('isReady', 0)
-
-            else:
-                inspector.addAttribute('error', 'Instance not found.')
-                inspector.addAttribute('isReady', 0)
-        except:
-            inspector.addAttribute('isReady', 0)
-
-    elif (task == "createInstance"):
-        ec2Client = botoSession.client('ec2')
-        ec2Resource = botoSession.resource('ec2')
-
-        if (findOurInstance(ec2Client, jobID, inspector) is None):
-            createInstance(ec2Client, ec2Resource, jobID, arguments, inspector)
-        else:
-            inspector.addAttribute("error", "Instance already exists.")
 
     return inspector.finish()
