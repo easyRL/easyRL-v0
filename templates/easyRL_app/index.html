@@ -7,32 +7,35 @@
       <div class="card-header">
         <ul class="nav nav-pills card-header-pills">
           <li class="nav-item">
-            <button id="btn-train" class="btn btn-secondary" style="margin:5px;"disabled>
-              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              <span class="sr-only">Train</span></button>
+            <input type="checkbox" class="btn-check" id="btn-con-train" autocomplete="off">
+            <label class="btn btn-outline-primary" for="btn-con-train" style="margin: 5px;">Continuous Train</label>
+        
           </li>
           <li class="nav-item">
-            <button id="btn-halt" class="btn btn-secondary"style="margin:5px;">Halt</button>
+            <button id="btn-train" class="btn btn-primary" style="margin:5px;" title="This trains the model" disabled>Train</button>
           </li>
           <li class="nav-item">
-            <button id="btn-test" class="btn btn-secondary"style="margin:5px;">Test</button>
+            <button id="btn-halt" class="btn btn-primary"style="margin:5px;">Halt</button>
           </li>
           <li class="nav-item">
-            <button id="btn-reset" class="btn btn-secondary"style="margin:5px;">Reset</button>
+            <button id="btn-test" class="btn btn-primary"style="margin:5px;" disabled>Test</button>
+          </li>
+          <li class="nav-item">
+            <button id="btn-reset" class="btn btn-primary"style="margin:5px;">Reset</button>
             </li>  
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" style="margin:5px;">Model </a>
               <div class="dropdown-menu">
-                <button class="dropdown-item" href="#">Save</button>
+                <a class="dropdown-item" href="import/"disabled>Save</a>
                 <div class="dropdown-divider btn"></div>
-                <button class="dropdown-item" href="#">Load</button>
+                <a class="dropdown-item" href="export/">Load</a>
               </div>
             </li> 
             <li class="nav-item">
-              <button class="btn btn-secondary"style="margin:5px;">Save Result</button>
+              <button class="btn btn-primary"style="margin:5px;">Save Result</button>
             </li>  
             <li class="nav-item"><a href='/easyRL_app/logout'>
-              <button class="btn btn-secondary"style="margin:5px;">Sign out</button></a>
+              <button class="btn btn-primary"style="margin:5px;">Sign out</button></a>
             </li>                                                                               
         </ul>
       </div>
@@ -70,7 +73,7 @@
           </div>  
           <br/>               
           <h5 id="file-name" class="card-title"></h5>
-          <button id="set-environment" class="btn btn-secondary"><span class=""><i class="bi-card-image"></i></span> Select Environment</button>
+          <button id="set-environment" class="btn btn-primary"><span class=""><i class="bi-card-image"></i></span> Select Environment</button>
       </div>
     </div>
   </div>
@@ -104,11 +107,11 @@
         </div>
       
         <div class="col-md-3">           
-          <select id="environment_select"class="form-select" size="3" aria-label="Default select example">
-            <option value="0" selected>--Select Host Environment--</option>
+          <select id="environment-select"class="form-select" size="3" aria-label="Default select example">
+            <option value="0">--Select Host Environment--</option>
             <optgroup label="ECS">
               <option value="1">c4.large</option>
-              <option value="2">c4.xlarge</option>
+              <option value="2"selected>c4.xlarge</option>
               <option value="3">c4.2xlarge</option>
               <option value="4">c4.4xlarge</option>
               <option value="5">c4.8xlarge</option>
@@ -129,7 +132,7 @@
     <div class="col">
       <ul class="nav nav-tabs" id="myTab" role="tablist">
           <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="hp-tab-0" data-bs-toggle="tab" data-bs-target="#hp" type="button" role="tab" aria-controls="hp" aria-selected="true">Hyper Parameters <i class="bi-dash-circle-fill"  style="color: red"></i></button>
+            <button class="nav-link active" id="hp-tab-0" data-bs-toggle="tab" data-bs-target="#hp" type="button" role="tab" aria-controls="hp" aria-selected="true">Tab<i class="bi-dash-circle-fill"  style="color: red"></i></button>
           </li>
           <li class="nav-item" role="presentation">
             <button class="nav-link" id="add-model-tab" type="button" >Add <i class="bi-plus-circle-fill" style="color: #0b5ed7"></i></button>
@@ -150,152 +153,153 @@
       </form> 
     </div>        
   </div>
+<!-- Button trigger modal
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modelName">
+  Launch static backdrop modal
+</button> -->
 
-<!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-  Launch demo modal
-</button>
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+<div class="modal fade" id="modelName" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modelNameLabel" aria-hidden="true">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <h5 class="modal-title" id="modelNameLabel">Enter Model Name</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        ...
+        <div class="input-group mb-3">
+          <span class="input-group-text" id="model-name-span">@</span>
+          <input type="text" id="model-name-text" class="form-control" placeholder="Model Name" aria-label="ModelName" aria-describedby="model-name-input">
+        </div>     
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="save-model-name" data-bs-dismiss="modal">Save Name</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="trainCompleted" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="trainCompletedLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="trainCompletedLabel">Enter Model Name</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          You can save this model, test it or train another model!
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="btn-ok" data-bs-dismiss="modal">OK</button>
       </div>
     </div>
   </div>
 </div>
 </div>
 <script src="{% static 'easyRL_app/scripts/jquery-3.5.1.min.js' %}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript"> 
-  // Sets the Environment label
-  $(document).ready(function(){
-    
-    // Adds the tooltips for range.
-    $('[data-toggle="tooltip"]').tooltip();   
-    updateEnvironment();
-          
+  $(document).ready(function(){    
+    //alert("agent: " + $('#agent-select option[selected]').text());
+    // Sets the Environment label
+    updateEnvironmentLabel();
+    resetFormDropDownsButtons();
+
   });
 
-  function updateEnvironment(){
-    $("select option:selected").css('backgroundColor', '#FFFFFF');
-    $("#agent-select option").prop('disabled', true);  
-    var src = $('.active').find('img').attr('src');
-    src = src.slice(26,-4);
-    $("#file-name").html(src); 
-  }
+  // Train button - Start
+  $("#btn-train").click(function ()
+  {
+    // get values from sliders
+    $('#btn-halt').removeAttr("disabled");
+    var data = getData();
   
-  function sliderUpdater(){
-    $("#batch-text").val($("#batch-slider").val());
-    $("#batch-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#batch-text").val(newval);
-    }); 
-    
-    $("#gamma-text").val($("#gamma-slider").val());
-    $("#gamma-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#gamma-text").val(newval);
-    }); 
+    $.post('/easyRL_app/train/',data,function (result){
+        if (result == "")
+        {
+          //alert("The response is empty");
+          return;
+        }
+        result = JSON.parse(result);
+        if (result["error"] !== null)
+        {
+          //alert("Could not start the training"); // instance not found
+          return;
+        }
+        
+        // alert("The training in progress");
+  });
+   resetDropDowns();
+   reload_image();
+ }); // Train Button - End
 
-    $("#alpha-text").val($("#alpha-slider").val());
-    $("#alpha-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#alpha-text").val(newval);
-    }); 
-    
-    $("#min-epsilon-text").val($("#min-epsilon-slider").val());
-    $("#min-epsilon-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#min-epsilon-text").val(newval);
-    }); 
-    
-    $("#max-epsilon-text").val($("#max-epsilon-slider").val());
-    $("#max-epsilon-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#max-epsilon-text").val(newval);
-    }); 
-    
-    $("#decay-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#decay-text").val(newval);
-    }); 
+  $('#btn-ok').click(function(){
+    $('#btn-train').attr("disabled", true);
+    $('#btn-test').removeAttr("disabled");
+    $('#btn-save').removeAttr("disabled");
+  });
 
-    $("#learning-rate-text").val($("#learning-rate-slider").val());
-    $("#learning-rate-slider").on('input', function(){
-      var newval=$(this).val();
-      $("#learning-rate-text").val(newval);
-    });
+  $(".btn-close").click(function() {
+    resetFormDropDownsButtons();
+  });
 
-    $("#dep-text").val( $("#dep-slider").val());
-    $("#dep-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#dep-text").val(newval);
-    });  
-
-    $("#plr-text").val( $("#plr-slider").val());
-    $("#plr-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#plr-text").val(newval);
-    });  
-
-    $("#vlr-text").val( $("#vlr-slider").val());
-    $("#vlr-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#vlr-text").val(newval);
-    });  
-  };
+  $('#save-model-name').click(function() {
+    var modelName = $('#model-name-text').val();
+    var tabLabel = modelName === "" ? $('#file-name').text() + "+" + $("#agent-select option:selected").text() : modelName;
+    $("#hp-tab-0").html(tabLabel);
+    $('#model-name-text').val("");
+    $("#num-episodes-text").focus();
+    $('html, body').animate({scrollTop: 800}, 800);
+  });
+  
+  $('#btn-halt').click(function() {
+    var data = {};
+    $.post('/easyRL_app/halt/', data, function(result, status, jqxhr) {
+        // do something
+    })
+  });
 
   $('#add-model-tab').click(function (e) {
       var nextTab = $('#myTab li').length+1;    
-    // create the tab
-    $("#myTab li:nth-child(2)").before($('<li class="nav-item" role="presentation"><button class="nav-link" id="hp-tab'+nextTab+'" data-bs-toggle="tab" data-bs-target="#hp'+nextTab+'" type="button" role="tab" aria-controls="hp'+nextTab+'" aria-selected="false">'+$("#file-name").text()+' <i class="bi-dash-circle-fill"  style="color: red"></i></button></li>'));
-    // create the tab content
-    $('<div class="tab-pane fade" id="hp'+nextTab+'" role="tabpanel" aria-labelledby="hp-tab'+nextTab+'">'+form+'</div>').appendTo('.tab-content');;
-    // make the new tab active
-    $('#myTab').on('click', function (e) {
-      e.preventDefault()
-      $(this).tab('show')
-    });
-  });
-
-  $('#carouselExampleControlsNoTouching').on('slid.bs.carousel', function (e) {
-    var src = $('div > .active').find('img').attr('src');
-    var b = src.slice(26,-4);
-    //var c = $("div > .active", e.target).index();
-    $("#file-name").html(b);
-    $('#agent-select').val(0);
-    $('#buffer-select').val(0);
-    $("#agent-select option").prop('disabled', true);  
+        // create the tab
+        $("#myTab li:nth-child(2)").before($('<li class="nav-item" role="presentation"><button class="nav-link" id="hp-tab'+nextTab+'" data-bs-toggle="tab" data-bs-target="#hp'+nextTab+'" type="button" role="tab" aria-controls="hp'+nextTab+'" aria-selected="false">'+$("#file-name").text()+' <i class="bi-dash-circle-fill"  style="color: red"></i></button></li>'));
+        // create the tab content
+        $('<div class="tab-pane fade" id="hp'+nextTab+'" role="tabpanel" aria-labelledby="hp-tab'+nextTab+'">'+form+'</div>').appendTo('.tab-content');;
+        // make the new tab active
+        $('#myTab').on('click', function (e) {
+          e.preventDefault()
+          $(this).tab('show')
+      });
   });
 
   $('#set-environment').click(function() {
-    $("#select-containers").show();
     updateSelect($('#file-name').text())
+    $('#agent-select').focus();
   });
-  
+
+  $('#carouselExampleControlsNoTouching').on('slid.bs.carousel', function (e) {
+    //var c = $("div > .active", e.target).index();
+    updateEnvironmentLabel();
+    resetFormDropDownsButtons();
+  });
+
   $("#agent-select" ).change(function () {
     var str = $("#agent-select option:selected" ).text();
-    str = simpleFormFactory(str);
-    $( "#form-div" ).html(str);
-    sliderUpdater();
+    setFromElements(str);
+    setFormElementsDefaultValues();
+    $('#modelName').modal('show');
+    
+    // This set he agent for the model.
     var selectedVal = $("#agent-select option:selected" ).val();
+    $("#agent-hidden").val(selectedVal);
+
+    // This sets the environment of the model. 
     var fileName = $("#file-name").text();
     var selectedEnvironment = getEnvironmentIndex(fileName);
-    $("#agent-hidden").val(selectedVal);
     $("#env-hidden").val(selectedEnvironment);
+    $('#btn-train').removeAttr("disabled");
+    $("#form-div").focus();
   }).change();
 
   function getEnvironmentIndex(environmentName){
@@ -428,7 +432,6 @@
       }     
   }
   
-
   function track_training_progress() {  
     var image = document.getElementById("graph-image");   
     var value = "True";  
@@ -461,17 +464,118 @@
     }
   }
 
-  $('#btn-halt').click(function() {
-  var data = {};
-  $.post('/easyRL_app/halt/', data, function(result, status, jqxhr) {
-      // do something
-  })
-});
+  function updateEnvironmentLabel(){
+    var src = $('.active').find('img').attr('src');
+    src = src.slice(26,-4);
+    $("#file-name").html(src); 
+  }
 
+  function resetFormDropDownsButtons(){
+    setFromElements(""); 
+    resetDropDowns();
+    resetButtons();
+  }
 
-// start function draw_graph()
-google.charts.load('current', {'packages':['corechart']});
-function draw_graph(episodes)
+  function resetDropDowns(){
+    $('#agent-select').val(0);
+    $('#buffer-select').val(0);
+    $('#environment-select').val(2);   
+  }
+
+  function resetButtons(){
+    $('#btn-train').attr("disabled", "true");
+    $('#btn-test').attr("disabled", "true");
+    $('#btn-save').attr("disabled", "true");
+    $('#btn-halt').attr("disabled", "true");
+  }
+  
+  function setFormElementsDefaultValues(){
+    $("#batch-text").val($("#batch-slider").val());
+    $("#batch-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#batch-text").val(newval);
+    }); 
+    
+    $("#gamma-text").val($("#gamma-slider").val());
+    $("#gamma-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#gamma-text").val(newval);
+    }); 
+
+    $("#alpha-text").val($("#alpha-slider").val());
+    $("#alpha-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#alpha-text").val(newval);
+    }); 
+    
+    $("#min-epsilon-text").val($("#min-epsilon-slider").val());
+    $("#min-epsilon-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#min-epsilon-text").val(newval);
+    }); 
+    
+    $("#max-epsilon-text").val($("#max-epsilon-slider").val());
+    $("#max-epsilon-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#max-epsilon-text").val(newval);
+    }); 
+    
+    $("#decay-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#decay-text").val(newval);
+    }); 
+
+    $("#learning-rate-text").val($("#learning-rate-slider").val());
+    $("#learning-rate-slider").on('input', function(){
+      var newval=$(this).val();
+      $("#learning-rate-text").val(newval);
+    });
+
+    $("#dep-text").val( $("#dep-slider").val());
+    $("#dep-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#dep-text").val(newval);
+    });  
+
+    $("#plr-text").val( $("#plr-slider").val());
+    $("#plr-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#plr-text").val(newval);
+    });  
+
+    $("#vlr-text").val( $("#vlr-slider").val());
+    $("#vlr-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#vlr-text").val(newval);
+    });  
+  };
+
+  function getData(){
+
+    var data = {
+      "environment": $('#env-hidden').val()
+      ,"instanceType": $("#environment-select option:selected" ).text()
+      ,"continuousTraining": $('#btn-con-train').is(":checked") ? "True" : "False"
+      ,"agent": $("#agent-hidden").val()
+      ,"killTime": 600
+      ,"episodes": $("#num-episodes-text").val()
+      ,"steps": $('#max-size-text').val()
+      ,"gamma": $('#gamma-text').val()
+      ,"minEpsilon": $('#min-epsilon-text').val()
+      ,"maxEpsilon": $('#max-epsilon-text').val()
+      ,"decayRate": $('#decay-text').val()
+      ,"batchSize": $('#batch-text').val()
+      ,"memorySize": $('#memory-size-text').val()
+      ,"targetInterval": $('#target-update-interval-text').val()
+      ,"alpha": $('#alpha-text').val()
+      ,"historyLength": $('#history-text').val()             
+    };
+    return data;
+  }
+
+  // start function draw_graph()
+ google.charts.load('current', {'packages':['corechart']});
+ function draw_graph(episodes)
 {
   var length = episodes.length;
   var array = [];
@@ -492,82 +596,61 @@ function draw_graph(episodes)
     curveType: 'function',
     legend: { position: 'bottom' }
   };
-
       var chart = new google.visualization.LineChart(document.getElementById('training_graph'));
       chart.draw(data, options);
 }
-
-// start function reload_image()
-function reload_image()
+ 
+ // start function reload_image()
+ function reload_image()
 {
   var gifs = "";
   var episodes = "";
   var isRunning = true;
   var interval = setInterval(function() {
-    
-    var data = 
+    var data = getData();
+
+    $.post('/easyRL_app/poll/',data,function (result){
+    if (result == "")
     {
-            "environment": $('#env-hidden').val()
-            ,"instanceType": "c4.xlarge"
-            ,"agent": $("#agent-hidden").val()
-            ,"killTime": 600
-            ,"episodes": $("#num-episodes-text").val()
-            ,"steps": $('#max-size-text').val()
-            ,"gamma": $('#gamma-text').val()
-            ,"minEpsilon": $('#min-epsilon-text').val()
-            ,"maxEpsilon": $('#max-epsilon-text').val()
-            ,"decayRate": $('#decay-text').val()
-            ,"batchSize": $('#batch-text').val()
-            ,"memorySize": $('#memory-size-text').val()
-            ,"targetInterval": $('#target-update-interval-text').val()
-            ,"alpha": $('#alpha-text').val()
-            ,"historyLength": $('#history-text').val()
-      };
+      alert("The response is empty");
+    }
 
-        $.post('/easyRL_app/poll/', data,function (result){
-        if (result == "")
-        {
-          alert("The response is empty");
-        }
+    result = JSON.parse(result)
+    if (result["error"] !== null)
+    {
+      // keep this line for debugging purpose
+      //alert("There is no poll");
+    }
+    // assume that cloudBridge won't remove the key [instanceState]
+    state = result["instanceState"]
+    if (state === "idle")
+    {
+      $('#trainCompleted').modal('show');
+      isRunning = false;
+    }
+    if (state === "booting" || state === "updated")
+    {
+      // keep this line for debugging purpose
+      //alert("Booting or updated");
+    }
+    else if (state === "runningJob")
+    {
+      // loading data
+      // data["jobArguments"]["environment"] -> 5
+      // alert(data["progress"]);
+      if (result["progress"] != "waiting")
+      {
+        gifs = result["progress"]["gifs"];
+        episodes = result["progress"]["episodes"];
+      }
+    }});
 
-        result = JSON.parse(result)
-        if (result["error"] !== null)
-        {
-          // keep this line for debugging purpose
-          //alert("There is no poll");
-        }
-        // assume that cloudBridge won't remove the key [instanceState]
-        state = result["instanceState"]
-        if (state === "idle")
-        {
-          $('#trainCompletedModal').modal('show');
-          isRunning = false;
-        }
-        if (state === "booting" || state === "updated")
-        {
-          // keep this line for debugging purpose
-          //alert("Booting or updated");
-        }
-        else if (state === "runningJob")
-        {
-          // loading data
-          // data["jobArguments"]["environment"] -> 5
-          // alert(data["progress"]);
-          if (result["progress"] != "waiting")
-          {
-            gifs = result["progress"]["gifs"];
-            episodes = result["progress"]["episodes"];
-          }
-        }
-      
-        });
-
-        if(isRunning === false)
-        {
-            clearInterval(interval);
-            // $("#training_summary").html("<button id='btn_reload' class='btn btn-primary' onclick='reload_image()' style='margin:5px;'>Reload</button>");
-            return;
-        }
+    if(isRunning === false)
+    {
+        clearInterval(interval);
+        // $("#training_summary").html("<button id='btn_reload' class='btn btn-primary' onclick='reload_image()' style='margin:5px;'>Reload</button>");
+        return;
+    }
 
         // $("#training_image").attr("src", '/easyRL_app/image/?' + (new Date()).getTime());
     if (gifs.length > 0)
@@ -578,679 +661,642 @@ function reload_image()
       
   }, 5000);
 }
-// end function reload_image()
+ // end function reload_image()
 
-// Train button - Start
-$("#btn-train").click(function ()
-{
-  // get values from sliders
-  //var slider = $(this).val();
-    var data = 
-  {
-          "environment": $('#env-hidden').val()
-          ,"instanceType": "c4.xlarge"
-          ,"agent": $("#agent-hidden").val()
-          ,"killTime": 600
-          ,"episodes": $("#num-episodes-text").val()
-          ,"steps": $('#max-size-text').val()
-          ,"gamma": $('#gamma-text').val()
-          ,"minEpsilon": $('#min-epsilon-text').val()
-          ,"maxEpsilon": $('#max-epsilon-text').val()
-          ,"decayRate": $('#decay-text').val()
-          ,"batchSize": $('#batch-text').val()
-          ,"memorySize": $('#memory-size-text').val()
-          ,"targetInterval": $('#target-update-interval-text').val()
-          ,"alpha": $('#alpha-text').val()
-          ,"historyLength": $('#history-text').val()
-    };
-
-  $.post('/easyRL_app/train/',data,function (result){
-      if (result == "")
-      {
-        //alert("The response is empty");
-        return;
-      }
-      result = JSON.parse(result);
-      if (result["error"] !== null)
-      {
-        //alert("Could not start the training"); // instance not found
-        return;
-      }
-      
-      // alert("The training in progress");
-    
-  });
+ function setFromElements(str){
+    str = simpleFormFactory(str);
+    $( "#form-div" ).html(str); 
   
-  reload_image();
-}); // Train Button - End
-
-
-  function simpleFormFactory(agent){
-
-    var defaults =     '<div class="row">'
-
-          +       '<div class="slider-container col-6">'
-          +         '<label>Gamma</label>'
-          +         '<div class=""  ><input type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
-          +       '</div>'
-          +       '<div class="col-md-6">'
-          +         '<label>Number of Episodes</label>'
-          +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
-          +     '</div>'
-          +     '</div>'
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Min Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-6">'
-          +'       <label>Steps</label>'
-          +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
-          +'       </div>'
-          +'     </div> '
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Max Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
-          +'       </div>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Decay Rate</label>'
-          +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
-          +'       </div>'
-          +'     </div>';
-
-var deepQ =     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Gamma</label>'
-          +         '<div class=""><input type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
-          +       '</div>'
-          +       '<div class="col-md-6">'
-          +         '<label>Number of Episodes</label>'
-          +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
-          +     '</div>'
-          +     '</div>'
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Min Epsilon</label>'
-          +         '<div class=""  ><input type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-6">'
-          +'       <label>Steps</label>'
-          +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
-          +'       </div>'
-          +'     </div> '
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Max Epsilon</label>'
-          +         '<div class=""  ><input type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
-          +'       </div>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Decay Rate</label>'
-          +         '<div class=""  ><input type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
-          +'       </div>'
-          +'     </div>'
-          +'     <div class="row">'
-          +'       <div class="col-6">'
-          +'       <label>Target Update Interval</label>'
-          +'       <div class="col-12"  ><input type="text" id="target-update-interval-text" class="form-control " value="200"></div>'
-          +'       </div>'
-          +'       <div class="col-md-6">'
-          +'          <label>Memory Size</label>'
-          +'          <div class="col-md-12" ><input type="text" id="memory-size-text" class="form-control" value="1000"></div>'
-          +'       </div>'
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Batch Size</label>'
-          +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
-          +'       </div>'
-          +'       <div class="slider-container col-12">'
-          +'         <label>Display Episode Speed</label>'
-          +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-          +'       </div>'
-          +'        <input type="hidden" id="env-hidden" class="form-control">'
-          +'        <input type="hidden" id="agent-hidden" class="form-control">'
-          +'      </div>';  
-
-var qLearning =      '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Gamma</label>'
-          +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
-          +       '</div>'
-          +       '<div class="col-md-6">'
-          +         '<label>Number of Episodes</label>'
-          +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
-          +     '</div>'
-          +     '</div>'
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Min Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-6">'
-          +'       <label>Steps</label>'
-          +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
-          +'       </div>'
-          +'     </div> '
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Max Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
-          +'       </div>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Decay Rate</label>'
-          +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
-          +'       </div>'
-          +'     </div>'
-          +'      <div class="row>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Alpha</label>'
-          +         '<div class=""  ><input   type="range" id="alpha-slider" class="form-range" name="alpha-slider" min="0" max="1" step="0.001" value="0.18"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="alpha-text" value="0.18" readonly></div>'
-          +'       </div>' 
-          +'       <div class="slider-container col-12">'
-          +'         <label>Display Episode Speed</label>'
-          +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-          +'       </div>'
-          +'        <input type="hidden" id="env-hidden" class="form-control">'
-          +'        <input type="hidden" id="agent-hidden" class="form-control">'
-          +'      </div>';  
-
-var drqn =     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Gamma</label>'
-          +         '<div class=""  ><input type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
-          +       '</div>'
-          +       '<div class="col-md-6">'
-          +         '<label>Number of Episodes</label>'
-          +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
-          +     '</div>'
-          +     '</div>'
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Min Epsilon</label>'
-          +         '<div class=""  ><input type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-6">'
-          +'       <label>Steps</label>'
-          +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
-          +'       </div>'
-          +'     </div> '
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Max Epsilon</label>'
-          +         '<div class=""  ><input type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-6">'
-          +'       <label>Target Update Interval</label>'
-          +'       <div class="col-12"  ><input type="text" id="target-update-interval-text" class="form-control " value="200"></div>'
-          +'       </div>'
-          +'     </div>'
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Decay Rate</label>'
-          +         '<div class=""  ><input type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-md-6">'
-          +'          <label>Memory Size</label>'
-          +'          <div class="col-md-12" ><input type="text" id="memory-size-text" class="form-control" value="1000"></div>'
-          +'       </div>'
-          +'     </div>' 
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Batch Size</label>'
-          +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-md-6">'
-          +'          <label>History Length</label>'
-          +'          <div class="col-md-12" ><input type="text" id="history-text" value="10"  class="form-control" value=""></div>'
-          +'       </div>'
-          +'       <div class="row">'
-          +'        <div class="slider-container col-12">'
-          +'         <label>Display Episode Speed</label>'
-          +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-          +'        </div>'
-          +'        <input type="hidden" id="env-hidden" class="form-control">'
-          +'        <input type="hidden" id="agent-hidden" class="form-control">'
-          +'      </div>'; 
-
-var doubleDueling =     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Gamma</label>'
-          +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
-          +       '</div>'
-          +       '<div class="col-md-6">'
-          +         '<label>Number of Episodes</label>'
-          +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
-          +     '</div>'
-          +     '</div>'
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Min Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-6">'
-          +'       <label>Steps</label>'
-          +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
-          +'       </div>'
-          +'     </div> '
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Max Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
-          +'       </div>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Decay Rate</label>'
-          +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
-          +'       </div>'
-          +'     </div>'
-          +'     <div class="row">'
-          +'       <div class="col-6">'
-          +'       <label>Target Update Interval</label>'
-          +'       <div class="col-12"  ><input type="text" id="target-update-interval-text" class="form-control " value="200"></div>'
-          +'       </div>'
-          +'       <div class="col-md-6">'
-          +'          <label>Memory Size</label>'
-          +'          <div class="col-md-12" ><input type="text" id="memory-size-text" class="form-control" value="1000"></div>'
-          +'       </div>'
-          +'     </div>' 
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Batch Size</label>'
-          +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
-          +'       </div>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Learning Rate</label>'
-          +         '<div class=""  ><input   type="range" id="learning-rate-slider" class="form-range" name="learning-rate-slider" min="0" max="100" step="0.001" value="0.001"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="learning-rate-text" value="0.001" readonly></div>'
-          +'       </div>' 
-          +'      <div class="row>'
-          +'       <div class="slider-container col-12">'
-          +'         <label>Display Episode Speed</label>'
-          +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-          +'       </div>'
-          +'      </div>'  
-          +'        <input type="hidden" id="env-hidden" class="form-control">'
-          +'        <input type="hidden" id="agent-hidden" class="form-control">'
-          +'      </div>';
-
-var convDRQNNative =      '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Gamma</label>'
-          +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
-          +       '</div>'
-          +       '<div class="col-md-6">'
-          +         '<label>Number of Episodes</label>'
-          +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
-          +     '</div>'
-          +     '</div>'
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Min Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-6">'
-          +'       <label>Steps</label>'
-          +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
-          +'       </div>'
-          +'     </div> '
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Max Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
-          +'       </div>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Decay Rate</label>'
-          +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
-          +'       </div>'
-          +'     </div>';
-          +'     <div class="row">'
-          +'       <div class="col-6">'
-          +'       <label>Target Update Interval</label>'
-          +'       <div class="col-12"  ><input type="text" id="target-update-interval-text" class="form-control " value="200"></div>'
-          +'       </div>'
-          +'       <div class="col-md-6">'
-          +'          <label>Memory Size</label>'
-          +'          <div class="col-md-12" ><input type="text" id="memory-size-text" class="form-control" value="1000"></div>'
-          +'       </div>'
-          +'     </div>' 
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Batch Size</label>'
-          +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-md-6">'
-          +'          <label>History Length</label>'
-          +'          <div class="col-md-12" ><input type="text" id="history-text" value="10"  class="form-control" value=""></div>'
-          +'       </div>'
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Batch Size</label>'
-          +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
-          +'       </div>'
-          +'      <div class="row>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Learning Rate</label>'
-          +         '<div class=""  ><input   type="range" id="learning-rate-slider" class="form-range" name="learning-rate-slider" min="0" max="100" step="0.001" value="0.001"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="learning-rate-text" value="0.001" readonly></div>'
-          +'       </div>'
-          +'        </div>'
-          +'        <div class="row">'          
-          +'       <div class="slider-container col-12">'
-          +'         <label>Display Episode Speed</label>'
-          +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-          +'       </div>'
-          +'        <input type="hidden" id="env-hidden" class="form-control">'
-          +'        <input type="hidden" id="agent-hidden" class="form-control">'
-          +'      </div>';
-          +'      </div>'
-
-var actorCritc =     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Gamma</label>'
-          +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
-          +       '</div>'
-          +       '<div class="col-md-6">'
-          +         '<label>Number of Episodes</label>'
-          +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
-          +     '</div>'
-          +     '</div>'
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Min Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-6">'
-          +'       <label>Steps</label>'
-          +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
-          +'       </div>'
-          +'     </div> '
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Max Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
-          +'       </div>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Decay Rate</label>'
-          +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
-          +'       </div>'
-          +'     </div>' 
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Policy Learn Rate</label>'
-          +         '<div class=""  ><input   type="range" id="plr-slider" class="form-range" name="plr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="plr-text" value="" readonly></div>'
-          +       '</div>'
-          +       '<div class="col-md-6">'
-          +         '<label>History</label>'
-          +       '<div class="col-md-12"  ><input type="text" id="history-text" value="10"  class="form-control"></div>'
-          +     '</div>'
-          +     '</div>'
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Value Learn Rate</label>'
-          +         '<div class=""  ><input   type="range" id="vlr-slider" class="form-range" name="vlr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="vlr-text" value="0.001" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-6">'
-          +'       <label>Epoch</label>'
-          +'       <div class="col-12"><input type="text" id="epoch-text" class="form-control" value="500"></div>'
-          +'       </div>'
-          +'       <div class="row">'
-          +'       <div class="slider-container col-12">'
-          +'         <label>Display Episode Speed</label>'
-          +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-          +'       </div>'
-          +'        <input type="hidden" id="env-hidden" class="form-control">'
-          +'        <input type="hidden" id="agent-hidden" class="form-control">'           
-          +'     </div> ';
-
-var reinforceNative =     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Gamma</label>'
-          +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
-          +       '</div>'
-          +       '<div class="col-md-6">'
-          +         '<label>Number of Episodes</label>'
-          +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
-          +     '</div>'
-          +     '</div>'
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Min Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-6">'
-          +'       <label>Steps</label>'
-          +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
-          +'       </div>'
-          +'     </div> '
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Max Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
-          +'       </div>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Decay Rate</label>'
-          +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
-          +'       </div>'
-          +'     </div>'
-          +'      <div class="row>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Learning Rate</label>'
-          +         '<div class=""  ><input   type="range" id="plt-slider" class="form-range" name="plr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="plr-text" value="" readonly></div>'
-          +'       </div>'
-          +'       <div class="slider-container col-12">'
-          +'         <label>Display Episode Speed</label>'
-          +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-          +'       </div>'
-          +'        <input type="hidden" id="env-hidden" class="form-control">'
-          +'        <input type="hidden" id="agent-hidden" class="form-control">'
-          +'      </div>';
-
-var ppoNative =      '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Gamma</label>'
-          +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
-          +       '</div>'
-          +       '<div class="col-md-6">'
-          +         '<label>Number of Episodes</label>'
-          +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
-          +     '</div>'
-          +     '</div>'
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Min Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-6">'
-          +'       <label>Steps</label>'
-          +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
-          +'       </div>'
-          +'     </div> '
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Max Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
-          +'       </div>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Decay Rate</label>'
-          +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
-          +'       </div>'
-          +'     </div>' 
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Batch Size</label>'
-          +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
-          +'       </div>'
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Policy Learn Rate</label>'
-          +         '<div class=""  ><input   type="range" id="plr-slider" class="form-range" name="plr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="plr-text" value="" readonly></div>'
-          +       '</div>'
-          +       '<div class="col-md-6">'
-          +         '<label>History</label>'
-          +       '<div class="col-md-12"  ><input type="text" id="history-text" value="10"  class="form-control"></div>'
-          +     '</div>'
-          +     '</div>'
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Value Learn Rate</label>'
-          +         '<div class=""  ><input   type="range" id="vlr-slider" class="form-range" name="vlr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="vlr-text" value="0.001" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-6">'
-          +'       <label>Epoch</label>'
-          +'       <div class="col-12"><input type="text" id="epoch-text" class="form-control" value="500"></div>'
-          +'       </div>'
-          +'       <div class="row">'
-          +'       <div class="slider-container col-12">'
-          +'         <label>Display Episode Speed</label>'
-          +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-          +'       </div>'
-          +'        <input type="hidden" id="env-hidden" class="form-control">'
-          +'        <input type="hidden" id="agent-hidden" class="form-control">'           
-          +'     </div> ';
-
-
-// SARSA
-var sarsa =     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Gamma</label>'
-          +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range col-4" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
-          +       '</div>'
-          +       '<div class="col-md-6">'
-          +         '<label>Number of Episodes</label>'
-          +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
-          +     '</div>'
-          +     '</div>'
-          +     '<div class="row">'
-          +       '<div class="slider-container col-6">'
-          +         '<label>Min Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
-          +'       </div>'
-          +'       <div class="col-6">'
-          +'       <label>Steps</label>'
-          +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
-          +'       </div>'
-          +'     </div> '
-          +'     <div class="row">'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Max Epsilon</label>'
-          +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
-          +'       </div>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Decay Rate</label>'
-          +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
-          +'       </div>'
-          +'     </div>';
-          +'      <div class="row>'
-          +'       <div class="slider-container col-6">'
-          +'         <label>Alpha</label>'
-          +         '<div class=""  ><input   type="range" id="alpha-slider" class="form-range" name="alpha-slider" min="0" max="1" step="0.001" value="0.18"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="alpha-text" value="0.18" readonly></div>'
-          +'       </div>' 
-          +'       <div class="slider-container col-12">'
-          +'         <label>Display Episode Speed</label>'
-          +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-          +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-          +'       </div>'
-          +'        <input type="hidden" id="env-hidden" class="form-control">'
-          +'        <input type="hidden" id="agent-hidden" class="form-control">'
-          +'      </div>';                     
-
-
-  var result = "";
-  switch(agent){
-      case "Deep Q":
-          result = deepQ;
-          break;
-      case "Q Learning":
-          result = qLearning;
-          break;
-      case "DRQN":
-          result = drqn;
-          break;
-      case "ADRQN":
-          result = drqn;
-          break;
-      case "Double Dueling Deep Q Native":
-          result = doubleDueling;
-          break;
-      case "DRQN Native":
-          result = drqn;
-          break;
-      case "Conv. DRQN Native":
-          result =convDRQNNative;
-      case "PPO Native":
-          result = ppoNative;
-          break;
-      case "Reinforce Native":
-          result = reinforceNative;
-          break;
-      case "ActorCritic Native":
-          result = actorCritc;
-          break;
-      case "SARSA":
-          result = sarsa;
-          break;
-  }
-  return result
 }
+ 
+ function simpleFormFactory(agent){
+ 
+     var defaults =     '<div class="row">'
+ 
+           +       '<div class="slider-container col-6">'
+           +         '<label>Gamma</label>'
+           +         '<div class=""  ><input type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+           +       '</div>'
+           +       '<div class="col-md-6">'
+           +         '<label>Number of Episodes</label>'
+           +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
+           +     '</div>'
+           +     '</div>'
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Min Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-6">'
+           +'       <label>Steps</label>'
+           +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
+           +'       </div>'
+           +'     </div> '
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Max Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+           +'       </div>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Decay Rate</label>'
+           +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+           +'       </div>'
+           +'     </div>';
+ 
+ var deepQ =     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Gamma</label>'
+           +         '<div class=""><input type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+           +       '</div>'
+           +       '<div class="col-md-6">'
+           +         '<label>Number of Episodes</label>'
+           +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
+           +     '</div>'
+           +     '</div>'
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Min Epsilon</label>'
+           +         '<div class=""  ><input type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-6">'
+           +'       <label>Steps</label>'
+           +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
+           +'       </div>'
+           +'     </div> '
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Max Epsilon</label>'
+           +         '<div class=""  ><input type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+           +'       </div>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Decay Rate</label>'
+           +         '<div class=""  ><input type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+           +'       </div>'
+           +'     </div>'
+           +'     <div class="row">'
+           +'       <div class="col-6">'
+           +'       <label>Target Update Interval</label>'
+           +'       <div class="col-12"  ><input type="text" id="target-update-interval-text" class="form-control " value="200"></div>'
+           +'       </div>'
+           +'       <div class="col-md-6">'
+           +'          <label>Memory Size</label>'
+           +'          <div class="col-md-12" ><input type="text" id="memory-size-text" class="form-control" value="1000"></div>'
+           +'       </div>'
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Batch Size</label>'
+           +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
+           +'       </div>'
+           +'       <div class="slider-container col-12">'
+           +'         <label>Display Episode Speed</label>'
+           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+           +'       </div>'
+           +'        <input type="hidden" id="env-hidden" class="form-control">'
+           +'        <input type="hidden" id="agent-hidden" class="form-control">'
+           +'      </div>';  
+ 
+ var qLearning =      '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Gamma</label>'
+           +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+           +       '</div>'
+           +       '<div class="col-md-6">'
+           +         '<label>Number of Episodes</label>'
+           +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
+           +     '</div>'
+           +     '</div>'
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Min Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-6">'
+           +'       <label>Steps</label>'
+           +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
+           +'       </div>'
+           +'     </div> '
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Max Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+           +'       </div>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Decay Rate</label>'
+           +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+           +'       </div>'
+           +'     </div>'
+           +'      <div class="row>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Alpha</label>'
+           +         '<div class=""  ><input   type="range" id="alpha-slider" class="form-range" name="alpha-slider" min="0" max="1" step="0.001" value="0.18"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="alpha-text" value="0.18" readonly></div>'
+           +'       </div>' 
+           +'       <div class="slider-container col-12">'
+           +'         <label>Display Episode Speed</label>'
+           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+           +'       </div>'
+           +'        <input type="hidden" id="env-hidden" class="form-control">'
+           +'        <input type="hidden" id="agent-hidden" class="form-control">'
+           +'      </div>';  
+ 
+ var drqn =     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Gamma</label>'
+           +         '<div class=""  ><input type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970" disabled></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+           +       '</div>'
+           +       '<div class="col-md-6">'
+           +         '<label>Number of Episodes</label>'
+           +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
+           +     '</div>'
+           +     '</div>'
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Min Epsilon</label>'
+           +         '<div class=""  ><input type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-6">'
+           +'       <label>Steps</label>'
+           +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
+           +'       </div>'
+           +'     </div> '
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Max Epsilon</label>'
+           +         '<div class=""  ><input type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-6">'
+           +'       <label>Target Update Interval</label>'
+           +'       <div class="col-12"  ><input type="text" id="target-update-interval-text" class="form-control " value="200"></div>'
+           +'       </div>'
+           +'     </div>'
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Decay Rate</label>'
+           +         '<div class=""  ><input type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-md-6">'
+           +'          <label>Memory Size</label>'
+           +'          <div class="col-md-12" ><input type="text" id="memory-size-text" class="form-control" value="1000"></div>'
+           +'       </div>'
+           +'     </div>' 
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Batch Size</label>'
+           +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-md-6">'
+           +'          <label>History Length</label>'
+           +'          <div class="col-md-12" ><input type="text" id="history-text" value="10"  class="form-control" value=""></div>'
+           +'       </div>'
+           +'       <div class="row">'
+           +'        <div class="slider-container col-12">'
+           +'         <label>Display Episode Speed</label>'
+           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+           +'        </div>'
+           +'        <input type="hidden" id="env-hidden" class="form-control">'
+           +'        <input type="hidden" id="agent-hidden" class="form-control">'
+           +'      </div>'; 
+ 
+ var doubleDueling =     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Gamma</label>'
+           +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+           +       '</div>'
+           +       '<div class="col-md-6">'
+           +         '<label>Number of Episodes</label>'
+           +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
+           +     '</div>'
+           +     '</div>'
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Min Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-6">'
+           +'       <label>Steps</label>'
+           +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
+           +'       </div>'
+           +'     </div> '
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Max Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+           +'       </div>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Decay Rate</label>'
+           +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+           +'       </div>'
+           +'     </div>'
+           +'     <div class="row">'
+           +'       <div class="col-6">'
+           +'       <label>Target Update Interval</label>'
+           +'       <div class="col-12"  ><input type="text" id="target-update-interval-text" class="form-control " value="200"></div>'
+           +'       </div>'
+           +'       <div class="col-md-6">'
+           +'          <label>Memory Size</label>'
+           +'          <div class="col-md-12" ><input type="text" id="memory-size-text" class="form-control" value="1000"></div>'
+           +'       </div>'
+           +'     </div>' 
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Batch Size</label>'
+           +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
+           +'       </div>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Learning Rate</label>'
+           +         '<div class=""  ><input   type="range" id="learning-rate-slider" class="form-range" name="learning-rate-slider" min="0" max="100" step="0.001" value="0.001"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="learning-rate-text" value="0.001" readonly></div>'
+           +'       </div>' 
+           +'      <div class="row>'
+           +'       <div class="slider-container col-12">'
+           +'         <label>Display Episode Speed</label>'
+           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+           +'       </div>'
+           +'      </div>'  
+           +'        <input type="hidden" id="env-hidden" class="form-control">'
+           +'        <input type="hidden" id="agent-hidden" class="form-control">'
+           +'      </div>';
+ 
+ var convDRQNNative =      '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Gamma</label>'
+           +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+           +       '</div>'
+           +       '<div class="col-md-6">'
+           +         '<label>Number of Episodes</label>'
+           +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
+           +     '</div>'
+           +     '</div>'
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Min Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-6">'
+           +'       <label>Steps</label>'
+           +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
+           +'       </div>'
+           +'     </div> '
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Max Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+           +'       </div>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Decay Rate</label>'
+           +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+           +'       </div>'
+           +'     </div>';
+           +'     <div class="row">'
+           +'       <div class="col-6">'
+           +'       <label>Target Update Interval</label>'
+           +'       <div class="col-12"  ><input type="text" id="target-update-interval-text" class="form-control " value="200"></div>'
+           +'       </div>'
+           +'       <div class="col-md-6">'
+           +'          <label>Memory Size</label>'
+           +'          <div class="col-md-12" ><input type="text" id="memory-size-text" class="form-control" value="1000"></div>'
+           +'       </div>'
+           +'     </div>' 
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Batch Size</label>'
+           +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-md-6">'
+           +'          <label>History Length</label>'
+           +'          <div class="col-md-12" ><input type="text" id="history-text" value="10"  class="form-control" value=""></div>'
+           +'       </div>'
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Batch Size</label>'
+           +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
+           +'       </div>'
+           +'      <div class="row>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Learning Rate</label>'
+           +         '<div class=""  ><input   type="range" id="learning-rate-slider" class="form-range" name="learning-rate-slider" min="0" max="100" step="0.001" value="0.001"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="learning-rate-text" value="0.001" readonly></div>'
+           +'       </div>'
+           +'        </div>'
+           +'        <div class="row">'          
+           +'       <div class="slider-container col-12">'
+           +'         <label>Display Episode Speed</label>'
+           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+           +'       </div>'
+           +'        <input type="hidden" id="env-hidden" class="form-control">'
+           +'        <input type="hidden" id="agent-hidden" class="form-control">'
+           +'      </div>';
+           +'      </div>'
+ 
+ var actorCritc =     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Gamma</label>'
+           +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+           +       '</div>'
+           +       '<div class="col-md-6">'
+           +         '<label>Number of Episodes</label>'
+           +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
+           +     '</div>'
+           +     '</div>'
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Min Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-6">'
+           +'       <label>Steps</label>'
+           +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
+           +'       </div>'
+           +'     </div> '
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Max Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+           +'       </div>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Decay Rate</label>'
+           +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+           +'       </div>'
+           +'     </div>' 
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Policy Learn Rate</label>'
+           +         '<div class=""  ><input   type="range" id="plr-slider" class="form-range" name="plr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="plr-text" value="" readonly></div>'
+           +       '</div>'
+           +       '<div class="col-md-6">'
+           +         '<label>History</label>'
+           +       '<div class="col-md-12"  ><input type="text" id="history-text" value="10"  class="form-control"></div>'
+           +     '</div>'
+           +     '</div>'
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Value Learn Rate</label>'
+           +         '<div class=""  ><input   type="range" id="vlr-slider" class="form-range" name="vlr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="vlr-text" value="0.001" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-6">'
+           +'       <label>Epoch</label>'
+           +'       <div class="col-12"><input type="text" id="epoch-text" class="form-control" value="500"></div>'
+           +'       </div>'
+           +'       <div class="row">'
+           +'       <div class="slider-container col-12">'
+           +'         <label>Display Episode Speed</label>'
+           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+           +'       </div>'
+           +'        <input type="hidden" id="env-hidden" class="form-control">'
+           +'        <input type="hidden" id="agent-hidden" class="form-control">'           
+           +'     </div> ';
+ 
+ var reinforceNative =     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Gamma</label>'
+           +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+           +       '</div>'
+           +       '<div class="col-md-6">'
+           +         '<label>Number of Episodes</label>'
+           +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
+           +     '</div>'
+           +     '</div>'
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Min Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-6">'
+           +'       <label>Steps</label>'
+           +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
+           +'       </div>'
+           +'     </div> '
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Max Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+           +'       </div>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Decay Rate</label>'
+           +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+           +'       </div>'
+           +'     </div>'
+           +'      <div class="row>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Learning Rate</label>'
+           +         '<div class=""  ><input   type="range" id="plt-slider" class="form-range" name="plr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="plr-text" value="" readonly></div>'
+           +'       </div>'
+           +'       <div class="slider-container col-12">'
+           +'         <label>Display Episode Speed</label>'
+           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+           +'       </div>'
+           +'        <input type="hidden" id="env-hidden" class="form-control">'
+           +'        <input type="hidden" id="agent-hidden" class="form-control">'
+           +'      </div>';
+ 
+ var ppoNative =      '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Gamma</label>'
+           +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+           +       '</div>'
+           +       '<div class="col-md-6">'
+           +         '<label>Number of Episodes</label>'
+           +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
+           +     '</div>'
+           +     '</div>'
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Min Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-6">'
+           +'       <label>Steps</label>'
+           +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
+           +'       </div>'
+           +'     </div> '
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Max Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+           +'       </div>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Decay Rate</label>'
+           +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+           +'       </div>'
+           +'     </div>' 
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Batch Size</label>'
+           +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
+           +'       </div>'
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Policy Learn Rate</label>'
+           +         '<div class=""  ><input   type="range" id="plr-slider" class="form-range" name="plr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="plr-text" value="" readonly></div>'
+           +       '</div>'
+           +       '<div class="col-md-6">'
+           +         '<label>History</label>'
+           +       '<div class="col-md-12"  ><input type="text" id="history-text" value="10"  class="form-control"></div>'
+           +     '</div>'
+           +     '</div>'
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Value Learn Rate</label>'
+           +         '<div class=""  ><input   type="range" id="vlr-slider" class="form-range" name="vlr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="vlr-text" value="0.001" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-6">'
+           +'       <label>Epoch</label>'
+           +'       <div class="col-12"><input type="text" id="epoch-text" class="form-control" value="500"></div>'
+           +'       </div>'
+           +'       <div class="row">'
+           +'       <div class="slider-container col-12">'
+           +'         <label>Display Episode Speed</label>'
+           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+           +'       </div>'
+           +'        <input type="hidden" id="env-hidden" class="form-control">'
+           +'        <input type="hidden" id="agent-hidden" class="form-control">'           
+           +'     </div> ';
+ 
+ 
+ // SARSA
+ var sarsa =     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Gamma</label>'
+           +         '<div class=""  ><input   type="range" id="gamma-slider" class="form-range col-4" name="gamma-slider" min="0" max="1" step="0.001" value="0.970"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="gamma-text" value="0.97" readonly></div>'
+           +       '</div>'
+           +       '<div class="col-md-6">'
+           +         '<label>Number of Episodes</label>'
+           +       '<div class="col-md-12"><input type="text" id="num-episodes-text" value="1000" alt="range: 0-655360" class="form-control"></div>'
+           +     '</div>'
+           +     '</div>'
+           +     '<div class="row">'
+           +       '<div class="slider-container col-6">'
+           +         '<label>Min Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="min-epsilon-slider" class="form-range" name="min-epsilon-slider" min="0" max="1" step="0.001" value="0.10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="min-epsilon-text" value="" readonly></div>'
+           +'       </div>'
+           +'       <div class="col-6">'
+           +'       <label>Steps</label>'
+           +'       <div class="col-12"><input type="text" id="max-size-text" value="200" class="form-control"></div>'
+           +'       </div>'
+           +'     </div> '
+           +'     <div class="row">'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Max Epsilon</label>'
+           +         '<div class=""  ><input   type="range" id="max-epsilon-slider" class="form-range" name="max-epsilong-slider" min="0" max="1" step="0.001" value="1"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="max-epsilon-text" value="1" readonly></div>'
+           +'       </div>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Decay Rate</label>'
+           +         '<div class=""  ><input   type="range" id="decay-slider" class="form-range" name="decay-slider" min="0" max="0.2" step="0.001" value="0.18"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="decay-text" value="0.18" readonly></div>'
+           +'       </div>'
+           +'     </div>';
+           +'      <div class="row>'
+           +'       <div class="slider-container col-6">'
+           +'         <label>Alpha</label>'
+           +         '<div class=""  ><input   type="range" id="alpha-slider" class="form-range" name="alpha-slider" min="0" max="1" step="0.001" value="0.18"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="alpha-text" value="0.18" readonly></div>'
+           +'       </div>' 
+           +'       <div class="slider-container col-12">'
+           +'         <label>Display Episode Speed</label>'
+           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
+           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
+           +'       </div>'
+           +'        <input type="hidden" id="env-hidden" class="form-control">'
+           +'        <input type="hidden" id="agent-hidden" class="form-control">'
+           +'      </div>';                     
+ 
+ 
+   var result = "";
+   switch(agent){
+       case "Deep Q":
+           result = deepQ;
+           break;
+       case "Q Learning":
+           result = qLearning;
+           break;
+       case "DRQN":
+           result = drqn;
+           break;
+       case "ADRQN":
+           result = drqn;
+           break;
+       case "Double Dueling Deep Q Native":
+           result = doubleDueling;
+           break;
+       case "DRQN Native":
+           result = drqn;
+           break;
+       case "Conv. DRQN Native":
+           result =convDRQNNative;
+       case "PPO Native":
+           result = ppoNative;
+           break;
+       case "Reinforce Native":
+           result = reinforceNative;
+           break;
+       case "ActorCritic Native":
+           result = actorCritc;
+           break;
+       case "SARSA":
+           result = sarsa;
+           break;
+       default: 
+         result ="";
+   }
+   return result
+ }
 </script>  
 {%endblock%}

@@ -99,21 +99,22 @@ def train(request):
         request.session['aws_security_token'],
         request.session['job_id'],
         {
-            "instanceType": get_safe_value(str, "c4.xlarge", "c4.xlarge"),
-            "killTime": get_safe_value(int, 600, 600),
-            "environment": get_safe_value(int, request.POST.get("environment"), 1),
-            "agent": get_safe_value(int, request.POST.get("agent"), 1),
-            "episodes": get_safe_value(int, request.POST.get("episodes"), 20),
-            "steps": get_safe_value(int, request.POST.get("steps"), 50),
-            "gamma": get_safe_value(float, request.POST.get("gamma"), 0.97),
-            "minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01),
-            "maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99),
-            "decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01),
-            "batchSize": get_safe_value(int, request.POST.get("batchSize"), 32),
-            "memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000),
-            "targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10),
-            "alpha": get_safe_value(float, request.POST.get("alpha"), 0.9),
-            "historyLength": get_safe_value(int, request.POST.get("historyLength"), 10),
+            "instanceType": get_safe_value(str, request.POST.get("c4.xlarge"), "c4.xlarge")
+            ,"killTime": get_safe_value(int, 600, 600)
+            ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
+            ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
+            ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
+            ,"episodes": get_safe_value(int, request.POST.get("episodes"), 20)
+            ,"steps": get_safe_value(int, request.POST.get("steps"), 50)
+            ,"gamma": get_safe_value(float, request.POST.get("gamma"), 0.97)
+            ,"minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01)
+            ,"maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99)
+            ,"decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01)
+            ,"batchSize": get_safe_value(int, request.POST.get("batchSize"), 32)
+            ,"memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000)
+            ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
+            ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
+            ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
         } 
     ))
 
@@ -129,27 +130,28 @@ def poll(request):
         request.session['aws_security_token'],
         request.session['job_id'],
         {
-            "instanceType": get_safe_value(str, "c4.xlarge", "c4.xlarge"),
-            "killTime": get_safe_value(int, 600, 600),
-            "environment": get_safe_value(int, request.POST.get("environment"), 1),
-            "agent": get_safe_value(int, request.POST.get("agent"), 1),
-            "episodes": get_safe_value(int, request.POST.get("episodes"), 20),
-            "steps": get_safe_value(int, request.POST.get("steps"), 50),
-            "gamma": get_safe_value(float, request.POST.get("gamma"), 0.97),
-            "minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01),
-            "maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99),
-            "decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01),
-            "batchSize": get_safe_value(int, request.POST.get("batchSize"), 32),
-            "memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000),
-            "targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10),
-            "alpha": get_safe_value(float, request.POST.get("alpha"), 0.9),
-            "historyLength": get_safe_value(int, request.POST.get("historyLength"), 10),
+            "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
+            ,"killTime": get_safe_value(int, 600, 600)
+            ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
+            ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
+            ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
+            ,"episodes": get_safe_value(int, request.POST.get("episodes"), 20)
+            ,"steps": get_safe_value(int, request.POST.get("steps"), 50)
+            ,"gamma": get_safe_value(float, request.POST.get("gamma"), 0.97)
+            ,"minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01)
+            ,"maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99)
+            ,"decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01)
+            ,"batchSize": get_safe_value(int, request.POST.get("batchSize"), 32)
+            ,"memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000)
+            ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
+            ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
+            ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
         }                
     ))
 
 @csrf_exempt
 def import_model(request):
-    pass
+    return HttpResponse({"data": "pass"})
 
 @csrf_exempt
 def export_model(request):
@@ -163,21 +165,22 @@ def export_model(request):
         request.session['aws_security_token'],
         request.session['job_id'],
         {
-            "instanceType": get_safe_value(str, "c4.xlarge", "c4.xlarge"),
-            "killTime": get_safe_value(int, 600, 600),
-            "environment": get_safe_value(int, request.POST.get("environment"), 1),
-            "agent": get_safe_value(int, request.POST.get("agent"), 1),
-            "episodes": get_safe_value(int, request.POST.get("episodes"), 20),
-            "steps": get_safe_value(int, request.POST.get("steps"), 50),
-            "gamma": get_safe_value(float, request.POST.get("gamma"), 0.97),
-            "minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01),
-            "maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99),
-            "decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01),
-            "batchSize": get_safe_value(int, request.POST.get("batchSize"), 32),
-            "memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000),
-            "targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10),
-            "alpha": get_safe_value(float, request.POST.get("alpha"), 0.9),
-            "historyLength": get_safe_value(int, request.POST.get("historyLength"), 10),
+            "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
+            ,"killTime": get_safe_value(int, 600, 600)
+            ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
+            ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
+            ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
+            ,"episodes": get_safe_value(int, request.POST.get("episodes"), 20)
+            ,"steps": get_safe_value(int, request.POST.get("steps"), 50)
+            ,"gamma": get_safe_value(float, request.POST.get("gamma"), 0.97)
+            ,"minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01)
+            ,"maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99)
+            ,"decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01)
+            ,"batchSize": get_safe_value(int, request.POST.get("batchSize"), 32)
+            ,"memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000)
+            ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
+            ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
+            ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
         }
     ))
 
@@ -193,21 +196,22 @@ def halt(request):
         request.session['aws_security_token'],
         request.session['job_id'],
         {
-            "instanceType": get_safe_value(str, "c4.xlarge", "c4.xlarge"),
-            "killTime": get_safe_value(int, 600, 600),
-            "environment": get_safe_value(int, request.POST.get("environment"), 1),
-            "agent": get_safe_value(int, request.POST.get("agent"), 1),
-            "episodes": get_safe_value(int, request.POST.get("episodes"), 20),
-            "steps": get_safe_value(int, request.POST.get("steps"), 50),
-            "gamma": get_safe_value(float, request.POST.get("gamma"), 0.97),
-            "minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01),
-            "maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99),
-            "decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01),
-            "batchSize": get_safe_value(int, request.POST.get("batchSize"), 32),
-            "memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000),
-            "targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10),
-            "alpha": get_safe_value(float, request.POST.get("alpha"), 0.9),
-            "historyLength": get_safe_value(int, request.POST.get("historyLength"), 10),
+            "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
+            ,"killTime": get_safe_value(int, 600, 600)
+            ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
+            ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
+            ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
+            ,"episodes": get_safe_value(int, request.POST.get("episodes"), 20)
+            ,"steps": get_safe_value(int, request.POST.get("steps"), 50)
+            ,"gamma": get_safe_value(float, request.POST.get("gamma"), 0.97)
+            ,"minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01)
+            ,"maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99)
+            ,"decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01)
+            ,"batchSize": get_safe_value(int, request.POST.get("batchSize"), 32)
+            ,"memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000)
+            ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
+            ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
+            ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
         }
     ))
 
@@ -222,21 +226,22 @@ def test_job(request):
         request.session['aws_security_token'],
         request.session['job_id'],
         {
-            "instanceType": get_safe_value(str, "c4.xlarge", "c4.xlarge"),
-            "killTime": get_safe_value(int, 600, 600),
-            "environment": get_safe_value(int, request.POST.get("environment"), 1),
-            "agent": get_safe_value(int, request.POST.get("agent"), 1),
-            "episodes": get_safe_value(int, request.POST.get("episodes"), 20),
-            "steps": get_safe_value(int, request.POST.get("steps"), 50),
-            "gamma": get_safe_value(float, request.POST.get("gamma"), 0.97),
-            "minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01),
-            "maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99),
-            "decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01),
-            "batchSize": get_safe_value(int, request.POST.get("batchSize"), 32),
-            "memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000),
-            "targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10),
-            "alpha": get_safe_value(float, request.POST.get("alpha"), 0.9),
-            "historyLength": get_safe_value(int, request.POST.get("historyLength"), 10),
+            "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
+            ,"killTime": get_safe_value(int, 600, 600)
+            ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
+            ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
+            ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
+            ,"episodes": get_safe_value(int, request.POST.get("episodes"), 20)
+            ,"steps": get_safe_value(int, request.POST.get("steps"), 50)
+            ,"gamma": get_safe_value(float, request.POST.get("gamma"), 0.97)
+            ,"minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01)
+            ,"maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99)
+            ,"decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01)
+            ,"batchSize": get_safe_value(int, request.POST.get("batchSize"), 32)
+            ,"memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000)
+            ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
+            ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
+            ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
         } 
     ))
 
@@ -366,7 +371,11 @@ def lambda_test_job(aws_access_key, aws_secret_key, aws_security_token, job_id, 
         return "{}".format(payload)[2:-1]
     else:
         return ""
-
+def get_safe_value_bool(str):
+    if str == 'True':
+        return True
+    else:
+        return False
 def get_safe_value(convert_function, input_value, default_value):
     try:
         return convert_function(input_value)
