@@ -6,7 +6,7 @@ import os
 
 class CloudBridge:
 
-    def __init__(self, jobID, secretKey, accessKey, sessionToken):
+    def __init__(self, jobID, secretKey, accessKey, sessionToken, model):
         self.animationFrames = []
         self.jobID = jobID
         self.secretKey = secretKey
@@ -15,6 +15,8 @@ class CloudBridge:
         self.episodeData = []
         self.gifURLs = []
         self.delayTime = 1000
+        self.uploadModels = True
+        self.model = model
 
         self.lastSave = 0
 
@@ -99,6 +101,9 @@ class CloudBridge:
             self.episodeAccLoss = 0
             self.episodeAccReward = 0
             self.episodeAccEpsilon = 0
+
+            if (self.state == "Training" and self.uploadModels):
+                self.model.save("continuousTraining.bin")
 
             # Render Gif
             if (len(self.animationFrames) > 0):
