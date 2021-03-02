@@ -193,13 +193,21 @@
     google.charts.load('current', { 'packages':['corechart']}).then(draw_graph);
 
     setTimeout(function() {
-
       doPoll();
-    }, 5000)
-
-      
+    }, 5000)  
   });
 
+  $('#btn-con-train').change(function(){
+    if ($('#btn-con-train').is(":checked")){
+      $("#btn-halt").attr("disabled", "true");
+      $("#btn-text").attr("disabled", "true");
+    }else{
+      if ($("#btn-train").is(":disabled") === false){
+        $("#btn-halt").removeAttr("disabled");
+        $("#btn-text").removeAttr("disabled");
+      }
+    }
+  });
 
   function doPoll(){
     $.post('/easyRL_app/poll/', getData(), function (result, status, jqxhr){
@@ -208,6 +216,7 @@
         setTimeout(doPoll,5000);
     });
   }
+  
   function draw_graph(episodes) {
   var length = episodes.length;
   var array = [];
@@ -230,8 +239,8 @@
       var chart = new google.visualization.LineChart(document.getElementById('training_graph'));
       chart.draw(data, options);
 }
- // end function draw_graph()
-function ReloadImageHelper(result){
+  // end function draw_graph()
+  function ReloadImageHelper(result){
   let gifs = "";
   let episodes = "";
   let isRunning = true;
