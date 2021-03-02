@@ -7,8 +7,8 @@
       <div class="card-header">
         <ul class="nav nav-pills card-header-pills">
           <li class="nav-item">
-            <input type="checkbox" class="btn-check" id="btn-con-train" autocomplete="off">
-            <label class="btn btn-outline-primary" for="btn-con-train" style="margin: 5px;">Continuous Train</label>
+            <input type="checkbox" class="btn-check" id="btn-con-train"  autocomplete="off" aria-checked checked >
+            <label class="btn btn-outline-primary" for="btn-con-train" style="margin: 5px;" title="Continuous Training is Enabled.">Continuous Train</label>
           </li>
           <li class="nav-item">
             <button id="btn-train" class="btn btn-primary" style="margin:5px;" title="This trains the model" disabled>Train</button>
@@ -78,8 +78,8 @@
   <div class="row justify-content-center " id="select-containers">
     <div class="col-md-3">
       <select class="form-select" id="agent-select" size="3" aria-label="Default select example">
-          <option value="0" selected>--Select Agent--</option>
-          <option value="1">Deep Q</option>
+          <option value="0">--Select Agent--</option>
+          <option value="1" selected>Deep Q</option>
           <option value="2">Q Learning</option>
           <option value="3">DRQN</option>
           <option value="4">ADRQN</option>
@@ -95,8 +95,8 @@
     <div class="col-md-3">
       <select id="buffer-select" class="form-select" size="3" aria-label="Default select example">
           <option value="0" selected>--Select Buffer--</option>
-          <option value="Hindsight Replay Buffer">Hindsight Replay Buffer</option>
-          <option value="Prioritize Replay Buffer">Prioritize Replay Buffer</option>
+          <option value="1">Hindsight Replay Buffer</option>
+          <option value="0">Prioritize Replay Buffer</option>
       </select> 
     </div>  
     <div class="col-md-3">           
@@ -191,7 +191,100 @@
     resetFormDropDownsButtons();
     $('html, body').animate({scrollTop: 0}, 800);
     google.charts.load('current', { 'packages':['corechart']}).then(draw_graph);
+
+    setTimeout(function() {
+
+      doPoll();
+    }, 5000)
+
+      
   });
+
+
+  function doPoll(){
+    $.post('/easyRL_app/poll/', getData(), function (result, status, jqxhr){
+         // process results here
+         ReloadImageHelper(result);
+        setTimeout(doPoll,5000);
+    });
+  }
+  function draw_graph(episodes) {
+  var length = episodes.length;
+  var array = [];
+  array.push(['Episode', 'Average Loss']);
+  
+  for (var index = 0; index < length; index++){
+    array.push([
+      episodes[index]["episode"],
+      episodes[index]["avgLoss"]
+    ]);
+  }
+  
+  var data = google.visualization.arrayToDataTable(array);
+  var options =
+  {
+    title: 'Training Average Losses',
+    curveType: 'function',
+    legend: { position: 'bottom' }
+  };
+      var chart = new google.visualization.LineChart(document.getElementById('training_graph'));
+      chart.draw(data, options);
+}
+ // end function draw_graph()
+function ReloadImageHelper(result){
+  let gifs = "";
+  let episodes = "";
+  let isRunning = true;
+  if (result == "")
+    {
+      alert("The response is empty");
+    }
+
+    result = JSON.parse(result)
+    if (result["error"] !== null)
+    {
+      // keep this line for debugging purpose
+      //alert("There is no poll");
+    }
+    // assume that cloudBridge won't remove the key [instanceState]
+    state = result["instanceState"]
+    if (state === "idle")
+    {
+      $('#trainCompleted').modal('show');
+      isRunning = false;
+    }
+    if (state === "booting" || state === "updated")
+    {
+      // keep this line for debugging purpose
+      //alert("Booting or updated");
+    }
+    else if (state === "runningJob")
+    {
+      // loading data
+      // data["jobArguments"]["environment"] -> 5
+      // alert(data["progress"]);
+      if (result["progress"] != "waiting")
+      {
+        gifs = result["progress"]["gifs"];
+        episodes = result["progress"]["episodes"];
+      }
+    
+
+    if(isRunning === false)
+    {
+        clearInterval(interval);
+        // $("#training_summary").html("<button id='btn_reload' class='btn btn-primary' onclick='reload_image()' style='margin:5px;'>Reload</button>");
+        return;
+    }
+
+        // $("#training_image").attr("src", '/easyRL_app/image/?' + (new Date()).getTime());
+    if (gifs.length > 0)
+    {
+      $("#training_image").attr("src", gifs[gifs.length-1]);
+      draw_graph(episodes);
+    }
+  }
+}
 
   // Train button - Start
   $("#btn-train").click(function () {
@@ -214,7 +307,7 @@
         
         // alert("The training in progress");
     });
-    resetDropDowns();
+    resetFormDropDownsButtons();
     reload_image();
   }); // Train Button - End
 
@@ -458,11 +551,12 @@
     setFromElements(""); 
     resetDropDowns();
     resetButtons();
+    resetEnvironment();
   }
 
   function resetDropDowns() {
-    $('#agent-select').val(0);
-    $('#buffer-select').val(0);
+    $('#agent-select').val(1);
+    $('#buffer-select').val(1);
     $('#environment-select').val(2);   
   }
 
@@ -471,6 +565,10 @@
     $('#btn-test').attr("disabled", "true");
     $('#btn-save').attr("disabled", "true");
     $('#btn-halt').attr("disabled", "true");
+  }
+
+  function resetEnvironment(){
+    $('#env-hidden').val(getEnvironmentIndex("Cart Pole"));
   }
   
   function setFormElementsDefaultValues() {
@@ -537,20 +635,20 @@
   function getData() {
 
     var data = {
-      "environment": $('#env-hidden').val()
+      "environment": !!$('#env-hidden').val() ? $('#env-hidden').val() : "1"
       ,"instanceType": $("#environment-select option:selected" ).text()
       ,"continuousTraining": $('#btn-con-train').is(":checked") ? "True" : "False"
-      ,"agent": $("#agent-hidden").val()
+      ,"agent": !!$("#agent-hidden").val() ? $("#agent-hidden").val() : "1"
       ,"killTime": 600
-      ,"episodes": $("#num-episodes-text").val()
-      ,"steps": $('#max-size-text').val()
-      ,"gamma": $('#gamma-text').val()
-      ,"minEpsilon": $('#min-epsilon-text').val()
-      ,"maxEpsilon": $('#max-epsilon-text').val()
-      ,"decayRate": $('#decay-text').val()
-      ,"batchSize": $('#batch-text').val()
-      ,"memorySize": $('#memory-size-text').val()
-      ,"targetInterval": $('#target-update-interval-text').val()
+      ,"episodes": !!$("#num-episodes-text").val() ? $("#num-episodes-text").val() : "1000"
+      ,"steps": !!$('#max-size-text').val() ?$('#max-size-text').val() : "200"
+      ,"gamma": !!$('#gamma-text').val() ? $('#gamma-text').val() : "0.97"
+      ,"minEpsilon": !!$('#min-epsilon-text').val() ? $('#min-epsilon-text').val() : "0.018"
+      ,"maxEpsilon": !!$('#max-epsilon-text').val() ? $('#max-epsilon-text').val() : "1"
+      ,"decayRate": !!$('#decay-text').val() ?$('#decay-text').val()  : "0.018"
+      ,"batchSize": !!$('#batch-text').val() ? $('#batch-text').val() : "32"
+      ,"memorySize": !!$('#memory-size-text').val() ? $('#memory-size-text').val() : "1000"
+      ,"targetInterval": !!$('#target-update-interval-text').val() ? ('#target-update-interval-text').val() : "200"
       ,"alpha": $('#alpha-text').val()
       ,"historyLength": $('#history-text').val()             
     };
@@ -558,29 +656,8 @@
   }
 
  // start function draw_graph()
- function draw_graph(episodes) {
-  var length = episodes.length;
-  var array = [];
-  array.push(['Episode', 'Average Loss']);
-  
-  for (var index = 0; index < length; index++){
-    array.push([
-      episodes[index]["episode"],
-      episodes[index]["avgLoss"]
-    ]);
-  }
-  
-  var data = google.visualization.arrayToDataTable(array);
-  var options =
-  {
-    title: 'Training Average Losses',
-    curveType: 'function',
-    legend: { position: 'bottom' }
-  };
-      var chart = new google.visualization.LineChart(document.getElementById('training_graph'));
-      chart.draw(data, options);
-}
- // end function draw_graph()
+
+
 
  // start function reload_image()
  function reload_image() {
