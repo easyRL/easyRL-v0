@@ -146,6 +146,9 @@
       </form> 
     </div>        
   </div>
+  </br>
+  </br>
+  </br>
   <div class="modal fade" id="modelName" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modelNameLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -200,11 +203,11 @@
   $('#btn-con-train').change(function(){
     if ($('#btn-con-train').is(":checked")){
       $("#btn-halt").attr("disabled", "true");
-      $("#btn-text").attr("disabled", "true");
+      $("#btn-test").attr("disabled", "true");
     }else{
       if ($("#btn-train").is(":disabled") === false){
         $("#btn-halt").removeAttr("disabled");
-        $("#btn-text").removeAttr("disabled");
+        $("#btn-test").removeAttr("disabled");
       }
     }
   });
