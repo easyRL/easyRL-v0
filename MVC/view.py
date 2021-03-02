@@ -10,7 +10,8 @@ from PIL import ImageTk
 from PIL.ImageTk import PhotoImage
 import ttkwidgets
 
-from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, doubleDuelingQNative, drqnNative, drqnConvNative, ppoNative, reinforceNative, actorCriticNative, cem
+from Agents import qLearning, drqn, deepQ, adrqn, agent, doubleDuelingQNative, drqnNative, drqnConvNative, ppoNative, reinforceNative, actorCriticNative, cem
+from Agents.Collections import qTable
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, \
     mountainCarEnv
 from MVC import helptext
@@ -33,16 +34,19 @@ about = """
 
 
 class View:
-    agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, drqnConvNative.DRQNConvNative, ppoNative.PPONative, reinforceNative.ReinforceNative, actorCriticNative.ActorCriticNative, sarsa, cem.CEM]
+    agents = [deepQ.DeepQ, deepQ.DeepQPrioritized, qLearning.QLearning, drqn.DRQN, drqn.DRQNPrioritized, adrqn.ADRQN, adrqn.ADRQNPrioritized, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, drqnConvNative.DRQNConvNative, ppoNative.PPONative, reinforceNative.ReinforceNative, actorCriticNative.ActorCriticNative, sarsa, cem.CEM]
     singleDimEnvs = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
                     pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv]
     environments = singleDimEnvs + atariEnv.AtariEnv.subEnvs
 
     allowedEnvs = {
         deepQ.DeepQ: singleDimEnvs,
+        deepQ.DeepQPrioritized: singleDimEnvs,
         qLearning.QLearning: [cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv],
         drqn.DRQN: environments,
+        drqn.DRQNPrioritized: environments,
         adrqn.ADRQN: environments,
+        adrqn.ADRQNPrioritized: environments,
         doubleDuelingQNative.DoubleDuelingQNative: singleDimEnvs,
         drqnNative.DRQNNative: singleDimEnvs,
         drqnConvNative.DRQNConvNative: atariEnv.AtariEnv.subEnvs,

@@ -33,6 +33,17 @@ class Agent(ABC):
         self.action_size = action_size
         self.gamma = gamma
         self.time_steps = 0
+    
+    def get_empty_state(self):
+        """
+        Gets the empty game state.
+        :return: A representation of an empty game state.
+        :rtype: list
+        """
+        shape = self.state_size
+        if len(shape) >= 2:
+            return [[[-10000]] * shape[0] for _ in range(shape[1])]
+        return [-10000] * shape[0]
 
     @abstractmethod
     def choose_action(self, state):

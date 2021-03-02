@@ -1,4 +1,4 @@
-from Agents import qTable
+from Agents.Collections import qTable
 import joblib
 
 class QLearning(qTable.QTable):
