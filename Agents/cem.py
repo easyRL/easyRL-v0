@@ -9,6 +9,7 @@ import torch.nn.functional as F
 from Agents import policyIteration
 from Agents.Policy import approximator, policy
 from collections import deque
+from collections.abc import Iterable
 
 class CEM(policyIteration.PolicyIteration):
     displayName = 'CEM'
@@ -72,22 +73,6 @@ class CEM(policyIteration.PolicyIteration):
         # Return the chosen action.
         return action
 
-    def update(self, rewards):
-        """
-        Updates the current policy given the rewards.
-        :param rewards: a list of rewards from the episode
-        :type rewards: list
-        """
-        if (len(rewards) != self.pop_size):
-            raise ValueError("The length of the list of rewards should be equal to the population size.")
-        
-        # Update the best weights based on the give rewards.
-        elite_idxs = rewards.argsort()[-self.elite:]
-        elite_weights = [self._sample_policies[i].get_params() for i in elite_idxs]
-        self._best_weights = np.array(elite_weights).mean(axis=0)
-        self._sample_policies = self._create_sample_policies()
-        self._policy.set_params(self._best_weights)
-
     def get_sample_policies(self):
         """
         Returns the current list of sample policies.
@@ -95,6 +80,26 @@ class CEM(policyIteration.PolicyIteration):
         :rtype: list
         """
         return self._sample_policies
+
+    def update(self, trajectory: Iterable):
+        """
+        Updates the current policy given a the trajectory of the policy.
+        :param trajectory: a list of transition frames from the episode.
+        This represents the trajectory of the episode.
+        :type trajectory: Iterable
+        """
+        if (not isinstance(trajectory, Iterable) or len(trajectory) != self.pop_size):
+            raise ValueError("The length of the list of trajectories should be equal to the population size.")
+        
+        # Get the total episode rewards from each policy's trajectory.
+        rewards = np.array([sum(transition.reward for transition in policy_t) for policy_t in trajectory])
+        
+        # Update the best weights based on the give rewards.
+        elite_idxs = rewards.argsort()[-self.elite:]
+        elite_weights = [self._sample_policies[i].get_params() for i in elite_idxs]
+        self._best_weights = np.array(elite_weights).mean(axis=0)
+        self._sample_policies = self._create_sample_policies()
+        self._policy.set_params(self._best_weights)
     
     def _create_sample_policies(self):
         """

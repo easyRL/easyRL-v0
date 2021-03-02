@@ -1,6 +1,7 @@
 import random
 import numpy as np
-from Agents import drqn, modelBasedAgent, modelFreeAgent
+from Agents import cem, drqn, modelBasedAgent, modelFreeAgent
+from Agents.Collections.TransitionFrame import TransitionFrame
 import cProfile
 
 class Model:
@@ -86,51 +87,52 @@ class Model:
                 
                 
                 # Evaluate the policy
-                # Array for the rewards for each policy
-                episode_rewards = np.array([])
-                for policy in self.agent.get_sample_policies():
-                    # Reset the environment.
-                    state = self.environment.reset()
-                    # Sum of total policy rewards for this episode.
-                    policy_reward = 0.0
-                    # Execute this episode for each policy.
-                    for step in range(int(max_steps)):
-                        # Execute one step.
-                        old_state = self.environment.state
-                        action = self.agent.choose_action(old_state, policy)
-                        reward = self.environment.step(action)
-                        
-                        # Add the reward to the total policy reward
-                        policy_reward += reward
-                        
-                        # Render and save the step.
-                        frame = self.environment.render()
-                        
-                        # Send the state from the step.
-                        modelState = Model.State(frame, None, reward, None)
-                        message = Model.Message(Model.Message.STATE, modelState)
-                        messageQueue.put(message)
+                episode_trajectory = []
+                # CEM evaluates multiple policies.
+                if (isinstance(self.agent, cem.CEM)):
+                    for policy in self.agent.get_sample_policies():
+                        # Reset the environment.
+                        state = self.environment.reset()
+                        # Sum of total policy rewards for this episode.
+                        policy_trajectory = []
+                        # Execute this episode for each policy.
+                        for step in range(int(max_steps)):
+                            # Execute one step.
+                            old_state = self.environment.state
+                            action = self.agent.choose_action(old_state, policy)
+                            reward = self.environment.step(action)
+                            
+                            # Add the reward to the total policy reward
+                            policy_trajectory.append(TransitionFrame(old_state, action, reward, self.environment.state, self.environment.done))
+                            
+                            # Render and save the step.
+                            frame = self.environment.render()
+                            
+                            # Send the state from the step.
+                            modelState = Model.State(frame, None, reward, None)
+                            message = Model.Message(Model.Message.STATE, modelState)
+                            messageQueue.put(message)
 
-                        if self.environment.done or self.isHalted:
+                            if self.environment.done or self.isHalted:
+                                break
+                    
+                        # Add the policy rewards to the episode rewards.
+                        episode_trajectory.append(policy_trajectory)
+                        
+                        if self.isHalted:
                             break
-                    
-                    # Add the policy rewards to the episode rewards.
-                    episode_rewards = np.append(episode_rewards, policy_reward)
-                    
-                    if self.isHalted:
-                        break
                 
                 
 
+                message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
+                messageQueue.put(message)
+                
                 if self.isHalted:
                     self.isHalted = False
                     break  
                 
                 # Improve the Policy
-                self.agent.update(episode_rewards)
-                
-                message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
-                messageQueue.put(message)
+                self.agent.update(episode_trajectory)
 
         message = Model.Message(Model.Message.EVENT, Model.Message.TRAIN_FINISHED)
         messageQueue.put(message)

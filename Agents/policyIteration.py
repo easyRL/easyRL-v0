@@ -1,5 +1,6 @@
 from Agents import modelBasedAgent
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 
 class PolicyIteration(modelBasedAgent.ModelBasedAgent, ABC):
     displayName = 'Policy Iteration Method'
@@ -11,10 +12,11 @@ class PolicyIteration(modelBasedAgent.ModelBasedAgent, ABC):
         self._policy = None
     
     @abstractmethod
-    def update(self, rewards):
+    def update(self, trajectory: Iterable):
         """
-        Updates the current policy given an array of rewards.
-        :param rewards: an array of rewards from the episode
-        :type rewards: numpy.ndarray
+        Updates the current policy given a the trajectory of the policy.
+        :param trajectory: a list of transition frames from the episode.
+        This represents the trajectory of the episode.
+        :type trajectory: Iterable
         """
         pass
