@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from Agents import drqn
+from Agents import drqn, modelBasedAgent, modelFreeAgent
 import cProfile
 
 class Model:
@@ -35,41 +35,107 @@ class Model:
             mem = self.agent.memsave()
             self.agent = self.agent_class(self.environment.state_size, self.environment.action_size, *model_args)
             self.agent.memload(mem)
+        
+        if (isinstance(self.agent, modelFreeAgent.ModelFreeAgent)):
+            '''
+            Training algorithm for Model Free Agents.
+            '''
+            min_epsilon, max_epsilon, decay_rate = self.agent.min_epsilon, self.agent.max_epsilon, self.agent.decay_rate
+            epsilon = max_epsilon
 
-        min_epsilon, max_epsilon, decay_rate = self.agent.min_epsilon, self.agent.max_epsilon, self.agent.decay_rate
-        epsilon = max_epsilon
+            for episode in range(int(total_episodes)):
+                self.environment.reset()
 
-        for episode in range(int(total_episodes)):
-            self.environment.reset()
+                for step in range(int(max_steps)):
+                    old_state = self.environment.state
+                    exp_exp_tradeoff = random.uniform(0, 1)
 
-            for step in range(int(max_steps)):
-                old_state = self.environment.state
-                exp_exp_tradeoff = random.uniform(0, 1)
+                    if exp_exp_tradeoff > epsilon:
+                        action = self.agent.choose_action(old_state)
+                    else:
+                        action = self.environment.sample_action()
 
-                if exp_exp_tradeoff > epsilon:
-                    action = self.agent.choose_action(old_state)
-                else:
-                    action = self.environment.sample_action()
+                    reward = self.environment.step(action)
 
-                reward = self.environment.step(action)
+                    loss = self.agent.remember(old_state, action, reward, self.environment.state, self.environment.done)
 
-                loss = self.agent.remember(old_state, action, reward, self.environment.state, self.environment.done)
+                    frame = self.environment.render()
+                    modelState = Model.State(frame, epsilon, reward, loss)
 
-                modelState = Model.State(self.environment.render(), epsilon, reward, loss)
-                message = Model.Message(Model.Message.STATE, modelState)
+                    message = Model.Message(Model.Message.STATE, modelState)
+                    messageQueue.put(message)
+
+                    if self.environment.done or self.isHalted:
+                        break
+
+                message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
                 messageQueue.put(message)
 
-                if self.environment.done or self.isHalted:
+                epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
+
+                if self.isHalted:
+                    self.isHalted = False
+                    break
+        elif (isinstance(self.agent, modelBasedAgent.ModelBasedAgent)):
+            '''
+            Training algorithm for Model Based Agents.
+            '''
+            for episode in range(int(total_episodes)):
+                # Reset the environment.
+                state = self.environment.reset()
+                
+                
+                # Evaluate the policy
+                # Array for the rewards for each policy
+                episode_rewards = np.array([])
+                for policy in self.agent.get_policies():
+                    # Set the policy to the current on.
+                    self.agent.set_policy(policy)
+                    # Reset the environment.
+                    state = self.environment.reset()
+                    # Sum of total policy rewards for this episode.
+                    policy_reward = 0.0
+                    # Execute this episode for each policy.
+                    for step in range(int(max_steps)):
+                        # Execute one step.
+                        old_state = self.environment.state
+                        action = self.agent.choose_action(old_state)
+                        reward = self.environment.step(action)
+                        
+                        # Add the reward to the total policy reward
+                        policy_reward += reward
+                        
+                        # Render and save the step.
+                        frame = self.environment.render()
+                        
+                        # Send the state from the step.
+                        modelState = Model.State(frame, None, reward, None)
+                        message = Model.Message(Model.Message.STATE, modelState)
+                        messageQueue.put(message)
+
+                        if self.environment.done or self.isHalted:
+                            break
+                    
+                    # Add the policy rewards to the episode rewards.
+                    episode_rewards = np.append(episode_rewards, policy_reward)
+                    
+                    if self.isHalted:
+                        break
+                    
+                    
+                
+                # Improve the Policy
+                self.agent.update(episode_rewards)
+                
+                
+                
+                message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
+                messageQueue.put(message)
+
+                if self.isHalted:
+                    self.isHalted = False
                     break
 
-            message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
-            messageQueue.put(message)
-
-            epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
-
-            if self.isHalted:
-                self.isHalted = False
-                break
         message = Model.Message(Model.Message.EVENT, Model.Message.TRAIN_FINISHED)
         messageQueue.put(message)
         self.isRunning = False
@@ -91,42 +157,80 @@ class Model:
             return
 
         if self.agent:
-            min_epsilon, max_epsilon, decay_rate = self.agent.min_epsilon, self.agent.max_epsilon, self.agent.decay_rate
-            epsilon = max_epsilon
+            if (isinstance(self.agent, modelFreeAgent.ModelFreeAgent)):
+                '''
+                Testing algorithm for Model Free Agents.
+                '''
+                min_epsilon, max_epsilon, decay_rate = self.agent.min_epsilon, self.agent.max_epsilon, self.agent.decay_rate
+                epsilon = max_epsilon
 
-            for episode in range(int(total_episodes)):
-                self.environment.reset()
+                for episode in range(int(total_episodes)):
+                    self.environment.reset()
 
-                for step in range(int(max_steps)):
-                    old_state = self.environment.state
+                    for step in range(int(max_steps)):
+                        old_state = self.environment.state
 
-                    exp_exp_tradeoff = random.uniform(0, 1)
+                        exp_exp_tradeoff = random.uniform(0, 1)
 
-                    if exp_exp_tradeoff > epsilon:
-                        action = self.agent.choose_action(old_state)
-                    else:
-                        action = self.environment.sample_action()
+                        if exp_exp_tradeoff > epsilon:
+                            action = self.agent.choose_action(old_state)
+                        else:
+                            action = self.environment.sample_action()
 
-                    reward = self.environment.step(action)
+                        reward = self.environment.step(action)
 
-                    if isinstance(self.agent, drqn.DRQN):
-                        self.agent.addToMemory(old_state, action, reward, self.environment.state, episode, self.environment.done)
+                        if isinstance(self.agent, drqn.DRQN):
+                            self.agent.addToMemory(old_state, action, reward, self.environment.state, episode, self.environment.done)
 
-                    modelState = Model.State(self.environment.render(), None, reward, None)
-                    message = Model.Message(Model.Message.STATE, modelState)
+                        frame = self.environment.render()
+                        
+                        # Send the state from the step.
+                        modelState = Model.State(frame, None, reward, None)
+                        message = Model.Message(Model.Message.STATE, modelState)
+                        messageQueue.put(message)
+
+                        if self.environment.done or self.isHalted:
+                            break
+
+                    message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
                     messageQueue.put(message)
 
-                    if self.environment.done or self.isHalted:
+                    epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
+
+                    if self.isHalted:
+                        self.isHalted = False
                         break
+            elif (isinstance(self.agent, modelBasedAgent.ModelBasedAgent)):
+                '''
+                Testing algorithm for Model Based Agents.
+                '''
+                for episode in range(int(total_episodes)):
+                    # Reset the environment.
+                    self.environment.reset()
 
-                message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
-                messageQueue.put(message)
+                    # Execute this episode.
+                    for step in range(int(max_steps)):
+                        # Execute one step.
+                        old_state = self.environment.state
+                        action = self.agent.choose_action(old_state)
+                        reward = self.environment.step(action)
+                        
+                        # Render the step
+                        frame = self.environment.render()
+                        
+                        modelState = Model.State(frame, None, reward, None)
+                        message = Model.Message(Model.Message.STATE, modelState)
+                        messageQueue.put(message)
 
-                epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
+                        if self.environment.done or self.isHalted:
+                            break
 
-                if self.isHalted:
-                    self.isHalted = False
-                    break
+                    message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
+                    messageQueue.put(message)
+
+                    if self.isHalted:
+                        self.isHalted = False
+                        break
             message = Model.Message(Model.Message.EVENT, Model.Message.TEST_FINISHED)
             messageQueue.put(message)
             print('testing done')
