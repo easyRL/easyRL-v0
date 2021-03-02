@@ -204,10 +204,11 @@
     if ($('#btn-con-train').is(":checked")){
       $("#btn-halt").attr("disabled", "true");
       $("#btn-test").attr("disabled", "true");
+      $('#btn-train').attr("disabled", "true");
     }else{
       if ($("#btn-train").is(":disabled") === false){
         $("#btn-halt").removeAttr("disabled");
-        $("#btn-test").removeAttr("disabled");
+
       }
     }
   });
@@ -364,6 +365,7 @@
 
   $('#set-environment').click(function() {
     updateSelect($('#file-name').text())
+    $('#agent-select').val(0);
     $('#agent-select').focus();
   });
 
