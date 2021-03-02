@@ -18,10 +18,7 @@
           </li>
           <li class="nav-item">
             <button id="btn-test" class="btn btn-primary"style="margin:5px;" disabled>Test</button>
-          </li>
-          <li class="nav-item">
-            <button id="btn-reset" class="btn btn-primary"style="margin:5px;">Reset</button>
-          </li>  
+          </li> 
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" style="margin:5px;">Model </a>
             <div class="dropdown-menu">
@@ -740,11 +737,7 @@
            +         '<div class=""  ><input   type="range" id="batch-slider" class="form-range" name="batch-slider" min="0" max="256" step="1" value="32"></div>'
            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="batch-text" value="32" readonly></div>'
            +'       </div>'
-           +'       <div class="slider-container col-12">'
-           +'         <label>Display Episode Speed</label>'
-           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-           +'       </div>'
+
            +'        <input type="hidden" id="env-hidden" class="form-control">'
            +'        <input type="hidden" id="agent-hidden" class="form-control">'
            +'      </div>';  
@@ -789,11 +782,7 @@
            +         '<div class=""  ><input   type="range" id="alpha-slider" class="form-range" name="alpha-slider" min="0" max="1" step="0.001" value="0.18"></div>'
            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="alpha-text" value="0.18" readonly></div>'
            +'       </div>' 
-           +'       <div class="slider-container col-12">'
-           +'         <label>Display Episode Speed</label>'
-           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-           +'       </div>'
+
            +'        <input type="hidden" id="env-hidden" class="form-control">'
            +'        <input type="hidden" id="agent-hidden" class="form-control">'
            +'      </div>';  
@@ -852,12 +841,6 @@
            +'          <label>History Length</label>'
            +'          <div class="col-md-12" ><input type="text" id="history-text" value="10"  class="form-control" value=""></div>'
            +'       </div>'
-           +'       <div class="row">'
-           +'        <div class="slider-container col-12">'
-           +'         <label>Display Episode Speed</label>'
-           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-           +'        </div>'
            +'        <input type="hidden" id="env-hidden" class="form-control">'
            +'        <input type="hidden" id="agent-hidden" class="form-control">'
            +'      </div>'; 
@@ -917,13 +900,6 @@
            +         '<div class=""  ><input   type="range" id="learning-rate-slider" class="form-range" name="learning-rate-slider" min="0" max="100" step="0.001" value="0.001"></div>'
            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="learning-rate-text" value="0.001" readonly></div>'
            +'       </div>' 
-           +'      <div class="row>'
-           +'       <div class="slider-container col-12">'
-           +'         <label>Display Episode Speed</label>'
-           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-           +'       </div>'
-           +'      </div>'  
            +'        <input type="hidden" id="env-hidden" class="form-control">'
            +'        <input type="hidden" id="agent-hidden" class="form-control">'
            +'      </div>';
@@ -995,12 +971,6 @@
            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="learning-rate-text" value="0.001" readonly></div>'
            +'       </div>'
            +'        </div>'
-           +'        <div class="row">'          
-           +'       <div class="slider-container col-12">'
-           +'         <label>Display Episode Speed</label>'
-           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-           +'       </div>'
            +'        <input type="hidden" id="env-hidden" class="form-control">'
            +'        <input type="hidden" id="agent-hidden" class="form-control">'
            +'      </div>';
@@ -1061,12 +1031,6 @@
            +'       <label>Epoch</label>'
            +'       <div class="col-12"><input type="text" id="epoch-text" class="form-control" value="500"></div>'
            +'       </div>'
-           +'       <div class="row">'
-           +'       <div class="slider-container col-12">'
-           +'         <label>Display Episode Speed</label>'
-           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-           +'       </div>'
            +'        <input type="hidden" id="env-hidden" class="form-control">'
            +'        <input type="hidden" id="agent-hidden" class="form-control">'           
            +'     </div> ';
@@ -1111,11 +1075,7 @@
            +         '<div class=""  ><input   type="range" id="plt-slider" class="form-range" name="plr-slider" min="0" max="1" step="0.001" value="0.001"></div>'
            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="plr-text" value="" readonly></div>'
            +'       </div>'
-           +'       <div class="slider-container col-12">'
-           +'         <label>Display Episode Speed</label>'
-           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-           +'       </div>'
+
            +'        <input type="hidden" id="env-hidden" class="form-control">'
            +'        <input type="hidden" id="agent-hidden" class="form-control">'
            +'      </div>';
@@ -1181,12 +1141,6 @@
            +'       <label>Epoch</label>'
            +'       <div class="col-12"><input type="text" id="epoch-text" class="form-control" value="500"></div>'
            +'       </div>'
-           +'       <div class="row">'
-           +'       <div class="slider-container col-12">'
-           +'         <label>Display Episode Speed</label>'
-           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-           +'       </div>'
            +'        <input type="hidden" id="env-hidden" class="form-control">'
            +'        <input type="hidden" id="agent-hidden" class="form-control">'           
            +'     </div> ';
@@ -1233,11 +1187,7 @@
            +         '<div class=""  ><input   type="range" id="alpha-slider" class="form-range" name="alpha-slider" min="0" max="1" step="0.001" value="0.18"></div>'
            +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="alpha-text" value="0.18" readonly></div>'
            +'       </div>' 
-           +'       <div class="slider-container col-12">'
-           +'         <label>Display Episode Speed</label>'
-           +         '<div class=""  ><input   type="range" id="dep-slider" class="form-range" name="dep-slider" min="0" max="20" step="1" value="10"></div>'
-           +         '<div class="" style="margin: 0px 50px 0px 50px;"><input type="text" class="form-control" id="dep-text" value="10" readonly></div>'
-           +'       </div>'
+
            +'        <input type="hidden" id="env-hidden" class="form-control">'
            +'        <input type="hidden" id="agent-hidden" class="form-control">'
            +'      </div>';                     
