@@ -1,5 +1,5 @@
-import cProfile
-import math
+import copy
+import joblib
 import numpy as np
 import random
 import torch
@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from Agents import policyIteration
+from Agents.Policy import approximator, policy
 from collections import deque
 
 class CEM(policyIteration.PolicyIteration):
@@ -17,7 +18,10 @@ class CEM(policyIteration.PolicyIteration):
     parameters = policyIteration.PolicyIteration.parameters + newParameters
 
 
-    def __init__(self,*args):
+    def __init__(self, *args):
+        """
+        Constructor for Cross Entropy Method agent.
+        """
         paramLen = len(CEM.newParameters)
         super().__init__(*args[:-paramLen])
         self.sigma, self.pop_size, self.elite_frac = args[-paramLen:]
@@ -27,66 +31,105 @@ class CEM(policyIteration.PolicyIteration):
         self.elite = int(self.pop_size*self.elite_frac)
         
         '''
-        Define network 
+        Define the policy.
         '''
-        # Hidden layer size
-        self.hidden_size = 16
-        # define layers
-        self.layer1 = nn.Linear(self.state_size[0], self.hidden_size)
-        self.layer2 = nn.Linear(self.hidden_size, self.action_size)
-        # Weights of the model
-        self.best_weights = self.sigma*np.random.randn(self._get_weights_dim())
-        self.weights_samples = [self.best_weights + (self.sigma*np.random.randn(self._get_weights_dim())) for i in range(self.pop_size)]
-        self.set_policy(self.best_weights)
+        # Create a deep learning approximator.
+        approx = approximator.DeepApproximator(self.state_size, self.action_size, [16])
+        # Create a categorical policy with a deep approximator for this agent.
+        self._policy = policy.CategoricalPolicy(approx)
+        # Weights of the policy
+        self._best_weights = self.sigma*np.random.randn(self._policy.count_params())
+        self._sample_policies = self._create_sample_policies()
+        self._policy.set_params(self._best_weights)
         
-    def choose_action(self, state):
-        # Convert the state to a tensor.
-        state = torch.from_numpy(state).float()
-        # Predict the value of each action using the network.
-        x = F.relu(self.layer1(state))
-        x = F.tanh(self.layer2(x))
-        # Choose the action with the maximum predicted value.
-        action = np.argmax(np.array(x.cpu().data))
+    def choose_action(self, state, p: policy.Policy = None):
+        """
+        Chooses an action given the state and, if given, a policy. The
+        policy p parameter is optional. If p is None, then the current
+        policy of the agent will be used. Otherwise, the given policy p is
+        used.
+        :param state: is the current state of the environment
+        :type state: numpy.ndarray
+        :param policy: is the policy to use
+        :type policy: Agents.Policy.policy.Policy
+        :return: the chosen action
+        :rtype: int
+        """
+        if (p is not None and not isinstance(p, policy.Policy)):
+            raise ValueError("p must be a valid policy.Policy object.")
+            
+        # Initialize the action to -1.
+        action = -1
+        
+        # Choose an action.
+        if (p is None):
+            # Choose an action using the current policy.
+            action = self._policy.choose_action(state)
+        else:
+            # Choose an action using the given policy.
+            action = p.choose_action(state)
+        
         # Return the chosen action.
         return action
 
     def update(self, rewards):
+        """
+        Updates the current policy given the rewards.
+        :param rewards: a list of rewards from the episode
+        :type rewards: list
+        """
         if (len(rewards) != self.pop_size):
             raise ValueError("The length of the list of rewards should be equal to the population size.")
+        
         # Update the best weights based on the give rewards.
         elite_idxs = rewards.argsort()[-self.elite:]
-        elite_weights = [self.weights_samples[i] for i in elite_idxs]
-        self.best_weights = np.array(elite_weights).mean(axis=0)
-        self.weights_samples = [self.best_weights + (self.sigma*np.random.randn(self._get_weights_dim())) for i in range(self.pop_size)]
-        self.set_policy(self.best_weights)
+        elite_weights = [self._sample_policies[i].get_params() for i in elite_idxs]
+        self._best_weights = np.array(elite_weights).mean(axis=0)
+        self._sample_policies = self._create_sample_policies()
+        self._policy.set_params(self._best_weights)
 
-    def get_policies(self):
-        return self.weights_samples
-        
-    def set_policy(self, weights):
-        # Separate the weights for each layer.
-        layer1_end = (self.state_size[0]*self.hidden_size)+self.hidden_size
-        layer1_W = torch.from_numpy(weights[:self.state_size[0]*self.hidden_size].reshape(self.state_size[0], self.hidden_size))
-        layer1_b = torch.from_numpy(weights[self.state_size[0]*self.hidden_size:layer1_end])
-        layer2_W = torch.from_numpy(weights[layer1_end:layer1_end+(self.hidden_size*self.action_size)].reshape(self.hidden_size, self.action_size))
-        layer2_b = torch.from_numpy(weights[layer1_end+(self.hidden_size*self.action_size):])
-        # set the weights for each layer
-        self.layer1.weight.data.copy_(layer1_W.view_as(self.layer1.weight.data))
-        self.layer1.bias.data.copy_(layer1_b.view_as(self.layer1.bias.data))
-        self.layer2.weight.data.copy_(layer2_W.view_as(self.layer2.weight.data))
-        self.layer2.bias.data.copy_(layer2_b.view_as(self.layer2.bias.data))
+    def get_sample_policies(self):
+        """
+        Returns the current list of sample policies.
+        :return: a list of the current sample policies
+        :rtype: list
+        """
+        return self._sample_policies
     
-    def _get_weights_dim(self):
-        return (self.state_size[0] + 1) * self.hidden_size + (self.hidden_size + 1) * self.action_size
+    def _create_sample_policies(self):
+        """
+        Creates a list of sample policies. The length of the list is equal
+        to the population size of this agent.
+        :return: a list of sample policies
+        :rtype: list
+        """
+        # An empty list to add the sample policies to.
+        policies = []
+        # Create n sample policies, where n is the population size.
+        for i in range(self.pop_size):
+            # Create a new policy that is a deep copy of the current policy.
+            p = copy.deepcopy(self._policy)
+            # Derive random weights from the current weights.
+            sample_weights = self._best_weights + (self.sigma * np.random.randn(self._policy.count_params()))
+            # Set the weights of the created policy to the derived ones.
+            p.set_params(sample_weights)
+            policies.append(p)
+        # Return the created policies.
+        return policies
 
     def save(self, filename):
-        pass
+        mem = self._policy.get_params()
+        joblib.dump((CEM.displayName, mem), filename)
 
     def load(self, filename):
-        pass
-    
+        name, mem = joblib.load(filename)
+        if name != CEM.displayName:
+            print('load failed')
+        else:
+            self._policy.set_params(mem)
+
     def memsave(self):
-        pass
+        return self._policy.get_params()
 
     def memload(self, mem):
-        pass
+        self._policy.set_params(mem)

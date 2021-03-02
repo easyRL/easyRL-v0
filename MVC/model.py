@@ -88,9 +88,7 @@ class Model:
                 # Evaluate the policy
                 # Array for the rewards for each policy
                 episode_rewards = np.array([])
-                for policy in self.agent.get_policies():
-                    # Set the policy to the current on.
-                    self.agent.set_policy(policy)
+                for policy in self.agent.get_sample_policies():
                     # Reset the environment.
                     state = self.environment.reset()
                     # Sum of total policy rewards for this episode.
@@ -99,7 +97,7 @@ class Model:
                     for step in range(int(max_steps)):
                         # Execute one step.
                         old_state = self.environment.state
-                        action = self.agent.choose_action(old_state)
+                        action = self.agent.choose_action(old_state, policy)
                         reward = self.environment.step(action)
                         
                         # Add the reward to the total policy reward
@@ -121,20 +119,18 @@ class Model:
                     
                     if self.isHalted:
                         break
-                    
-                    
+                
+                
+
+                if self.isHalted:
+                    self.isHalted = False
+                    break  
                 
                 # Improve the Policy
                 self.agent.update(episode_rewards)
                 
-                
-                
                 message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
                 messageQueue.put(message)
-
-                if self.isHalted:
-                    self.isHalted = False
-                    break
 
         message = Model.Message(Model.Message.EVENT, Model.Message.TRAIN_FINISHED)
         messageQueue.put(message)
