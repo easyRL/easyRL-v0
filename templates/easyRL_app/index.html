@@ -37,7 +37,7 @@
       </div>
       <!-- Carousel -->
       <div class="card-body">
-          <h4>Environment</h4>
+        <h5 id="file-name" class="card-title"></h5>
           <div class="row justify-content-center"style="margin-top: 0px">
             <div id="carouselExampleControlsNoTouching" class="carousel mbr-slider slide col-md-3" data-bs-touch="false" data-bs-interval="false">
               <div class="carousel-inner">
@@ -67,15 +67,42 @@
               </button>
             </div>
           </div>  
-          <br/>               
-          <h5 id="file-name" class="card-title"></h5>
+          <br/>  
+          <div style="margin:5px"> 
+            <input list="environments" id="env-input" name="env-input"class="form-control " style="display:inline !important; width: 300px !important;">
+              <datalist id="environments">
+                <option>--Set Environment--</option>
+                  {% for file in files %}
+                  {% if file == 'Cart Pole.jpg' %}
+                  <option selected value='{{ file|slice:":-4" }}'>{{ file|slice:":-4" }}</option>
+                  {% elif file == 'Cart Pole Discrete.jpg'%}
+                  <option value='{{ file|slice:":-4" }}'>{{ file|slice:":-4" }}</option>
+                  {% elif file == 'Frozen Lake.jpg'%}
+                  <option value='{{ file|slice:":-4" }}'>{{ file|slice:":-4" }}</option>
+                  {% elif file == 'Pendulum.jpg'%}
+                  <option value='{{ file|slice:":-4" }}'>{{ file|slice:":-4" }}</option>
+                  {% elif file == 'Acrobot.jpg' %}
+                  <option value='{{ file|slice:":-4" }}'>{{ file|slice:":-4" }}</option>
+                  {% elif file == 'Mountain Car.jpg' %}
+                  <option value='{{ file|slice:":-4" }}'>{{ file|slice:":-4" }}</option>
+                  {% else %}
+                  <option value='{{ file|slice:":-4" }}'>{{ file|slice:":-4"}}</option>
+                  {% endif %}
+                {% endfor %} 
+      
+              </datalist>
+              
+ </div>
+ <br/>
+ 
           <button id="set-environment" class="btn btn-primary"><span class=""><i class="bi-card-image"></i></span> Select Environment</button>
-      </div>
+    </div>
     </div>
   </div>
   <br/>
   <!-- Drop downs -->
   <div class="row justify-content-center " id="select-containers">
+
     <div class="col-md-3">
       <select class="form-select" id="agent-select" size="3" aria-label="Default select example">
           <option value="0">--Select Agent--</option>
@@ -100,7 +127,7 @@
       </select> 
     </div>  
     <div class="col-md-3">           
-      <select id="environment-select"class="form-select" size="3" aria-label="Default select example">
+      <select id="host-select"class="form-select" size="3" aria-label="Default select example">
         <option value="0">--Select Host Environment--</option>
         <optgroup label="ECS">
           <option value="1">c4.large</option>
@@ -194,12 +221,16 @@
     resetFormDropDownsButtons();
     $('html, body').animate({scrollTop: 0}, 800);
     google.charts.load('current', { 'packages':['corechart']}).then(draw_graph);
-
+    
     setTimeout(function() {
       doPoll();
     }, 5000)  
   });
-
+  $('#env-input').on('input', function() {
+    var text = $(this).val();
+    var index = carouselIndex(text);
+    $('#carouselExampleControlsNoTouching').carousel(index)
+  });
   $('#btn-con-train').change(function(){
     if ($('#btn-con-train').is(":checked")){
       $("#btn-halt").attr("disabled", "true");
@@ -323,7 +354,7 @@
     resetFormDropDownsButtons();
     //reload_image();
   }); // Train Button - End
-
+ 
   $('#btn-ok').click(function() {
     $('#btn-train').attr("disabled", true);
     $('#btn-test').removeAttr("disabled");
@@ -392,6 +423,80 @@
     $('#btn-train').removeAttr("disabled");
     $("#form-div").focus();
   }).change();
+
+  function carouselIndex(itemName){
+    var carouselInx ={
+      'Acrobot' :   0
+      ,'adventure': 1
+      ,'air_raid':  2
+      ,'alien':     3
+      ,'amidar':4
+      ,'assault':5
+      ,'asterix':6
+      ,'asteroids':7
+      ,'atlantis':8
+      ,'bank_heist':9
+      ,'battle_zone':10
+      ,'beam_rider':11
+      ,'berzerk':12
+      ,'bowling':13
+      ,'boxing':14
+      ,'breakout':15
+      ,'carnival':16
+      ,'Cart Pole Discrete':17
+      ,'Cart Pole' :18
+      ,'centipede':19
+      ,'chopper_command':20
+      ,'crazy_climber':21
+      ,'demon_attack':22
+      ,'double_dunk':23
+      ,'elevator_action':24
+      ,'enduro':25
+      ,'fishing_derby':26
+      ,'freeway':27
+      ,'frostbite':28
+      ,'Frozen Lake':29
+      ,'gopher':30
+      ,'gravitar':31
+      ,'hero':32
+      ,'ice_hockey':33
+      ,'jamesbond':34
+      ,'journey_escape':35
+      ,'kangaroo':36
+      ,'krull':37
+      ,'kung_fu_master':38
+      ,'montezuma_revenge':39
+      ,'Mountain Car': 40
+      ,'ms_pacman':41
+      ,'name_this_game':42
+      ,'Pendulum': 43
+      ,'phoenix':44
+      ,'pitfall':45
+      ,'pong':46
+      ,'pooyan':47
+      ,'private_eye':48
+      ,'qbert':49
+      ,'riverraid':50
+      ,'road_runner':51
+      ,'robotank':52
+      ,'seaquest':53
+      ,'skiing':54
+      ,'solaris':55
+      ,'space_invaders':56
+      ,'star_gunner':57
+      ,'tennis':58
+      ,'time_pilot':59
+      ,'tutankham':60
+      ,'up_n_down':61
+      ,'venture':62
+      ,'video_pinball':63
+      ,'wizard_of_wor':64
+      ,'yars_revenge':65
+      ,'zaxxon':66
+    }
+
+    return carouselInx[itemName];
+  }
 
   function getEnvironmentIndex(environmentName){
     var envDict = {
@@ -571,7 +676,8 @@
   function resetDropDowns() {
     $('#agent-select').val(1);
     $('#buffer-select').val(1);
-    $('#environment-select').val(2);   
+    $('#host-select').val(2);
+    $('#environment-select').val(1);   
   }
 
   function resetButtons() {
@@ -647,10 +753,9 @@
   };
 
   function getData() {
-
     var data = {
       "environment": !!$('#env-hidden').val() ? $('#env-hidden').val() : "1"
-      ,"instanceType": $("#environment-select option:selected" ).text()
+      ,"instanceType": $("#host-select option:selected" ).text()
       ,"continuousTraining": $('#btn-con-train').is(":checked") ? "True" : "False"
       ,"agent": !!$("#agent-hidden").val() ? $("#agent-hidden").val() : "1"
       ,"killTime": 600
