@@ -15,6 +15,7 @@ from tensorflow.keras import utils
 from tensorflow.keras.losses import KLDivergence, MSE
 from tensorflow.keras.optimizers import Adam
 from tensorflow.train import GradientDescentOptimizer
+import tensorflow_probability as tfp
 
 import numpy as np
 import copy
@@ -57,6 +58,9 @@ class TRPO(PPO):
         self.max_epsilon = modelFreeAgent.ModelFreeAgent.max_epsilon
         self.decay_rate = modelFreeAgent.ModelFreeAgent.decay_rate
         self.time_steps = modelFreeAgent.ModelFreeAgent.time_steps
+
+        self.parameters = parameters
+        self.newParameters = PPO.newParameters
 
         self.rollouts = []
         self.advantage = 0
@@ -107,13 +111,13 @@ class TRPO(PPO):
         # Compute old probability
         old_probs = old_probs.numpy()
         actions = actions.numpy()
-        optimizer = GradientDescentOptimizer(learning_rate=self.policy_lr)
+        #optimizer = GradientDescentOptimizer(learning_rate=self.policy_lr)
         old_p = tf.math.log(tf.reduce_sum(np.multiply(old_probs * actions)))
         old_p = tf.stop_gradient(old_p)
         for i in range(self.critic_its):
             for j in range(self.actor_its):
                 # Run the policy under N timesteps
-                self.policy_network.fit(TRPO.parameters, TRPO.newParameters, batch_size=self.batch_size, epoches=self.epoches)
+                self.policy_network.fit(self.parameters, self.newParameters, batch_size=self.batch_size, epoches=self.epoches)
                 # Compute new probabilities after training policy
                 new_probs = self.policy_model.predict_proba(states, self.batch_size)
                 new_probs = tf.convert_to_tensor(new_probs, dtype=tf.float32)
@@ -127,11 +131,12 @@ class TRPO(PPO):
             # optimize loss function
             value_loss = self.c1 * self.mse_loss(states, new_states)
             clip_loss = self.clipped_loss(prob_ratio, advantage)
-            loss = self.compute_loss()
+            loss = self.compute_loss(value_loss, clip_loss)
+            # apply gradient optimizer to optimize loss
             # update policy parameters
-            parameters = self.policy_model.predict(TRPO.parameters)
+            parameters = self.policy_model.predict(self.parameters)
 
-        #return surrogate_loss
+        #return loss
 
     def choose_action(self, state):
         return super().choose_action(state)
@@ -176,7 +181,9 @@ class TRPO(PPO):
                 k += 1
             advantage = -value_est + discounted_rewards + (total_gamma * value_est)
             advantages = np.append(advantages, advantage)
-        return np.average(np.array(advantages))
+        mean = np.average(np.array(advantages))
+        std = np.std(advantages)
+        return (value_est - mean) / std
 
     def mse_loss(self, states, new_states):
         states_array = states.numpy()
@@ -188,6 +195,9 @@ class TRPO(PPO):
         minimum = tf.minimum(prob_ratio * advantage, 1 - epsilon, 1 + epsilon)
         loss = minimum * advantage
         return loss
+
+    def compute_loss(self, value_loss, clip_loss):
+        return clip_loss + value_loss + self.c2 * self.entropy
 
     '''def updateAgent(self, rollouts):
         states = torch.cat([r.states for r in rollouts], dim=0)
