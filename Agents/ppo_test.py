@@ -1,6 +1,6 @@
 from Agents import agent, modelFreeAgent
 from Agents.deepQ import DeepQ
-from Agents.models import Actor, Critic
+from Agents.models import PActor, Critic
 from Agents.Collections import ExperienceReplay
 from Agents.Collections.TransitionFrame import TransitionFrame
 import numpy as np
@@ -12,7 +12,6 @@ from tensorflow.keras.layers import Flatten, TimeDistributed, LSTM, multiply
 from tensorflow.keras import utils
 from tensorflow.keras.losses import KLDivergence
 from tensorflow.keras.optimizers import Adam
-from tensorflow_probability.distributions import Multinomial
 
 class PPO(DeepQ):
     displayName = 'PPO'
@@ -42,26 +41,27 @@ class PPO(DeepQ):
         super().__init__(*args[:-paramLen])
         empty_state = self.get_empty_state()
         # Initialize parameters
-        self.epoches = agent.Agent.gamma
-        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False), history_length=self.epoches)
+        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
+        #self.batch_size, _, _, self.horizon, self.epochSize, _, _ = [int(arg) for arg in args[-paramLen:]]
+        #_, self.policy_lr, self.value_lr, _, _, self.epsilon, self.lam = [arg for arg in args[-paramLen:]]
 
-        self.policy_model = Actor(0.001).policy_network()
-        self.value_model = Critic(0.001).value_network()
+        self.policy_lr = 0.001
+        self.value_lr = 0.001
+
+    def value_network(self):
+        return Actor.policy_network()
+
+    def policy_network(self):
+        return Critic.value_network()
 
     def sample(self):
         return self.memory.sample(self.batch_size)
 
     def addToMemory(self, state, action, reward, new_state, done):
         self.memory.append_frame(TransitionFrame(state, action, reward, new_state, done))
-
-    def choose_action(self, state):
-        states = tf.convert_to_tensor(state, dtype=tf.float32)
-        probabilities = self.policy_model.predict_proba(states, self.batch_size)
-        action_dist = probabilities.multinomial(1)
-        return action_dist, probabilities
 
     def remember(self, state, action, reward, new_state, done): 
         pass
