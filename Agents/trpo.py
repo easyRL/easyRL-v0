@@ -1,7 +1,7 @@
 from Agents import agent, modelFreeAgent
 from Agents.ppo import PPO
 from Agents.deepQ import DeepQ
-from Agents.models import PolicyDQN, ValueDQN
+from Agents.models import Actor, Critic
 from Agents.Collections import ExperienceReplay
 from Agents.Collections.TransitionFrame import TransitionFrame
 
@@ -14,8 +14,8 @@ from tensorflow.keras.layers import Flatten, TimeDistributed, LSTM, multiply
 from tensorflow.keras import utils
 from tensorflow.keras.losses import KLDivergence, MSE
 from tensorflow.keras.optimizers import Adam
-from tensorflow.train import GradientDescentOptimizer
-import tensorflow_probability as tfp
+#from tensorflow.train import GradientDescentOptimizer
+#import tensorflow_probability as tfp
 
 import numpy as np
 import copy
@@ -52,14 +52,14 @@ class TRPO(PPO):
         paramLen = len(TRPO.newParameters)
         super().__init__(*args[:-paramLen])
         self.Rollout = namedtuple('Rollout', ['states', 'actions', 'rewards', 'new_states', 'action_dist'])
-        self.epoches = super().epoches
-        self.gamma = agent.Agent.gamma
-        self.min_epsilon = modelFreeAgent.ModelFreeAgent.min_epsilon
+        self.epoches = 10
+        self.gamma = 0.99
+        '''self.min_epsilon = modelFreeAgent.ModelFreeAgent.min_epsilon
         self.max_epsilon = modelFreeAgent.ModelFreeAgent.max_epsilon
         self.decay_rate = modelFreeAgent.ModelFreeAgent.decay_rate
-        self.time_steps = modelFreeAgent.ModelFreeAgent.time_steps
+        self.time_steps = modelFreeAgent.ModelFreeAgent.time_steps'''
 
-        self.parameters = parameters
+        self.parameters = TRPO.parameters
         self.newParameters = PPO.newParameters
 
         self.rollouts = []
@@ -67,7 +67,7 @@ class TRPO(PPO):
         self.entropy = 0
         self.c1 = 0.001
         self.c2 = 0.001
-        self.max_kl = 0.001
+        self.kl_penalty = 0.005
         self.residual_total = 1e-10
         self.loss = 0
 
@@ -83,10 +83,10 @@ class TRPO(PPO):
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
         
         # Initialize the actors and critics
-        self.value_model = super().value_model
-        self.policy_model = super().policy_model
-        self.actor_its = 9
-        self.critic_its = 9
+        self.value_model = super().value_network()
+        self.policy_model = super().policy_network()
+        self.actor_its = 10
+        self.critic_its = 10
 
     def get_empty_state(self):
         return super().get_empty_state()
@@ -107,17 +107,18 @@ class TRPO(PPO):
             return loss
         mini_batch = self.sample()
         states, actions, rewards, new_states, old_probs = self.calculate_rollouts()
-        
+        # Create optimizer for minimizing loss
+        optimizer = Adam(lr=self.policy_lr)
+
         # Compute old probability
         old_probs = old_probs.numpy()
         actions = actions.numpy()
-        #optimizer = GradientDescentOptimizer(learning_rate=self.policy_lr)
         old_p = tf.math.log(tf.reduce_sum(np.multiply(old_probs * actions)))
         old_p = tf.stop_gradient(old_p)
         for i in range(self.critic_its):
             for j in range(self.actor_its):
                 # Run the policy under N timesteps
-                self.policy_network.fit(self.parameters, self.newParameters, batch_size=self.batch_size, epoches=self.epoches)
+                self.policy_model.fit(self.parameters, self.newParameters, batch_size=self.batch_size, epoches=self.epoches)
                 # Compute new probabilities after training policy
                 new_probs = self.policy_model.predict_proba(states, self.batch_size)
                 new_probs = tf.convert_to_tensor(new_probs, dtype=tf.float32)
@@ -127,26 +128,32 @@ class TRPO(PPO):
                 prob_ratio = tf.math.exp(new_p - old_p)
 
                 value_est = self.value_model.predict(states)
-                advantage = self.advantages(value_est)
+                value_est = np.average(value_est)
+                value_next = self.value_model.predict(new_states)
+                value_next = np.average(value_next)
+                advantage = self.advantages(value_est, value_next)
+
             # optimize loss function
             value_loss = self.c1 * self.mse_loss(states, new_states)
             clip_loss = self.clipped_loss(prob_ratio, advantage)
             loss = self.compute_loss(value_loss, clip_loss)
             # apply gradient optimizer to optimize loss
+            with tf.GradientTape() as tape:
+                loss = self.optimize_loss(loss, optimizer, tape)
             # update policy parameters
-            parameters = self.policy_model.predict(self.parameters)
+            self.parameters = self.policy_model.predict(self.parameters)
+        return loss
 
-        #return loss
-
-    def choose_action(self, state):
-        return super().choose_action(state)
+    def choose_action(self, state, new_state):
+        return super().choose_action(state, new_state)
 
     def calculate_rollouts(self):
         self.entropy = 0
         transition = self.memory.peak_frame()
         states, actions, rewards, new_states, dones = transition
-        state = self.memory.get_recent_state
-        action, action_dist = self.choose_action(state)
+        state = transition.state
+        new_state = transition.next_state
+        action_dist = self.choose_action(state, new_state)
         self.entropy += (action_dist * action_dist.log()).sum()
         self.entropy = self.entropy / len(actions)
 
@@ -168,22 +175,32 @@ class TRPO(PPO):
         #self.updateAgent(self.rollouts)
         #return self.loss
 
-    def advantages(self, value_est):
+    def advantages(self, value_est, value_next):
         rewards = self.memory.get_recent_rewards()
+        states = self.memory.get_recent_state()
+        new_states = self.memory.get_recent_next_state()
         advantages = []
         for i in range (self.epoches):
             advantage = 0
             discounted_rewards = 0
             k = 0
-            for j in range(i, self.epoches):
+            total_gamma = 0
+            temp_states = []
+            temp_new_states = []
+            for j in range(self.epoches-i):
                 total_gamma = self.gamma ** k
                 discounted_rewards += total_gamma * rewards[j]
                 k += 1
-            advantage = -value_est + discounted_rewards + (total_gamma * value_est)
+                temp_states = np.append(temp_states, states[j])
+                temp_new_states = np.append(temp_new_states, new_states[j])
+
+            self.value_model.fit(temp_states, temp_new_states)
+            v_est = self.value_model.predict(temp_states)
+            advantage = -v_est + discounted_rewards + (total_gamma * v_est)
             advantages = np.append(advantages, advantage)
         mean = np.average(np.array(advantages))
         std = np.std(advantages)
-        return (value_est - mean) / std
+        return (value_next - value_est - mean) / std
 
     def mse_loss(self, states, new_states):
         states_array = states.numpy()
@@ -191,7 +208,8 @@ class TRPO(PPO):
         return self.value_model.evaluate(x=states_array, y=new_states_array, batch_size=self.batch_size)
 
     def clipped_loss(self, prob_ratio, advantage):
-        epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * self.time_steps)
+        #epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * self.time_steps)
+        epsilon = 0.2
         minimum = tf.minimum(prob_ratio * advantage, 1 - epsilon, 1 + epsilon)
         loss = minimum * advantage
         return loss
@@ -199,6 +217,23 @@ class TRPO(PPO):
     def compute_loss(self, value_loss, clip_loss):
         return clip_loss + value_loss + self.c2 * self.entropy
 
+    def kl_divergence(self, states, new_states):
+        kl = tf.keras.losses.KLDivergence()
+        d_pred = self.policy_model.predict(states)
+        d_true = self.policy_model.predict(new_states)
+        return kl(new_states, states).numpy()
+
+    def optimize_loss(self, loss, optimizer, tape):
+        grads = tape.gradient(loss, self.parameters)
+        optimizer.apply_gradients(zip(grads, self.parameters))
+        return loss
+
+
+    '''def policy_gradient(self, loss):
+        self.policy_network.zero_grad()
+        loss.backward(retain_graph=True)
+        policy_gradient = parameters_to_vector([v.grad for v in self.policy_network.parameters()]).squeeze(0)
+        return policy_gradient'''
     '''def updateAgent(self, rollouts):
         states = torch.cat([r.states for r in rollouts], dim=0)
         actions = torch.cat([r.actions for r in rollouts], dim=0)
@@ -245,11 +280,6 @@ class TRPO(PPO):
         loss = -torch.mean(prob_ratio * Variable(self.advantage)) - (self.ent_coeff * self.entropy)
         return loss
 
-    def policy_gradient(self, loss):
-        self.policy_network.zero_grad()
-        loss.backward(retain_graph=True)
-        policy_gradient = parameters_to_vector([v.grad for v in self.policy_network.parameters()]).squeeze(0)
-        return policy_gradient
 
     def kl_divergence(self, model, states):
         states_tensor = torch.cat([Variable(Tensor(state)).unsqueeze(0) for state in states])

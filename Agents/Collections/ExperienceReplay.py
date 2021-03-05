@@ -91,18 +91,41 @@ class ReplayBuffer:
         
         # Return the recent states as a list.
         return list(result)
-    
-    def get_recent_rewards():
-         """
-        Get the last n rewards where n is equal to the history length of the
+
+    def get_recent_next_state(self):
+        """
+        Get the last n states where n is equal to the history length of the
         buffer.
-        :return: the recent rewards
+        :return: the recent states
         :rtype: list
         """
         # Empty deque to prepend states to.
         result = deque(maxlen = self.history_length)
         
         # Get the latest states until the history length or until the beginning
+        # of the buffer is reached.
+        for i in range((len(self) - 1), max((len(self) - 1) - self.history_length, 0), -1):
+            result.appendleft(self._transitions[i].next_state)
+        
+        # Prepend empty states until the length of the deque equals the
+        # history length.
+        empty_state = self.empty_trans.state
+        while (len(result) < self.history_length):
+            result.appendleft(empty_state)
+        
+        # Return the recent states as a list.
+        return list(result)
+
+    def get_recent_rewards(self):
+        """
+        Get the last n actions where n is equal to the history length of the
+        buffer.
+        :return: the recent actions
+        :rtype: list
+        """
+        result = deque(maxlen = self.history_length)
+        
+        # Get the latest action until the history length or until the beginning
         # of the buffer is reached.
         for i in range((len(self) - 1), max((len(self) - 1) - self.history_length, 0), -1):
             result.appendleft(self._transitions[i].reward)

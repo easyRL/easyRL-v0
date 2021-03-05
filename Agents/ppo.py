@@ -12,7 +12,7 @@ from tensorflow.keras.layers import Flatten, TimeDistributed, LSTM, multiply
 from tensorflow.keras import utils
 from tensorflow.keras.losses import KLDivergence
 from tensorflow.keras.optimizers import Adam
-from tensorflow_probability.distributions import Multinomial
+#from tensorflow_probability.distributions import Multinomial
 
 class PPO(DeepQ):
     displayName = 'PPO'
@@ -42,26 +42,35 @@ class PPO(DeepQ):
         super().__init__(*args[:-paramLen])
         empty_state = self.get_empty_state()
         # Initialize parameters
-        self.epoches = agent.Agent.gamma
+        self.epoches = 10
         self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False), history_length=self.epoches)
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
 
-        self.policy_model = Actor(0.001).policy_network()
-        self.value_model = Critic(0.001).value_network()
+        self.policy_model = Actor(self.state_size, self.action_size, 0.001).policy_network()
+        self.value_model = Critic(self.state_size, self.action_size, 0.001).value_network()
 
     def sample(self):
         return self.memory.sample(self.batch_size)
 
+
+    def policy_network(self):
+        return self.policy_model
+
+    def value_network(self):
+        return self.value_model
+
     def addToMemory(self, state, action, reward, new_state, done):
         self.memory.append_frame(TransitionFrame(state, action, reward, new_state, done))
 
-    def choose_action(self, state):
+    def choose_action(self, state, new_state):
         states = tf.convert_to_tensor(state, dtype=tf.float32)
+        new_states = tf.convert_to_tensor(new_state, dtype=tf.float32)
+        self.policy_model.fit(states, new_states)
         probabilities = self.policy_model.predict_proba(states, self.batch_size)
-        action_dist = probabilities.multinomial(1)
-        return action_dist, probabilities
+        #action_dist = Multinomial(1, probabilities)
+        return probabilities
 
     def remember(self, state, action, reward, new_state, done): 
         pass

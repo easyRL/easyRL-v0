@@ -10,15 +10,16 @@ from tensorflow.keras.layers import Dense, Input, Flatten, multiply, Lambda
 
 
 class Actor(DeepQ):
-  def __init__(self, policy_lr):
-    super()._init_()
-    self.policy_model = self.policy_network()
+  def __init__(self, state_size, action_size, policy_lr):
+    self.state_size = state_size
+    self.action_size = action_size
     self.policy_lr = policy_lr
-    self.optim = tf.keras.optimizers.Adam(self.policy_lr)
+    self.policy_model = self.policy_network()
+    #self.optim = tf.keras.optimizers.Adam(self.policy_lr)
 
   def policy_network(self):
     model = tf.keras.Sequential([
-            Input((self.state_size,)),
+            Input(shape=self.state_size),
             Dense(32, activation='relu'),
             Dense(16, activation='relu'),
             Dense(self.action_size, activation='softmax')
@@ -28,15 +29,15 @@ class Actor(DeepQ):
     return model
 
 class Critic(DeepQ):
-  def __init__(self, value_lr):
-    super().__init__()
+  def __init__(self, state_size, action_size, value_lr):
+    self.state_size = state_size
+    self.action_size = action_size
     self.value_lr = value_lr
     self.value_model = self.value_network()
-    self.optim = tf.keras.optimizers.Adam(self.value_lr)
 
   def value_network(self):
     model = tf.keras.Sequential([
-            Input((self.state_size,)),
+            Input(shape=self.state_size),
             Dense(32, activation='relu'),
             Dense(16, activation='relu'),
             Dense(16, activation='relu'),
