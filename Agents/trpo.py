@@ -116,27 +116,33 @@ class TRPO(PPO):
         # Compute old probability
         old_probs = old_probs.numpy()
         actions = actions.numpy()
-        old_p = tf.math.log(tf.reduce_sum(np.multiply(old_probs * actions)))
+        old_p = tf.math.log(tf.reduce_sum(np.multiply(old_probs, actions)))
         old_p = tf.stop_gradient(old_p)
         for i in range(self.critic_its):
             for j in range(self.actor_its):
-                # Run the policy under N timesteps
-                self.policy_model.fit(self.parameters, self.newParameters, batch_size=self.batch_size, epoches=self.epoches)
-                # Compute new probabilities after training policy
-                new_probs = self.policy_model.predict_proba(states, self.batch_size)
-                new_probs = tf.convert_to_tensor(new_probs, dtype=tf.float32)
-                new_probs = new_probs.numpy()
-                new_p = tf.math.log(tf.reduce_sum(np.multiply(new_probs, actions)))
-                # Compute probability ratio
-                prob_ratio = tf.math.exp(new_p - old_p)
-
+                # Compute value estimates and advantage
                 value_est = self.value_model.predict(states)
                 value_est = np.average(value_est)
                 value_next = self.value_model.predict(new_states)
                 value_next = np.average(value_next)
                 advantage = self.advantages(value_est, value_next)
+                
+                # Run the policy under N timesteps using loss function
+                value_loss = self.c1 * self.mse_loss(states, new_states)
+                clip_loss = self.clipped_loss(prob_ratio, advantage)
+                for epoch in range(self.epoches):
+                    self.train_policy(value_loss, clip_loss)
+                
+                # Compute new probabilities after training policy
+                new_probs = self.policy_model.predict_proba(states, self.batch_size)
+                new_probs = tf.convert_to_tensor(new_probs, dtype=tf.float32)
+                new_probs = new_probs.numpy()
+                new_p = tf.math.log(tf.reduce_sum(np.multiply(new_probs, actions)))
+                
+                # Compute probability ratio
+                prob_ratio = tf.math.exp(new_p - old_p)
 
-            # optimize loss function
+            # optimize loss function after training
             value_loss = self.c1 * self.mse_loss(states, new_states)
             clip_loss = self.clipped_loss(prob_ratio, advantage)
             loss = self.compute_loss(value_loss, clip_loss)
@@ -233,6 +239,12 @@ class TRPO(PPO):
         grads = tape.gradient(loss, self.parameters)
         optimizer.apply_gradients(zip(grads, self.parameters))
         return loss
+
+    def train_policy(self, value_loss, clip_loss):
+        with tf.GradientTape() as tape:
+            self.policy_model(self.parameters, training=true)
+            loss = self.compute_loss(value_loss, clip_loss)
+            tape.gradient(loss, self.parameters)
 
 
     '''def policy_gradient(self, loss):
