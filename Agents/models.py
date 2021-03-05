@@ -18,8 +18,10 @@ class Actor(DeepQ):
     #self.optim = tf.keras.optimizers.Adam(self.policy_lr)
 
   def policy_network(self):
+    inputA = Input(shape=self.state_size)
+    inputA = Flatten()(inputA)
     model = tf.keras.Sequential([
-            Input(shape=self.state_size),
+            inputA,
             Dense(32, activation='relu'),
             Dense(16, activation='relu'),
             Dense(self.action_size, activation='softmax')
@@ -36,8 +38,10 @@ class Critic(DeepQ):
     self.value_model = self.value_network()
 
   def value_network(self):
+    inputA = Input(shape=self.state_size)
+    inputA = Flatten()(inputA)
     model = tf.keras.Sequential([
-            Input(shape=self.state_size),
+            inputA,
             Dense(32, activation='relu'),
             Dense(16, activation='relu'),
             Dense(16, activation='relu'),

@@ -88,6 +88,9 @@ class TRPO(PPO):
         self.actor_its = 10
         self.critic_its = 10
 
+        print(self.policy_model.summary)
+        print(self.value_model.summary)
+
     def get_empty_state(self):
         return super().get_empty_state()
 
@@ -144,8 +147,11 @@ class TRPO(PPO):
             self.parameters = self.policy_model.predict(self.parameters)
         return loss
 
-    def choose_action(self, state, new_state):
-        return super().choose_action(state, new_state)
+    def choose_action(self, state):
+        super().choose_action(state)
+
+    def get_action(self, state, new_state):
+        return super().get_action(state, new_state)
 
     def calculate_rollouts(self):
         self.entropy = 0
@@ -153,7 +159,7 @@ class TRPO(PPO):
         states, actions, rewards, new_states, dones = transition
         state = transition.state
         new_state = transition.next_state
-        action_dist = self.choose_action(state, new_state)
+        action_dist = self.get_action(state, new_state)
         self.entropy += (action_dist * action_dist.log()).sum()
         self.entropy = self.entropy / len(actions)
 
@@ -194,7 +200,7 @@ class TRPO(PPO):
                 temp_states = np.append(temp_states, states[j])
                 temp_new_states = np.append(temp_new_states, new_states[j])
 
-            self.value_model.fit(temp_states, temp_new_states)
+            #self.value_model.fit(temp_states, temp_new_states)
             v_est = self.value_model.predict(temp_states)
             advantage = -v_est + discounted_rewards + (total_gamma * v_est)
             advantages = np.append(advantages, advantage)
