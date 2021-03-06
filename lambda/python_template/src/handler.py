@@ -8,6 +8,7 @@ import logging
 import json
 import os
 import sys
+import random
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 
 
@@ -216,12 +217,12 @@ def yourFunction(request, context):
 
             if (stdout[0] == "test\n"):
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
-                    "cat tag.txt")
+                    "cat easyRL-v0/lambda/version_check1.txt")
                 instanceData = ssh_stdout.readlines()
                 # Has the tag? If not update
                 if (instanceData == []):
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
-                        "mv easyRL-v0/ OLD/")
+                        "mv easyRL-v0/ OLD" + str(random.randint(1,10000000)) + "/")
                     stdout = ssh_stdout.readlines()
                     if (sessionToken == ""):
                         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
@@ -233,8 +234,8 @@ def yourFunction(request, context):
                         "git clone --branch dataExport https://github.com/RobertCordingly/easyRL-v0")
                     stdout = ssh_stdout.readlines() # DO NOT REMOVE
                     stderr = ssh_stderr.readlines() # DO NOT REMOVE
-                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
-                        "echo " + arguments['instanceType'] + " > tag.txt")
+                    #ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                    #    "echo " + arguments['instanceType'] + " > tag.txt")
                     inspector.addAttribute("instanceState", "updated")
                 else:
                     # Instance type match the tag? If not reboot...
