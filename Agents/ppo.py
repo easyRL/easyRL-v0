@@ -72,9 +72,8 @@ class PPO(DeepQ):
         #action = np.amax(probabilities)
         return action
 
-    def get_action(self, state, new_state):
+    def get_action(self, state):
         states = tf.convert_to_tensor(state)
-        new_states = tf.convert_to_tensor(new_state)
         #probabilities = self.policy_model.predict_proba(states, self.batch_size)
         #action_dist = Multinomial(1, probabilities)
         _, probabilities = self.policy_model(states)

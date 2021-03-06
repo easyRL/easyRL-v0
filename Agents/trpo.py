@@ -161,11 +161,11 @@ class TRPO(PPO):
 
     def calculate_rollouts(self):
         self.entropy = 0
-        transition = self.memory.peak_frame()
+        transition = self.memory.sample()
         states, actions, rewards, new_states, dones = transition
         state = transition.state
         new_state = transition.next_state
-        action_dist = self.get_action(state, new_state)
+        action_dist = self.get_action(state)
         self.entropy += (action_dist * action_dist.log()).sum()
         self.entropy = self.entropy / len(actions)
 
@@ -242,7 +242,7 @@ class TRPO(PPO):
 
     def train_policy(self, value_loss, clip_loss):
         with tf.GradientTape() as tape:
-            self.policy_model(self.parameters, training=true)
+            self.policy_model(self.parameters, training=True)
             loss = self.compute_loss(value_loss, clip_loss)
             tape.gradient(loss, self.parameters)
 
