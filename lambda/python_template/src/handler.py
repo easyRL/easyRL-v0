@@ -234,11 +234,14 @@ def yourFunction(request, context):
                         "git clone --branch dataExport https://github.com/RobertCordingly/easyRL-v0")
                     stdout = ssh_stdout.readlines() # DO NOT REMOVE
                     stderr = ssh_stderr.readlines() # DO NOT REMOVE
-                    #ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
-                    #    "echo " + arguments['instanceType'] + " > tag.txt")
+                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                        "echo " + arguments['instanceType'] + " > tag.txt")
                     inspector.addAttribute("instanceState", "updated")
                 else:
                     # Instance type match the tag? If not reboot...
+                    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
+                        "cat tag.txt")
+                    instanceData = ssh_stdout.readlines()
                     if (arguments['instanceType'] not in instanceData[0]):
                         terminateInstance(
                             ec2Client, ec2Resource, ourInstance, inspector)
