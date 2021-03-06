@@ -104,6 +104,8 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         next_states = np.zeros((self.batch_size,) + self.state_size)
 
         for index_rep, transition in enumerate(mini_batch):
+            #print("Mini Batch: " + str(mini_batch))
+            print("Next states: " + str(next_states))
             states, actions, rewards, _, dones = mini_batch
             
             X_train[0][index_rep] = transition.state
