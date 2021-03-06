@@ -79,7 +79,7 @@ class NPG(policyIteration.PolicyIteration):
         # Calculate the advantage using the returns and the values.
         advantages = returns - values
         # Compute the loss of the trajectory.
-        logits = torch.stack([self._policy.log_prob(transition.state, transition.action, detach = False) for transition in trajectory]).view(-1)
+        logits = torch.stack([self._policy.logit(transition.state, transition.action, detach = False) for transition in trajectory]).view(-1)
         loss = (-logits * advantages).mean()
         
         '''

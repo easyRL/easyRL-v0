@@ -90,7 +90,7 @@ class Policy(ABC):
         pass
     
     @abstractmethod
-    def log_prob(self, state: np.ndarray, action: int):
+    def logit(self, state: np.ndarray, action: int):
         """
         Computes the log-likelihood of taking the given action, given the
         state.
@@ -174,7 +174,7 @@ class CategoricalPolicy(Policy):
         policy_dist = Categorical(probs)
         return policy_dist
 
-    def log_prob(self, state: np.ndarray, action: int, detach: bool = True):
+    def logit(self, state: np.ndarray, action: int, detach: bool = True):
         """
         Computes the log-likelihood of taking the given action, given the
         state.
@@ -204,11 +204,11 @@ class CategoricalPolicy(Policy):
         # Encapsulate action into a tensor.
         action = torch.tensor([action])
         # Calculate the log-likelihood of taking the given action.
-        log_prob = policy_dist.log_prob(action)
+        logit = policy_dist.log_prob(action)
         
         # If detach is true, then detach the result from the tensor.
         if (detach):
-            log_prob = log_prob.item()
+            logit = logit.item()
         
         # Return the log-likelihood of taking the given action.
-        return log_prob
+        return logit
