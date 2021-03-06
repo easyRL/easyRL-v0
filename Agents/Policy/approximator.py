@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.optim as optim
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
@@ -32,8 +33,7 @@ class Approximator(ABC):
         the state.
         :param state: the current state of the environment
         :type state: numpy.ndarray
-        :return: array of approximate values
-        :rtype: numpy.array
+        :return: the approximate values outputted by the approximator.
         """
         pass
     
@@ -47,23 +47,51 @@ class Approximator(ABC):
         pass
     
     @abstractmethod
-    def get_params(self):
+    def get_params(self, flatten: bool = True):
         """
-        Gets a list of the parameters used by this approximator.
-        :return: a list of the parameters used by this approximator
-        :rtype: list
+        Gets the parameters used by this approximator. The parameters
+        for this model is the weights and bias of each layer. The
+        parameters are returned as a one-dimensional numpy array if flatten
+        is true which is by default, otherwise the parameters are return
+        in the format of the model being used.
+        :param flatten: whether to flatten the parameters to a
+        one-dimensional array or not
+        :type param: bool
+        :return: the parameters used by this approximator
         """
-        pass
     
     @abstractmethod
     def set_params(self, params: np.ndarray):
         """
         Set the parameters of this model to the ones given in the
         parameters as a numpy array. The length of the array must equal
-        the number of parameters used by this model.
+        the number of parameters used by this model. The parameters must
+        be flattened into a one-dimensional numpy array.
         :param params: A numpy array of the parameters to set this
         approximator to.
         :type params: numpy.ndarray
+        """
+        pass
+    
+    @abstractmethod
+    def update(self, states: np.ndarray, targets: np.ndarray):
+        """
+        Updates the approximator given a batch of states as the input and
+        their corresponding target values.
+        :param states: an array of multiple states that are the input into
+        approximator to approximator the value of.
+        :type states: numpy.ndarray
+        :param targets: the target values the approximator should calculate.
+        :type targets: numpy.ndarray
+        :return: the loss from training.
+        :rtype: float
+        """
+        pass
+    
+    @abstractmethod
+    def zero_grad(self):
+        """
+        Zeros out the gradient of the model.
         """
         pass
 
@@ -99,10 +127,12 @@ class DeepApproximator(Approximator):
         
         # Construct the model of the approximator function.
         self._model = None
+        self._optimizer = None
         if (self.library == 'keras'):
             self._model = self._build_keras_network()
         if (self.library == 'torch'):
             self._model = self._build_torch_network()
+            self._optimizer = optim.Adam(self._model.parameters(), lr = 0.001)
     
     def __call__(self, state: np.ndarray):
         """
@@ -110,8 +140,7 @@ class DeepApproximator(Approximator):
         the state.
         :param state: the current state of the environment
         :type state: numpy.ndarray
-        :return: array of approximate values
-        :rtype: numpy.array
+        :return: the approximate values outputted by the approximator.
         """
         if (not isinstance(state, np.ndarray) or state.shape != self.state_size):
             raise ValueError("state must be a numpy.ndarray with shape {}".format(self.state_size))
@@ -126,11 +155,11 @@ class DeepApproximator(Approximator):
             # Approximate the values and reshape the values.
             values = self._model.predict(state)
             values = np.reshape(values, -1)
-        if (self.library == 'torch'):
+        elif (self.library == 'torch'):
             # Convert the state into a tensor.
             state = torch.from_numpy(state).float()
             # Approximate the values and convert the results to an array.
-            values = self._model(state).detach().numpy()
+            values = self._model(state)
         
         # Return the values.
         return values
@@ -143,26 +172,46 @@ class DeepApproximator(Approximator):
         """
         if (self.library == 'keras'):
             return self._model.count_params()
-        if (self.library == 'torch'):
+        elif (self.library == 'torch'):
             return sum(param.numel() for param in self._model.parameters())
         
-    def get_params(self):
+    def get_params(self, flatten: bool = True):
         """
-        Gets an array of the parameters used by this approximator. The
-        parameters for this model is the weights and bias of each layer.
-        :return: a list of the parameters used by this approximator
-        :rtype: numpy.ndarray
+        Gets the parameters used by this approximator. The parameters
+        for this model is the weights and bias of each layer. The
+        parameters are returned as a one-dimensional numpy array if flatten
+        is true which is by default, otherwise the parameters are return
+        in the format of the model being used.
+        :param flatten: whether to flatten the parameters to a
+        one-dimensional array or not
+        :type param: bool
+        :return: the parameters used by this approximator
         """
-        # Empty numpy array to append the parameters to.
-        params = np.empty(0)
-        
-        # Get the parameters from the model and append them to the array.
+        # Get the parameters in the raw form
+        params = None
         if (self.library == 'keras'):
-            for layer_params in self._model.get_weights():
-                params = np.append(params, layer_params)
-        if (self.library == 'torch'):
-            for layer_params in self._model.parameters():
-                params = np.append(params, layer_params.detach().numpy())
+            params = self._model.get_weights()
+        elif (self.library == 'torch'):
+            params = self._model.parameters()
+        
+        '''
+        If flatten is true, flatten the parameters to a one-dimensional
+        numpy array.
+        '''
+        if (flatten):
+            # Empty numpy array to append the parameters to.
+            flat_params = np.empty(0)
+            
+            # Get the parameters from the model and append them to the array.
+            if (self.library == 'keras'):
+                for layer_params in params:
+                    flat_params = np.append(flat_params, layer_params)
+            elif (self.library == 'torch'):
+                for layer_params in params:
+                    flat_params = np.append(flat_params, layer_params.detach().numpy())
+            
+            # Set the parameters to the flatten representation.
+            params = flat_params
         
         # Return the parameters.
         return params
@@ -171,7 +220,8 @@ class DeepApproximator(Approximator):
         """
         Set the parameters of this model to the ones given in the
         parameters as a numpy array. The length of the array must equal
-        the number of parameters used by this model.
+        the number of parameters used by this model. The parameters must
+        be flattened into a one-dimensional numpy array.
         :param params: A numpy array of the parameters to set this
         approximator to.
         :type params: numpy.ndarray
@@ -209,6 +259,52 @@ class DeepApproximator(Approximator):
                 # Set the weights and bias for this layer to what was given.
                 layer.weight.data.copy_(w.view_as(layer.weight.data))
                 layer.bias.data.copy_(b.view_as(layer.bias.data))
+    
+    def update(self, states: np.ndarray, targets: np.ndarray):
+        """
+        Updates the approximator given a batch of states as the input and
+        their corresponding target values.
+        :param states: an array of multiple states that are the input into
+        approximator to approximator the value of.
+        :type states: numpy.ndarray
+        :param targets: the target values the approximator should calculate.
+        :type targets: numpy.ndarray
+        :return: the loss from training.
+        :rtype: float
+        """
+        if (not isinstance(states, np.ndarray) or states.shape[1:] != self.state_size):
+            raise ValueError("states must be a numpy array with each state having the shape {}.".format(self.state_size))
+        if (not isinstance(targets, np.ndarray) or targets.shape[1:] != (self.action_size,)):
+            raise ValueError("targets must be a numpy array with each target having the shape ({},).".format(self.action_size))
+        
+        # Zero out the gradients.
+        self._optimizer.zero_grad()
+        
+        # Approximate the values of each state using the model.
+        approx_values = torch.zeros(len(targets), 1)
+        for idx, state in enumerate(states):
+            # Convert the state to a tensor.
+            state = torch.from_numpy(state).float()
+            # Approximate the values of the state.
+            approx_values[idx][0] = self._model(state)
+        
+        # Calculate the loss as the MSE.
+        targets = torch.from_numpy(targets)
+        loss_fn = nn.MSELoss()
+        loss = loss_fn(approx_values, targets)
+        
+        # Backpropagate the loss.
+        loss.backward()
+        self._optimizer.step()
+        
+        # Return the loss.
+        return loss.item()
+    
+    def zero_grad(self):
+        """
+        Zeros out the gradient of the model.
+        """
+        self._model.zero_grad()
     
     def _build_keras_network(self):
         """
@@ -279,7 +375,7 @@ class DeepApproximator(Approximator):
             
             # Create output layer and connect last hidden layer to it.
             layers.append(nn.Linear(self.hidden_sizes[-1], self.action_size))
-        
+                
         # Compile and return the sequential model.
         return nn.Sequential(*layers)
     

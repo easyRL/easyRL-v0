@@ -88,6 +88,7 @@ class Model:
                 
                 # Evaluate the policy
                 episode_trajectory = []
+                loss = 0.0
                 # CEM evaluates multiple policies.
                 if (isinstance(self.agent, cem.CEM)):
                     for policy in self.agent.get_sample_policies():
@@ -121,18 +122,47 @@ class Model:
                         
                         if self.isHalted:
                             break
-                
-                
+                    
+                    # Update the agent only if all policies were evaluated.
+                    if (len(episode_trajectory) == len(self.agent.get_sample_policies())):
+                        loss = self.agent.update(episode_trajectory)
+                        
+                else:
+                    # Execute this episode for each policy.
+                    for step in range(int(max_steps)):
+                        # Execute one step.
+                        old_state = self.environment.state
+                        action = self.agent.choose_action(old_state)
+                        reward = self.environment.step(action)
+                        
+                        # Add the reward to the total policy reward
+                        episode_trajectory.append(TransitionFrame(old_state, action, reward, self.environment.state, self.environment.done))
+                        
+                        # Render and save the step.
+                        frame = self.environment.render()
+                        
+                        # Send the state from the step.
+                        modelState = Model.State(frame, None, reward, None)
+                        message = Model.Message(Model.Message.STATE, modelState)
+                        messageQueue.put(message)
+
+                        if self.environment.done or self.isHalted:
+                            break
+                    
+                    # Improve the Policy
+                    loss = self.agent.update(episode_trajectory)
+                    
+                # Send the loss of this episode.
+                modelState = Model.State(None, None, None, loss)
+                message = Model.Message(Model.Message.STATE, modelState)
+                messageQueue.put(message)
 
                 message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
                 messageQueue.put(message)
                 
                 if self.isHalted:
                     self.isHalted = False
-                    break  
-                
-                # Improve the Policy
-                self.agent.update(episode_trajectory)
+                    break
 
         message = Model.Message(Model.Message.EVENT, Model.Message.TRAIN_FINISHED)
         messageQueue.put(message)
