@@ -1,6 +1,7 @@
 import joblib
 import numpy as np
 import random
+import math
 
 from Agents import modelFreeAgent
 from Agents.deepQ import DeepQ
@@ -16,11 +17,11 @@ class DuelingDDQN(DeepQ):
     parameters = modelFreeAgent.ModelFreeAgent.parameters + newParameters
 
     def __init__(self, *args): 
-        paramLen = len(DoubleDuelingQNative.newParameters)
+        paramLen = len(duelingDDQN.newParameters)
         super().__init__(*args[:-paramLen])
         self.batch_size, self.memory_size, self.target_update_interval, _ = [int(arg) for arg in args[-paramLen:]]
         _, _, _, self.learning_rate = [arg for arg in args[-paramLen:]]
-
+        empty_state = self.get_empty_state()
         self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
@@ -36,7 +37,7 @@ class DuelingDDQN(DeepQ):
         self.v_min = -10
         self.v_max = 10
         self.delta_z = (self.v_max - self.v_min) / float(self.num_atoms -1)
-        self.z = [self.v_min + i * self_delta_z for i in range(self.num_atoms)]
+        self.z = [self.v_min + i * self.delta_z for i in range(self.num_atoms)]
 
     def sample(self):
         return self.memory.sample(self.batch_size)
@@ -49,26 +50,10 @@ class DuelingDDQN(DeepQ):
         states, actions, rewards, next_states, dones = mini_batch
         return states, actions, rewards, next_states, dones
 
-    '''def compute_qvalues(self):
-        import tensorflow_probability as tfp
-        tfd = tfp.distributions
-        # Initialize lists used for selecting best action 
-        # and computing target distribution
-        best_actions_idx = []
-        probs = [np.zero((self.batch_size, self.num_atoms)) for i in range(self.action_size)]
-        # Predict the value distribution of the next state
-        z = self.target.predict(next_states)
-        z_concat = np.vstack(z)
-        q_value = np.sum(np.multiply(z_concat, np.array(self.z)))
-        q_value = q_value.reshape((self.batch_size, action_size), order='F')
-        best_actions_idx = np.argmax(q_value, axis=1)
-        return best_actions_idx   '''
-
     def choose_action(self, state):
         z = self.model.predict(state)
         z_concat = np.vstack(z)
-        q_value = np.sum(np.multiply(z_concat, np.array(self.z)))
-        q_value = q_value.reshape((self.batch_size, action_size), axis=1)
+        q_value = np.sum(np.multiply(z_concat, np.array(self.z)), axis=1)
         action = np.argmax(q_value)
         return action
         
@@ -82,29 +67,29 @@ class DuelingDDQN(DeepQ):
         best_actions = []
         z_concat = np.vstack(z)
         q_value = np.sum(np.multiply(z_concat, np.array(self.z)))
-        q_value = q_value.reshape((self.batch_size, action_size), order='F')
-        best_actions_idx = np.argmax(q_value, axis=1)
+        q_value = q_value.reshape((self.batch_size, self.action_size), order='F')
+        best_actions = np.argmax(q_value, axis=1)
 
         for i in range(self.batch_size):
             if dones[i]:
                 # Compute target distribution
-                Tz = min(self.v_max, max(self.v_min, reward[i]))
+                Tz = min(self.v_max, max(self.v_min, rewards[i]))
                 bj = (Tz - self.v_min) / self.delta_z 
                 m_l, m_u = math.floor(bj), math.ceil(bj)
-                m_prob[action[i]][i][int(m_l)] += (m_u - bj)
-                m_prob[action[i]][i][int(m_u)] += (bj - m_l)
+                probs[actions[i]][i][int(m_l)] += (m_u - bj)
+                probs[actions[i]][i][int(m_u)] += (bj - m_l)
             else:
                 for j in range(self.num_atoms):
-                    Tz = min(self.v_max, max(self.v_min, reward[i] + self.gamma * self.z[j]))
+                    Tz = min(self.v_max, max(self.v_min, rewards[i] + self.gamma * self.z[j]))
                     bj = (Tz - self.v_min) / self.delta_z 
                     m_l, m_u = math.floor(bj), math.ceil(bj)
-                    m_prob[action[i]][i][int(m_l)] += z_[optimal_action_idxs[i]][i][j] * (m_u - bj)
-                    m_prob[action[i]][i][int(m_u)] += z_[optimal_action_idxs[i]][i][j] * (bj - m_l)
+                    probs[actions[i]][i][int(m_l)] += z_[best_actions[i]][i][j] * (m_u - bj)
+                    probs[actions[i]][i][int(m_u)] += z_[best_actions[i]][i][j] * (bj - m_l)
 
         # Computes KL loss from predicted and target distribution
-        loss = self.model.fit(states, m_prob, batch_size = self.batch_size, nb_epoch = 1, verbose = 0)
+        loss = self.model.fit(states, probs, batch_size = self.batch_size, epochs = 1, verbose = 0)
         return loss
-        
+
     def updateTarget(self):
         if self.total_steps >= 2*self.batch_size and self.total_steps % self.target_update_interval == 0:
             self.target.set_weights(self.model.get_weights())
@@ -112,6 +97,7 @@ class DuelingDDQN(DeepQ):
         self.total_steps += 1
     
     def buildQNetwork(self):
+        import tensorflow as tf
         from tensorflow.python.keras.optimizer_v2.adam import Adam
         from tensorflow.keras.models import Model
         from tensorflow.keras.layers import Dense, Input, Flatten, multiply
