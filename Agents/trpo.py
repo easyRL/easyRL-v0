@@ -85,11 +85,9 @@ class TRPO(PPO):
         # Initialize the actors and critics
         self.value_model = super().value_network()
         self.policy_model = super().policy_network()
+        self.policy_model.set_weights(self.parameters)
         self.actor_its = 10
         self.critic_its = 10
-
-        print(self.policy_model.summary)
-        print(self.value_model.summary)
 
     def get_empty_state(self):
         return super().get_empty_state()
@@ -108,8 +106,8 @@ class TRPO(PPO):
         loss = 0
         if len(self.memory) < 2*self.batch_size:
             return loss
-        mini_batch = self.sample()
-        states, actions, rewards, new_states, old_probs = self.calculate_rollouts()
+        mini_batch = self.calculate_rollouts()
+        states, actions, rewards, new_states, old_probs = mini_batch
         # Create optimizer for minimizing loss
         optimizer = Adam(lr=self.policy_lr)
 
@@ -121,7 +119,7 @@ class TRPO(PPO):
         for i in range(self.critic_its):
             for j in range(self.actor_its):
                 # Compute value estimates and advantage
-                value_est = self.value_model.predict(states)
+                value_est = self.value_model.predict([states, self.allMask])
                 value_est = np.average(value_est)
                 value_next = self.value_model.predict(new_states)
                 value_next = np.average(value_next)
@@ -134,7 +132,7 @@ class TRPO(PPO):
                     self.train_policy(value_loss, clip_loss)
                 
                 # Compute new probabilities after training policy
-                new_probs = self.policy_model.predict_proba(states, self.batch_size)
+                new_probs = self.policy_model.predict(states)
                 new_probs = tf.convert_to_tensor(new_probs, dtype=tf.float32)
                 new_probs = new_probs.numpy()
                 new_p = tf.math.log(tf.reduce_sum(np.multiply(new_probs, actions)))
@@ -150,21 +148,26 @@ class TRPO(PPO):
             with tf.GradientTape() as tape:
                 loss = self.optimize_loss(loss, optimizer, tape)
             # update policy parameters
-            self.parameters = self.policy_model.predict(self.parameters)
+            self.update_policy()
         return loss
 
     def choose_action(self, state):
         super().choose_action(state)
 
-    def get_action(self, state, new_state):
-        return super().get_action(state, new_state)
+    def get_action(self, state):
+        return super().get_action(state)
+
+    def update_policy(self):
+        if self.total_steps >= 2*self.batch_size and self.total_steps % self.target_update_interval == 0:
+            self.policy_model.set_weights(self.newParameters)
+            print("target updated")
+        self.total_steps += 1
 
     def calculate_rollouts(self):
         self.entropy = 0
-        transition = self.memory.sample()
+        transition = self.sample()
         states, actions, rewards, new_states, dones = transition
         state = transition.state
-        new_state = transition.next_state
         action_dist = self.get_action(state)
         self.entropy += (action_dist * action_dist.log()).sum()
         self.entropy = self.entropy / len(actions)
@@ -176,11 +179,11 @@ class TRPO(PPO):
         new_states = np.expand_dims(new_states, -1)'''
 
         # Convert lists to tensor
-        states = tf.convert_to_tensor(states, dtype=tf.float32)
+        '''states = tf.convert_to_tensor(states, dtype=tf.float32)
         actions = tf.convert_to_tensor(actions, dtype=tf.float32)
         rewards = tf.convert_to_tensor(rewards, dtype=tf.float32)
         new_states = tf.convert_to_tensor(new_states, dtype=tf.float32)
-        probabilities = tf.convert_to_tensor(action_dist, dtype=tf.float32)
+        probabilities = tf.convert_to_tensor(action_dist, dtype=tf.float32)'''
 
         self.rollouts.append(self.Rollout(states, actions, rewards, new_states, action_dist))
         return states, actions, rewards, new_states, probabilities
@@ -229,11 +232,11 @@ class TRPO(PPO):
     def compute_loss(self, value_loss, clip_loss):
         return clip_loss + value_loss + self.c2 * self.entropy
 
-    def kl_divergence(self, states, new_states):
+    '''def kl_divergence(self, states, new_states):
         kl = tf.keras.losses.KLDivergence()
         d_pred = self.policy_model.predict(states)
         d_true = self.policy_model.predict(new_states)
-        return kl(new_states, states).numpy()
+        return kl(new_states, states).numpy()'''
 
     def optimize_loss(self, loss, optimizer, tape):
         grads = tape.gradient(loss, self.parameters)

@@ -65,18 +65,14 @@ class PPO(DeepQ):
         self.memory.append_frame(TransitionFrame(state, action, reward, new_state, done))
 
     def choose_action(self, state):
-        states = tf.convert_to_tensor(state)
-        #print("state shape: " + str(states))
-        #print("new state shape: " + str(new_states))
-        action,_ = self.policy_model(states)
-        #action = np.amax(probabilities)
+        probabilities = self.policy_model.predict([state, self.allMask])
+        action = np.mean(probabilities)
         return action
 
     def get_action(self, state):
-        states = tf.convert_to_tensor(state)
         #probabilities = self.policy_model.predict_proba(states, self.batch_size)
         #action_dist = Multinomial(1, probabilities)
-        _, probabilities = self.policy_model(states)
+        probabilities = self.policy_model.predict([state, self.allMask])
         return probabilities
 
     def remember(self, state, action, reward, new_state, done): 

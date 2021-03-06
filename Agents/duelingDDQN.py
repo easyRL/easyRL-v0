@@ -116,13 +116,7 @@ class DuelingDDQN(DeepQ):
         for i in range(self.action_size):
             self.distribution_list.append(Dense(self.num_atoms, activation='softmax')(x))
         return model
-
-    def sample(self):
-        return self.memory.sample(self.batch_size)
-
-    def addToMemory(self, state, action, reward, new_state, done):
-        self.memory.append_frame(TransitionFrame(state, action, reward, new_state, done))
-    
+        
     def predict(self, state, isTarget):
         pass
 
