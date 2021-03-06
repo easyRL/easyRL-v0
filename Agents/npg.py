@@ -20,8 +20,7 @@ class NPG(policyIteration.PolicyIteration):
     displayName = 'NPG'
     newParameters = [policyIteration.PolicyIteration.Parameter('Delta', 0, 0.05, 0.0001, 0.001, True, True, "The normalized step size for computing the learning rate.")]
     parameters = policyIteration.PolicyIteration.parameters + newParameters
-
-
+    
     def __init__(self, *args):
         """
         Constructor for Natural Policy Gradient agent.
@@ -33,13 +32,13 @@ class NPG(policyIteration.PolicyIteration):
         '''
         Define the policy.
         '''
-        # Create a deep learning approximator.
-        approx = approximator.DeepApproximator(self.state_size, self.action_size, [16])
+        # Create a deep learning approximator. MUST USE PYTORCH!
+        approx = approximator.DeepApproximator(self.state_size, self.action_size, [16], library = 'torch')
         # Create a categorical policy with a deep approximator for this agent.
         self._policy = policy.CategoricalPolicy(approx)
         
-        # Baseline approximator to approximate the value function.
-        self._value_fn = approximator.DeepApproximator(self.state_size, 1, [16])
+        # Baseline approximator to approximate the value function. MUST USE PYTORCH!
+        self._value_fn = approximator.DeepApproximator(self.state_size, 1, [16], library = 'torch')
         
     def choose_action(self, state: np.ndarray):
         """

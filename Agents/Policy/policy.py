@@ -122,9 +122,6 @@ class CategoricalPolicy(Policy):
         """
         # Approximate the value of each action, convert results to tensor.
         values = self._approximator(state)
-        # If the output was a numpy array then convert it to a tensor.
-        if (isinstance(values, np.ndarray)):
-            values = torch.from_numpy(values).float()
         # Use softmax to determine the probability from each value.
         probs = F.softmax(values, dim=-1)
         # Create a categorical policy distribution from the probabilities.
@@ -158,9 +155,6 @@ class CategoricalPolicy(Policy):
         values = []
         for state in states:
             approx_values = self._approximator(state)
-            # If the output was a numpy array then convert it to a tensor.
-            if (isinstance(values, np.ndarray)):
-                approx_values = torch.from_numpy(approx_values).float()
             values.append(approx_values)
         values = torch.stack(values)
         # Use softmax to determine the probability from each value.
@@ -193,9 +187,6 @@ class CategoricalPolicy(Policy):
         
         # Approximate the value of each action, convert results to tensor.
         values = self._approximator(state)
-        # If the output was a numpy array then convert it to a tensor.
-        if (isinstance(values, np.ndarray)):
-            values = torch.from_numpy(values).float()
         # Use softmax to determine the probability from each value.
         probs = F.softmax(values, dim=-1)
         # Create a categorical policy distribution from the probabilities.

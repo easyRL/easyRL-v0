@@ -101,7 +101,21 @@ class DeepApproximator(Approximator):
     Can use either keras or Pytorch to construct the sequential model.
     """
     # List of available machine learning libraries.
-    libraries = ['keras', 'torch']
+    libraries = ['torch']
+    '''
+    No longer allows the use of Keras as the library as it needs more
+    work to be implemented by policy.py and consequently an agent that use
+    Deep Approximator since __call__ will return different types of tensors.
+    
+    The methods that need to be tweaked in DeepApproximator to fully
+    support keras are __call__ (it needs to output a TensorFlow tensor),
+    update, and zero_grad.
+    
+    Comment back in when these are updated to support keras and policy.py
+    and any agent using DeepApproximator can use either libraries since the
+    tensors are different.
+    '''
+    #libraries = ['keras', 'torch']
     
     def __init__(self, state_size: tuple, action_size: int, hidden_sizes: Iterable = [], library: str = 'torch'):
         """
