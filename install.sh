@@ -42,7 +42,7 @@ sudo python3.7 -m pip install boto3
 sudo python3.7 -m pip install torch
 sudo python3.7 -m pip install --upgrade --force-reinstall pillow
 
-wget https://download.pytorch.org/libtorch/cpu/libtorch-shared-with-deps-1.8.0%2Bcpu.zip
+wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.0%2Bcpu.zip
 rm libtorch-shared-with-deps-1.8.0+cpu.zip
 cd easyRL-v0/Agents/Native
 cmake -DCMAKE_PREFIX_PATH=~/libtorch .
