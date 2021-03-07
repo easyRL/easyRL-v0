@@ -34,6 +34,7 @@ def index(request):
     files = os.listdir(os.path.join(settings.BASE_DIR, "static/easyRL_app/images"))
     index_dict['files'] = files
     form = forms.HyperParameterFormDeepQ()
+
     if request.method == "GET":
         index_dict['form'] = form
         return render(request, "easyRL_app/index.html", context=index_dict)
@@ -391,5 +392,20 @@ def debug_sessions(request):
     for key in request.session.keys():
         print("{}{}{}={}".format(apps.FORMAT_CYAN, key, apps.FORMAT_RESET, request.session[key]))
 
-
-
+def lambda_info(aws_access_key, aws_secret_key, aws_security_token, job_id, arguments):
+    lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
+    data = {
+        "accessKey": aws_access_key,
+        "secretKey": aws_secret_key,
+        "sessionToken": aws_security_token,
+        "jobID": job_id,
+        "task": apps.TASK_INFO,
+        "arguments": arguments,
+    }
+    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+    payload = response['Payload'].read()
+    print("{}lambda_info_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, payload))
+    if len(payload) != 0:
+        return "{}".format(payload)[2:-1]
+    else:
+        return ""
