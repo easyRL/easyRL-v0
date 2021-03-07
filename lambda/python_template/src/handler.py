@@ -106,7 +106,7 @@ envList = [
     {"name": "Venture", "index": "63", "type": "atari"},
     {"name": "Video Pinball", "index": "64", "type": "atari"},
     {"name": "Wizard of Wor", "index": "65", "type": "atari"},
-    {"name": "Yar's Revenge", "index": "66", "type": "atari"},
+    {"name": "Yars Revenge", "index": "66", "type": "atari"},
     {"name": "Zaxxon", "index": "67", "type": "atari"}
 ]
 envMap = {}
