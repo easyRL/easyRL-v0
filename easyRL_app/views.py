@@ -35,6 +35,13 @@ def index(request):
     index_dict['files'] = files
     form = forms.HyperParameterFormDeepQ()
 
+    info = lambda_info(request.session['aws_access_key'],
+        request.session['aws_secret_key'],
+        request.session['aws_security_token'],
+        request.session['job_id'],{})
+   
+    index_dict['info'] = add_file_to_info(info, files)
+
     if request.method == "GET":
         index_dict['form'] = form
         return render(request, "easyRL_app/index.html", context=index_dict)
@@ -43,6 +50,7 @@ def index(request):
         form = forms.HyperParameterFormDeepQ(request.POST)
         if form.is_valid():
             index_dict['form'] = form
+            
         return render(request, "easyRL_app/index.html", context=index_dict)
 
 def login(request):
@@ -406,8 +414,25 @@ def lambda_info(aws_access_key, aws_secret_key, aws_security_token, job_id, argu
     }
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
     payload = response['Payload'].read()
-    print("{}lambda_info_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, payload))
+    print("{}lambda_info_job{}={}".format(apps.FORMAT_GREEN, apps.FORMAT_RESET, payload))
     if len(payload) != 0:
         return "{}".format(payload)[2:-1]
     else:
         return ""
+
+def add_file_to_info(payload, files):
+    result = json.loads(payload)
+    for val in result['environments']:
+        for file in files:
+            if val['name'] == 'Cart Pole':
+                val['file'] = 'Cart Pole.jpg'
+                continue
+        
+            if val['name'].replace('.','').replace(' ', '').lower() in file.replace('_','').replace(' ','').lower():
+                val['file'] = file
+                break
+    print(result)
+    return result
+    
+  
+    
