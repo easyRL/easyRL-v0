@@ -27,8 +27,8 @@ session = boto3.session.Session()
 def index(request):
     # send the user back to the login form if the user did not sign in or session expired
     debug_sessions(request)
-    # if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
-    #     return HttpResponseRedirect("/easyRL_app/login/")
+    if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
+         return HttpResponseRedirect("/easyRL_app/login/")
 
     index_dict = {}
     files = os.listdir(os.path.join(settings.BASE_DIR, "static/easyRL_app/images"))
