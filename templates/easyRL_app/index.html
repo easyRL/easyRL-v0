@@ -156,14 +156,14 @@
       <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="hp" role="tabpanel" aria-labelledby="hp-tab-0">
           <div class="image-container">
-            <img id="training_image" src=""/>
+            <img id="training_image" src="" style="width: 75%; display:block; margin-left: auto; margin-right: auto;"/>
             <div id="training_graph" style="width: 900px; height: 500px" class="float-start"></div>
           </div>        
       </div>
     </div>  
     </div> 
     <div class="col">
-      <form method="post" style="margin-top: 15px;" >{% csrf_token %}
+      <form method="post" style="margin-top: 15px; min-width: 550px;" >{% csrf_token %}
         <div id="form-div" class="container-fluid"></div>
       </form> 
     </div>        
