@@ -36,6 +36,9 @@ agentList = [
     {"name": "ADRQN", "index": "4", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
     {"name": "SARSA", "index": "5", "supportedEnvs": ["singleDimDescrete"]}
 ]
+agentMap = {}
+for aa in agentList:
+    agentMap[aa['index']] = aa
 
 envList = [
     {"name": "Cart Pole", "index": "1", "type": "singleDim"},
@@ -106,6 +109,9 @@ envList = [
     {"name": "Yar's Revenge", "index": "66", "type": "atari"},
     {"name": "Zaxxon", "index": "67", "type": "atari"}
 ]
+envMap = {}
+for ev in envList:
+    envMap[ev['index']] = ev
 
 paramConditions = {
     "episodes": {
@@ -449,6 +455,11 @@ def yourFunction(request, context):
                     missingAttributes = []
                     outOfRange = []
                     valid = True
+                    envIndex = str(arguments['environment'])
+                    agentIndex = str(arguments['agent'])
+                    if envMap[envIndex]['type'] not in agentMap[agentIndex]['supportedEnvs']:
+                        inspector.addAttribute("error", "Incompatible agent/environment pair!")
+                        return inspector.finish()
                     for pp in paraMap[str(arguments['agent'])]:
                         pp = str(pp)
                         if pp not in arguments:
@@ -548,6 +559,11 @@ def yourFunction(request, context):
                     missingAttributes = []
                     outOfRange = []
                     valid = True
+                    envIndex = str(arguments['environment'])
+                    agentIndex = str(arguments['agent'])
+                    if envMap[envIndex]['type'] not in agentMap[agentIndex]['supportedEnvs']:
+                        inspector.addAttribute("error", "Incompatible agent/environment pair!")
+                        return inspector.finish()
                     for pp in paraMap[str(arguments['agent'])]:
                         pp = str(pp)
                         if pp not in arguments:
