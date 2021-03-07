@@ -29,50 +29,161 @@ paraMap = {
     '5': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
 }
 
+agentList = [
+    {"name": "Deep Q", "index": "1", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
+    {"name": "Q Learning", "index": "2", "supportedEnvs": ["singleDimDescrete"]},
+    {"name": "DRQN", "index": "3", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "ADRQN", "index": "4", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "SARSA", "index": "5", "supportedEnvs": ["singleDimDescrete"]}
+]
+
+envList = [
+    {"name": "Cart Pole", "index": "1", "type": "singleDim"},
+    {"name": "Cart Pole Discrete", "index": "2", "type": "singleDimDescrete"},
+    {"name": "Frozen Lake", "index": "3", "type": "singleDimDescrete"},
+    {"name": "Pendulum", "index": "4", "type": "singleDim"},
+    {"name": "Acrobot", "index": "5", "type": "singleDim"},
+    {"name": "Mountain Car", "index": "6", "type": "singleDim"},
+    {"name": "Adventure", "index": "7", "type": "atari"},
+    {"name": "Air Raid", "index": "8", "type": "atari"},
+    {"name": "Alien", "index": "9", "type": "atari"},
+    {"name": "Amidar", "index": "10", "type": "atari"},
+    {"name": "Assault", "index": "11", "type": "atari"},
+    {"name": "Asterix", "index": "12", "type": "atari"},
+    {"name": "Asteroids", "index": "13", "type": "atari"},
+    {"name": "Atlantis", "index": "14", "type": "atari"},
+    {"name": "Bank Heist", "index": "15", "type": "atari"},
+    {"name": "Battle Zone", "index": "16", "type": "atari"},
+    {"name": "Beam Rider", "index": "17", "type": "atari"},
+    {"name": "Berzerk", "index": "18", "type": "atari"},
+    {"name": "Bowling", "index": "19", "type": "atari"},
+    {"name": "Boxing", "index": "20", "type": "atari"},
+    {"name": "Breakout", "index": "21", "type": "atari"},
+    {"name": "Carnival", "index": "22", "type": "atari"},
+    {"name": "Centipede", "index": "23", "type": "atari"},
+    {"name": "Chopper Command", "index": "24", "type": "atari"},
+    {"name": "Crazy Climber", "index": "25", "type": "atari"},
+    {"name": "Demon Attack", "index": "26", "type": "atari"},
+    {"name": "Double Dunk", "index": "27", "type": "atari"},
+    {"name": "Elevator Action", "index": "28", "type": "atari"},
+    {"name": "Enduro", "index": "29", "type": "atari"},
+    {"name": "Fishing Derby", "index": "30", "type": "atari"},
+    {"name": "Freeway", "index": "31", "type": "atari"},
+    {"name": "Frostbite", "index": "32", "type": "atari"},
+    {"name": "Gopher", "index": "33", "type": "atari"},
+    {"name": "Gravitar", "index": "34", "type": "atari"},
+    {"name": "Hero", "index": "35", "type": "atari"},
+    {"name": "Ice Hockey", "index": "36", "type": "atari"},
+    {"name": "Jamesbond", "index": "37", "type": "atari"},
+    {"name": "Journey Escape", "index": "38", "type": "atari"},
+    {"name": "Kangaroo", "index": "39", "type": "atari"},
+    {"name": "Krull", "index": "40", "type": "atari"},
+    {"name": "Kung Fu Master", "index": "41", "type": "atari"},
+    {"name": "Montezuma Revenge", "index": "42", "type": "atari"},
+    {"name": "Ms. Pacman", "index": "43", "type": "atari"},
+    {"name": "Name this Game", "index": "44", "type": "atari"},
+    {"name": "Phoenix", "index": "45", "type": "atari"},
+    {"name": "Pitfall", "index": "46", "type": "atari"},
+    {"name": "Pong", "index": "47", "type": "atari"},
+    {"name": "Pooyan", "index": "48", "type": "atari"},
+    {"name": "Private Eye", "index": "49", "type": "atari"},
+    {"name": "QBert", "index": "50", "type": "atari"},
+    {"name": "River Raid", "index": "51", "type": "atari"},
+    {"name": "Road Runner", "index": "52", "type": "atari"},
+    {"name": "RoboTank", "index": "53", "type": "atari"},
+    {"name": "SeaQuest", "index": "54", "type": "atari"},
+    {"name": "Skiing", "index": "55", "type": "atari"},
+    {"name": "Solaris", "index": "56", "type": "atari"},
+    {"name": "Space Invaders", "index": "57", "type": "atari"},
+    {"name": "Star Gunner", "index": "58", "type": "atari"},
+    {"name": "Tennis", "index": "59", "type": "atari"},
+    {"name": "Time Pilot", "index": "60", "type": "atari"},
+    {"name": "Tutankham", "index": "61", "type": "atari"},
+    {"name": "Up N Down", "index": "62", "type": "atari"},
+    {"name": "Venture", "index": "63", "type": "atari"},
+    {"name": "Video Pinball", "index": "64", "type": "atari"},
+    {"name": "Wizard of Wor", "index": "65", "type": "atari"},
+    {"name": "Yar's Revenge", "index": "66", "type": "atari"},
+    {"name": "Zaxxon", "index": "67", "type": "atari"}
+]
+
 paramConditions = {
     "episodes": {
+        "name": "Number of Episodes",
         "min": 1,
-        "max": 1000000000
+        "max": 1000000000,
+        "default": 1000,
+        "showSlider": False
     },
     "steps": {
+        "name": "Max Size",
         "min": 1,
-        "max": 1000000000
+        "max": 1000000000,
+        "default": 200,
+        "showSlider": False
     },
     "gamma": {
+        "name": "Gamma",
         "min": 0,
-        "max": 1
+        "max": 1,
+        "default": 0.97,
+        "showSlider": True
     },
     "minEpsilon": {
+        "name": "Min Epsilon",
         "min": 0,
-        "max": 1
+        "max": 1,
+        "default": 0.1,
+        "showSlider": True
     },
     "maxEpsilon": {
+        "name": "Max Epsilon",
         "min": 0,
-        "max": 1
+        "max": 1,
+        "default": 1,
+        "showSlider": True
     },
     "decayRate": {
+        "name": "Decay Rate",
         "min": 0,
-        "max": 0.2
+        "max": 0.2,
+        "default": 0.018,
+        "showSlider": True
     },
     "batchSize": {
+        "name": "Batch Size",
         "min": 0,
-        "max": 256
+        "max": 256,
+        "default": 32,
+        "showSlider": True
     },
     "memorySize": {
+        "name": "Memory Size",
         "min": 0,
-        "max": 655360
+        "max": 655360,
+        "default": 1000,
+        "showSlider": False
     },
     "targetInterval": {
+        "name": "Target Update Interval",
         "min": 0,
-        "max": 100000
+        "max": 100000,
+        "default": 200,
+        "showSlider": False
     },
     "historyLength": {
+        "name": "History Length",
         "min": 0,
-        "max": 20
+        "max": 20,
+        "default": 10,
+        "showSlider": True
     },
     "alpha": {
+        "name": "Alpha",
         "min": 0,
-        "max": 1
+        "max": 1,
+        "default": 0.18,
+        "showSlider": True
     }
 }
 
@@ -219,7 +330,7 @@ def yourFunction(request, context):
                 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
                     "cat easyRL-v0/lambda/version_check1.txt")
                 instanceData = ssh_stdout.readlines()
-                # Has the tag? If not update
+                # Has the version check? If not update
                 if (instanceData == []):
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
                         "mv easyRL-v0/ OLD" + str(random.randint(1,10000000)) + "/")
@@ -600,5 +711,16 @@ def yourFunction(request, context):
 
         ourInstance = findOurInstance(ec2Client, jobID, inspector)
         terminateInstance(ec2Client, ec2Resource, ourInstance, inspector)
+
+    if (task == "info"):
+        inspector.addAttribute("environments", envList)
+        inspector.addAttribute("parameters", paramConditions)
+
+        combinedAgents = []
+        for agent in agentList:
+            agent['parameters'] = paraMap[agent['index']]
+            combinedAgents.append(agent)
+
+        inspector.addAttribute("agents", combinedAgents)
 
     return inspector.finish()
