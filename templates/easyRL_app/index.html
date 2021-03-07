@@ -136,13 +136,7 @@
           <option value="3">c4.2xlarge</option>
           <option value="4">c4.4xlarge</option>
           <option value="5">c4.8xlarge</option>
-        </optgroup>
-        <optgroup label="Kubeflow">
-          <option value="6">...</option>
-          <option value="7">...</option>
-          <option value="8">...</option>
-          <option value="9">...</option>    
-        </optgroup>                           
+        </optgroup>                     
       </select> 
     </div> 
     <br/>
@@ -256,21 +250,30 @@
   function draw_graph(episodes) {
   var length = episodes.length;
   var array = [];
-  array.push(['Episode', 'Average Loss']);
+  array.push(['Episode', 'Average Loss', 'Average Epsilon', 'Total Reward']);
   
   for (var index = 0; index < length; index++){
     array.push([
       episodes[index]["episode"],
-      episodes[index]["avgLoss"]
+      episodes[index]["avgLoss"],
+      episodes[index]["avgEpsilon"],
+      episodes[index]["totalReward"],
     ]);
   }
   
   var data = google.visualization.arrayToDataTable(array);
   var options =
   {
-    title: 'Training Average Losses',
+    title: 'Training Results',
     curveType: 'function',
-    legend: { position: 'bottom' }
+    legend: { position: 'bottom' },
+    vAxes: { 0: {logScale: false},
+        1: {logScale: false, maxValue: 1}},
+    series: {
+      0:{targetAxisIndex:1},
+      1:{targetAxisIndex:1},
+      2:{targetAxisIndex:0}
+    }
   };
       var chart = new google.visualization.LineChart(document.getElementById('training_graph'));
       chart.draw(data, options);
