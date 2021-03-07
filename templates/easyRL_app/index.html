@@ -143,30 +143,13 @@
   </div>                                          
   <br/>  
   <div class="row">
-    <!-- Tabs -->   
-    <div class="col">
-      <ul class="nav nav-tabs" id="myTab" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="hp-tab-0" data-bs-toggle="tab" data-bs-target="#hp" type="button" role="tab" aria-controls="hp" aria-selected="true">Tab<i class="bi-dash-circle-fill"  style="color: red"></i></button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="add-model-tab" type="button" >Add <i class="bi-plus-circle-fill" style="color: #0b5ed7"></i></button>
-          </li>
-      </ul>
-      <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" id="hp" role="tabpanel" aria-labelledby="hp-tab-0">
-          <div class="image-container">
-            <img id="training_image" src="" style="width: 75%; display:block; margin-left: auto; margin-right: auto;"/>
-            <div id="training_graph" style="width: 900px; height: 500px" class="float-start"></div>
-          </div>        
-      </div>
-    </div>  
-    </div> 
-    <div class="col">
-      <form method="post" style="margin-top: 15px; min-width: 550px;" >{% csrf_token %}
-        <div id="form-div" class="container-fluid"></div>
-      </form> 
+    <div class="image-container">
+      <img id="training_image" src="" style="width: 75%; display:block; margin-left: auto; margin-right: auto;"/>
+      <div id="training_graph" style="width: 900px; height: 500px" class="float-start"></div>
     </div>        
+    <form method="post" style="margin-top: 15px; min-width: 550px;" >{% csrf_token %}
+      <div id="form-div" class="container-fluid"></div>
+    </form>       
   </div>
   </br>
   </br>
@@ -222,11 +205,13 @@
       doPoll();
     }, 5000)  
   });
+
   $('#env-input').on('input', function() {
     var text = $(this).val();
     var index = carouselIndex(text);
     $('#carouselExampleControlsNoTouching').carousel(index)
   });
+
   $('#btn-con-train').change(function(){
     if ($('#btn-con-train').is(":checked")){
       $("#btn-halt").attr("disabled", "true");
@@ -384,19 +369,6 @@
     $.post('/easyRL_app/halt/', data, function(result, status, jqxhr) {
         // do something
     })
-  });
-
-  $('#add-model-tab').click(function(e) {
-      var nextTab = $('#myTab li').length+1;    
-        // create the tab
-        $("#myTab li:nth-child(2)").before($('<li class="nav-item" role="presentation"><button class="nav-link" id="hp-tab'+nextTab+'" data-bs-toggle="tab" data-bs-target="#hp'+nextTab+'" type="button" role="tab" aria-controls="hp'+nextTab+'" aria-selected="false">'+$("#file-name").text()+' <i class="bi-dash-circle-fill"  style="color: red"></i></button></li>'));
-        // create the tab content
-        $('<div class="tab-pane fade" id="hp'+nextTab+'" role="tabpanel" aria-labelledby="hp-tab'+nextTab+'">'+form+'</div>').appendTo('.tab-content');;
-        // make the new tab active
-        $('#myTab').on('click', function (e) {
-          e.preventDefault()
-          $(this).tab('show')
-      });
   });
 
   $('#set-environment').click(function() {

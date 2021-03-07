@@ -372,11 +372,13 @@ def lambda_test_job(aws_access_key, aws_secret_key, aws_security_token, job_id, 
         return "{}".format(payload)[2:-1]
     else:
         return ""
+
 def get_safe_value_bool(str):
     if str == 'True':
         return True
     else:
         return False
+
 def get_safe_value(convert_function, input_value, default_value):
     try:
         return convert_function(input_value)
