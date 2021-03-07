@@ -4,7 +4,7 @@
 <div class="container-fluid " style="padding: 0px">
   <div class="row">
     <div class="card text-center">
-      <div class="card-header fixed-top" style="margin-bottom: 100px;">
+      <div class="card-header fixed-top" style="margin-bottom: 100px; z-index:100; background-color: #fff">
         <ul class="nav nav-pills card-header-pills" >
           <li class="nav-item">
             <input type="checkbox" class="btn-check" id="btn-con-train"  autocomplete="off" aria-checked checked >
@@ -136,13 +136,7 @@
           <option value="3">c4.2xlarge</option>
           <option value="4">c4.4xlarge</option>
           <option value="5">c4.8xlarge</option>
-        </optgroup>
-        <optgroup label="Kubeflow">
-          <option value="6">...</option>
-          <option value="7">...</option>
-          <option value="8">...</option>
-          <option value="9">...</option>    
-        </optgroup>                           
+        </optgroup>                     
       </select> 
     </div> 
     <br/>
@@ -162,14 +156,14 @@
       <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="hp" role="tabpanel" aria-labelledby="hp-tab-0">
           <div class="image-container">
-            <img id="training_image" src=""/>
+            <img id="training_image" src="" style="width: 75%; display:block; margin-left: auto; margin-right: auto;"/>
             <div id="training_graph" style="width: 900px; height: 500px" class="float-start"></div>
           </div>        
       </div>
     </div>  
     </div> 
     <div class="col">
-      <form method="post" style="margin-top: 15px;" >{% csrf_token %}
+      <form method="post" style="margin-top: 15px; min-width: 550px;" >{% csrf_token %}
         <div id="form-div" class="container-fluid"></div>
       </form> 
     </div>        
@@ -256,21 +250,30 @@
   function draw_graph(episodes) {
   var length = episodes.length;
   var array = [];
-  array.push(['Episode', 'Average Loss']);
+  array.push(['Episode', 'Average Loss', 'Average Epsilon', 'Total Reward']);
   
   for (var index = 0; index < length; index++){
     array.push([
       episodes[index]["episode"],
-      episodes[index]["avgLoss"]
+      episodes[index]["avgLoss"],
+      episodes[index]["avgEpsilon"],
+      episodes[index]["totalReward"],
     ]);
   }
   
   var data = google.visualization.arrayToDataTable(array);
   var options =
   {
-    title: 'Training Average Losses',
+    title: 'Training Results',
     curveType: 'function',
-    legend: { position: 'bottom' }
+    legend: { position: 'bottom' },
+    vAxes: { 0: {logScale: false},
+        1: {logScale: false, maxValue: 1}},
+    series: {
+      0:{targetAxisIndex:1},
+      1:{targetAxisIndex:1},
+      2:{targetAxisIndex:0}
+    }
   };
       var chart = new google.visualization.LineChart(document.getElementById('training_graph'));
       chart.draw(data, options);
