@@ -29,27 +29,28 @@ class Rainbow(DeepQ):
         Qparams = []
         for i in range(3):
             Qparams.append(DeepQ.newParameters[i].default)
-        self.batch_size, self.memory_size, self.target_update_interval = [int(param) for param in Qparams]
+        '''self.batch_size, self.memory_size, self.target_update_interval = [int(param) for param in Qparams]
         #self.batch_size, self.memory_size, self.target_update_interval, _ = [int(arg) for arg in args[-paramLen:]]
         _, _, _, self.learning_rate = [arg for arg in args[-paramLen:]]
         empty_state = self.get_empty_state()
         self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
-        self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
-
+        self.allBatchMask = np.full((self.batch_size, self.action_size), 1)'''
+        self.total_steps = 0
         self.model = self.buildQNetwork()
         self.target = self.buildQNetwork()
         self.lr = 0.001
 
         # Parameters used for Bellman Distribution
-        self.distribution_list = []
         self.num_atoms = 51
         self.v_min = -10
         self.v_max = 10
         self.delta_z = (self.v_max - self.v_min) / float(self.num_atoms -1)
         self.z = [self.v_min + i * self.delta_z for i in range(self.num_atoms)]
-        self.atomMask = np.full((self.num_atoms, self.action_size), 1)
+        self.sample_size = min(self.batch_size, self.memory_size)
+        #self.atomMask = np.full((self.num_atoms, self.action_size), 1)
+        #self.sample_size = min(self.batch_size * self.epoch, self.memory_size)
 
     def sample(self):
         return self.memory.sample(self.batch_size)
@@ -67,46 +68,47 @@ class Rainbow(DeepQ):
 
     def sample_trajectories(self):
         mini_batch = self.sample()
-        allStates = []
+        allStates = np.zeros(((self.sample_size, ) + self.state_size))
+        allNextStates = np.zeros(((self.sample_size, ) + self.state_size))
         allActions = []
         allRewards = []
-        allNextStates = []
         allDones = []
-        frames = 0
-        for _, transition in enumerate(mini_batch):
-            frames += 1
+        for index, transition in enumerate(mini_batch):
             states, actions, rewards, next_states, dones = transition
-            allStates.append(states)
+            allStates[index, :] = states
             allActions.append(actions)
             allRewards.append(rewards)
-            allNextStates.append(next_states)
+            allNextStates[index,] = next_states
             allDones.append(dones)
         return allStates, allActions, allRewards, allNextStates, allDones
 
     def choose_action(self, state):
         shape = (1,) + self.state_size
         state = np.reshape(state, shape)
-        z = self.model.predict([state, self.allMask])
+        z = self.model.predict([state])
         z_concat = np.vstack(z)
         q_value = np.sum(np.multiply(z_concat, np.array(self.z)), axis=1)
         action = np.argmax(q_value)
         return action
         
     def compute_loss(self):
-        allStates, allActions, allRewards, allNextStates, allDones = self.sample_trajectories()
-        allMask = np.full((len(allNextStates[0]), self.action_size), 1)
-        best_actions = [] 
-        probs = [np.zeros((self.state_size[0], self.num_atoms)) for i in range(self.action_size)]
+        import tensorflow as tf
 
-        z = self.model.predict([allNextStates, self.allBatchMask])
-        z_ = self.target.predict([allNextStates, self.allBatchMask])
+        allStates, allActions, allRewards, allNextStates, allDones = self.sample_trajectories()
+        best_actions = [] 
+        probs = [np.zeros((self.sample_size, self.num_atoms)) for i in range(self.action_size)]
+
+        z = self.model.predict(allNextStates)
+        z_ = self.target.predict(allNextStates)
         best_actions = []
         z_concat = np.vstack(z)
-        q_value = np.sum(np.multiply(z_concat, np.array(self.z)))
-        q_value = q_value.reshape((self.batch_size, self.action_size), order='F')
+       # x = np.expand_dims(np.array(z_concat), axis=self.num_atoms)
+       # x = np.expand_dims(np.array(self.z), axis=self.state_size[0])
+        q_value = np.sum(np.multiply(z_concat, np.array(self.z)), axis=1)
+        q_value = q_value.reshape((self.sample_size, self.action_size), order='F')
         best_actions = np.argmax(q_value, axis=1)
 
-        for i in range(self.batch_size):
+        for i in range(self.sample_size):
             if allDones[i]:
                 # Compute target distribution
                 Tz = min(self.v_max, max(self.v_min, allRewards[i]))
@@ -123,8 +125,16 @@ class Rainbow(DeepQ):
                     probs[allActions[i]][i][int(m_u)] += z_[best_actions[i]][i][j] * (bj - m_l)
 
         # Computes KL loss from predicted and target distribution
-        loss = self.model.fit(allStates, probs, batch_size = self.batch_size, epochs = 1, verbose = 0)
-        return loss
+        loss = self.model.fit(allStates, probs, batch_size = self.sample_size, epochs = 1, verbose = 0)
+        '''mini = 100000
+        for loss in range(len(loss.history['loss'])):
+            if mini > loss: 
+                mini = loss '''
+        losses = []
+        for l in range(len(loss.history['loss'])):
+            losses.append(l)
+        #print(loss.history['loss'])
+        return np.mean(np.array(losses))
 
     def updateTarget(self):
         if self.total_steps >= 2*self.batch_size and self.total_steps % self.target_update_interval == 0:
@@ -138,19 +148,15 @@ class Rainbow(DeepQ):
         from tensorflow.keras.models import Model
         from tensorflow.keras.layers import Dense, Input, Flatten, multiply
 
-        inputA = Input(shape=self.state_size)
-        inputB = Input(shape=(self.action_size,))
-        x = Flatten()(inputA)
-        x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
-        x = Dense(24, activation='relu')(x)
-        x = Dense(self.action_size, activation='softmax')(x)
-        outputs = multiply([x, inputB])
-        model = Model(inputs=[inputA, inputB], outputs=outputs)
-        kl = tf.keras.losses.KLDivergence()
-        model.compile(loss=kl, optimizer=Adam(lr=0.001))
-        self.distribution_list = []
-        #for i in range(self.action_size):
-        #    self.distribution_list.append(Dense(self.num_atoms, activation='softmax')(x))
+        inputs = Input(shape=self.state_size)
+        #inputs = Flatten()(inputs)
+        h1 = Dense(64, activation='relu')(inputs)
+        h2 = Dense(64, activation='relu')(h1)
+        outputs = []
+        for _ in range(self.action_size):
+            outputs.append(Dense(51, activation='softmax')(h2))
+        model = Model(inputs=inputs, outputs=outputs)
+        model.compile(loss='mse', optimizer=Adam(lr=0.0000625, epsilon=1.5 * 1e-4))
         return model
 
     def save(self, filename):
