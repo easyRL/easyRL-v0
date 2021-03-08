@@ -309,6 +309,8 @@ def yourFunction(request, context):
         aws_session_token=sessionToken,
         region_name='us-east-1'
     )
+    inspector.addAttribute("instanceStateText", "Loading...")
+
     if (task == "poll"):
         ec2Client = botoSession.client('ec2')
         ec2Resource = botoSession.resource('ec2')
