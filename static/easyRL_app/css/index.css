@@ -15,14 +15,20 @@
     border-color: #b7a57a ;
 }
 
-
-
 [contenteditable] {
     border: solid 1px lightgreen;
     padding: 5px;
     border-radius: 3px;
 }
   .carousel-item img{
-      height: 1000px;
+      width: 200px;
+      height: 300px;
       object-fit: cover;
   }
+
+  .image-container img {
+    width: 200px;
+    height: 300px;
+    object-fit: cover;
+  }
+

@@ -43,118 +43,112 @@
         Instance State: Loading...
         </div>
       </div>
+        <!-- Drop downs -->
+      <div class="row justify-content-center " id="select-containers" style="margin: 100px 20px 20px 20px;">
+        <div class="col-md-3">
+          <select id="env-select" class="form-select" size="4">
+            <!-- <option>--Set Environment--</option> -->
+            {% for file in info.environments %}
+            {% if file.index == "1" %}
+            <option value='{{ file.index }}' selected> {{ file.name}}</option>
+            {% else %}
+            <option value='{{ file.index }}'> {{ file.name}}</option>
+            {% endif %}
+            {% endfor %}
 
-      <div class="top-row" style="margin: 0px; padding: 0px; width: 100%">
-        <!-- Carousel -->
-        <div class="card-body" style="margin-top: 50px; width: 20% !important">
-
-          <div class="row justify-content-center" style="margin-top:10px !important">
-            <div id="carouselExampleControlsNoTouching" class="carousel mbr-slider slide col-md-3" data-bs-touch="false"
-              data-bs-interval="false">
-              <div class="carousel-inner">
-                {% for env in info.environments %}
-                {% if env.file == 'Cart Pole.jpg' %}
-                <div class="carousel-item active">
-                  <div class="d-flex justify-content-center w-100 h-100">
-                    <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}"
-                      data-index={{env.index}} alt="...">
-                  </div>
-                </div>
-                {% else %}
-                <div class="carousel-item">
-                  <div class="d-flex justify-content-center w-100 h-100">
-                    <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}"
-                      data-index={{env.index}} alt="...">
-                  </div>
-                </div>
-                {% endif %}
-                {% endfor %}
-              </div>
-              <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsNoTouching"
-                data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-              </button>
-              <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsNoTouching"
-                data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-              </button>
-            </div>
-          </div>
-          <br />
-          <label id="file-name"></label>
-          <br />
-
-          
-
+          </select>
         </div>
-
-        <div class="row">
-          <div class="image-container">
-            <img id="training_image" src="../static/easyRL_app/assets/iu.gif" style="width: 33%;" />
-            <div id="training_graph" style="width: 33%; height: 100%" class="float-start"></div>
-          </div>
+        <div class="col-md-3">
+          <select class="form-select" id="agent-select" size="4" aria-label="Default select example">
+            <!-- <option value="0">--Select Agent--</option> -->
+            {% for agent in info.agents %}
+            {% if agent.index == "3" %}
+            <option value='{{ agent.index }}' selected > {{ agent.name}}</option>
+            {% else %}
+            <option value='{{ agent.index }}'> {{ agent.name}}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
         </div>
+        <div class="col-md-3">
+          <select id="buffer-select" class="form-select" size="4" aria-label="Default select example">
+            <option value="0" selected>None</option>
+            <option value="1">Hindsight Replay Buffer</option>
+            <option value="0">Prioritize Replay Buffer</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select id="host-select" class="form-select" size="4" aria-label="Default select example">
+            <!-- <option value="0">--Select Host Environment--</option> -->
+            <option value="1">c4.large</option>
+            <option value="2" selected>c4.xlarge</option>
+            <option value="3">c4.2xlarge</option>
+            <option value="4">c4.4xlarge</option>
+            <option value="5">c4.8xlarge</option>
+          </select>
+        </div>
+        <br />
       </div>
+     
+        <div class="card-body row">
+        <div id="carouselExampleControlsNoTouching" class="carousel mbr-slider slide col-md-3" data-bs-touch="false"
+          data-bs-interval="false">
+          <div class="carousel-inner">
+            {% for env in info.environments %}
+            {% if env.file == 'Cart Pole.jpg' %}
+            <div class="carousel-item active">
+              <div class="d-flex justify-content-center w-100 h-100">
+                <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}"
+                  data-index={{env.index}} alt="...">
+              </div>
+            </div>
+            {% else %}
+            <div class="carousel-item">
+              <div class="d-flex justify-content-center w-100 h-100">
+                <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}"
+                  data-index={{env.index}} alt="...">
+              </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsNoTouching"
+            data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsNoTouching"
+            data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+          <label id="file-name"></label>
+        </div>
+        <div class="image-container col-md-3">
+          <img id="training_image" src="../static/easyRL_app/assets/iu.gif" />
+        </div>
+        <div class="graph-container col-md-6">
+          <div id="training_graph" style="width: 100%; height: 400px;"></div>
+        </div>
+      </div>          
+      
     </div>
   </div>
   <br />
-  <!-- Drop downs -->
-  <div class="row justify-content-center " id="select-containers" style="margin-left: 20px; margin-right: 0px">
-    <div class="col-md-3">
-      <select id="env-select" class="form-select" size="4">
-        <!-- <option>--Set Environment--</option> -->
-        {% for file in info.environments %}
-        {% if file.index == "1" %}
-        <option value='{{ file.index }}' selected> {{ file.name}}</option>
-        {% else %}
-        <option value='{{ file.index }}'> {{ file.name}}</option>
-        {% endif %}
-        {% endfor %}
-
-      </select>
-    </div>
-    <div class="col-md-3">
-      <select class="form-select" id="agent-select" size="4" aria-label="Default select example">
-        <!-- <option value="0">--Select Agent--</option> -->
-        {% for agent in info.agents %}
-        {% if agent.index == "3" %}
-        <option value='{{ agent.index }}' selected > {{ agent.name}}</option>
-        {% else %}
-        <option value='{{ agent.index }}'> {{ agent.name}}</option>
-        {% endif %}
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-md-3">
-      <select id="buffer-select" class="form-select" size="4" aria-label="Default select example">
-        <option value="0" selected>None</option>
-        <option value="1">Hindsight Replay Buffer</option>
-        <option value="0">Prioritize Replay Buffer</option>
-      </select>
-    </div>
-    <div class="col-md-3">
-      <select id="host-select" class="form-select" size="4" aria-label="Default select example">
-        <!-- <option value="0">--Select Host Environment--</option> -->
-        <option value="1">c4.large</option>
-        <option value="2" selected>c4.xlarge</option>
-        <option value="3">c4.2xlarge</option>
-        <option value="4">c4.4xlarge</option>
-        <option value="5">c4.8xlarge</option>
-      </select>
-    </div>
-    <br />
-  </div>
   <br />
   <div class="row">
-    <form method="post" style="margin-top: 15px; min-width: 550px;">{% csrf_token %}
-      <div id="form-div" class="container-fluid">
+    <div class="card">
+      <div class="card-header"><span><i class="bi bi-sliders" style="font-size:  1.5em; color: cornflowerblue; vertical-align: top;"></i></span> <h2 style="display: inline-block; vertical-align: middle;">Hyper-Parameters</h2> </div>
+        <div class="card-body">
+        <form method="post" style="margin-top: 15px; min-width: 550px;">{% csrf_token %}
+          <div id="form-div" class="container-fluid">
+          </div>
+            <input type="hidden" id="env-hidden" class="form-control">
+            <input type="hidden" id="agent-hidden" class="form-control">
+          </div>
+        </form>
       </div>
-        <input type="hidden" id="env-hidden" class="form-control">
-        <input type="hidden" id="agent-hidden" class="form-control">
-      </div>
-    </form>
+    </div>
   </div>
   </br>
   </br>
@@ -274,6 +268,7 @@
 
 
     var fieldNameElement = document.getElementById('instance-state');
+    
     if (fieldNameElement) {
       fieldNameElement.innerHTML = "Instance State: " + stateText;
     }
@@ -394,9 +389,12 @@
 
         console.log(parameterData)
 
+        if ((i) % 4 === 0){
+          html += '<div class="row" style="margin-top: 20px;">'
+        }
         if (parameterData.showSlider) {
           html +=
-          '<div class="slider-container col">'+
+          '<div class="slider-container col-md-3">'+
             '<label>' + parameterData.name + '</label>'+
             '<div class=""><input type="range" id="' + parameter + '-slider" class="form-range" name="' + parameter + '-slider" min="' + parameterData.min + '" max="' + parameterData.max + '"'+
               'step="' + parameterData.stepSize + '" value="' + parameterData.default + '"></div>'+
@@ -405,11 +403,12 @@
                 '</div>'
         } else {
           html +=
-          '<div class="col">'+
+          '<div class="col-md-3">'+
             '<label>' + parameterData.name + '</label>'+
             '<div class="col-md-12"><input type="text" id="' + parameter + '-text" value="' + parameterData.default + '" class="form-control" value=""></div>'+
             '</div>'
         }
+
       }
       console.log(myAgent)
       $( "#form-div" ).html(html);
