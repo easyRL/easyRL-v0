@@ -159,6 +159,20 @@ def poll(request):
     ))
 
 @csrf_exempt
+def info(request):
+    debug_sessions(request)
+    if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
+        return HttpResponse(apps.ERROR_UNAUTHENTICATED)
+    print("{}request_parameters{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, debug_parameters(request)))
+    return HttpResponse(lambda_info(
+        request.session['aws_access_key'],
+        request.session['aws_secret_key'],
+        request.session['aws_security_token'],
+        request.session['job_id'],
+        {}                
+    ))
+
+@csrf_exempt
 def import_model(request):
     return HttpResponse({"data": "pass"})
 
