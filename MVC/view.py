@@ -34,7 +34,7 @@ about = """
 
 
 class View:
-    agents = [deepQ.DeepQ, deepQ.DeepQPrioritized, qLearning.QLearning, drqn.DRQN, drqn.DRQNPrioritized, adrqn.ADRQN, adrqn.ADRQNPrioritized, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, drqnConvNative.DRQNConvNative, ppoNative.PPONative, reinforceNative.ReinforceNative, actorCriticNative.ActorCriticNative, sarsa, cem.CEM]
+    agents = [deepQ.DeepQ, deepQ.DeepQPrioritized,deepQ.DeepQHindsight, qLearning.QLearning, drqn.DRQN, drqn.DRQNPrioritized, adrqn.ADRQN, adrqn.ADRQNPrioritized, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, drqnConvNative.DRQNConvNative, ppoNative.PPONative, reinforceNative.ReinforceNative, actorCriticNative.ActorCriticNative, sarsa, cem.CEM]
     singleDimEnvs = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
                     pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv]
     environments = singleDimEnvs + atariEnv.AtariEnv.subEnvs
