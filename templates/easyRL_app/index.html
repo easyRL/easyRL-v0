@@ -106,7 +106,11 @@
       <select id="env-select" class="form-select" size="4">
         <!-- <option>--Set Environment--</option> -->
         {% for file in info.environments %}
+        {% if file.index == "1" %}
+        <option value='{{ file.index }}' selected> {{ file.name}}</option>
+        {% else %}
         <option value='{{ file.index }}'> {{ file.name}}</option>
+        {% endif %}
         {% endfor %}
 
       </select>
@@ -115,7 +119,11 @@
       <select class="form-select" id="agent-select" size="4" aria-label="Default select example">
         <!-- <option value="0">--Select Agent--</option> -->
         {% for agent in info.agents %}
-        <option value='{{ agent.index }}' disabled> {{ agent.name}}</option>
+        {% if agent.index == "3" %}
+        <option value='{{ agent.index }}' selected > {{ agent.name}}</option>
+        {% else %}
+        <option value='{{ agent.index }}'> {{ agent.name}}</option>
+        {% endif %}
         {% endfor %}
       </select>
     </div>
@@ -165,6 +173,9 @@
 
     html = renderOptions(str);
     $( "#form-div" ).html(html); 
+
+    var index = $('.active').find('img').attr('data-index');
+    updateSelect(index);
   })
 
   $(document).ready(function () {
@@ -176,7 +187,7 @@
 
     setTimeout(function () {
       doPoll();
-    }, 5000)
+    }, 1000)
   });
 
   $('#env-select').change(function () {
@@ -206,7 +217,7 @@
     $.post('/easyRL_app/poll/', getData(), function (result, status, jqxhr) {
       // process results here
       ReloadImageHelper(result);
-      setTimeout(doPoll, 5000);
+      setTimeout(doPoll, 1000);
     });
   }
 
