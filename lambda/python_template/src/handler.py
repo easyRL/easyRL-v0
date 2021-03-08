@@ -737,6 +737,11 @@ def yourFunction(request, context):
             agent['parameters'] = paraMap[agent['index']]
             combinedAgents.append(agent)
 
+        combinedAgentsMap = {}
+        for aa in combinedAgents:
+            combinedAgentsMap[aa['index']] = aa
+
         inspector.addAttribute("agents", combinedAgents)
+        inspector.addAttribute("agentsMap", combinedAgentsMap)
 
     return inspector.finish()
