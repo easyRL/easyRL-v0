@@ -405,7 +405,7 @@ class PrioritizedReplayBuffer(ReplayBuffer):
         return idx + self.max_length - 1
    
 
-class HER(ReplayBuffer):
+class HindsightReplayBuffer(ReplayBuffer):
     def __init__(self,N):
         self.buffer = deque()
         self.N = N
