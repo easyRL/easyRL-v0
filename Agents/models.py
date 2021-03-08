@@ -21,18 +21,17 @@ class Actor(DeepQ):
     try:
       # inputA = Input(shape=self.state_size)
       # inputA = Flatten()(inputA)
-      print(type(inputA))
       model = tf.keras.Sequential([
-              Dense(32, activation='relu', input_shape=(self.state_size,)),
-              Dense(16, activation='relu', input_shape=(self.state_size,)),
-              Dense(self.action_size, activation='softmax', input_shape=(self.state_size,))
+              Dense(32, activation='relu', input_shape=(self.state_size)),
+              Dense(16, activation='relu', input_shape=(self.state_size)),
+              Dense(self.action_size, activation='softmax', input_shape=(self.state_size))
       ])
       kl = tf.keras.losses.KLDivergence()
       model.compile(loss=kl, optimizer=Adam(lr = self.policy_lr))
       return model
     except:
       print("\n\n\n")
-      print(sys.exc_info()[0])
+      print(sys.exc_info())
       sys.exit()
 
 class Critic(DeepQ):
@@ -43,14 +42,13 @@ class Critic(DeepQ):
     self.value_model = self.value_network()
 
   def value_network(self):
-    inputA = Input(shape=self.state_size)
-    inputA = Flatten()(inputA)
+    # inputA = Input(shape=self.state_size)
+    # inputA = Flatten()(inputA)
     model = tf.keras.Sequential([
-            inputA,
-            Dense(32, activation='relu'),
-            Dense(16, activation='relu'),
-            Dense(16, activation='relu'),
-            Dense(1, activation='linear')
+            Dense(32, activation='relu', input_shape=(self.state_size)),
+            Dense(16, activation='relu', input_shape=(self.state_size)),
+            Dense(16, activation='relu', input_shape=(self.state_size)),
+            Dense(1, activation='linear', input_shape=(self.state_size))
     ])
     model.compile(loss='mse', optimizer=Adam(lr = self.value_lr))
     return model
