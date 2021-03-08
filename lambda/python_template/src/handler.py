@@ -730,6 +730,7 @@ def yourFunction(request, context):
 
     if (task == "info"):
         inspector.addAttribute("environments", envList)
+        inspector.addAttribute("environmentsMap", envMap)
         inspector.addAttribute("parameters", paramConditions)
 
         combinedAgents = []
