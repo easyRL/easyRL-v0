@@ -5,6 +5,7 @@
   <div class="row">
     <div class="card text-center">
       <div class="card-header fixed-top" style="margin-bottom: 100px; z-index:100; background-color: #fff">
+        <div class="instance-constrols" style="width:70%; float:left">
         <ul class="nav nav-pills card-header-pills">
           <li class="nav-item">
             <input type="checkbox" class="btn-check" id="btn-con-train" autocomplete="off" aria-checked checked>
@@ -36,7 +37,11 @@
           <li class="nav-item"><a href='/easyRL_app/logout'>
               <button class="btn btn-primary" style="margin:5px;">Sign out</button></a>
           </li>
-        </ul>
+        </ul> 
+      </div>
+        <div id="instance-state" style="width:30%; padding-top:10px; float:right; text-align:right">
+        Instance State: Loading...
+        </div>
       </div>
 
       <div class="top-row" style="margin: 0px; padding: 0px; width: 100%">
@@ -254,6 +259,14 @@
     }
     // assume that cloudBridge won't remove the key [instanceState]
     state = result["instanceState"]
+    stateText = result["instanceStateText"]
+
+
+    var fieldNameElement = document.getElementById('instance-state');
+    if (fieldNameElement) {
+      fieldNameElement.innerHTML = "Instance State: " + stateText;
+    }
+
     if (state === "idle") {
       $('#trainCompleted').modal('show');
       isRunning = false;
