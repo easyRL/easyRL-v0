@@ -141,7 +141,7 @@ def poll(request):
         {
             "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
             ,"killTime": get_safe_value(int, 600, 600)
-            ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
+            ,"continuousTraining" : get_safe_value(int, request.POST.get("continuousTraining"), 0)
             ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
             ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
             ,"episodes": get_safe_value(int, request.POST.get("episodes"), 20)

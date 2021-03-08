@@ -454,7 +454,7 @@
     var data = {
       "environment": !!$('#env-hidden').val() ? $('#env-hidden').val() : "1"
       , "instanceType": $("#host-select option:selected").text()
-      , "continuousTraining": $('#btn-con-train').is(":checked") ? "True" : "False"
+      , "continuousTraining": $('#btn-con-train').is(":checked") ? 1 : 0
       , "agent": !!$("#agent-hidden").val() ? $("#agent-hidden").val() : "1"
       , "killTime": 600
     };
