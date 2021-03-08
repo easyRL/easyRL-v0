@@ -39,7 +39,15 @@
           </li>
         </ul> 
       </div>
-        <div id="instance-state" style="width:30%; padding-top:10px; float:right; text-align:right">
+      <div id="session-selector" style="width:9%; padding-top:15px; float:right; text-align:right">
+        <select name="Session" id="session-select">
+          <option value="0" selected>Session A</option>
+          <option value="1">Session B</option>
+          <option value="2">Session C</option>
+          <option value="3">Session D</option>
+        </select>
+      </div>
+        <div id="instance-state" style="width:21%; padding-top:15px; float:right; text-align:right">
         Instance State: Loading...
         </div>
       </div>
@@ -465,6 +473,7 @@
     var data = {
       "environment": $("#env-select option:selected").val()
       , "instanceType": $("#host-select option:selected").text()
+      , "instanceID": $("#session-select option:selected").val()
       , "continuousTraining": $('#btn-con-train').is(":checked") ? 1 : 0
       , "agent": $("#agent-select option:selected").val()
       , "killTime": 600
