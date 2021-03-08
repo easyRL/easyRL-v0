@@ -84,9 +84,9 @@
   </div>
   <br />
   <!-- Drop downs -->
-  <div class="row justify-content-center " id="select-containers">
+  <div class="row justify-content-center " id="select-containers" style="margin-left: 20px; margin-right: 0px">
     <div class="col-md-3">
-      <select id="env-select" class="form-select" size="3">
+      <select id="env-select" class="form-select" size="4">
         <!-- <option>--Set Environment--</option> -->
         {% for file in info.environments %}
         <option value='{{ file.index }}'> {{ file.name}}</option>
@@ -95,7 +95,7 @@
       </select>
     </div>
     <div class="col-md-3">
-      <select class="form-select" id="agent-select" size="3" aria-label="Default select example">
+      <select class="form-select" id="agent-select" size="4" aria-label="Default select example">
         <!-- <option value="0">--Select Agent--</option> -->
         {% for agent in info.agents %}
         <option value='{{ agent.index }}' disabled> {{ agent.name}}</option>
@@ -103,14 +103,14 @@
       </select>
     </div>
     <div class="col-md-3">
-      <select id="buffer-select" class="form-select" size="3" aria-label="Default select example">
+      <select id="buffer-select" class="form-select" size="4" aria-label="Default select example">
         <option value="0" selected>None</option>
         <option value="1">Hindsight Replay Buffer</option>
         <option value="0">Prioritize Replay Buffer</option>
       </select>
     </div>
     <div class="col-md-3">
-      <select id="host-select" class="form-select" size="3" aria-label="Default select example">
+      <select id="host-select" class="form-select" size="4" aria-label="Default select example">
         <!-- <option value="0">--Select Host Environment--</option> -->
         <option value="1">c4.large</option>
         <option value="2" selected>c4.xlarge</option>
@@ -153,6 +153,10 @@
   info = {}
   $.post('/easyRL_app/info/', {}, function (result) {
     info = JSON.parse(result)
+    var str = $("#agent-select option:selected").text();
+
+    html = renderOptions(str);
+    $( "#form-div" ).html(html); 
   })
 
   $(document).ready(function () {
