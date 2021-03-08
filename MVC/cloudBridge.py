@@ -95,6 +95,9 @@ class CloudBridge:
             "r": round(totalReward,3)
         })
 
+        if (len(self.episodeData)) > 700:
+            self.episodeData.pop()
+
         currentTime = int(round(time.time() * 1000))
         if (currentTime - self.lastSave) > self.delayTime:
             self.lastSave = currentTime
@@ -115,6 +118,9 @@ class CloudBridge:
                 self.animationFrames = []
                 os.remove("./" + filename)
                 self.gifURLs.append("https://easyrl-" + str(self.jobID) + ".s3.amazonaws.com/" + filename)
+
+                if (len(self.gifURLs)) > 10:
+                    self.gifURLs.pop()
 
             payload =  {
                 "totalReward": self.episodeAccReward,
