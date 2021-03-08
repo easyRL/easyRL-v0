@@ -174,7 +174,7 @@
     html = renderOptions(str);
     $( "#form-div" ).html(html); 
 
-    var index = $('.active').find('img').attr('data-index');
+    var index = $("#env-select option:selected").val();
     updateSelect(index);
   })
 
@@ -191,13 +191,13 @@
   });
 
   $('#env-select').change(function () {
-    var index = $('.active').find('img').attr('data-index');
+    var index = $("#env-select option:selected").val();
     updateSelect(index);
     $('#agent-select').val(3);
-
     var text = parseInt($("#env-select option:selected").val()) - 1;
-    if (text >= 0)
+    if (text >= 0) {
       $('#carouselExampleControlsNoTouching').carousel(text)
+    }
   });
 
   $('#btn-con-train').change(function () {
@@ -373,7 +373,7 @@
     $("#agent-hidden").val(selectedVal);
 
     // // This sets the environment of the model. 
-    var selectedEnvironment = $('.active').find('img').attr('data-index');
+    var selectedEnvironment = $("#env-select option:selected").val();
     $("#env-hidden").val(selectedEnvironment);
     $('#btn-train').removeAttr("disabled");
     $("#form-div").focus();
@@ -417,6 +417,7 @@
 
   function updateSelect(envIndex) {
     environmentType = info.environmentsMap[envIndex].type
+    console.log(environmentType)
     $("#agent-select > option").each(function () {
       if (this.value > 0) {
         var supportedList = info.agentsMap[this.value].supportedEnvs
@@ -463,10 +464,10 @@
 
   function getData() {
     var data = {
-      "environment": !!$('#env-hidden').val() ? $('#env-hidden').val() : "1"
+      "environment": $("#env-select option:selected").val()
       , "instanceType": $("#host-select option:selected").text()
       , "continuousTraining": $('#btn-con-train').is(":checked") ? 1 : 0
-      , "agent": !!$("#agent-hidden").val() ? $("#agent-hidden").val() : "1"
+      , "agent": $("#agent-select option:selected").val()
       , "killTime": 600
     };
 
