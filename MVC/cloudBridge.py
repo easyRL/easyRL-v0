@@ -3,6 +3,7 @@ import uuid
 import json
 import time
 import os
+import math
 
 class CloudBridge:
 
@@ -86,11 +87,12 @@ class CloudBridge:
         avgEpsilon = self.episodeAccEpsilon / self.curEpisodeSteps
 
         # Append data to data structure
+        # e = episdoe, l = averageloss, r = totalreward, p = avgEpsilon
         self.episodeData.append({
-            "episode": episode,
-            "avgLoss": avgLoss,
-            "avgEpsilon": avgEpsilon,
-            "totalReward": totalReward
+            "e": episode, 
+            "l": round(avgLoss,3),
+            "p": round(avgEpsilon,3),
+            "r": round(totalReward,3)
         })
 
         currentTime = int(round(time.time() * 1000))
