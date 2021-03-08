@@ -191,12 +191,12 @@
 
   $('#btn-con-train').change(function () {
     if ($('#btn-con-train').is(":checked")) {
-      $("#btn-halt").attr("disabled", "true");
+      //$("#btn-halt").attr("disabled", "true");
       $("#btn-test").attr("disabled", "true");
       $('#btn-train').attr("disabled", "true");
     } else {
       if ($("#btn-train").is(":disabled") === false) {
-        $("#btn-halt").removeAttr("disabled");
+        //$("#btn-halt").removeAttr("disabled");
 
       }
     }
@@ -302,7 +302,7 @@
   // Train button - Start
   $("#btn-train").click(function () {
     // get values from sliders
-    $('#btn-halt').removeAttr("disabled");
+    //$('#btn-halt').removeAttr("disabled");
     var data = getData();
 
     $.post('/easyRL_app/train/', data, function (result) {
@@ -337,6 +337,7 @@
 
   $('#btn-halt').click(function () {
     var data = {};
+    document.getElementById("btn-con-train").checked = false;
     $.post('/easyRL_app/halt/', data, function (result, status, jqxhr) {
       // do something
     })
@@ -442,7 +443,7 @@
     $('#btn-train').attr("disabled", "true");
     $('#btn-test').attr("disabled", "true");
     $('#btn-save').attr("disabled", "true");
-    $('#btn-halt').attr("disabled", "true");
+    //$('#btn-halt').attr("disabled", "true");
   }
 
   function resetEnvironment() {
