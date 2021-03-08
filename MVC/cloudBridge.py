@@ -101,7 +101,7 @@ class CloudBridge:
         self.episodeAccEpsilon = 0
 
         if (len(self.episodeData)) > 1000:
-            self.episodeData.pop()
+            self.episodeData.pop(0)
 
         currentTime = int(round(time.time() * 1000))
         if (currentTime - self.lastSave) > self.delayTime:
