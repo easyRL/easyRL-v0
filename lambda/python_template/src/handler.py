@@ -416,8 +416,11 @@ def yourFunction(request, context):
                                 "cat ./data.json")
                             stdout = ssh_stdout.readlines()
                             if (stdout != []):
-                                inspector.addAttribute(
-                                    "progress", json.loads(stdout[0]))
+                                try:
+                                    inspector.addAttribute(
+                                        "progress", json.loads(stdout[0]))
+                                except:
+                                    inspector.addAttribute("progress", "waiting")
                             else:
                                 inspector.addAttribute("progress", "waiting")
                         else:
