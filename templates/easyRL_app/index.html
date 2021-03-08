@@ -125,8 +125,6 @@
   <div class="row">
     <form method="post" style="margin-top: 15px; min-width: 550px;">{% csrf_token %}
       <div id="form-div" class="container-fluid">
-
-
       </div>
         <input type="hidden" id="env-hidden" class="form-control">
         <input type="hidden" id="agent-hidden" class="form-control">
@@ -135,8 +133,7 @@
   </div>
   <div class="row">
     <div class="image-container">
-
-      <img id="training_image" src="" style="width: 75%; display:block; margin-left: auto; margin-right: auto;" />
+      <img id="training_image" src="../static/easyRL_app/assets/iu.gif" style="width: 75%; display:block; margin-left: auto; margin-right: auto;" />
       <div id="training_graph" style="width: 900px; height: 500px" class="float-start"></div>
     </div>
   </div>
@@ -371,7 +368,7 @@
           '<div class="slider-container col">'+
             '<label>' + parameterData.name + '</label>'+
             '<div class=""><input type="range" id="' + parameter + '-slider" class="form-range" name="' + parameter + '-slider" min="' + parameterData.min + '" max="' + parameterData.max + '"'+
-              'step="1" value="' + parameterData.default + '"></div>'+
+              'step="' + parameterData.stepSize + '" value="' + parameterData.default + '"></div>'+
               '<div class="" style="margin: px 50px 0px 50px;"><input type="text" class="form-control" id="' + parameter + '-text"'+
                 'value="' + parameterData.default + '"></div>'+
                 '</div>'
@@ -382,7 +379,6 @@
             '<div class="col-md-12"><input type="text" id="' + parameter + '-text" value="' + parameterData.default + '" class="form-control" value=""></div>'+
             '</div>'
         }
-
       }
       console.log(myAgent)
       $( "#form-div" ).html(html);
@@ -402,37 +398,6 @@
     });
   }
 
-  function track_training_progress() {
-    var image = document.getElementById("graph-image");
-    var value = "True";
-    var loop = setInterval(load_image, 1000);
-
-    function load_image() {
-      if (value != "True") {
-        clearInterval(loop)
-      }
-      else {
-        $.ajax({
-          url: '/easyRL_app/test/',
-          dataType: 'text',
-          success: function (data) {
-            value = data;
-          }
-        });
-
-        $.ajax({
-          url: '/easyRL_app/image/',
-          dataType: 'image/gif',
-          success: function (data) {
-            alert("test");
-            if (data) {
-              $("#graph-image").attr("src", data);
-            }
-          }
-        });
-      }
-    }
-  }
 
   function updateEnvironmentLabel() {
     var src = $('.active').find('img').attr('data-name');
@@ -484,61 +449,6 @@
 
     return data;
   }
-
-  // start function reload_image()
-  function reload_image() {
-    var gifs = "";
-    var episodes = "";
-    var isRunning = true;
-    var interval = setInterval(function () {
-      var data = getData();
-
-      $.post('/easyRL_app/poll/', data, function (result) {
-        if (result == "") {
-          alert("The response is empty");
-        }
-
-        result = JSON.parse(result)
-        if (result["error"] !== null) {
-          // keep this line for debugging purpose
-          //alert("There is no poll");
-        }
-        // assume that cloudBridge won't remove the key [instanceState]
-        state = result["instanceState"]
-        if (state === "idle") {
-          $('#trainCompleted').modal('show');
-          isRunning = false;
-        }
-        if (state === "booting" || state === "updated") {
-          // keep this line for debugging purpose
-          //alert("Booting or updated");
-        }
-        else if (state === "runningJob") {
-          // loading data
-          // data["jobArguments"]["environment"] -> 5
-          // alert(data["progress"]);
-          if (result["progress"] != "waiting") {
-            gifs = result["progress"]["gifs"];
-            episodes = result["progress"]["episodes"];
-          }
-        }
-      });
-
-      if (isRunning === false) {
-        clearInterval(interval);
-        // $("#training_summary").html("<button id='btn_reload' class='btn btn-primary' onclick='reload_image()' style='margin:5px;'>Reload</button>");
-        return;
-      }
-
-      // $("#training_image").attr("src", '/easyRL_app/image/?' + (new Date()).getTime());
-      if (gifs.length > 0) {
-        $("#training_image").attr("src", gifs[gifs.length - 1]);
-        draw_graph(episodes);
-      }
-
-    }, 5000);
-  }
- // end function reload_image()
 
 </script>
 {%endblock%}

@@ -8,12 +8,10 @@
 }
 .btn-secondary:hover, .btn-secondary:focus, .btn-secondary:active, .btn-secondary.active {
     color: #fff;
-    background-color:  rgb(86, 85, 88);;
     border-color: #b7a57a; /*set the color you want here*/
 }
 .carousel-control-next-icon, .carousel-control-prev-icon{
     color: #fff ;
-    background-color: rgb(143, 143, 143);
     border-color: #b7a57a ;
 }
 
