@@ -133,35 +133,40 @@ paramConditions = {
         "min": 0,
         "max": 1,
         "default": 0.97,
-        "showSlider": True
+        "showSlider": True,
+        "stepSize": 0.01
     },
     "minEpsilon": {
         "name": "Min Epsilon",
         "min": 0,
         "max": 1,
         "default": 0.1,
-        "showSlider": True
+        "showSlider": True,
+        "stepSize": 0.01
     },
     "maxEpsilon": {
         "name": "Max Epsilon",
         "min": 0,
         "max": 1,
         "default": 1,
-        "showSlider": True
+        "showSlider": True,
+        "stepSize": 0.01
     },
     "decayRate": {
         "name": "Decay Rate",
         "min": 0,
         "max": 0.2,
         "default": 0.018,
-        "showSlider": True
+        "showSlider": True,
+        "stepSize": 0.001
     },
     "batchSize": {
         "name": "Batch Size",
         "min": 0,
         "max": 256,
         "default": 32,
-        "showSlider": True
+        "showSlider": True,
+        "stepSize": 1
     },
     "memorySize": {
         "name": "Memory Size",
@@ -182,14 +187,16 @@ paramConditions = {
         "min": 0,
         "max": 20,
         "default": 10,
-        "showSlider": True
+        "showSlider": True,
+        "stepSize": 1
     },
     "alpha": {
         "name": "Alpha",
         "min": 0,
         "max": 1,
         "default": 0.18,
-        "showSlider": True
+        "showSlider": True,
+        "stepSize": 0.01
     }
 }
 
