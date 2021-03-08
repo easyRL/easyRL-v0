@@ -39,46 +39,58 @@
         </ul>
       </div>
 
-      <!-- Carousel -->
-      <div class="card-body" style="margin-top: 50px  !important">
+      <div class="top-row" style="margin: 0px; padding: 0px; width: 100%">
+        <!-- Carousel -->
+        <div class="card-body" style="margin-top: 50px; width: 20% !important">
 
-        <div class="row justify-content-center" style="margin-top:10px !important">
-          <div id="carouselExampleControlsNoTouching" class="carousel mbr-slider slide col-md-3" data-bs-touch="false"
-            data-bs-interval="false">
-            <div class="carousel-inner">
-              {% for env in info.environments %}
-              {% if env.file == 'Cart Pole.jpg' %}
-              <div class="carousel-item active">
-                <div class="d-flex justify-content-center w-100 h-100">
-                  <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}"
-                    data-index={{env.index}} alt="...">
+          <div class="row justify-content-center" style="margin-top:10px !important">
+            <div id="carouselExampleControlsNoTouching" class="carousel mbr-slider slide col-md-3" data-bs-touch="false"
+              data-bs-interval="false">
+              <div class="carousel-inner">
+                {% for env in info.environments %}
+                {% if env.file == 'Cart Pole.jpg' %}
+                <div class="carousel-item active">
+                  <div class="d-flex justify-content-center w-100 h-100">
+                    <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}"
+                      data-index={{env.index}} alt="...">
+                  </div>
                 </div>
-              </div>
-              {% else %}
-              <div class="carousel-item">
-                <div class="d-flex justify-content-center w-100 h-100">
-                  <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}"
-                    data-index={{env.index}} alt="...">
+                {% else %}
+                <div class="carousel-item">
+                  <div class="d-flex justify-content-center w-100 h-100">
+                    <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}"
+                      data-index={{env.index}} alt="...">
+                  </div>
                 </div>
+                {% endif %}
+                {% endfor %}
               </div>
-              {% endif %}
-              {% endfor %}
+              <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsNoTouching"
+                data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsNoTouching"
+                data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsNoTouching"
-              data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsNoTouching"
-              data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Next</span>
-            </button>
+          </div>
+          <br />
+          <label id="file-name"></label>
+          <br />
+
+          
+
+        </div>
+
+        <div class="row">
+          <div class="image-container">
+            <img id="training_image" src="../static/easyRL_app/assets/iu.gif" style="width: 33%;" />
+            <div id="training_graph" style="width: 33%; height: 100%" class="float-start"></div>
           </div>
         </div>
-        <br />
-        <label id="file-name"></label>
-        <br />
       </div>
     </div>
   </div>
@@ -130,12 +142,6 @@
         <input type="hidden" id="agent-hidden" class="form-control">
       </div>
     </form>
-  </div>
-  <div class="row">
-    <div class="image-container">
-      <img id="training_image" src="../static/easyRL_app/assets/iu.gif" style="width: 75%; display:block; margin-left: auto; margin-right: auto;" />
-      <div id="training_graph" style="width: 900px; height: 500px" class="float-start"></div>
-    </div>
   </div>
   </br>
   </br>
