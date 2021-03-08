@@ -79,9 +79,6 @@
         <br />
         <label id="file-name"></label>
         <br />
-
-        <button id="set-environment" class="btn btn-primary"><span class=""><i class="bi-card-image"></i></span> Select
-          Environment</button>
       </div>
     </div>
   </div>
@@ -90,7 +87,7 @@
   <div class="row justify-content-center " id="select-containers">
     <div class="col-md-3">
       <select id="env-select" class="form-select" size="3">
-        <option>--Set Environment--</option>
+        <!-- <option>--Set Environment--</option> -->
         {% for file in info.environments %}
         <option value='{{ file.index }}'> {{ file.name}}</option>
         {% endfor %}
@@ -99,7 +96,7 @@
     </div>
     <div class="col-md-3">
       <select class="form-select" id="agent-select" size="3" aria-label="Default select example">
-        <option value="0">--Select Agent--</option>
+        <!-- <option value="0">--Select Agent--</option> -->
         {% for agent in info.agents %}
         <option value='{{ agent.index }}' disabled> {{ agent.name}}</option>
         {% endfor %}
@@ -107,21 +104,19 @@
     </div>
     <div class="col-md-3">
       <select id="buffer-select" class="form-select" size="3" aria-label="Default select example">
-        <option value="0" selected>--Select Buffer--</option>
+        <option value="0" selected>None</option>
         <option value="1">Hindsight Replay Buffer</option>
         <option value="0">Prioritize Replay Buffer</option>
       </select>
     </div>
     <div class="col-md-3">
       <select id="host-select" class="form-select" size="3" aria-label="Default select example">
-        <option value="0">--Select Host Environment--</option>
-        <optgroup label="ECS">
-          <option value="1">c4.large</option>
-          <option value="2" selected>c4.xlarge</option>
-          <option value="3">c4.2xlarge</option>
-          <option value="4">c4.4xlarge</option>
-          <option value="5">c4.8xlarge</option>
-        </optgroup>
+        <!-- <option value="0">--Select Host Environment--</option> -->
+        <option value="1">c4.large</option>
+        <option value="2" selected>c4.xlarge</option>
+        <option value="3">c4.2xlarge</option>
+        <option value="4">c4.4xlarge</option>
+        <option value="5">c4.8xlarge</option>
       </select>
     </div>
     <br />
@@ -173,6 +168,10 @@
   });
 
   $('#env-select').change(function () {
+    var index = $('.active').find('img').attr('data-index');
+    updateSelect(index);
+    $('#agent-select').val(3);
+
     var text = parseInt($("#env-select option:selected").val()) - 1;
     if (text >= 0)
       $('#carouselExampleControlsNoTouching').carousel(text)
@@ -314,12 +313,6 @@
   });
 
   $('#save-model-name').click(function () {
-    //var modelName = $('#model-name-text').val();
-    //var tabLabel = modelName === "" ? $('#file-name').text() + "+" + $("#agent-select option:selected").text() : modelName;
-    // $("#hp-tab-0").html(tabLabel);
-    // $('#model-name-text').val("");
-    // $("#num-episodes-text").focus();
-    // $('html, body').animate({scrollTop: 800}, 800);
   });
 
   $('#btn-halt').click(function () {
@@ -327,13 +320,6 @@
     $.post('/easyRL_app/halt/', data, function (result, status, jqxhr) {
       // do something
     })
-  });
-
-  $('#set-environment').click(function () {
-    var index = $('.active').find('img').attr('data-index');
-    updateSelect(index);
-    $('#agent-select').val(0);
-    $('#agent-select').focus();
   });
 
   $('#carouselExampleControlsNoTouching').on('slid.bs.carousel', function (e) {
@@ -458,8 +444,8 @@
   }
 
   function resetDropDowns() {
-    $('#agent-select').val(1);
-    $('#buffer-select').val(1);
+    $('#agent-select').val(3);
+    $('#buffer-select').val(0);
     $('#host-select').val(2);
     $('#environment-select').val(1);
   }
