@@ -330,8 +330,8 @@
   });
 
   $('#set-environment').click(function () {
-    var text = $('.active').find('img').attr('data-name');
-    updateSelect(text);
+    var index = $('.active').find('img').attr('data-index');
+    updateSelect(index);
     $('#agent-select').val(0);
     $('#agent-select').focus();
   });
@@ -348,7 +348,6 @@
     html = renderOptions(str);
     $( "#form-div" ).html(html); 
 
-    setFormElementsDefaultValues();
     $('#modelName').modal('show');
 
     // // This set he agent for the model.
@@ -367,23 +366,13 @@
 
     //$.post('/easyRL_app/info/', {}, function (result) {
       var selectedVal = $("#agent-select option:selected").val();
-      result = info
-      agents = info.agents
-      myAgent = {}
-
       html = ""
-
-      for(var i = 0, size = agents.length; i < size ; i++) {
-        if (agents[i].index === selectedVal) {
-          myAgent = agents[i]
-          break
-        }
-      }
+      myAgent = info.agentsMap[selectedVal]
 
       parameters = myAgent.parameters
       for(var i = 0, size = parameters.length; i < size ; i++) {
         parameter = parameters[i]
-        parameterData = result.parameters[parameter]
+        parameterData = info.parameters[parameter]
 
         console.log(parameterData)
 
@@ -400,147 +389,27 @@
           html +=
           '<div class="col">'+
             '<label>' + parameterData.name + '</label>'+
-            '<div class="col-md-12"><input type="text" id="' + parameterData + '-text" value="' + parameterData.default + '" class="form-control" value=""></div>'+
+            '<div class="col-md-12"><input type="text" id="' + parameter + '-text" value="' + parameterData.default + '" class="form-control" value=""></div>'+
             '</div>'
         }
 
       }
       console.log(myAgent)
       $( "#form-div" ).html(html);
-
-      //for (var i = 0; i < result.)
-
-    //})
   }
 
-  function getEnvironmentIndex(environmentName) {
-    var envDict = {
-      'Cart Pole': 1
-      , 'Cart Pole Discrete': 2
-      , 'Frozen Lake': 3
-      , 'Pendulum': 4
-      , 'Acrobot': 5
-      , 'Mountain Car': 6
-      , 'adventure': 7
-      , 'air_raid': 8
-      , 'alien': 9
-      , 'amidar': 10
-      , 'assault': 11
-      , 'asterix': 12
-      , 'asteroids': 13
-      , 'atlantis': 14
-      , 'bank_heist': 15
-      , 'battle_zone': 16
-      , 'beam_rider': 17
-      , 'berzerk': 18
-      , 'bowling': 19
-      , 'boxing': 20
-      , 'breakout': 21
-      , 'carnival': 22
-      , 'centipede': 23
-      , 'chopper_command': 24
-      , 'crazy_climber': 25
-      , 'demon_attack': 26
-      , 'double_dunk': 27
-      , 'elevator_action': 28
-      , 'enduro': 29
-      , 'fishing_derby': 30
-      , 'freeway': 31
-      , 'frostbite': 32
-      , 'gopher': 33
-      , 'gravitar': 34
-      , 'hero': 35
-      , 'ice_hockey': 36
-      , 'jamesbond': 37
-      , 'journey_escape': 38
-      , 'kangaroo': 39
-      , 'krull': 40
-      , 'kung_fu_master': 41
-      , 'montezuma_revenge': 42
-      , 'ms_pacman': 43
-      , 'name_this_game': 44
-      , 'phoenix': 45
-      , 'pitfall': 46
-      , 'pong': 47
-      , 'pooyan': 48
-      , 'private_eye': 49
-      , 'qbert': 50
-      , 'riverraid': 51
-      , 'road_runner': 52
-      , 'robotank': 53
-      , 'seaquest': 54
-      , 'skiing': 55
-      , 'solaris': 56
-      , 'space_invaders': 57
-      , 'star_gunner': 58
-      , 'tennis': 59
-      , 'time_pilot': 60
-      , 'tutankham': 61
-      , 'up_n_down': 62
-      , 'venture': 63
-      , 'video_pinball': 64
-      , 'wizard_of_wor': 65
-      , 'yars_revenge': 66
-      , 'zaxxon': 67
-    }
-    return envDict[environmentName];
-  }
-
-  function updateSelect(fileName) {
-    var games = {
-      'Cart Pole': ['Deep Q', 'DRQN', 'ADRQN', 'Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native']
-      , 'Cart Pole Discrete': ['Deep Q', 'Q Learning', 'DRQN', 'ADRQN', 'Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native', 'SARSA']
-      , 'Frozen Lake': ['Deep Q', 'Q Learning', 'DRQN', 'ADRQN', 'Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native', 'SARSA']
-      , 'Pendulum': ['Deep Q', 'DRQN', 'ADRQN', 'Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native']
-      , 'Acrobot': ['Deep Q', 'DRQN', 'ADRQN', 'Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native']
-      , 'Mountain Car': ['Deep Q', 'DRQN', 'ADRQN', 'Double Dueling Deep Q Native', 'DRQN Native', 'PPO Native', 'Reinforce Native', 'ActorCritic Native']
-      , 'default': ['DRQN', 'ADRQN', 'Conv. DRQN Native']
-    };
-
-    switch (fileName) {
-      case 'Acrobot':
-        $("#agent-select > option").each(function () {
-          if (games[fileName].indexOf(this.text) !== -1) {
-            this.disabled = false;
-          }
-        });
-        break;
-      case 'Cart Pole':
-        $("#agent-select > option").each(function () {
-          if (games[fileName].indexOf(this.text) !== -1) {
-            this.disabled = false;
-          }
-        });
-        break;
-      case 'Cart Pole Discrete':
-        $("#agent-select > option").each(function () {
-          if (games[fileName].indexOf(this.text) !== -1) {
-            this.disabled = false;
-          }
-        });
-        break;
-      case 'Fronzen Lake':
-        $("#agent-select > option").each(function () {
-          if (games[fileName].indexOf(this.text) !== -1) {
-            this.disabled = false;
-          }
-        });
-        break;
-      case 'Mountain Car':
-        $("#agent-select > option").each(function () {
-          if (games[fileName].indexOf(this.text) !== -1) {
-            this.disabled = false;
-          }
-        });
-        break;
-      default:
-        $("#agent-select > option").each(function () {
-          if (games['default'].indexOf(this.text) !== -1) {
-            this.disabled = false;
-          }
-        });
-        break;
-    }
+  function updateSelect(envIndex) {
+    environmentType = info.environmentsMap[envIndex].type
+    $("#agent-select > option").each(function () {
+      if (this.value > 0) {
+        var supportedList = info.agentsMap[this.value].supportedEnvs
+        if (supportedList.indexOf(environmentType) !== -1) {
+          this.disabled = false;
+        } else {
+          this.disabled = true;
+        }
+      }
+    });
   }
 
   function track_training_progress() {
@@ -603,69 +472,8 @@
   }
 
   function resetEnvironment() {
-    $('#env-hidden').val(getEnvironmentIndex("Cart Pole"));
+    $('#env-hidden').val(1);
   }
-
-  function setFormElementsDefaultValues() {
-    $("#batch-text").val($("#batch-slider").val());
-    $("#batch-slider").on('input', function () {
-      var newval = $(this).val();
-      $("#batch-text").val(newval);
-    });
-
-    $("#gamma-text").val($("#gamma-slider").val());
-    $("#gamma-slider").on('input', function () {
-      var newval = $(this).val();
-      $("#gamma-text").val(newval);
-    });
-
-    $("#alpha-text").val($("#alpha-slider").val());
-    $("#alpha-slider").on('input', function () {
-      var newval = $(this).val();
-      $("#alpha-text").val(newval);
-    });
-
-    $("#min-epsilon-text").val($("#min-epsilon-slider").val());
-    $("#min-epsilon-slider").on('input', function () {
-      var newval = $(this).val();
-      $("#min-epsilon-text").val(newval);
-    });
-
-    $("#max-epsilon-text").val($("#max-epsilon-slider").val());
-    $("#max-epsilon-slider").on('input', function () {
-      var newval = $(this).val();
-      $("#max-epsilon-text").val(newval);
-    });
-
-    $("#decay-slider").on('input', function () {
-      var newval = $(this).val();
-      $("#decay-text").val(newval);
-    });
-
-    $("#learning-rate-text").val($("#learning-rate-slider").val());
-    $("#learning-rate-slider").on('input', function () {
-      var newval = $(this).val();
-      $("#learning-rate-text").val(newval);
-    });
-
-    $("#dep-text").val($("#dep-slider").val());
-    $("#dep-slider").on('input', function () {
-      var newval = $(this).val();
-      $("#dep-text").val(newval);
-    });
-
-    $("#plr-text").val($("#plr-slider").val());
-    $("#plr-slider").on('input', function () {
-      var newval = $(this).val();
-      $("#plr-text").val(newval);
-    });
-
-    $("#vlr-text").val($("#vlr-slider").val());
-    $("#vlr-slider").on('input', function () {
-      var newval = $(this).val();
-      $("#vlr-text").val(newval);
-    });
-  };
 
   function getData() {
     var data = {
@@ -674,24 +482,18 @@
       , "continuousTraining": $('#btn-con-train').is(":checked") ? "True" : "False"
       , "agent": !!$("#agent-hidden").val() ? $("#agent-hidden").val() : "1"
       , "killTime": 600
-      , "episodes": !!$("#episodes-text").val() ? $("#episodes-text").val() : "1000"
-      , "steps": !!$('#steps-text').val() ? $('#steps-text').val() : "200"
-      , "gamma": !!$('#gamma-text').val() ? $('#gamma-text').val() : "0.97"
-      , "minEpsilon": !!$('#minEpsilon-text').val() ? $('#minEpsilon-text').val() : "0.018"
-      , "maxEpsilon": !!$('#maxEpsilon-text').val() ? $('#maxEpsilon-text').val() : "1"
-      , "decayRate": !!$('#decayRate-text').val() ? $('#decayRate-text').val() : "0.018"
-      , "batchSize": !!$('#batchSize-text').val() ? $('#batchSize-text').val() : "32"
-      , "memorySize": !!$('#memorySize-text').val() ? $('#memorySize-text').val() : "1000"
-      , "targetInterval": !!$('#targetInterval-text').val() ? ('#targetInterval-text').val() : "200"
-      , "alpha": !!$('#alpha-text').val() ? ('#alpha-text').val() : "0.18"
-      , "historyLength": !!$('#historyLength-text').val() ? ('#historyLength-text').val() : "0.18"
     };
+
+    var selectedVal = $("#agent-select option:selected").val();
+    myAgent = info.agentsMap[selectedVal];
+    parameters = myAgent.parameters;
+    for(var i = 0, size = parameters.length; i < size ; i++) {
+      parameter = parameters[i];
+      data[parameter] = !!$('#' + parameter + '-text').val() ? $('#' + parameter + '-text').val() : info.parameters[parameter].default;
+    }
+
     return data;
   }
-
-  // start function draw_graph()
-
-
 
   // start function reload_image()
   function reload_image() {
@@ -747,9 +549,6 @@
     }, 5000);
   }
  // end function reload_image()
-
-
-
 
 </script>
 {%endblock%}
