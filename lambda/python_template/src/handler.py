@@ -295,6 +295,12 @@ def yourFunction(request, context):
     task = request['task']
     arguments = request['arguments']
 
+    instanceID = ""
+    if ('instanceID' in arguments):
+        instanceID = arguments['instanceID']
+    if (instanceID is not None):
+        jobID += str(instanceID)
+
     continuousTraining = False
     if ("continuousTraining" in arguments):
         continuousTraining = arguments["continuousTraining"]
