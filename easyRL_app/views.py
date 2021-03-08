@@ -129,34 +129,40 @@ def train(request):
 
 @csrf_exempt
 def poll(request):
-    debug_sessions(request)
-    if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
-        return HttpResponse(apps.ERROR_UNAUTHENTICATED)
-    print("{}request_parameters{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, debug_parameters(request)))
-    return HttpResponse(lambda_poll(
-        request.session['aws_access_key'],
-        request.session['aws_secret_key'],
-        request.session['aws_security_token'],
-        request.session['job_id'],
-        {
-            "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
-            ,"killTime": get_safe_value(int, 600, 600)
-            ,"continuousTraining" : get_safe_value(int, request.POST.get("continuousTraining"), 0)
-            ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
-            ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
-            ,"episodes": get_safe_value(int, request.POST.get("episodes"), 20)
-            ,"steps": get_safe_value(int, request.POST.get("steps"), 50)
-            ,"gamma": get_safe_value(float, request.POST.get("gamma"), 0.97)
-            ,"minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01)
-            ,"maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99)
-            ,"decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01)
-            ,"batchSize": get_safe_value(int, request.POST.get("batchSize"), 32)
-            ,"memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000)
-            ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
-            ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
-            ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
-        }                
-    ))
+    try:
+        debug_sessions(request)
+        if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
+            return HttpResponse(apps.ERROR_UNAUTHENTICATED)
+        print("{}request_parameters{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, debug_parameters(request)))
+        return HttpResponse(lambda_poll(
+            request.session['aws_access_key'],
+            request.session['aws_secret_key'],
+            request.session['aws_security_token'],
+            request.session['job_id'],
+            {
+                "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
+                ,"killTime": get_safe_value(int, 600, 600)
+                ,"continuousTraining" : get_safe_value(int, request.POST.get("continuousTraining"), 0)
+                ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
+                ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
+                ,"episodes": get_safe_value(int, request.POST.get("episodes"), 20)
+                ,"steps": get_safe_value(int, request.POST.get("steps"), 50)
+                ,"gamma": get_safe_value(float, request.POST.get("gamma"), 0.97)
+                ,"minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01)
+                ,"maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99)
+                ,"decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01)
+                ,"batchSize": get_safe_value(int, request.POST.get("batchSize"), 32)
+                ,"memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000)
+                ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
+                ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
+                ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
+            }                
+        ))
+    except:
+        return {
+            "instanceState": "booting",
+            "instanceStateText": "Loading..."
+        }
 
 @csrf_exempt
 def info(request):
