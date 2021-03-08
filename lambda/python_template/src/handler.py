@@ -323,6 +323,7 @@ def yourFunction(request, context):
             createInstance(ec2Client, ec2Resource, jobID, arguments, inspector)
             inspector.addAttribute("message", "creating instance")
             inspector.addAttribute("instanceState", "booting")
+            inspector.addAttribute("instanceStateText", "Booting")
         else:
             # Check if it is ready to SSH...
             try:
@@ -361,6 +362,7 @@ def yourFunction(request, context):
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
                         "echo " + arguments['instanceType'] + " > tag.txt")
                     inspector.addAttribute("instanceState", "updated")
+                    inspector.addAttribute("instanceStateText", "Cloned Repository")
                 else:
                     # Instance type match the tag? If not reboot...
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
@@ -377,6 +379,7 @@ def yourFunction(request, context):
                         except:
                             pass
                         inspector.addAttribute('instanceState', "rebooting")
+                        inspector.addAttribute("instanceStateText", "Recreating")
                     else:
                         # Is job running? If it is get progress. Else return idle.
                         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
@@ -388,6 +391,7 @@ def yourFunction(request, context):
                         if ("terminal" in results):
                             inspector.addAttribute(
                                 'instanceState', "runningJob")
+                            inspector.addAttribute("instanceStateText", "Running Task")
                             
                             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
                                 "cat ./arguments.json")
@@ -403,6 +407,7 @@ def yourFunction(request, context):
                             
                                 if continuousTraining and jobArguments != arguments:
                                     inspector.addAttribute('instanceState', "changingJob")
+                                    inspector.addAttribute("instanceStateText", "Changing Task")
                                     task = "haltJob"
 
                             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
@@ -415,12 +420,15 @@ def yourFunction(request, context):
                                 inspector.addAttribute("progress", "waiting")
                         else:
                             inspector.addAttribute('instanceState', "idle")
+                            inspector.addAttribute("instanceStateText", "Idle")
 
                             if continuousTraining:
                                 task = "runJob"
                                 inspector.addAttribute('instanceState', "startingJob")
+                                inspector.addAttribute("instanceStateText", "Starting Task")
             else:
                 inspector.addAttribute('instanceState', "initializing")
+                inspector.addAttribute("instanceStateText", "Initializing")
             ssh.close()
 
     if (task == "runJob"):
