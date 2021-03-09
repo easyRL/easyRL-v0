@@ -39,7 +39,37 @@
           </li>
         </ul> 
       </div>
-        <div id="instance-state" style="width:30%; padding-top:10px; float:right; text-align:right">
+      <div id="session-selector" style="width:9%; padding-top:15px; float:right; text-align:right">
+        <select name="Session" id="session-select">
+          <option value="0" selected>Session A</option>
+          <option value="1">Session B</option>
+          <option value="2">Session C</option>
+          <option value="3">Session D</option>
+          <option value="4">Session E</option>
+          <option value="5">Session F</option>
+          <option value="6">Session G</option>
+          <option value="7">Session H</option>
+          <option value="8">Session I</option>
+          <option value="9">Session J</option>
+          <option value="10">Session K</option>
+          <option value="11">Session L</option>
+          <option value="12">Session M</option>
+          <option value="13">Session N</option>
+          <option value="14">Session O</option>
+          <option value="15">Session P</option>
+          <option value="16">Session Q</option>
+          <option value="17">Session R</option>
+          <option value="18">Session S</option>
+          <option value="19">Session T</option>
+          <option value="20">Session U</option>
+          <option value="21">Session V</option>
+          <option value="22">Session W</option>
+          <option value="23">Session X</option>
+          <option value="24">Session Y</option>
+          <option value="26">Session Z</option>
+        </select>
+      </div>
+        <div id="instance-state" style="width:21%; padding-top:15px; float:right; text-align:right">
         Instance State: Loading...
         </div>
       </div>
@@ -211,23 +241,33 @@
 
   $('#btn-con-train').change(function () {
     if ($('#btn-con-train').is(":checked")) {
-      //$("#btn-halt").attr("disabled", "true");
-      $("#btn-test").attr("disabled", "true");
       $('#btn-train').attr("disabled", "true");
+      $('#btn-test').attr("disabled", "true");
     } else {
-      if ($("#btn-train").is(":disabled") === false) {
+      //$('#btn-train').attr("disabled", "false");
+      $("#btn-train").removeAttr("disabled");
+      $("#btn-test").removeAttr("disabled");
+      //if ($("#btn-train").is(":disabled") === false) {
         //$("#btn-halt").removeAttr("disabled");
 
-      }
+      //}
     }
   });
 
   function doPoll() {
-    $.post('/easyRL_app/poll/', getData(), function (result, status, jqxhr) {
-      // process results here
-      ReloadImageHelper(result);
-      setTimeout(doPoll, 1000);
-    });
+    try {
+      $.post('/easyRL_app/poll/', getData(), function (result, status, jqxhr) {
+        // process results here
+        try {
+          ReloadImageHelper(result);
+          setTimeout(doPoll, 1000);
+        } catch (e) {
+          setTimeout(doPoll, 1000);
+        }
+      });
+    } catch (e) {
+        setTimeout(doPoll, 5000);
+    }
   }
 
   function draw_graph(episodes) {
@@ -339,14 +379,37 @@
 
       // alert("The training in progress");
     });
-    resetFormDropDownsButtons();
+    //resetFormDropDownsButtons();
+    //reload_image();
+  }); // Train Button - End
+
+  // Train button - Start
+  $("#btn-test").click(function () {
+    // get values from sliders
+    //$('#btn-halt').removeAttr("disabled");
+    var data = getData();
+
+    $.post('/easyRL_app/test/', data, function (result) {
+      if (result == "") {
+        //alert("The response is empty");
+        return;
+      }
+      result = JSON.parse(result);
+      if (result["error"] !== null) {
+        //alert("Could not start the training"); // instance not found
+        return;
+      }
+
+      // alert("The training in progress");
+    });
+    //resetFormDropDownsButtons();
     //reload_image();
   }); // Train Button - End
 
   $('#btn-ok').click(function () {
-    $('#btn-train').attr("disabled", true);
-    $('#btn-test').removeAttr("disabled");
-    $('#btn-save').removeAttr("disabled");
+    //$('#btn-train').attr("disabled", true);
+    //$('#btn-test').removeAttr("disabled");
+    //$('#btn-save').removeAttr("disabled");
   });
 
   $(".btn-close").click(function () {
@@ -357,8 +420,10 @@
   });
 
   $('#btn-halt').click(function () {
-    var data = {};
+    var data = getData();
     document.getElementById("btn-con-train").checked = false;
+    $("#btn-train").removeAttr("disabled");
+    $("#btn-test").removeAttr("disabled");
     $.post('/easyRL_app/halt/', data, function (result, status, jqxhr) {
       // do something
     })
@@ -367,7 +432,7 @@
   $('#carouselExampleControlsNoTouching').on('slid.bs.carousel', function (e) {
     //var c = $("div > .active", e.target).index();
     updateEnvironmentLabel();
-    resetFormDropDownsButtons();
+    //resetFormDropDownsButtons();
   });
 
   $("#agent-select").change(function () {
@@ -386,6 +451,7 @@
     var selectedEnvironment = $("#env-select option:selected").val();
     $("#env-hidden").val(selectedEnvironment);
     $('#btn-train').removeAttr("disabled");
+    $('#btn-test').removeAttr("disabled");
     $("#form-div").focus();
   }).change();
 
@@ -466,9 +532,9 @@
   }
 
   function resetButtons() {
-    $('#btn-train').attr("disabled", "true");
-    $('#btn-test').attr("disabled", "true");
-    $('#btn-save').attr("disabled", "true");
+    //$('#btn-train').attr("disabled", "true");
+    //$('#btn-test').attr("disabled", "true");
+    //$('#btn-save').attr("disabled", "true");
     //$('#btn-halt').attr("disabled", "true");
   }
 
@@ -480,6 +546,7 @@
     var data = {
       "environment": $("#env-select option:selected").val()
       , "instanceType": $("#host-select option:selected").text()
+      , "instanceID": $("#session-select option:selected").val()
       , "continuousTraining": $('#btn-con-train').is(":checked") ? 1 : 0
       , "agent": $("#agent-select option:selected").val()
       , "killTime": 600

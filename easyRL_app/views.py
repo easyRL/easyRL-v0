@@ -69,12 +69,13 @@ def login(request):
             request.session['job_id'] = generate_jobID()
             # create ec2 instance
             debug_sessions(request)
-            lambda_create_instance(
-                request.session['aws_access_key'],
-                request.session['aws_secret_key'],
-                request.session['aws_security_token'],
-                request.session['job_id']
-            )
+            #lambda_create_instance(
+            #    request.session['aws_access_key'],
+            #    request.session['aws_secret_key'],
+            #    request.session['aws_security_token'],
+            #    request.session['job_id'],
+            #    {}
+            #)
             request.session['aws_succeed'] = True
             return HttpResponseRedirect("/easyRL_app/")
         else:
@@ -89,7 +90,26 @@ def logout(request):
         request.session['aws_access_key'],
         request.session['aws_secret_key'],
         request.session['aws_security_token'],
-        request.session['job_id']
+        request.session['job_id'],
+        {
+            "instanceType": get_safe_value(str, request.POST.get("c4.xlarge"), "c4.xlarge")
+            ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
+            ,"killTime": get_safe_value(int, 600, 600)
+            ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
+            ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
+            ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
+            ,"episodes": get_safe_value(int, request.POST.get("episodes"), 20)
+            ,"steps": get_safe_value(int, request.POST.get("steps"), 50)
+            ,"gamma": get_safe_value(float, request.POST.get("gamma"), 0.97)
+            ,"minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01)
+            ,"maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99)
+            ,"decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01)
+            ,"batchSize": get_safe_value(int, request.POST.get("batchSize"), 32)
+            ,"memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000)
+            ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
+            ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
+            ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
+        } 
     )
     # clear up all sessions
     for key in keys:
@@ -109,6 +129,39 @@ def train(request):
         request.session['job_id'],
         {
             "instanceType": get_safe_value(str, request.POST.get("c4.xlarge"), "c4.xlarge")
+            ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
+            ,"killTime": get_safe_value(int, 600, 600)
+            ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
+            ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
+            ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
+            ,"episodes": get_safe_value(int, request.POST.get("episodes"), 20)
+            ,"steps": get_safe_value(int, request.POST.get("steps"), 50)
+            ,"gamma": get_safe_value(float, request.POST.get("gamma"), 0.97)
+            ,"minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01)
+            ,"maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99)
+            ,"decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01)
+            ,"batchSize": get_safe_value(int, request.POST.get("batchSize"), 32)
+            ,"memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000)
+            ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
+            ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
+            ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
+        } 
+    ))
+
+@csrf_exempt
+def test(request):
+    debug_sessions(request)
+    if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
+        return HttpResponse(apps.ERROR_UNAUTHENTICATED)
+    print("{}request_parameters{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, debug_parameters(request)))
+    return HttpResponse(lambda_test_job(
+        request.session['aws_access_key'],
+        request.session['aws_secret_key'],
+        request.session['aws_security_token'],
+        request.session['job_id'],
+        {
+            "instanceType": get_safe_value(str, request.POST.get("c4.xlarge"), "c4.xlarge")
+            ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
             ,"killTime": get_safe_value(int, 600, 600)
             ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
             ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
@@ -134,13 +187,14 @@ def poll(request):
         if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
             return HttpResponse(apps.ERROR_UNAUTHENTICATED)
         print("{}request_parameters{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, debug_parameters(request)))
-        return HttpResponse(lambda_poll(
+        response = HttpResponse(lambda_poll(
             request.session['aws_access_key'],
             request.session['aws_secret_key'],
             request.session['aws_security_token'],
             request.session['job_id'],
             {
                 "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
+                ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
                 ,"killTime": get_safe_value(int, 600, 600)
                 ,"continuousTraining" : get_safe_value(int, request.POST.get("continuousTraining"), 0)
                 ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
@@ -158,6 +212,7 @@ def poll(request):
                 ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
             }                
         ))
+        return response
     except:
         return {
             "instanceState": "booting",
@@ -195,6 +250,7 @@ def export_model(request):
         request.session['job_id'],
         {
             "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
+            ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
             ,"killTime": get_safe_value(int, 600, 600)
             ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
             ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
@@ -226,6 +282,7 @@ def halt(request):
         request.session['job_id'],
         {
             "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
+            ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
             ,"killTime": get_safe_value(int, 600, 600)
             ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
             ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
@@ -244,37 +301,8 @@ def halt(request):
         }
     ))
 
-@csrf_exempt
-def test_job(request):
-    if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
-        return HttpResponse(apps.ERROR_UNAUTHENTICATED)
-    print("{}request_parameters{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, debug_parameters(request)))
-    return HttpResponse(lambda_test_job(
-        request.session['aws_access_key'],
-        request.session['aws_secret_key'],
-        request.session['aws_security_token'],
-        request.session['job_id'],
-        {
-            "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
-            ,"killTime": get_safe_value(int, 600, 600)
-            ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
-            ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
-            ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
-            ,"episodes": get_safe_value(int, request.POST.get("episodes"), 20)
-            ,"steps": get_safe_value(int, request.POST.get("steps"), 50)
-            ,"gamma": get_safe_value(float, request.POST.get("gamma"), 0.97)
-            ,"minEpsilon": get_safe_value(float, request.POST.get("minEpsilon"), 0.01)
-            ,"maxEpsilon": get_safe_value(float, request.POST.get("maxEpsilon"), 0.99)
-            ,"decayRate": get_safe_value(float, request.POST.get("decayRate"), 0.01)
-            ,"batchSize": get_safe_value(int, request.POST.get("batchSize"), 32)
-            ,"memorySize": get_safe_value(int, request.POST.get("memorySize"), 1000)
-            ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
-            ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
-            ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
-        } 
-    ))
-
-def lambda_create_instance(aws_access_key, aws_secret_key, aws_security_token, job_id):
+'''
+def lambda_create_instance(aws_access_key, aws_secret_key, aws_security_token, job_id, arguments):
     lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
     data = {
         "accessKey": aws_access_key,
@@ -282,7 +310,7 @@ def lambda_create_instance(aws_access_key, aws_secret_key, aws_security_token, j
         "sessionToken": aws_security_token,
         "jobID": job_id,
         "task": apps.TASK_CREATE_INSTANCE,
-        "arguments": {"instanceType": "c4.xlarge"},
+        "arguments": arguments,
     }
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
     print("{}lambda_create_instance{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
@@ -291,8 +319,9 @@ def lambda_create_instance(aws_access_key, aws_secret_key, aws_security_token, j
         print("{}stream_body{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, streambody))
         return True
     return False
+'''
 
-def lambda_terminate_instance(aws_access_key, aws_secret_key, aws_security_token, job_id):
+def lambda_terminate_instance(aws_access_key, aws_secret_key, aws_security_token, job_id, arguments):
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/lambda.html
     lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
     data = {
@@ -301,7 +330,7 @@ def lambda_terminate_instance(aws_access_key, aws_secret_key, aws_security_token
         "sessionToken": aws_security_token,
         "jobID": job_id,
         "task": apps.TASK_TERMINAL_INSTANCE,
-        "arguments": "",
+        "arguments": arguments,
     }
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
     print("{}lambda_terminate_instance{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
