@@ -233,7 +233,7 @@ paramConditions = {
     },
     "delta": {
         "name": "Delta",
-        "description": "",
+        "description": "The normalized step size for computing the learning rate.",
         "min": 0,
         "max": 0.05,
         "default": 0.001,
@@ -242,7 +242,7 @@ paramConditions = {
     },
     "sigma": {
         "name": "Sigma",
-        "description": "",
+        "description": "The standard deviation of additive noise.",
         "min": 0.001,
         "max": 1,
         "default": 0.5,
@@ -251,7 +251,7 @@ paramConditions = {
     },
     "population": {
         "name": "Population Size",
-        "description": "",
+        "description": "The size of the sample population.",
         "min": 0,
         "max": 100,
         "default": 10,
@@ -260,7 +260,7 @@ paramConditions = {
     },
     "elite": {
         "name": "Elite Fraction",
-        "description": "",
+        "description": "The proportion of the elite to consider for policy improvement.",
         "min": 0.001,
         "max": 1,
         "default": 0.2,

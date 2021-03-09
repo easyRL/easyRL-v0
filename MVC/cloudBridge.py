@@ -143,5 +143,11 @@ class CloudBridge:
     def submitTrainFinish(self):
         totalReward = self.episodeAccReward
         avgReward = self.episodeAccReward / self.trainingEpisodes
+        time.sleep(15)
+        self.state = "Finished"
 
+    def submitTestFinish(self):
+        totalReward = self.episodeAccReward
+        avgReward = self.episodeAccReward / self.trainingEpisodes
+        time.sleep(15)
         self.state = "Finished"

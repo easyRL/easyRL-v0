@@ -164,6 +164,10 @@ class Model:
                 if self.isHalted:
                     self.isHalted = False
                     break
+
+            if (self.cloudBridge is not None):
+                self.cloudBridge.submitTrainFinish()
+
             message = Model.Message(Model.Message.EVENT, Model.Message.TEST_FINISHED)
             messageQueue.put(message)
             print('testing done')
