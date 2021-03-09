@@ -393,6 +393,8 @@
           + "This explains something.<br>"
           + "Session Cost: $" + (uptime).toFixed(2);
         document.getElementById('episodes-completed-h1').innerHTML = result["progress"]["episodes"].length;
+        document.getElementById('total-reward-h1').innerHTML = result["progress"]["totalReward"];
+        document.getElementById('reward-episode-h1').innerHTML = result["progress"]["avgReward"];
         document.getElementById("status-info").innerHTML = statusInfo;
       }
 
@@ -530,7 +532,7 @@
           '<div class=""><input type="range" id="' + parameter + 'Slider" class="form-range" name="' + parameter + 'Slider" min="' + parameterData.min + '" max="' + parameterData.max + '"' +
           'step="' + parameterData.stepSize + '" value="' + parameterData.default + '" oninput="' + parameter + 'Text.value =' + parameter + 'Slider.value"></div>' +
           '<center><input type="text" class="form-control" id="' + parameter + 'Text"' +
-          'value="' + parameterData.default + '" readonly style="width: 75px"></center>' +
+          'value="' + parameterData.default + '" onchange="' + parameter + 'Slider.value =' + parameter + 'Text.value style="width: 75px"></center>' +
           '</div>';
 
 
