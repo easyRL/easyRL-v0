@@ -308,6 +308,7 @@ def yourFunction(request, context):
     modelName = "trainedAgent.bin"
     if continuousTraining:
         modelName = "continuousTraining.bin"
+    modelName = "continuousTraining.bin"
 
     botoSession = boto3.Session(
         aws_access_key_id=accessKey,
@@ -643,7 +644,7 @@ def yourFunction(request, context):
                     else:
                         command += '" | python3.7 ./easyRL-v0/EasyRL.py --terminal --secretKey ' + \
                             secretKey + ' --accessKey ' + accessKey + ' --jobID ' + jobID
-                    command += ' &> /dev/null & sleep 1'
+                    command += ' &> lastJobLog.txt & sleep 1'
 
                     #inspector.addAttribute("command", command)
 
