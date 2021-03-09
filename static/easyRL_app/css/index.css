@@ -26,6 +26,11 @@
       object-fit: cover;
   }
 
+  #training_image {
+ 
+      object-fit: scale-down;
+  }
+
   .image-container img {
     width: 200px;
     height: 300px;

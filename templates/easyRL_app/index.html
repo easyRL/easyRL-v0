@@ -96,7 +96,6 @@
           </select>
         </div>
         <div class="col" style="margin-top: 10px">
-
           <center>Agent:</center>
           <select class="form-select" id="agent-select" size="4" aria-label="Default select example">
             <!-- <option value="0">--Select Agent--</option> -->
@@ -110,7 +109,6 @@
           </select>
         </div>
         <div class="col" style="margin-top: 10px">
-
           <center> Instance:</center>
           <select id="host-select" class="form-select" size="4" aria-label="Default select example">
             <!-- <option value="0">--Select Host Environment--</option> -->
@@ -149,7 +147,6 @@
               alt="...">
           </div>
         </div>
-      
         {% endif %}
         {% endfor %}
       </div>
@@ -173,12 +170,11 @@
       </div>
     </div>
     <div class="row">
-      <div class="card border-warning mb-3" style="max-width: 18rem;">
+      <div class="card mb-3 col" >
         <div class="card-header">Status</div>
         <div class="card-body">
           <h5 class="card-title">Warning card title</h5>
           <p class="card-text" id="status-info" style="font-size:small">
-
             Here is some text.<br>
             Here is some more.<br>
             This explains something.<br>
@@ -186,12 +182,25 @@
           </p>
         </div>
       </div>
-      <div class="card border-info mb-3" style="max-width: 18rem;">
-        <div class="card-header">Header</div>
+      <div class="card  border-info mb-3 col" style="margin-left: 2px;">
+        <div class="card-header">Episodes Completed</div>
         <div class="card-body">
-          <h5 class="card-title">Info card title</h5>
-          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-            content.</p>
+          <h1 class="card-title"style="font-family: tahoma; text-align: center" id="episodes-completed-h1">0</h1>
+
+        </div>
+      </div>
+      <div class="card border-info mb-3 col" style="margin-left: 2px;">
+        <div class="card-header">Total Training Reward</div>
+        <div class="card-body">
+          <h1 class="card-title"style="font-family: tahoma; text-align: center">0</h1>
+
+        </div>
+      </div>
+      <div class="card  border-info mb-3 col" style="margin-left: 2px;">
+        <div class="card-header">Reward/Episode</div>
+        <div class="card-body">
+          <h1 class="card-title"style="font-family: tahoma; text-align: center">0</h1>
+
         </div>
       </div>
     </div>
@@ -383,7 +392,10 @@
           + "Here is some more.<br>"
           + "This explains something.<br>"
           + "Session Cost: $" + (uptime).toFixed(2);
-
+            
+        document.querySelector('#episodes-completed-h1').innerHTML = result['progress']["episodes"].length;
+        document.querySelector('#avg-reward-h1').innerHTML = result["progress"]["avgReward"];
+        document.querySelector('#total-reward-h1').innerHTML = result["progress"]["totalReward"];
         document.getElementById("status-info").innerHTML = statusInfo;
       }
 
@@ -496,6 +508,7 @@
     $('#btn-train').removeAttr("disabled");
     $('#btn-test').removeAttr("disabled");
     $("#form-div").focus();
+    $('html, body').animate({ scrollTop: 1000}, 800);
   }).change();
 
   function renderOptions(agent) {
