@@ -69,6 +69,7 @@ class CloudBridge:
         self.episodeAccLoss = 0
         self.curEpisodeSteps = 0
 
+        self.trueTotalReward = 0
         self.animationFrames.clear()
 
     def submitStep(self, frame, epsilon, reward, loss):
@@ -87,6 +88,8 @@ class CloudBridge:
         avgLoss = self.episodeAccLoss / self.curEpisodeSteps
         totalReward = self.episodeAccReward
         avgEpsilon = self.episodeAccEpsilon / self.curEpisodeSteps
+
+        self.trueTotalReward += totalReward
 
         # Append data to data structure
         # e = episdoe, l = averageloss, r = totalreward, p = avgEpsilon
@@ -124,8 +127,8 @@ class CloudBridge:
                     self.gifURLs.pop(0)
 
             payload =  {
-                "totalReward": self.episodeAccReward,
-                "avgReward": self.episodeAccReward / self.trainingEpisodes,
+                "totalReward": round(self.trueTotalReward),
+                "avgReward": round(self.trueTotalReward / self.trainingEpisodes),
                 "uptime": int(round(time.time() * 1000)) - self.startTime,
                 "episodes": self.episodeData,
                 "gifs": self.gifURLs
