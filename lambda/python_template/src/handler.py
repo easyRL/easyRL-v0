@@ -380,7 +380,7 @@ def yourFunction(request, context):
                     stdout = ssh_stdout.readlines() # DO NOT REMOVE
                     stderr = ssh_stderr.readlines() # DO NOT REMOVE
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
-                        "echo " + arguments['instanceType'] + " > tag.txt")
+                        "echo " + arguments['instanceType'] + str(arguments['killTime']) + " > tag.txt")
                     inspector.addAttribute("instanceState", "updated")
                     inspector.addAttribute("instanceStateText", "Cloned Repository")
                 else:
@@ -388,7 +388,8 @@ def yourFunction(request, context):
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
                         "cat tag.txt")
                     instanceData = ssh_stdout.readlines()
-                    if (arguments['instanceType'] not in instanceData[0]):
+                    tag = arguments['instanceType'] + str(arguments['killTime'])
+                    if (instanceData == [] or tag not in instanceData[0]):
                         terminateInstance(
                             ec2Client, ec2Resource, ourInstance, inspector)
                         createInstance(ec2Client, ec2Resource,
