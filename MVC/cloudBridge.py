@@ -18,6 +18,7 @@ class CloudBridge:
         self.delayTime = 1000
         self.uploadModels = True
         self.model = model
+        self.startTime = int(round(time.time() * 1000))
 
         self.lastSave = 0
 
@@ -124,6 +125,7 @@ class CloudBridge:
             payload =  {
                 "totalReward": self.episodeAccReward,
                 "avgReward": self.episodeAccReward / self.trainingEpisodes,
+                "uptime": int(round(time.time() * 1000)) - self.startTime,
                 "episodes": self.episodeData,
                 "gifs": self.gifURLs
             }
