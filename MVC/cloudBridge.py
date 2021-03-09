@@ -127,6 +127,7 @@ class CloudBridge:
                     self.gifURLs.pop(0)
 
             payload =  {
+                "episodesCompleted": int(episode),
                 "totalReward": round(self.trueTotalReward),
                 "avgReward": round(self.trueTotalReward / self.trainingEpisodes),
                 "uptime": int(round(time.time() * 1000)) - self.startTime,
