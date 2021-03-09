@@ -21,7 +21,7 @@ class Model:
     def createBridge(self, jobID, secretKey, accessKey, sessionToken):
         print("Bridge Created")
         if (self.cloudBridge is None):
-            self.cloudBridge = cloudBridge.CloudBridge(jobID, secretKey, accessKey, sessionToken)
+            self.cloudBridge = cloudBridge.CloudBridge(jobID, secretKey, accessKey, sessionToken, self)
 
     # def run_learning(self, messageQueue, total_episodes, max_steps, *model_args):
     #     cProfile.runctx('self.run_learning2(messageQueue, total_episodes, max_steps, *model_args)', globals(), locals(),
@@ -81,7 +81,7 @@ class Model:
                     break
 
             if (self.cloudBridge is not None):
-                self.cloudBridge.submitEpisode(episode)
+                self.cloudBridge.submitEpisode(episode, int(total_episodes))
 
             message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
             messageQueue.put(message)
@@ -154,7 +154,7 @@ class Model:
                         break
 
                 if (self.cloudBridge is not None):
-                    self.cloudBridge.submitEpisode(episode)
+                    self.cloudBridge.submitEpisode(episode, int(total_episodes))
 
                 message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
                 messageQueue.put(message)
@@ -164,6 +164,10 @@ class Model:
                 if self.isHalted:
                     self.isHalted = False
                     break
+
+            if (self.cloudBridge is not None):
+                self.cloudBridge.submitTrainFinish()
+
             message = Model.Message(Model.Message.EVENT, Model.Message.TEST_FINISHED)
             messageQueue.put(message)
             print('testing done')
@@ -183,9 +187,6 @@ class Model:
     def save(self, filename):
         if self.agent:
             self.agent.save(filename)
-            if (self.cloudBridge is not None):
-                if os.path.exists(filename):
-                    self.cloudBridge.upload(filename)
 
     def load(self, filename):
         self.loadFilename = filename

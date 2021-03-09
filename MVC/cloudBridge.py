@@ -3,17 +3,23 @@ import uuid
 import json
 import time
 import os
+import math
+import requests
 
 class CloudBridge:
 
-    def __init__(self, jobID, secretKey, accessKey, sessionToken):
+    def __init__(self, jobID, secretKey, accessKey, sessionToken, model):
         self.animationFrames = []
         self.jobID = jobID
         self.secretKey = secretKey
         self.accessKey = accessKey
         self.s3Client = None
         self.episodeData = []
+        self.gifURLs = []
         self.delayTime = 1000
+        self.uploadModels = True
+        self.model = model
+        self.startTime = int(round(time.time() * 1000))
 
         self.lastSave = 0
 
@@ -63,6 +69,7 @@ class CloudBridge:
         self.episodeAccLoss = 0
         self.curEpisodeSteps = 0
 
+        self.trueTotalReward = 0
         self.animationFrames.clear()
 
     def submitStep(self, frame, epsilon, reward, loss):
@@ -74,7 +81,7 @@ class CloudBridge:
         self.episodeAccLoss += loss
         self.curEpisodeSteps += 1
 
-    def submitEpisode(self, episode):
+    def submitEpisode(self, episode, totalEpisodes):
         self.trainingEpisodes += 1
 
         # Redraw Graph
@@ -82,45 +89,65 @@ class CloudBridge:
         totalReward = self.episodeAccReward
         avgEpsilon = self.episodeAccEpsilon / self.curEpisodeSteps
 
+        self.trueTotalReward += totalReward
+
         # Append data to data structure
+        # e = episdoe, l = averageloss, r = totalreward, p = avgEpsilon
         self.episodeData.append({
-            "episode": episode,
-            "avgLoss": avgLoss,
-            "avgEpsilon": avgEpsilon,
-            "totalReward": totalReward
+            "e": episode, 
+            "l": round(avgLoss,3),
+            "p": round(avgEpsilon,3),
+            "r": round(totalReward,3)
         })
 
+        self.curEpisodeSteps = 0
+        self.episodeAccLoss = 0
+        self.episodeAccReward = 0
+        self.episodeAccEpsilon = 0
+
+        if (len(self.episodeData)) > 1000:
+            self.episodeData.pop(0)
+
         currentTime = int(round(time.time() * 1000))
-        if (currentTime - self.lastSave) > self.delayTime:
+        if ((currentTime - self.lastSave) > self.delayTime) or (int(episode) > int(totalEpisodes) - 5):
             self.lastSave = currentTime
 
-            payload =  {
-                "totalReward": self.episodeAccReward,
-                "avgReward": self.episodeAccReward / self.trainingEpisodes,
-                "episodes": self.episodeData
-            }
-
-            with open('data.json', 'w+') as f:
-                json.dump(payload, f)
-
-            # Submit Data to S3
-            self.s3Client.put_object(Body=json.dumps(payload), Bucket='easyrl-' + str(self.jobID), Key="data.json")
-
-            self.curEpisodeSteps = 0
-            self.episodeAccLoss = 0
-            self.episodeAccReward = 0
-            self.episodeAccEpsilon = 0
+            if (self.state == "Training" and self.uploadModels):
+                self.model.save("continuousTraining.bin")
 
             # Render Gif
             if (len(self.animationFrames) > 0):
                 filename = self.state + '-episode-' + str(episode) + ".gif"
                 self.animationFrames[0].save("./" + filename, save_all=True, append_images=self.animationFrames)
-                self.s3Client.upload_file(filename, 'easyrl-' + str(self.jobID), filename)
-                self.animationFrames = []
+                self.s3Client.upload_file(filename, 'easyrl-' + str(self.jobID), filename, ExtraArgs={'ACL': 'public-read'})
                 os.remove("./" + filename)
+                self.gifURLs.append("https://easyrl-" + str(self.jobID) + ".s3.amazonaws.com/" + filename)
+
+                if (len(self.gifURLs)) > 10:
+                    self.gifURLs.pop(0)
+
+            payload =  {
+                "episodesCompleted": int(episode),
+                "totalReward": round(self.trueTotalReward),
+                "avgReward": round(self.trueTotalReward / self.trainingEpisodes),
+                "uptime": int(round(time.time() * 1000)) - self.startTime,
+                "episodes": self.episodeData,
+                "gifs": self.gifURLs
+            }
+
+            with open('data.json', 'w+') as f:
+                json.dump(payload, f)                
+
+        self.animationFrames = []
         
     def submitTrainFinish(self):
         totalReward = self.episodeAccReward
         avgReward = self.episodeAccReward / self.trainingEpisodes
+        time.sleep(15)
+        self.state = "Finished"
 
+    def submitTestFinish(self):
+        totalReward = self.episodeAccReward
+        avgReward = self.episodeAccReward / self.trainingEpisodes
+        time.sleep(15)
         self.state = "Finished"

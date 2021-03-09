@@ -1,0 +1,531 @@
+{
+	"agents": {
+		"1": {
+			"name": "Deep Q",
+			"description": "",
+			"supportedEnvs": [
+				"singleDim",
+				"singleDimDiscrete"
+			],
+			"parameterOrder": [
+				"episodes",
+				"steps",
+				"gamma",
+				"minEpsilon",
+				"maxEpsilon",
+				"decayRate",
+				"batchSize",
+				"memorySize",
+				"targetInterval"
+			]
+		},
+		"2": {
+			"name": "Q Learning",
+			"description": "",
+			"supportedEnvs": [
+				"singleDimDiscrete"
+			],
+			"parameterOrder": [
+				"episodes",
+				"steps",
+				"gamma",
+				"minEpsilon",
+				"maxEpsilon",
+				"decayRate",
+				"alpha"
+			]
+		},
+		"3": {
+			"name": "DRQN",
+			"description": "",
+			"supportedEnvs": [
+				"singleDim",
+				"singleDimDiscrete",
+				"atari"
+			],
+			"parameterOrder": [
+				"episodes",
+				"steps",
+				"gamma",
+				"minEpsilon",
+				"maxEpsilon",
+				"decayRate",
+				"batchSize",
+				"memorySize",
+				"targetInterval",
+				"historyLength"
+			]
+		},
+		"4": {
+			"name": "ADRQN",
+			"description": "",
+			"supportedEnvs": [
+				"singleDim",
+				"singleDimDiscrete",
+				"atari"
+			],
+			"parameterOrder": [
+				"episodes",
+				"steps",
+				"gamma",
+				"minEpsilon",
+				"maxEpsilon",
+				"decayRate",
+				"batchSize",
+				"memorySize",
+				"targetInterval",
+				"historyLength"
+			]
+		},
+		"5": {
+			"name": "SARSA",
+			"description": "",
+			"supportedEnvs": [
+				"singleDimDiscrete"
+			],
+			"parameterOrder": [
+				"episodes",
+				"steps",
+				"gamma",
+				"minEpsilon",
+				"maxEpsilon",
+				"decayRate",
+				"alpha"
+			]
+		}
+	},
+	"parameters": {
+		"episodes": {
+			"name": "Number of Episodes",
+			"description": "",
+			"min": 1,
+			"max": 1000000000,
+			"default": 1000,
+			"showSlider": false
+		},
+		"steps": {
+			"name": "Max Size",
+			"description": "",
+			"min": 1,
+			"max": 1000000000,
+			"default": 200,
+			"showSlider": false
+		},
+		"gamma": {
+			"name": "Gamma",
+			"description": "",
+			"min": 0,
+			"max": 1,
+			"default": 0.97,
+			"showSlider": true,
+			"stepSize": 0.01
+		},
+		"minEpsilon": {
+			"name": "Min Epsilon",
+			"description": "",
+			"min": 0,
+			"max": 1,
+			"default": 0.1,
+			"showSlider": true,
+			"stepSize": 0.01
+		},
+		"maxEpsilon": {
+			"name": "Max Epsilon",
+			"description": "",
+			"min": 0,
+			"max": 1,
+			"default": 1,
+			"showSlider": true,
+			"stepSize": 0.01
+		},
+		"decayRate": {
+			"name": "Decay Rate",
+			"description": "",
+			"min": 0,
+			"max": 0.2,
+			"default": 0.018,
+			"showSlider": true,
+			"stepSize": 0.001
+		},
+		"batchSize": {
+			"name": "Batch Size",
+			"description": "",
+			"min": 1,
+			"max": 256,
+			"default": 32,
+			"showSlider": true,
+			"stepSize": 1
+		},
+		"memorySize": {
+			"name": "Memory Size",
+			"description": "",
+			"min": 1,
+			"max": 655360,
+			"default": 1000,
+			"showSlider": false
+		},
+		"targetInterval": {
+			"name": "Target Update Interval",
+			"description": "",
+			"min": 1,
+			"max": 100000,
+			"default": 200,
+			"showSlider": false
+		},
+		"historyLength": {
+			"name": "History Length",
+			"description": "",
+			"min": 0,
+			"max": 20,
+			"default": 10,
+			"showSlider": true,
+			"stepSize": 1
+		},
+		"alpha": {
+			"name": "Alpha",
+			"description": "",
+			"min": 0,
+			"max": 1,
+			"default": 0.18,
+			"showSlider": true,
+			"stepSize": 0.01
+		}
+	},
+	"environments": {
+		"1": {
+			"name": "Cart Pole",
+			"description": "",
+			"type": "singleDim"
+		},
+		"2": {
+			"name": "Cart Pole Discrete",
+			"description": "",
+			"type": "singleDimDiscrete"
+		},
+		"3": {
+			"name": "Frozen Lake",
+			"description": "",
+			"type": "singleDimDiscrete"
+		},
+		"4": {
+			"name": "Pendulum",
+			"description": "",
+			"type": "singleDim"
+		},
+		"5": {
+			"name": "Acrobot",
+			"description": "",
+			"type": "singleDim"
+		},
+		"6": {
+			"name": "Mountain Car",
+			"description": "",
+			"type": "singleDim"
+		},
+		"7": {
+			"name": "Adventure",
+			"description": "",
+			"type": "atari"
+		},
+		"8": {
+			"name": "Air Raid",
+			"description": "",
+			"type": "atari"
+		},
+		"9": {
+			"name": "Alien",
+			"description": "",
+			"type": "atari"
+		},
+		"10": {
+			"name": "Amidar",
+			"description": "",
+			"type": "atari"
+		},
+		"11": {
+			"name": "Assault",
+			"description": "",
+			"type": "atari"
+		},
+		"12": {
+			"name": "Asterix",
+			"description": "",
+			"type": "atari"
+		},
+		"13": {
+			"name": "Asteroids",
+			"description": "",
+			"type": "atari"
+		},
+		"14": {
+			"name": "Atlantis",
+			"description": "",
+			"type": "atari"
+		},
+		"15": {
+			"name": "Bank Heist",
+			"description": "",
+			"type": "atari"
+		},
+		"16": {
+			"name": "Battle Zone",
+			"description": "",
+			"type": "atari"
+		},
+		"17": {
+			"name": "Beam Rider",
+			"description": "",
+			"type": "atari"
+		},
+		"18": {
+			"name": "Berzerk",
+			"description": "",
+			"type": "atari"
+		},
+		"19": {
+			"name": "Bowling",
+			"description": "",
+			"type": "atari"
+		},
+		"20": {
+			"name": "Boxing",
+			"description": "",
+			"type": "atari"
+		},
+		"21": {
+			"name": "Breakout",
+			"description": "",
+			"type": "atari"
+		},
+		"22": {
+			"name": "Carnival",
+			"description": "",
+			"type": "atari"
+		},
+		"23": {
+			"name": "Centipede",
+			"description": "",
+			"type": "atari"
+		},
+		"24": {
+			"name": "Chopper Command",
+			"description": "",
+			"type": "atari"
+		},
+		"25": {
+			"name": "Crazy Climber",
+			"description": "",
+			"type": "atari"
+		},
+		"26": {
+			"name": "Demon Attack",
+			"description": "",
+			"type": "atari"
+		},
+		"27": {
+			"name": "Double Dunk",
+			"description": "",
+			"type": "atari"
+		},
+		"28": {
+			"name": "Elevator Action",
+			"description": "",
+			"type": "atari"
+		},
+		"29": {
+			"name": "Enduro",
+			"description": "",
+			"type": "atari"
+		},
+		"30": {
+			"name": "Fishing Derby",
+			"description": "",
+			"type": "atari"
+		},
+		"31": {
+			"name": "Freeway",
+			"description": "",
+			"type": "atari"
+		},
+		"32": {
+			"name": "Frostbite",
+			"description": "",
+			"type": "atari"
+		},
+		"33": {
+			"name": "Gopher",
+			"description": "",
+			"type": "atari"
+		},
+		"34": {
+			"name": "Gravitar",
+			"description": "",
+			"type": "atari"
+		},
+		"35": {
+			"name": "Hero",
+			"description": "",
+			"type": "atari"
+		},
+		"36": {
+			"name": "Ice Hockey",
+			"description": "",
+			"type": "atari"
+		},
+		"37": {
+			"name": "Jamesbond",
+			"description": "",
+			"type": "atari"
+		},
+		"38": {
+			"name": "Journey Escape",
+			"description": "",
+			"type": "atari"
+		},
+		"39": {
+			"name": "Kangaroo",
+			"description": "",
+			"type": "atari"
+		},
+		"40": {
+			"name": "Krull",
+			"description": "",
+			"type": "atari"
+		},
+		"41": {
+			"name": "Kung Fu Master",
+			"description": "",
+			"type": "atari"
+		},
+		"42": {
+			"name": "Montezuma Revenge",
+			"description": "",
+			"type": "atari"
+		},
+		"43": {
+			"name": "Ms. Pacman",
+			"description": "",
+			"type": "atari"
+		},
+		"44": {
+			"name": "Name this Game",
+			"description": "",
+			"type": "atari"
+		},
+		"45": {
+			"name": "Phoenix",
+			"description": "",
+			"type": "atari"
+		},
+		"46": {
+			"name": "Pitfall",
+			"description": "",
+			"type": "atari"
+		},
+		"47": {
+			"name": "Pong",
+			"description": "",
+			"type": "atari"
+		},
+		"48": {
+			"name": "Pooyan",
+			"description": "",
+			"type": "atari"
+		},
+		"49": {
+			"name": "Private Eye",
+			"description": "",
+			"type": "atari"
+		},
+		"50": {
+			"name": "QBert",
+			"description": "",
+			"type": "atari"
+		},
+		"51": {
+			"name": "River Raid",
+			"description": "",
+			"type": "atari"
+		},
+		"52": {
+			"name": "Road Runner",
+			"description": "",
+			"type": "atari"
+		},
+		"53": {
+			"name": "RoboTank",
+			"description": "",
+			"type": "atari"
+		},
+		"54": {
+			"name": "SeaQuest",
+			"description": "",
+			"type": "atari"
+		},
+		"55": {
+			"name": "Skiing",
+			"description": "",
+			"type": "atari"
+		},
+		"56": {
+			"name": "Solaris",
+			"description": "",
+			"type": "atari"
+		},
+		"57": {
+			"name": "Space Invaders",
+			"description": "",
+			"type": "atari"
+		},
+		"58": {
+			"name": "Star Gunner",
+			"description": "",
+			"type": "atari"
+		},
+		"59": {
+			"name": "Tennis",
+			"description": "",
+			"type": "atari"
+		},
+		"60": {
+			"name": "Time Pilot",
+			"description": "",
+			"type": "atari"
+		},
+		"61": {
+			"name": "Tutankham",
+			"description": "",
+			"type": "atari"
+		},
+		"62": {
+			"name": "Up N Down",
+			"description": "",
+			"type": "atari"
+		},
+		"63": {
+			"name": "Venture",
+			"description": "",
+			"type": "atari"
+		},
+		"64": {
+			"name": "Video Pinball",
+			"description": "",
+			"type": "atari"
+		},
+		"65": {
+			"name": "Wizard of Wor",
+			"description": "",
+			"type": "atari"
+		},
+		"66": {
+			"name": "Yars Revenge",
+			"description": "",
+			"type": "atari"
+		},
+		"67": {
+			"name": "Zaxxon",
+			"description": "",
+			"type": "atari"
+		}
+	}
+}
