@@ -392,7 +392,7 @@
           + "Here is some more.<br>"
           + "This explains something.<br>"
           + "Session Cost: $" + (uptime).toFixed(2);
-        document.getElementById('episodes-completed-h1').innerHTML = result["progress"]["episodes"].length;
+        document.getElementById('episodes-completed-h1').innerHTML = result["progress"]["episodesCompleted"];
         document.getElementById('total-reward-h1').innerHTML = result["progress"]["totalReward"];
         document.getElementById('reward-episode-h1').innerHTML = result["progress"]["avgReward"];
         document.getElementById("status-info").innerHTML = statusInfo;
