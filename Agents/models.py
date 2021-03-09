@@ -21,6 +21,7 @@ class Actor(DeepQ):
     try:
       # inputA = Input(shape=self.state_size)
       # inputA = Flatten()(inputA)
+      print("State size: " + str(self.state_size) + "\n")
       model = tf.keras.Sequential([
               Dense(32, activation='relu', input_shape=(self.state_size)),
               Dense(16, activation='relu', input_shape=(self.state_size)),
