@@ -48,7 +48,7 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         loss = 0
         if len(self.memory) < 2*self.batch_size:
             return loss
-        mini_batch = self.sample()
+        _, mini_batch = self.sample()
 
         X_train, Y_train = self.calculateTargetValues(mini_batch)
         loss = self.model.train_on_batch(X_train, Y_train)
@@ -105,8 +105,7 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
 
         for index_rep, transition in enumerate(mini_batch):
             #print("Mini Batch: " + str(mini_batch))
-            print("Next states: " + str(next_states))
-            states, actions, rewards, _, dones = mini_batch
+            states, actions, rewards, _, dones = transition
             
             X_train[0][index_rep] = transition.state
             X_train[1][index_rep] = self.create_one_hot(self.action_size, transition.action)
@@ -114,13 +113,17 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
 
         Y_train = np.zeros((self.batch_size,) + (self.action_size,))
         qnext = self.target.predict([next_states, self.allBatchMask])
+        print(str(qnext))
         qnext = np.amax(qnext, 1)
+        print(qnext)
 
         for index_rep, transition in enumerate(mini_batch):
             if transition.is_done:
                 Y_train[index_rep][transition.action] = transition.reward
             else:
                 Y_train[index_rep][transition.action] = transition.reward + qnext[index_rep] * self.gamma
+        print("X train: " + str(X_train))
+        print("Y train: " + str(Y_train))
         return X_train, Y_train
 
     def __deepcopy__(self, memodict={}):

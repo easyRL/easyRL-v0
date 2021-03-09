@@ -32,15 +32,16 @@ class Rainbow(DeepQ):
         '''self.batch_size, self.memory_size, self.target_update_interval = [int(param) for param in Qparams]
         #self.batch_size, self.memory_size, self.target_update_interval, _ = [int(arg) for arg in args[-paramLen:]]
         _, _, _, self.learning_rate = [arg for arg in args[-paramLen:]]
-        empty_state = self.get_empty_state()
         self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)'''
+        empty_state = self.get_empty_state()
         self.total_steps = 0
         self.model = self.buildQNetwork()
         self.target = self.buildQNetwork()
         self.lr = 0.001
+        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
 
         # Parameters used for Bellman Distribution
         self.num_atoms = 51
@@ -49,8 +50,9 @@ class Rainbow(DeepQ):
         self.delta_z = (self.v_max - self.v_min) / float(self.num_atoms -1)
         self.z = [self.v_min + i * self.delta_z for i in range(self.num_atoms)]
         self.sample_size = min(self.batch_size, self.memory_size)
-        #self.atomMask = np.full((self.num_atoms, self.action_size), 1)
-        #self.sample_size = min(self.batch_size * self.epoch, self.memory_size)
+        # Initialize prioritization exponent
+        self.p = 0.5
+        self.allBatchMask = np.full((self.sample_size, self.num_atoms), 1)
 
     def sample(self):
         return self.memory.sample(self.batch_size)
@@ -63,11 +65,19 @@ class Rainbow(DeepQ):
         loss = 0
         if len(self.memory) < 2*self.batch_size:
             return loss
-        loss = self.compute_loss()
+        batch_idx, mini_batch = self.sample()
+
+        #X_train, Y_train = self.calculateTargetValues(mini_batch)
+        #self.model.train_on_batch(X_train, Y_train)
+        loss = self.agent_loss()
+        if (isinstance(self.memory, ExperienceReplay.PrioritizedReplayBuffer)):
+            errors = self.compute_loss(mini_batch)
+            for idx, error in batch_idx, errors:
+                self.memory.update_error(idx, error)
         return loss
 
     def sample_trajectories(self):
-        mini_batch = self.sample()
+        _, mini_batch = self.sample()
         allStates = np.zeros(((self.sample_size, ) + self.state_size))
         allNextStates = np.zeros(((self.sample_size, ) + self.state_size))
         allActions = []
@@ -91,7 +101,7 @@ class Rainbow(DeepQ):
         action = np.argmax(q_value)
         return action
         
-    def compute_loss(self):
+    def agent_loss(self):
         import tensorflow as tf
 
         allStates, allActions, allRewards, allNextStates, allDones = self.sample_trajectories()
@@ -158,6 +168,55 @@ class Rainbow(DeepQ):
         model = Model(inputs=inputs, outputs=outputs)
         model.compile(loss='mse', optimizer=Adam(lr=0.0000625, epsilon=1.5 * 1e-4))
         return model
+
+    def calculateTargetValues(self, mini_batch):
+        X_train = [np.zeros((self.sample_size,) + self.state_size), np.zeros((self.sample_size,) + (self.action_size,))]
+        next_states = np.zeros((self.sample_size,) + self.state_size)
+
+        for index_rep, transition in enumerate(mini_batch):
+            states, actions, rewards, _, dones = transition
+            
+            X_train[0][index_rep] = transition.state
+            X_train[1][index_rep] = self.create_one_hot(self.action_size, transition.action)
+            next_states[index_rep] = transition.next_state
+
+        Y_train = np.zeros((self.sample_size,) + (self.action_size,))
+        z = self.target.predict(next_states)
+        z_concat = np.vstack(z)
+        qnext = np.sum(np.multiply(z_concat, np.array(self.z)), axis=1)
+        for index_rep, transition in enumerate(mini_batch):
+            if transition.is_done:
+                Y_train[index_rep][transition.action] = transition.reward
+            else:
+                Y_train[index_rep][transition.action] = transition.reward + qnext[index_rep] * self.gamma
+        #print("X train: " + str(X_train))
+        #print("Y train: " + str(Y_train))
+        return X_train, Y_train
+
+    # compute td error for priority replay buffer
+    def compute_loss(self, mini_batch):
+        errors = []
+        index = 0
+        # sample transition at recent time step
+        for time, sample in mini_batch:
+            # reshapes the state and next_state
+            state, next_state = sample.state, sample.next_state
+            next_reward = self.memory.get_transitions(time+1).reward
+            shape = (1,) + self.state_size
+            state = np.reshape(state, shape)
+            next_state = np.reshape(next_state, shape)
+
+            # Retrieves necessary q values to compute error
+            q = self.target.predict([state])
+            q_next = self.model.predict([next_state])
+            q_max = np.argmax(q_next)
+
+            # Calculates td error which is used to compute priority
+            error = (next_reward + self.gamma * q_max - q) ** self.p
+            # self.memory.update_error(index, error)
+            errors[index] = error
+            index+=1
+        return errors
 
     def save(self, filename):
         mem = self.model.get_weights()
