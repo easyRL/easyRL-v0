@@ -20,15 +20,15 @@
             <button id="btn-halt" class="btn btn-primary" style="margin:5px;">Halt</button>
           </li>
           <li class="nav-item">
-            <button id="btn-test" class="btn btn-primary" style="margin:5px;" disabled>Test</button>
+            <a id="btn-test" class="btn btn-primary" style="margin:5px;" disabled>Test</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
               aria-expanded="false" style="margin:5px;">Model </a>
             <div class="dropdown-menu">
-              <a class="dropdown-item" href="import/" disabled>Save</a>
+              <a class="dropdown-item" id="btn-import" href="import/" disabled>Import</a>
               <div class="dropdown-divider btn"></div>
-              <a class="dropdown-item" href="export/">Load</a>
+              <button class="dropdown-item" id="btn-export">Export</button>
             </div>
           </li>
           <li class="nav-item">
@@ -281,6 +281,18 @@
         setTimeout(doPoll, 5000);
     }
   } 
+
+  $("#btn-export").click(function () {
+    $.post('/easyRL_app/export/', getData(), function (result, status, jqxhr) {
+        if (result == "") {
+          //alert("The response is empty");
+          return;
+        }
+        result = JSON.parse(result);
+        //window.open(result['url'], '_blank');
+        window.location.href = result['url'];
+      });
+  });
 
   function draw_graph(episodes) {
     var length = episodes.length;
