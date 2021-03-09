@@ -27,6 +27,13 @@ paraMap = {
     '3': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
     '4': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
     '5': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
+
+    '6': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'alpha'],
+    '7': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength', 'alpha'],
+    '8': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength', 'alpha'],
+
+    '9': ['episodes', 'steps', 'gamma', 'delta'],
+    '10': ['episodes', 'steps', 'gamma', 'sigma', 'population', 'elite']
 }
 
 instanceCosts = {
@@ -38,11 +45,18 @@ instanceCosts = {
 }
 
 agentList = [
-    {"name": "Deep Q", "index": "1", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
-    {"name": "Q Learning", "index": "2", "supportedEnvs": ["singleDimDescrete"]},
-    {"name": "DRQN", "index": "3", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "ADRQN", "index": "4", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "SARSA", "index": "5", "supportedEnvs": ["singleDimDescrete"]}
+    {"name": "Deep Q (SRB)", "description": "", "index": "1", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
+    {"name": "Q Learning", "description": "", "index": "2", "supportedEnvs": ["singleDimDescrete"]},
+    {"name": "DRQN (SRB)", "description": "", "index": "3", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "ADRQN (SRB)", "description": "", "index": "4", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "SARSA", "description": "", "index": "5", "supportedEnvs": ["singleDimDescrete"]},
+
+    {"name": "Deep Q (PRB)", "description": "", "index": "6", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
+    {"name": "DRQN (PRB)",  "description": "", "index": "7", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "ADRQN (PRB)", "description": "", "index": "8", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+
+    {"name": "NPG", "description": "", "index": "9", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "CEM", "description": "", "index": "10", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]}
 ]
 agentMap = {}
 for aa in agentList:
@@ -124,6 +138,7 @@ for ev in envList:
 paramConditions = {
     "episodes": {
         "name": "Number of Episodes",
+        "description": "",
         "min": 1,
         "max": 1000000000,
         "default": 1000,
@@ -131,6 +146,7 @@ paramConditions = {
     },
     "steps": {
         "name": "Max Size",
+        "description": "",
         "min": 1,
         "max": 1000000000,
         "default": 200,
@@ -138,6 +154,7 @@ paramConditions = {
     },
     "gamma": {
         "name": "Gamma",
+        "description": "",
         "min": 0,
         "max": 1,
         "default": 0.97,
@@ -146,6 +163,7 @@ paramConditions = {
     },
     "minEpsilon": {
         "name": "Min Epsilon",
+        "description": "",
         "min": 0,
         "max": 1,
         "default": 0.1,
@@ -154,6 +172,7 @@ paramConditions = {
     },
     "maxEpsilon": {
         "name": "Max Epsilon",
+        "description": "",
         "min": 0,
         "max": 1,
         "default": 1,
@@ -162,6 +181,7 @@ paramConditions = {
     },
     "decayRate": {
         "name": "Decay Rate",
+        "description": "",
         "min": 0,
         "max": 0.2,
         "default": 0.018,
@@ -170,6 +190,7 @@ paramConditions = {
     },
     "batchSize": {
         "name": "Batch Size",
+        "description": "",
         "min": 1,
         "max": 256,
         "default": 32,
@@ -178,6 +199,7 @@ paramConditions = {
     },
     "memorySize": {
         "name": "Memory Size",
+        "description": "",
         "min": 1,
         "max": 655360,
         "default": 1000,
@@ -185,6 +207,7 @@ paramConditions = {
     },
     "targetInterval": {
         "name": "Target Update Interval",
+        "description": "",
         "min": 1,
         "max": 100000,
         "default": 200,
@@ -192,6 +215,7 @@ paramConditions = {
     },
     "historyLength": {
         "name": "History Length",
+        "description": "",
         "min": 0,
         "max": 20,
         "default": 10,
@@ -200,11 +224,48 @@ paramConditions = {
     },
     "alpha": {
         "name": "Alpha",
+        "description": "",
         "min": 0,
         "max": 1,
         "default": 0.18,
         "showSlider": True,
         "stepSize": 0.01
+    },
+    "delta": {
+        "name": "Delta",
+        "description": "",
+        "min": 0,
+        "max": 0.05,
+        "default": 0.001,
+        "showSlider": True,
+        "stepSize": 0.0001
+    },
+    "sigma": {
+        "name": "Sigma",
+        "description": "",
+        "min": 0.001,
+        "max": 1,
+        "default": 0.5,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "population": {
+        "name": "Population Size",
+        "description": "",
+        "min": 0,
+        "max": 100,
+        "default": 10,
+        "showSlider": True,
+        "stepSize": 1
+    },
+    "elite": {
+        "name": "Elite Fraction",
+        "description": "",
+        "min": 0.001,
+        "max": 1,
+        "default": 0.2,
+        "showSlider": True,
+        "stepSize": 0.001
     }
 }
 
