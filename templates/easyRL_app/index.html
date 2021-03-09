@@ -75,7 +75,12 @@
       </div>
         <!-- Drop downs -->
       <div class="row justify-content-center " id="select-containers" style="margin: 100px 20px 20px 20px;">
+        <div class="card-header" style=" background-color: #fff;">
+          <div style="float: left;"><span><i class="bi bi-sliders" style="font-size:  1.5em; color: cornflowerblue; vertical-align: top; margin-right:10px;"></i></span> <h2 style="display: inline-block; vertical-align: middle;"> Configuration</h2></div></div>
+        <br>
         <div class="col-md-3">
+          <br>
+          Environment:
           <select id="env-select" class="form-select" size="4">
             <!-- <option>--Set Environment--</option> -->
             {% for file in info.environments %}
@@ -89,6 +94,8 @@
           </select>
         </div>
         <div class="col-md-3">
+          <br>
+          Agent:
           <select class="form-select" id="agent-select" size="4" aria-label="Default select example">
             <!-- <option value="0">--Select Agent--</option> -->
             {% for agent in info.agents %}
@@ -101,25 +108,34 @@
           </select>
         </div>
         <div class="col-md-3">
-          <select id="buffer-select" class="form-select" size="4" aria-label="Default select example">
+          <br>
+          Instance:
+          <select id="host-select" class="form-select" size="4" aria-label="Default select example">
+            <!-- <option value="0">--Select Host Environment--</option> -->
+            <option value="c4.large">c4.large ($0.10/hr)</option>
+            <option value="c4.xlarge" selected>c4.xlarge ($0.19/hr)</option>
+            <option value="c4.2xlarge">c4.2xlarge ($0.39/hr)</option>
+            <option value="c4.4xlarge">c4.4xlarge ($0.79/hr)</option>
+            <option value="c4.8xlarge">c4.8xlarge ($1.59/hr)</option>
+          </select>
+          <!-- <select id="buffer-select" class="form-select" size="4" aria-label="Default select example">
             <option value="0" selected>None</option>
             <option value="1">Hindsight Replay Buffer</option>
             <option value="0">Prioritize Replay Buffer</option>
-          </select>
+          </select> -->
         </div>
-        <div class="col-md-3">
-          <select id="host-select" class="form-select" size="4" aria-label="Default select example">
-            <!-- <option value="0">--Select Host Environment--</option> -->
-            <option value="1">c4.large</option>
-            <option value="2" selected>c4.xlarge</option>
-            <option value="3">c4.2xlarge</option>
-            <option value="4">c4.4xlarge</option>
-            <option value="5">c4.8xlarge</option>
-          </select>
+        <div class="col-md-3" id="info-box" style="text-align:left">
+          <br>
+          <center>Status:<br></center>
+          <div id="status-info" style="font-size:small">
+          Here is some text.<br>
+          Here is some more.<br>
+          This explains something.<br>
+          Look how cool is this. </div>
         </div>
         <br />
       </div>
-     
+
         <div class="card-body row">
         <div id="carouselExampleControlsNoTouching" class="carousel mbr-slider slide col-md-3" data-bs-touch="false"
           data-bs-interval="false">
@@ -168,7 +184,7 @@
   <br />
   <div class="row">
     <div class="card">
-      <div class="card-header" style=" background-color: #fff"><span><i class="bi bi-sliders" style="font-size:  1.5em; color: cornflowerblue; vertical-align: top;"></i></span> <h2 style="display: inline-block; vertical-align: middle;">Hyper-Parameters</h2> </div>
+      <div class="card-header" style=" background-color: #fff"><span><i class="bi bi-sliders" style="font-size:  1.5em; color: cornflowerblue; vertical-align: top; margin-right:10px;"></i></span> <h2 style="display: inline-block; vertical-align: middle;"> Hyperparameters</h2> </div>
         <div class="card-body">
         <form method="post" style="margin-top: 15px; min-width: 550px;">{% csrf_token %}
           <div id="form-div" class="container-fluid">
@@ -253,12 +269,12 @@
     } catch (e) {
         setTimeout(doPoll, 5000);
     }
-  }
+  } 
 
   function draw_graph(episodes) {
     var length = episodes.length;
     var array = [];
-    array.push(['Episode', 'Average Loss', 'Average Epsilon', 'Total Reward']);
+    array.push(['Episode', 'Loss', 'Epsilon', 'Reward']);
 
     for (var index = 0; index < length; index++) {
       array.push([
@@ -328,6 +344,14 @@
       if (result["progress"] != "waiting") {
         gifs = result["progress"]["gifs"];
         episodes = result["progress"]["episodes"];
+        uptime = result["progress"]["uptime"] / 1000 / 60 / 60 * result["cost"]
+
+        statusInfo = "Here is some text.<br>"
+        +"Here is some more.<br>"
+        +"This explains something.<br>"
+        +"Session Cost: $" + (uptime).toFixed(2);
+
+        document.getElementById("status-info").innerHTML = statusInfo;
       }
 
 
@@ -511,8 +535,8 @@
 
   function resetDropDowns() {
     $('#agent-select').val(3);
-    $('#buffer-select').val(0);
-    $('#host-select').val(2);
+    //$('#buffer-select').val(0);
+    //$('#host-select').val(2);
     $('#environment-select').val(1);
   }
 
@@ -530,7 +554,7 @@
   function getData() {
     var data = {
       "environment": $("#env-select option:selected").val()
-      , "instanceType": $("#host-select option:selected").text()
+      , "instanceType": $("#host-select option:selected").val()
       , "instanceID": $("#session-select option:selected").val()
       , "continuousTraining": $('#btn-con-train').is(":checked") ? 1 : 0
       , "agent": $("#agent-select option:selected").val()
