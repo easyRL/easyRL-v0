@@ -12,6 +12,9 @@ class Policy(ABC):
     Interface for a policy. Uses a function approximator to approximate
     the value of each action given a state and creates a probability
     distributions from those values to sample an action from.
+    
+    Adapted from 'https://github.com/zafarali/policy-gradient-methods/
+    blob/f0d83a80ddc772dcad0c851aac9bfd41d436c274/pg_methods/policies.py'.
     """
     def __init__(self, approximator):
         """

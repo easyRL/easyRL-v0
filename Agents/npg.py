@@ -16,6 +16,9 @@ class NPG(policyIteration.PolicyIteration):
     """
     Natural Policy Gradient. A policy iteration agent that updates the
     policy using the policy gradient.
+    
+    Adapted from 'https://github.com/zafarali/policy-gradient-methods/
+    blob/master/pg_methods/experimental/npg/npg_algorithm.py'.
     """
     displayName = 'NPG'
     newParameters = [policyIteration.PolicyIteration.Parameter('Delta', 0, 0.05, 0.0001, 0.001, True, True, "The normalized step size for computing the learning rate.")]
@@ -195,6 +198,11 @@ class NPG(policyIteration.PolicyIteration):
         """
         Computes the Natural Policy Gradient (NPG) of the policy and the 
         given gradient.
+        
+        Adapted from 'https://github.com/zafarali/policy-gradient-methods/
+        blob/f0d83a80ddc772dcad0c851aac9bfd41d436c274/pg_methods/
+        conjugate_gradient.py'.
+        
         :param gradient: the gradient to compute the NPG of
         :type gradient: numpy.ndarray
         :param states: the states from the trajectory that generate the
