@@ -226,14 +226,16 @@
 
   $('#btn-con-train').change(function () {
     if ($('#btn-con-train').is(":checked")) {
-      //$("#btn-halt").attr("disabled", "true");
-      $("#btn-test").attr("disabled", "true");
       $('#btn-train').attr("disabled", "true");
+      $('#btn-test').attr("disabled", "true");
     } else {
-      if ($("#btn-train").is(":disabled") === false) {
+      //$('#btn-train').attr("disabled", "false");
+      $("#btn-train").removeAttr("disabled");
+      $("#btn-test").removeAttr("disabled");
+      //if ($("#btn-train").is(":disabled") === false) {
         //$("#btn-halt").removeAttr("disabled");
 
-      }
+      //}
     }
   });
 
@@ -241,8 +243,12 @@
     try {
       $.post('/easyRL_app/poll/', getData(), function (result, status, jqxhr) {
         // process results here
-        ReloadImageHelper(result);
-        setTimeout(doPoll, 1000);
+        try {
+          ReloadImageHelper(result);
+          setTimeout(doPoll, 1000);
+        } catch (e) {
+          setTimeout(doPoll, 1000);
+        }
       });
     } catch (e) {
         setTimeout(doPoll, 5000);
@@ -358,14 +364,37 @@
 
       // alert("The training in progress");
     });
-    resetFormDropDownsButtons();
+    //resetFormDropDownsButtons();
+    //reload_image();
+  }); // Train Button - End
+
+  // Train button - Start
+  $("#btn-test").click(function () {
+    // get values from sliders
+    //$('#btn-halt').removeAttr("disabled");
+    var data = getData();
+
+    $.post('/easyRL_app/test/', data, function (result) {
+      if (result == "") {
+        //alert("The response is empty");
+        return;
+      }
+      result = JSON.parse(result);
+      if (result["error"] !== null) {
+        //alert("Could not start the training"); // instance not found
+        return;
+      }
+
+      // alert("The training in progress");
+    });
+    //resetFormDropDownsButtons();
     //reload_image();
   }); // Train Button - End
 
   $('#btn-ok').click(function () {
-    $('#btn-train').attr("disabled", true);
-    $('#btn-test').removeAttr("disabled");
-    $('#btn-save').removeAttr("disabled");
+    //$('#btn-train').attr("disabled", true);
+    //$('#btn-test').removeAttr("disabled");
+    //$('#btn-save').removeAttr("disabled");
   });
 
   $(".btn-close").click(function () {
@@ -376,8 +405,10 @@
   });
 
   $('#btn-halt').click(function () {
-    var data = {};
+    var data = getData();
     document.getElementById("btn-con-train").checked = false;
+    $("#btn-train").removeAttr("disabled");
+    $("#btn-test").removeAttr("disabled");
     $.post('/easyRL_app/halt/', data, function (result, status, jqxhr) {
       // do something
     })
@@ -386,7 +417,7 @@
   $('#carouselExampleControlsNoTouching').on('slid.bs.carousel', function (e) {
     //var c = $("div > .active", e.target).index();
     updateEnvironmentLabel();
-    resetFormDropDownsButtons();
+    //resetFormDropDownsButtons();
   });
 
   $("#agent-select").change(function () {
@@ -405,6 +436,7 @@
     var selectedEnvironment = $("#env-select option:selected").val();
     $("#env-hidden").val(selectedEnvironment);
     $('#btn-train').removeAttr("disabled");
+    $('#btn-test').removeAttr("disabled");
     $("#form-div").focus();
   }).change();
 
@@ -485,9 +517,9 @@
   }
 
   function resetButtons() {
-    $('#btn-train').attr("disabled", "true");
-    $('#btn-test').attr("disabled", "true");
-    $('#btn-save').attr("disabled", "true");
+    //$('#btn-train').attr("disabled", "true");
+    //$('#btn-test').attr("disabled", "true");
+    //$('#btn-save').attr("disabled", "true");
     //$('#btn-halt').attr("disabled", "true");
   }
 

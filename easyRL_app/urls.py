@@ -8,6 +8,7 @@ urlpatterns = [
     ,path('login/', view.login, name='login')
     ,path('logout/', view.logout, name='logout')
     ,path('train/', view.train, name='train')
+    ,path('test/', view.test, name='test')
     ,path('halt/', view.halt, name='halt')
     ,path('poll/', view.poll, name='poll')
     ,path('info/', view.info, name='info')
