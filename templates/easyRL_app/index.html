@@ -182,24 +182,24 @@
           </p>
         </div>
       </div>
-      <div class="card  border-info mb-3 col" style="margin-left: 2px;">
+      <div class="card  mb-3 col" style="margin-left: 2px;">
         <div class="card-header">Episodes Completed</div>
         <div class="card-body">
           <h1 class="card-title"style="font-family: tahoma; text-align: center" id="episodes-completed-h1">0</h1>
 
         </div>
       </div>
-      <div class="card border-info mb-3 col" style="margin-left: 2px;">
+      <div class="card mb-3 col" style="margin-left: 2px;">
         <div class="card-header">Total Training Reward</div>
         <div class="card-body">
-          <h1 class="card-title"style="font-family: tahoma; text-align: center">0</h1>
+          <h1 class="card-title"style="font-family: tahoma; text-align: center"id="total-reward-h1">0</h1>
 
         </div>
       </div>
-      <div class="card  border-info mb-3 col" style="margin-left: 2px;">
+      <div class="card mb-3 col" style="margin-left: 2px;">
         <div class="card-header">Reward/Episode</div>
         <div class="card-body">
-          <h1 class="card-title"style="font-family: tahoma; text-align: center">0</h1>
+          <h1 class="card-title"style="font-family: tahoma; text-align: center"id="reward-episode-h1">0</h1>
 
         </div>
       </div>
@@ -392,11 +392,8 @@
           + "Here is some more.<br>"
           + "This explains something.<br>"
           + "Session Cost: $" + (uptime).toFixed(2);
-            
-        document.querySelector('#episodes-completed-h1').innerHTML = result['progress']["episodes"].length;
-        document.querySelector('#avg-reward-h1').innerHTML = result["progress"]["avgReward"];
-        document.querySelector('#total-reward-h1').innerHTML = result["progress"]["totalReward"];
-        document.getElementById("status-info").innerHTML = statusInfo;
+        document.querySelector('#episodes-completed-h1').innerHTML = result["progress"]["episodes"].length;
+        document.querySelector("#status-info").innerHTML = statusInfo;
       }
 
 
@@ -532,8 +529,8 @@
           '<label>' + parameterData.name + '</label>' +
           '<div class=""><input type="range" id="' + parameter + 'Slider" class="form-range" name="' + parameter + 'Slider" min="' + parameterData.min + '" max="' + parameterData.max + '"' +
           'step="' + parameterData.stepSize + '" value="' + parameterData.default + '" oninput="' + parameter + 'Text.value =' + parameter + 'Slider.value"></div>' +
-          '<input type="text" class="form-control" id="' + parameter + 'Text"' +
-          'value="' + parameterData.default + '" oninput="">' +
+          '<center><input type="text" class="form-control" id="' + parameter + 'Text"' +
+          'value="' + parameterData.default + '" readonly style="width: 75px"></center>' +
           '</div>';
 
 
@@ -549,11 +546,6 @@
     }
     $("#form-div").html(html);
 
-  }
-
-  function blah(slider, input) {
-
-    $('#' + slider).val($('#' + input).val());
   }
 
   function updateSelect(envIndex) {
