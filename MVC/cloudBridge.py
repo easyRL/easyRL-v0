@@ -120,7 +120,7 @@ class CloudBridge:
                 self.gifURLs.append("https://easyrl-" + str(self.jobID) + ".s3.amazonaws.com/" + filename)
 
                 if (len(self.gifURLs)) > 10:
-                    self.gifURLs.pop()
+                    self.gifURLs.pop(0)
 
             payload =  {
                 "totalReward": self.episodeAccReward,
