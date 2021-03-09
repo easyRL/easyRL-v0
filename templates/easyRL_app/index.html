@@ -252,7 +252,7 @@
 
     updateEnvironmentLabel();
     resetFormDropDownsButtons();
-    $('html, body').animate({ scrollTop: 0 }, 800);
+    //$('html, body').animate({ scrollTop: 0 }, 800);
     google.charts.load('current', { 'packages': ['corechart'] }).then(draw_graph);
 
     setTimeout(function () {
@@ -507,7 +507,7 @@
     $('#btn-train').removeAttr("disabled");
     $('#btn-test').removeAttr("disabled");
     $("#form-div").focus();
-    $('html, body').animate({ scrollTop: 1000}, 800);
+    //$('html, body').animate({ scrollTop: 1000}, 800);
   }).change();
 
   function renderOptions(agent) {
@@ -531,8 +531,8 @@
           '<label>' + parameterData.name + '</label>' +
           '<div class=""><input type="range" id="' + parameter + 'Slider" class="form-range" name="' + parameter + 'Slider" min="' + parameterData.min + '" max="' + parameterData.max + '"' +
           'step="' + parameterData.stepSize + '" value="' + parameterData.default + '" oninput="' + parameter + 'Text.value =' + parameter + 'Slider.value"></div>' +
-          '<center><input type="text" class="form-control" id="' + parameter + 'Text"' +
-          'value="' + parameterData.default + '" onchange="' + parameter + 'Slider.value =' + parameter + 'Text.value style="width: 75px"></center>' +
+          '<center><input type="number" class="form-control" id="' + parameter + 'Text"  min="' + parameterData.min + '" max="' + parameterData.max + '" step="' + parameterData.stepSize + '"  ' +
+          'value="' + parameterData.default + '" oninput="' + parameter + 'Slider.value =' + parameter + 'Text.value" style="width: 120px"></center>' +
           '</div>';
 
 
@@ -540,7 +540,7 @@
         html +=
           '<div class="col-md-3">' +
           '<label>' + parameterData.name + '</label>' +
-          '<div class="col-md-12"><input type="text" id="' + parameter + 'Text" value="' + parameterData.default + '" class="form-control" value=""></div>' +
+          '<div class="col-md-12"><input type="number" id="' + parameter + 'Text" value="' + parameterData.default + '"  min="' + parameterData.min + '" max="' + parameterData.max + '" step="' + parameterData.stepSize + '"  class="form-control" value=""></div>' +
           '</div>';
       }
 
