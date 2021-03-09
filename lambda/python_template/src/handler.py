@@ -170,7 +170,7 @@ paramConditions = {
     },
     "batchSize": {
         "name": "Batch Size",
-        "min": 0,
+        "min": 1,
         "max": 256,
         "default": 32,
         "showSlider": True,
@@ -178,14 +178,14 @@ paramConditions = {
     },
     "memorySize": {
         "name": "Memory Size",
-        "min": 0,
+        "min": 1,
         "max": 655360,
         "default": 1000,
         "showSlider": False
     },
     "targetInterval": {
         "name": "Target Update Interval",
-        "min": 0,
+        "min": 1,
         "max": 100000,
         "default": 200,
         "showSlider": False
