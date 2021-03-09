@@ -309,6 +309,10 @@ def yourFunction(request, context):
     if (instanceID is not None):
         jobID += str(instanceID)
 
+    if ('gitHubURL' not in arguments):
+        arguments['gitHubURL'] = "https://github.com/RobertCordingly/easyRL-v0"
+        arguments['gitHubBranch'] = "dataExport"
+
     continuousTraining = False
     if ("continuousTraining" in arguments):
         continuousTraining = arguments["continuousTraining"]
@@ -513,7 +517,7 @@ def yourFunction(request, context):
                     if len(outOfRange) > 0:
                         errorMessage = "Attributes with invalid value: "
                         for error in outOfRange:
-                            errorMessage += error + " min: " + str(paramConditions[error]['min']) + " max: " + str(paramConditions[error]['max']) + " used: " + str(arguments[error] + " ")
+                            errorMessage += error + " min: " + str(paramConditions[error]['min']) + " max: " + str(paramConditions[error]['max']) + " used: " + str(arguments[error]) + " "
                         inspector.addAttribute("error-Range", errorMessage)
                         valid = False
                     if (valid == False):
@@ -617,7 +621,7 @@ def yourFunction(request, context):
                     if len(outOfRange) > 0:
                         errorMessage = "Attributes with invalid value: "
                         for error in outOfRange:
-                            errorMessage += error + " min: " + str(paramConditions[error]['min']) + " max: " + str(paramConditions[error]['max']) + " used: " + str(arguments[error] + " ")
+                            errorMessage += error + " min: " + str(paramConditions[error]['min']) + " max: " + str(paramConditions[error]['max']) + " used: " + str(arguments[error]) + " "
                         inspector.addAttribute("error-Range", errorMessage)
                         valid = False
                     if (valid == False):
