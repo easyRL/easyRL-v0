@@ -109,7 +109,7 @@ class CloudBridge:
             self.episodeData.pop(0)
 
         currentTime = int(round(time.time() * 1000))
-        if ((currentTime - self.lastSave) > self.delayTime) or (int(episode) == totalEpisodes - 1):
+        if ((currentTime - self.lastSave) > self.delayTime) or (int(episode) > int(totalEpisodes) - 5):
             self.lastSave = currentTime
 
             if (self.state == "Training" and self.uploadModels):
