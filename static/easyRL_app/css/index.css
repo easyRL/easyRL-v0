@@ -11,8 +11,8 @@
     border-color: #b7a57a; /*set the color you want here*/
 }
 .carousel-control-next-icon, .carousel-control-prev-icon{
-    color: #fff ;
-    border-color: #b7a57a ;
+    color: rgb(24, 24, 158) ;
+    border-color: #807ab7 ;
 }
 
 [contenteditable] {

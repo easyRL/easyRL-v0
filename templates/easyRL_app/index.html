@@ -3,83 +3,88 @@
 {% block content %}
 <div class="container-fluid " style="padding: 0px">
   <div class="row">
-    <div class="card text-center">
+    <div class="card ">
       <div class="card-header fixed-top" style="margin-bottom: 100px; z-index:100; background-color: #fff">
-        <div class="instance-constrols" style="width:70%; float:left">
-        <ul class="nav nav-pills card-header-pills">
-          <li class="nav-item">
-            <input type="checkbox" class="btn-check" id="btn-con-train" autocomplete="off" aria-checked checked>
-            <label class="btn btn-outline-primary" for="btn-con-train" style="margin: 5px;"
-              title="Continuous Training is Enabled.">Continuous Train</label>
-          </li>
-          <li class="nav-item">
-            <button id="btn-train" class="btn btn-primary" style="margin:5px;" title="This trains the model"
-              disabled>Train</button>
-          </li>
-          <li class="nav-item">
-            <button id="btn-halt" class="btn btn-primary" style="margin:5px;">Halt</button>
-          </li>
-          <li class="nav-item">
-            <button id="btn-test" class="btn btn-primary" style="margin:5px;" disabled>Test</button>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
-              aria-expanded="false" style="margin:5px;">Model </a>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="import/" disabled>Save</a>
-              <div class="dropdown-divider btn"></div>
-              <a class="dropdown-item" href="export/">Load</a>
-            </div>
-          </li>
-          <li class="nav-item">
-            <button class="btn btn-primary" style="margin:5px;">Save Result</button>
-          </li>
-          <li class="nav-item"><a href='/easyRL_app/logout'>
-              <button class="btn btn-primary" style="margin:5px;">Sign out</button></a>
-          </li>
-        </ul> 
-      </div>
-      <div id="session-selector" class="from-control" style="width:9%; padding-top:15px; float:right; text-align:right">
-        <select name="Session" id="session-select">
-          <option value="0" selected>Session A</option>
-          <option value="1">Session B</option>
-          <option value="2">Session C</option>
-          <option value="3">Session D</option>
-          <option value="4">Session E</option>
-          <option value="5">Session F</option>
-          <option value="6">Session G</option>
-          <option value="7">Session H</option>
-          <option value="8">Session I</option>
-          <option value="9">Session J</option>
-          <option value="10">Session K</option>
-          <option value="11">Session L</option>
-          <option value="12">Session M</option>
-          <option value="13">Session N</option>
-          <option value="14">Session O</option>
-          <option value="15">Session P</option>
-          <option value="16">Session Q</option>
-          <option value="17">Session R</option>
-          <option value="18">Session S</option>
-          <option value="19">Session T</option>
-          <option value="20">Session U</option>
-          <option value="21">Session V</option>
-          <option value="22">Session W</option>
-          <option value="23">Session X</option>
-          <option value="24">Session Y</option>
-          <option value="26">Session Z</option>
-        </select>
-      </div>
+        <div class="instance-controls" style="width:70%; float:left">
+          <ul class="nav nav-pills card-header-pills">
+            <li class="nav-item">
+              <input type="checkbox" class="btn-check" id="btn-con-train" autocomplete="off" aria-checked checked>
+              <label class="btn btn-outline-primary" for="btn-con-train" style="margin: 5px;"
+                title="Continuous Training is Enabled.">Continuous Train</label>
+            </li>
+            <li class="nav-item">
+              <button id="btn-train" class="btn btn-primary" style="margin:5px;" title="This trains the model"
+                disabled>Train</button>
+            </li>
+            <li class="nav-item">
+              <button id="btn-halt" class="btn btn-primary" style="margin:5px;">Halt</button>
+            </li>
+            <li class="nav-item">
+              <button id="btn-test" class="btn btn-primary" style="margin:5px;" disabled>Test</button>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                aria-expanded="false" style="margin:5px;">Model </a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="import/" disabled>Save</a>
+                <div class="dropdown-divider btn"></div>
+                <a class="dropdown-item" href="export/">Load</a>
+              </div>
+            </li>
+            <li class="nav-item">
+              <button class="btn btn-primary" style="margin:5px;">Save Result</button>
+            </li>
+            <li class="nav-item"><a href='/easyRL_app/logout'>
+                <button class="btn btn-primary" style="margin:5px;">Sign out</button></a>
+            </li>
+          </ul>
+        </div>
+        <div id="session-selector" class="from-control"
+          style="width:9%; padding-top:15px; float:right; text-align:right">
+          <select name="Session" id="session-select">
+            <option value="0" selected>Session A</option>
+            <option value="1">Session B</option>
+            <option value="2">Session C</option>
+            <option value="3">Session D</option>
+            <option value="4">Session E</option>
+            <option value="5">Session F</option>
+            <option value="6">Session G</option>
+            <option value="7">Session H</option>
+            <option value="8">Session I</option>
+            <option value="9">Session J</option>
+            <option value="10">Session K</option>
+            <option value="11">Session L</option>
+            <option value="12">Session M</option>
+            <option value="13">Session N</option>
+            <option value="14">Session O</option>
+            <option value="15">Session P</option>
+            <option value="16">Session Q</option>
+            <option value="17">Session R</option>
+            <option value="18">Session S</option>
+            <option value="19">Session T</option>
+            <option value="20">Session U</option>
+            <option value="21">Session V</option>
+            <option value="22">Session W</option>
+            <option value="23">Session X</option>
+            <option value="24">Session Y</option>
+            <option value="26">Session Z</option>
+          </select>
+        </div>
         <div id="instance-state" style="width:21%; padding-top:15px; float:right; text-align:right">
-        Instance State: Loading...
+          Instance State: Loading...
         </div>
       </div>
-        <!-- Drop downs -->
-      <div class="row" id="select-containers" style="margin: 100px 20px 20px 20px;">
-        <div class="card-header" style=" background-color: #fff;">
-        <div style="float: left;"><span><i class="bi bi-sliders" style="font-size:  1.5em; color: cornflowerblue; vertical-align: top; margin-right:10px;"></i></span> <h2 style="display: inline-block; vertical-align: middle;"> Configuration</h2></div></div>
-        <br/>
+      <!-- Drop downs -->
+      <div class="row" id="select-containers" style="margin: 100px 0px 20px 0px;">
+        <div class="card text-left">
+          <div class="card-header" style=" background-color: #fff;"><span><i class="bi bi-sliders"
+                style="font-size:  1.5em; color: cornflowerblue; vertical-align: top; margin-right:10px;"></i></span>
+            <h2 style="display: inline-block; vertical-align: middle;"> Configuration</h2>
+          </div>
+        </div>
+        <br />
         <div class="col" style="margin-top: 10px">
-          Environment:
+          <center>Environment:</center>
           <select id="env-select" class="form-select" size="4">
             <!-- <option>--Set Environment--</option> -->
             {% for file in info.environments %}
@@ -92,13 +97,13 @@
           </select>
         </div>
         <div class="col" style="margin-top: 10px">
-          
-          Agent:
+
+          <center>Agent:</center>
           <select class="form-select" id="agent-select" size="4" aria-label="Default select example">
             <!-- <option value="0">--Select Agent--</option> -->
             {% for agent in info.agents %}
             {% if agent.index == "3" %}
-            <option value='{{ agent.index }}' selected > {{ agent.name}}</option>
+            <option value='{{ agent.index }}' selected> {{ agent.name}}</option>
             {% else %}
             <option value='{{ agent.index }}'> {{ agent.name}}</option>
             {% endif %}
@@ -106,8 +111,8 @@
           </select>
         </div>
         <div class="col" style="margin-top: 10px">
-          
-          Instance:
+
+          <center> Instance:</center>
           <select id="host-select" class="form-select" size="4" aria-label="Default select example">
             <!-- <option value="0">--Select Host Environment--</option> -->
             <option value="c4.large">c4.large ($0.10/hr)</option>
@@ -122,89 +127,93 @@
             <option value="0">Prioritize Replay Buffer</option>
           </select> -->
         </div>
-        <div class="col" id="info-box" style="text-align:left; margin-top: 10px">
-          <center>Status:<br></center>
-          <div id="status-info" style="font-size:small">
-          Here is some text.<br>
-          Here is some more.<br>
-          This explains something.<br>
-          Look how cool is this. </div>
-        </div>
-        <br />
       </div>
-      <div class="card-body row">
-      <div id="carouselExampleControlsNoTouching" class="carousel mbr-slider slide col" data-bs-touch="false"
+      <br />
+    </div>
+    <div class="card-body row">
+      <div id="carouselExampleControlsNoTouching" class="carousel mbr-slider slide col-md-3" data-bs-touch="false"
         data-bs-interval="false">
         <div class="carousel-inner">
           {% for env in info.environments %}
           {% if env.file == 'Cart Pole.jpg' %}
           <div class="carousel-item active">
             <div class="d-flex justify-content-center w-100 h-100">
-              <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}"
-                data-index={{env.index}} alt="...">
+              <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}" data-index={{env.index}}
+                alt="...">
             </div>
           </div>
-        </div>
+        
         {% else %}
         <div class="carousel-item">
           <div class="d-flex justify-content-center w-100 h-100">
-            <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}"
-              data-index={{env.index}} alt="...">
+            <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}" data-index={{env.index}}
+              alt="...">
           </div>
         </div>
+      
         {% endif %}
         {% endfor %}
-      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsNoTouching"
-        data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsNoTouching"
-        data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-      </button>
-      <label id="file-name"></label>
       </div>
-        <div class="image-container col">
-          <img id="training_image" src="../static/easyRL_app/assets/iu.gif" />
-        </div>
-        <div class="graph-container col">
-          <div id="training_graph" style="width: 100%; height: 400px;"></div>
-        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsNoTouching"
+          data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsNoTouching"
+          data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+        <center><label id="file-name"></label></center>
+      </div>
+      <div class="image-container col-md-3">
+        <img id="training_image" src="../static/easyRL_app/assets/iu.gif" />
+      </div>
+      <div class="graph-container col-md-6">
+        <div id="training_graph" style="width: 100%; height: 400px;"></div>
       </div>
     </div>
     <div class="row">
       <div class="card border-warning mb-3" style="max-width: 18rem;">
-        <div class="card-header">Header</div>
+        <div class="card-header">Status</div>
         <div class="card-body">
           <h5 class="card-title">Warning card title</h5>
-          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+          <p class="card-text" id="status-info" style="font-size:small">
+
+            Here is some text.<br>
+            Here is some more.<br>
+            This explains something.<br>
+            Look how cool is this.
+          </p>
         </div>
       </div>
       <div class="card border-info mb-3" style="max-width: 18rem;">
         <div class="card-header">Header</div>
         <div class="card-body">
           <h5 class="card-title">Info card title</h5>
-          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
+            content.</p>
         </div>
       </div>
-    </div>           
+    </div>
   </div>
   <br />
   <br />
   <div class="row">
     <div class="card">
-      <div class="card-header" style=" background-color: #fff"><span><i class="bi bi-sliders" style="font-size:  1.5em; color: cornflowerblue; vertical-align: top; margin-right:10px;"></i></span> <h2 style="display: inline-block; vertical-align: middle;"> Hyperparameters</h2> </div>
-        <div class="card-body">
+      <div class="card-header" style=" background-color: #fff"><span><i class="bi bi-sliders"
+            style="font-size:  1.5em; color: cornflowerblue; vertical-align: top; margin-right:10px;"></i></span>
+        <h2 style="display: inline-block; vertical-align: middle;"> Hyperparameters</h2>
+      </div>
+      <div class="card-body">
         <form method="post" style="margin-top: 15px; min-width: 550px;">{% csrf_token %}
           <div id="form-div" class="container-fluid">
           </div>
-            <input type="hidden" id="env-hidden" class="form-control">
-            <input type="hidden" id="agent-hidden" class="form-control">
-          </div>
-        </form>
+          <input type="hidden" id="env-hidden" class="form-control">
+          <input type="hidden" id="agent-hidden" class="form-control">
       </div>
+      </form>
+    </div>
   </div>
 </div>
 </div>
@@ -223,74 +232,13 @@
     var str = $("#agent-select option:selected").text();
 
     html = renderOptions(str);
-    addSliderEvents();
-    $( "#form-div" ).html(html); 
+
+    $("#form-div").html(html);
 
     var index = $("#env-select option:selected").val();
     updateSelect(index);
   })
 
-  function addSliderEvents() {
-    $("#batchSize-text").val($("#batchSize-slider").val());
-    $("#batchSize-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#batchSize-text").val(newval);
-    }); 
-    
-    $("#gamma-text").val($("#gamma-slider").val());
-    $("#gamma-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#gamma-text").val(newval);
-    }); 
-
-    $("#alpha-text").val($("#alpha-slider").val());
-    $("#alpha-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#alpha-text").val(newval);
-    }); 
-    
-    $("#minEpsilon-text").val($("#minEpsilon-slider").val());
-    $("#minEpsilon-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#minEpsilon-text").val(newval);
-    }); 
-    
-    $("#maxEpsilon-text").val($("#maxEpsilon-slider").val());
-    $("#maxEpsilon-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#maxEpsilon-text").val(newval);
-    }); 
-
-    $("#decayRate-text").val($("#decayRate-slider").val());
-    $("#decayRate-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#decayRate-text").val(newval);
-    }); 
-
-    $("#learningRate-text").val($("#learningRate-slider").val());
-    $("#learningRate-slider").on('input', function(){
-      var newval=$(this).val();
-      $("#learningRate-text").val(newval);
-    });
-
-    $("#historyLength-text").val( $("#historyLength-slider").val());
-    $("#historyLength-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#historyLength-text").val(newval);
-    });  
-
-    $("#plr-text").val( $("#plr-slider").val());
-    $("#plr-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#plr-text").val(newval);
-    });  
-
-    $("#vlr-text").val( $("#vlr-slider").val());
-    $("#vlr-slider").on('input',function(){
-      var newval=$(this).val();
-      $("#vlr-text").val(newval);
-    });  
-  };
 
   $(document).ready(function () {
 
@@ -323,7 +271,7 @@
       $("#btn-train").removeAttr("disabled");
       $("#btn-test").removeAttr("disabled");
       //if ($("#btn-train").is(":disabled") === false) {
-        //$("#btn-halt").removeAttr("disabled");
+      //$("#btn-halt").removeAttr("disabled");
 
       //}
     }
@@ -341,9 +289,9 @@
         }
       });
     } catch (e) {
-        setTimeout(doPoll, 5000);
+      setTimeout(doPoll, 5000);
     }
-  } 
+  }
 
   function draw_graph(episodes) {
     var length = episodes.length;
@@ -398,7 +346,7 @@
 
 
     var fieldNameElement = document.getElementById('instance-state');
-    
+
     if (fieldNameElement) {
       fieldNameElement.innerHTML = "Instance State: " + stateText;
     }
@@ -421,9 +369,9 @@
         uptime = result["progress"]["uptime"] / 1000 / 60 / 60 * result["cost"]
 
         statusInfo = "Here is some text.<br>"
-        +"Here is some more.<br>"
-        +"This explains something.<br>"
-        +"Session Cost: $" + (uptime).toFixed(2);
+          + "Here is some more.<br>"
+          + "This explains something.<br>"
+          + "Session Cost: $" + (uptime).toFixed(2);
 
         document.getElementById("status-info").innerHTML = statusInfo;
       }
@@ -522,8 +470,8 @@
     var str = $("#agent-select option:selected").text();
 
     html = renderOptions(str);
-    addSliderEvents();
-    $( "#form-div" ).html(html); 
+
+    $("#form-div").html(html);
 
     $('#modelName').modal('show');
 
@@ -540,52 +488,53 @@
   }).change();
 
   function renderOptions(agent) {
-    $( "#form-div" ).html("Loading..."); 
+    $("#form-div").html("Loading...");
 
     //$.post('/easyRL_app/info/', {}, function (result) {
-      var selectedVal = $("#agent-select option:selected").val();
-      html = ""
-      myAgent = info.agentsMap[selectedVal]
+    var selectedVal = $("#agent-select option:selected").val();
+    html = ""
+    myAgent = info.agentsMap[selectedVal]
 
-      parameters = myAgent.parameters
-      for(var i = 0, size = parameters.length; i < size ; i++) {
-        parameter = parameters[i]
-        parameterData = info.parameters[parameter]
-
-        console.log(parameterData)
-
-        if ((i) % 4 === 0){
-          html += '<div class="row" style="margin-top: 20px;">'
-        }
-        if (parameterData.showSlider) {
-          html +=
-          '<div class="slider-container col-md-3">'+
-            '<label>' + parameterData.name + '</label>'+
-            '<div class=""><input type="range" id="' + parameter + '-slider" class="form-range" name="' + parameter + '-slider" min="' + parameterData.min + '" max="' + parameterData.max + '"'+
-              'step="' + parameterData.stepSize + '" value="' + parameterData.default + '"></div>'+
-              '<div class="" style="margin: px 50px 0px 50px;"><input type="text" class="form-control" id="' + parameter + '-text"'+
-                'value="' + parameterData.default + '"></div>'+
-                '</div>';
-     
-    
-        } else {
-          html +=
-          '<div class="col-md-3">'+
-            '<label>' + parameterData.name + '</label>'+
-            '<div class="col-md-12"><input type="text" id="' + parameter + '-text" value="' + parameterData.default + '" class="form-control" value=""></div>'+
-            '</div>';
-        }
-
-
+    parameters = myAgent.parameters
+    for (var i = 0, size = parameters.length; i < size; i++) {
+      parameter = parameters[i]
+      parameterData = info.parameters[parameter]
+      if ((i) % 4 === 0) {
+        html += '<div class="row" style="margin-top: 20px;">'
       }
-      console.log(myAgent)
-      $( "#form-div" ).html(html);
+      if (parameterData.showSlider) {
+        html +=
+          '<div class="slider-container col-md-3">' +
+          '<label>' + parameterData.name + '</label>' +
+          '<div class=""><input type="range" id="' + parameter + 'Slider" class="form-range" name="' + parameter + 'Slider" min="' + parameterData.min + '" max="' + parameterData.max + '"' +
+          'step="' + parameterData.stepSize + '" value="' + parameterData.default + '" oninput="' + parameter + 'Text.value =' + parameter + 'Slider.value"></div>' +
+          '<input type="text" class="form-control" id="' + parameter + 'Text"' +
+          'value="' + parameterData.default + '" oninput="">' +
+          '</div>';
+
+
+      } else {
+        html +=
+          '<div class="col-md-3">' +
+          '<label>' + parameterData.name + '</label>' +
+          '<div class="col-md-12"><input type="text" id="' + parameter + 'Text" value="' + parameterData.default + '" class="form-control" value=""></div>' +
+          '</div>';
+      }
+
+
+    }
+    $("#form-div").html(html);
 
   }
-  
+
+  function blah(slider, input) {
+
+    $('#' + slider).val($('#' + input).val());
+  }
+
   function updateSelect(envIndex) {
     environmentType = info.environmentsMap[envIndex].type
-    console.log(environmentType)
+
     $("#agent-select > option").each(function () {
       if (this.value > 0) {
         var supportedList = info.agentsMap[this.value].supportedEnvs
@@ -605,7 +554,6 @@
 
   function resetFormDropDownsButtons() {
     resetDropDowns();
-    resetButtons();
     resetEnvironment();
   }
 
@@ -631,9 +579,9 @@
     var selectedVal = $("#agent-select option:selected").val();
     myAgent = info.agentsMap[selectedVal];
     parameters = myAgent.parameters;
-    for(var i = 0, size = parameters.length; i < size ; i++) {
+    for (var i = 0, size = parameters.length; i < size; i++) {
       parameter = parameters[i];
-      data[parameter] = !!$('#' + parameter + '-text').val() ? $('#' + parameter + '-text').val() : info.parameters[parameter].default;
+      data[parameter] = !!$('#' + parameter + 'Text').val() ? $('#' + parameter + 'Text').val() : info.parameters[parameter].default;
     }
 
     return data;

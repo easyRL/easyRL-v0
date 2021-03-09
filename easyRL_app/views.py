@@ -480,7 +480,6 @@ def add_file_to_info(payload, files):
             if val['name'].replace('.','').replace(' ', '').lower() in file.replace('_','').replace(' ','').lower():
                 val['file'] = file
                 break
-    print(result)
     return result
     
   
