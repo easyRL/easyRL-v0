@@ -376,7 +376,7 @@ def yourFunction(request, context):
                         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
                             "sleep " + str(arguments['killTime']) + " && python3.7 easyRL-v0/lambda/killSelf.py " + jobID + " " + accessKey + " " + secretKey + " " + sessionToken + " &")
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
-                        "git clone --branch dataExport https://github.com/RobertCordingly/easyRL-v0")
+                        "git clone --branch " + arguments['gitHubBranch'] + " " + arguments['gitHubURL'])
                     stdout = ssh_stdout.readlines() # DO NOT REMOVE
                     stderr = ssh_stderr.readlines() # DO NOT REMOVE
                     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(
