@@ -81,7 +81,7 @@ class Model:
                     break
 
             if (self.cloudBridge is not None):
-                self.cloudBridge.submitEpisode(episode)
+                self.cloudBridge.submitEpisode(episode, int(total_episodes))
 
             message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
             messageQueue.put(message)
@@ -154,7 +154,7 @@ class Model:
                         break
 
                 if (self.cloudBridge is not None):
-                    self.cloudBridge.submitEpisode(episode)
+                    self.cloudBridge.submitEpisode(episode, int(total_episodes))
 
                 message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
                 messageQueue.put(message)

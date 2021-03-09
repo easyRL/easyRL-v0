@@ -78,7 +78,7 @@ class CloudBridge:
         self.episodeAccLoss += loss
         self.curEpisodeSteps += 1
 
-    def submitEpisode(self, episode):
+    def submitEpisode(self, episode, totalEpisodes):
         self.trainingEpisodes += 1
 
         # Redraw Graph
@@ -104,7 +104,7 @@ class CloudBridge:
             self.episodeData.pop(0)
 
         currentTime = int(round(time.time() * 1000))
-        if (currentTime - self.lastSave) > self.delayTime:
+        if (currentTime - self.lastSave) > self.delayTime or int(episode) == totalEpisodes - 1:
             self.lastSave = currentTime
 
             if (self.state == "Training" and self.uploadModels):
