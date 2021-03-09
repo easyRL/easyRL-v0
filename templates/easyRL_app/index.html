@@ -162,7 +162,7 @@
         </button>
         <center><label id="file-name"></label></center>
       </div>
-      <div class="image-container col-md-3">
+      <div class="image-container col-md-3" style="justify-content: center">
         <img id="training_image" src="../static/easyRL_app/assets/iu.gif" />
       </div>
       <div class="graph-container col-md-6">
@@ -392,8 +392,8 @@
           + "Here is some more.<br>"
           + "This explains something.<br>"
           + "Session Cost: $" + (uptime).toFixed(2);
-        document.querySelector('#episodes-completed-h1').innerHTML = result["progress"]["episodes"].length;
-        document.querySelector("#status-info").innerHTML = statusInfo;
+        document.getElementById('episodes-completed-h1').innerHTML = result["progress"]["episodes"].length;
+        document.getElementById("status-info").innerHTML = statusInfo;
       }
 
 
