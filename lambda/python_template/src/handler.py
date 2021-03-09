@@ -29,6 +29,14 @@ paraMap = {
     '5': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
 }
 
+instanceCosts = {
+    "c4.large": 0.1,
+    "c4.xlarge": 0.19,
+    "c4.2xlarge": 0.39,
+    "c4.4xlarge": 0.79,
+    "c4.8xlarge": 1.59,
+}
+
 agentList = [
     {"name": "Deep Q", "index": "1", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
     {"name": "Q Learning", "index": "2", "supportedEnvs": ["singleDimDescrete"]},
@@ -317,6 +325,9 @@ def yourFunction(request, context):
         region_name='us-east-1'
     )
     inspector.addAttribute("instanceStateText", "Loading...")
+
+    if 'instanceType' in arguments:
+        inspector.addAttribute("cost", instanceCosts[arguments['instanceType']])
 
     if (task == "poll"):
         ec2Client = botoSession.client('ec2')
