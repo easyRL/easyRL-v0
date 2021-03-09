@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container-fluid " style="padding: 0px">
   <div class="row">
-    <div class="card">
+    <div class="card text-center">
       <div class="card-header fixed-top" style="margin-bottom: 100px; z-index:100; background-color: #fff">
         <div class="instance-constrols" style="width:70%; float:left">
         <ul class="nav nav-pills card-header-pills">
@@ -223,11 +223,74 @@
     var str = $("#agent-select option:selected").text();
 
     html = renderOptions(str);
+    addSliderEvents();
     $( "#form-div" ).html(html); 
 
     var index = $("#env-select option:selected").val();
     updateSelect(index);
   })
+
+  function addSliderEvents() {
+    $("#batchSize-text").val($("#batchSize-slider").val());
+    $("#batchSize-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#batchSize-text").val(newval);
+    }); 
+    
+    $("#gamma-text").val($("#gamma-slider").val());
+    $("#gamma-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#gamma-text").val(newval);
+    }); 
+
+    $("#alpha-text").val($("#alpha-slider").val());
+    $("#alpha-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#alpha-text").val(newval);
+    }); 
+    
+    $("#minEpsilon-text").val($("#minEpsilon-slider").val());
+    $("#minEpsilon-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#minEpsilon-text").val(newval);
+    }); 
+    
+    $("#maxEpsilon-text").val($("#maxEpsilon-slider").val());
+    $("#maxEpsilon-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#maxEpsilon-text").val(newval);
+    }); 
+
+    $("#decayRate-text").val($("#decayRate-slider").val());
+    $("#decayRate-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#decayRate-text").val(newval);
+    }); 
+
+    $("#learningRate-text").val($("#learningRate-slider").val());
+    $("#learningRate-slider").on('input', function(){
+      var newval=$(this).val();
+      $("#learningRate-text").val(newval);
+    });
+
+    $("#historyLength-text").val( $("#historyLength-slider").val());
+    $("#historyLength-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#historyLength-text").val(newval);
+    });  
+
+    $("#plr-text").val( $("#plr-slider").val());
+    $("#plr-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#plr-text").val(newval);
+    });  
+
+    $("#vlr-text").val( $("#vlr-slider").val());
+    $("#vlr-slider").on('input',function(){
+      var newval=$(this).val();
+      $("#vlr-text").val(newval);
+    });  
+  };
 
   $(document).ready(function () {
 
@@ -459,6 +522,7 @@
     var str = $("#agent-select option:selected").text();
 
     html = renderOptions(str);
+    addSliderEvents();
     $( "#form-div" ).html(html); 
 
     $('#modelName').modal('show');
@@ -501,20 +565,24 @@
               'step="' + parameterData.stepSize + '" value="' + parameterData.default + '"></div>'+
               '<div class="" style="margin: px 50px 0px 50px;"><input type="text" class="form-control" id="' + parameter + '-text"'+
                 'value="' + parameterData.default + '"></div>'+
-                '</div>'
+                '</div>';
+     
+    
         } else {
           html +=
           '<div class="col-md-3">'+
             '<label>' + parameterData.name + '</label>'+
             '<div class="col-md-12"><input type="text" id="' + parameter + '-text" value="' + parameterData.default + '" class="form-control" value=""></div>'+
-            '</div>'
+            '</div>';
         }
+
 
       }
       console.log(myAgent)
       $( "#form-div" ).html(html);
-  }
 
+  }
+  
   function updateSelect(envIndex) {
     environmentType = info.environmentsMap[envIndex].type
     console.log(environmentType)
@@ -530,15 +598,12 @@
     });
   }
 
-
   function updateEnvironmentLabel() {
     var src = $('.active').find('img').attr('data-name');
-    //src = src.slice(26,-4);
     $("#file-name").html(src);
   }
 
   function resetFormDropDownsButtons() {
-
     resetDropDowns();
     resetButtons();
     resetEnvironment();
@@ -546,16 +611,7 @@
 
   function resetDropDowns() {
     $('#agent-select').val(3);
-    //$('#buffer-select').val(0);
-    //$('#host-select').val(2);
     $('#environment-select').val(1);
-  }
-
-  function resetButtons() {
-    //$('#btn-train').attr("disabled", "true");
-    //$('#btn-test').attr("disabled", "true");
-    //$('#btn-save').attr("disabled", "true");
-    //$('#btn-halt').attr("disabled", "true");
   }
 
   function resetEnvironment() {
