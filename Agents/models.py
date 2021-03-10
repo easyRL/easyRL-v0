@@ -18,10 +18,9 @@ class Actor(DeepQ):
     #self.optim = tf.keras.optimizers.Adam(self.policy_lr)
 
   def policy_network(self):
-    try:
+    '''try:
       # inputA = Input(shape=self.state_size)
       # inputA = Flatten()(inputA)
-      print("State size: " + str(self.state_size) + "\n")
       model = tf.keras.Sequential([
               Dense(32, activation='relu', input_shape=(self.state_size)),
               Dense(16, activation='relu', input_shape=(self.state_size)),
@@ -33,7 +32,21 @@ class Actor(DeepQ):
     except:
       print("\n\n\n")
       print(sys.exc_info())
-      sys.exit()
+      sys.exit()'''
+    from tensorflow.python.keras.optimizer_v2.adam import Adam
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.layers import Dense, Input, Flatten, multiply
+    inputA = Input(shape=self.state_size)
+    inputB = Input(shape=(self.action_size,))
+    x = Flatten()(inputA)
+    x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
+    x = Dense(24, activation='relu')(x)
+    x = Dense(self.action_size, activation='softmax')(x)
+    outputs = multiply([x, inputB])
+    model = Model(inputs=[inputA, inputB], outputs=outputs)
+    kl = tf.keras.losses.KLDivergence()
+    model.compile(loss=kl, optimizer=Adam(lr=self.policy_lr))
+    return model
 
 class Critic(DeepQ):
   def __init__(self, state_size, action_size, value_lr):
@@ -45,11 +58,24 @@ class Critic(DeepQ):
   def value_network(self):
     # inputA = Input(shape=self.state_size)
     # inputA = Flatten()(inputA)
-    model = tf.keras.Sequential([
+    '''model = tf.keras.Sequential([
             Dense(32, activation='relu', input_shape=(self.state_size)),
             Dense(16, activation='relu', input_shape=(self.state_size)),
             Dense(16, activation='relu', input_shape=(self.state_size)),
             Dense(1, activation='linear', input_shape=(self.state_size))
     ])
-    model.compile(loss='mse', optimizer=Adam(lr = self.value_lr))
+    model.compile(loss='mse', optimizer=Adam(lr = self.value_lr))'''
+    from tensorflow.python.keras.optimizer_v2.adam import Adam
+    from tensorflow.keras.models import Model
+    from tensorflow.keras.layers import Dense, Input, Flatten, multiply
+
+    inputA = Input(shape=self.state_size)
+    inputB = Input(shape=(self.action_size,))
+    x = Flatten()(inputA)
+    x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
+    x = Dense(24, activation='relu')(x)
+    x = Dense(self.action_size, activation='linear')(x)
+    outputs = multiply([x, inputB])
+    model = Model(inputs=[inputA, inputB], outputs=outputs)
+    model.compile(loss='mse', optimizer=Adam(lr=self.value_lr))
     return model

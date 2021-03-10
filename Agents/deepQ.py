@@ -104,7 +104,6 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         next_states = np.zeros((self.batch_size,) + self.state_size)
 
         for index_rep, transition in enumerate(mini_batch):
-            #print("Mini Batch: " + str(mini_batch))
             states, actions, rewards, _, dones = transition
             
             X_train[0][index_rep] = transition.state
@@ -113,9 +112,7 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
 
         Y_train = np.zeros((self.batch_size,) + (self.action_size,))
         qnext = self.target.predict([next_states, self.allBatchMask])
-        print(str(qnext))
         qnext = np.amax(qnext, 1)
-        print(qnext)
 
         for index_rep, transition in enumerate(mini_batch):
             if transition.is_done:

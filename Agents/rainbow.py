@@ -88,7 +88,7 @@ class Rainbow(DeepQ):
             allStates[index, :] = states
             allActions.append(actions)
             allRewards.append(rewards)
-            allNextStates[index,] = next_states
+            allNextStates[index, :] = next_states
             allDones.append(dones)
         return allStates, allActions, allRewards, allNextStates, allDones
 

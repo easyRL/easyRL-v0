@@ -134,6 +134,12 @@ class ReplayBuffer:
                 
         # Pad and return the transitions.
         return self._pad(results)
+
+    def get_next_transitions(self, start, end):
+        result = []
+        for i in range(start, end):
+            result.append(self._transitions[i])
+        return result
     
     def is_empty(self):
         """
@@ -403,3 +409,26 @@ class PrioritizedReplayBuffer(ReplayBuffer):
         :rtype: int
         """
         return idx + self.max_length - 1
+
+class HindsightReplayBuffer(ReplayBuffer):
+    """
+    An Experience Replay Buffer for looking back and resampling transitions
+    using a prioritized sampling technique based on loss.
+    
+    Requires the agent to have a compute_loss function. The agent needs to
+    compute the loss of a sample and call either update_error or
+    update_priority to update the sample's priority.
+    """
+    def __init__(self, learner, max_length, empty_trans, history_length: int = 1, alpha: float = 0.6):
+        super().__init__(learner, max_length, empty_trans, history_length)
+        self.goal = []
+    
+    def append_frame(self, transition_frame):
+        """
+        Appends a given framed to the buffer.
+        :param transition_frame: the transition frame to append to the end
+        of this buffer
+        :type transition_frame: TransitionFrame
+        """
+        # Add the transition_frame to the transitions array.
+        super().append_frame(transition_frame)

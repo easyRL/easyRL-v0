@@ -42,8 +42,7 @@ class PPO(DeepQ):
         super().__init__(*args[:-paramLen])
         empty_state = self.get_empty_state()
         # Initialize parameters
-        self.epoches = 10
-        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False), history_length=self.epoches)
+        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
@@ -65,14 +64,15 @@ class PPO(DeepQ):
         self.memory.append_frame(TransitionFrame(state, action, reward, new_state, done))
 
     def choose_action(self, state):
+        shape = (1,) + self.state_size
+        state = np.reshape(state, shape)
         probabilities = self.policy_model.predict([state, self.allMask])
-        action = np.mean(probabilities)
+        action = int(np.mean(probabilities))
+        print("Action: " + str(action))
         return action
 
-    def get_action(self, state):
-        #probabilities = self.policy_model.predict_proba(states, self.batch_size)
-        #action_dist = Multinomial(1, probabilities)
-        probabilities = self.policy_model.predict([state, self.allMask])
+    def get_probabilities(self, states):
+        probabilities = self.policy_model.predict([states, self.allBatchMask])
         return probabilities
 
     def remember(self, state, action, reward, new_state, done): 
