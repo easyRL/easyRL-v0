@@ -92,7 +92,7 @@ def logout(request):
         request.session['aws_security_token'],
         request.session['job_id'],
         {
-            "instanceType": get_safe_value(str, request.POST.get("c4.xlarge"), "c4.xlarge")
+            "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
             ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
             ,"killTime": get_safe_value(int, 600, 600)
             ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
@@ -160,7 +160,7 @@ def test(request):
         request.session['aws_security_token'],
         request.session['job_id'],
         {
-            "instanceType": get_safe_value(str, request.POST.get("c4.xlarge"), "c4.xlarge")
+            "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
             ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
             ,"killTime": get_safe_value(int, 600, 600)
             ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
@@ -424,7 +424,7 @@ def lambda_test_job(aws_access_key, aws_secret_key, aws_security_token, job_id, 
     }
     response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
     payload = response['Payload'].read()
-    print("{}lambda_run_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, payload))
+    print("{}lambda_test_job{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, payload))
     if len(payload) != 0:
         return "{}".format(payload)[2:-1]
     else:

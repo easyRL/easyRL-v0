@@ -163,7 +163,7 @@
         <center><label id="file-name"></label></center>
       </div>
       <div class="image-container col-md-3" style="justify-content: center">
-        <img id="training_image" src="../static/easyRL_app/assets/iu.gif" />
+        <img id="training_image" src="../static/easyRL_app/assets/iu.gif" onerror="this.onerror=null; this.src='../static/easyRL_app/assets/iu.gif'" />
       </div>
       <div class="graph-container col-md-6">
         <div id="training_graph" style="width: 100%; height: 400px;"></div>
@@ -190,7 +190,7 @@
         </div>
       </div>
       <div class="card mb-3 col" style="margin-left: 2px;">
-        <div class="card-header">Total Training Reward</div>
+        <div class="card-header">Total Reward</div>
         <div class="card-body">
           <h1 class="card-title"style="font-family: tahoma; text-align: center"id="total-reward-h1">0</h1>
 
@@ -330,7 +330,7 @@
     var data = google.visualization.arrayToDataTable(array);
     var options =
     {
-      title: 'Training Results',
+      title: 'Results',
       curveType: 'function',
       legend: { position: 'bottom' },
       vAxes: {
