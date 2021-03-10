@@ -42,6 +42,10 @@ instanceCosts = {
     "c4.2xlarge": 0.39,
     "c4.4xlarge": 0.79,
     "c4.8xlarge": 1.59,
+    "g4dn.xlarge": 0.52,
+    "g4dn.2xlarge": 0.75,
+    "g4dn.4xlarge": 1.20,
+    "g4dn.8xlarge": 2.17
 }
 
 agentList = [
