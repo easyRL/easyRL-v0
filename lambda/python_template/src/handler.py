@@ -36,16 +36,70 @@ paraMap = {
     '10': ['episodes', 'steps', 'gamma', 'sigma', 'population', 'elite']
 }
 
-instanceCosts = {
-    "c4.large": 0.1,
-    "c4.xlarge": 0.19,
-    "c4.2xlarge": 0.39,
-    "c4.4xlarge": 0.79,
-    "c4.8xlarge": 1.59,
-    "g4dn.xlarge": 0.52,
-    "g4dn.2xlarge": 0.75,
-    "g4dn.4xlarge": 1.20,
-    "g4dn.8xlarge": 2.17
+instanceInfo = {
+    "c4.large": {
+        "cost": 0.1,
+        "vcpus": 2,
+        "gpus": 0,
+        "ram": 3.75,
+        "network": "Moderate"
+    },
+    "c4.xlarge": {
+        "cost": 0.19,
+        "vcpus": 4,
+        "gpus": 0,
+        "ram": 7.5,
+        "network": "High"
+    },
+    "c4.2xlarge": {
+        "cost": 0.39,
+        "vcpus": 8,
+        "gpus": 0,
+        "ram": 15,
+        "network": "High"
+    },
+    "c4.4xlarge": {
+        "cost": 0.79,
+        "vcpus": 16,
+        "gpus": 0,
+        "ram": 30,
+        "network": "High"
+    },
+    "c4.8xlarge": {
+        "cost": 1.59,
+        "vcpus": 36,
+        "gpus": 0,
+        "ram": 60,
+        "network": "10 Gigabit"
+    },
+    "g4dn.xlarge": {
+        "cost": 0.52,
+        "vcpus": 4,
+        "gpus": 1,
+        "ram": 16,
+        "network": "25 Gigabit"
+    },
+    "g4dn.2xlarge": {
+        "cost": 0.75,
+        "vcpus": 8,
+        "gpus": 1,
+        "ram": 32,
+        "network": "25 Gigabit"
+    },
+    "g4dn.4xlarge": {
+        "cost": 1.20,
+        "vcpus": 16,
+        "gpus": 0,
+        "ram": 64,
+        "network": "25 Gigabit"
+    },
+    "g4dn.8xlarge": {
+        "cost": 2.17,
+        "vcpus": 32,
+        "gpus": 1,
+        "ram": 128,
+        "network": "50 Gigabit"
+    },
 }
 
 agentList = [
@@ -399,7 +453,8 @@ def yourFunction(request, context):
     inspector.addAttribute("instanceStateText", "Loading...")
 
     if 'instanceType' in arguments:
-        inspector.addAttribute("cost", instanceCosts[arguments['instanceType']])
+        inspector.addAttribute("cost", instanceInfo[arguments['instanceType']]['cost'])
+        inspector.addAttribute("info", instanceInfo[arguments['instanceType']])
 
     if (task == "poll"):
         ec2Client = botoSession.client('ec2')
