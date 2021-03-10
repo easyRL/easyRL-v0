@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from Agents import policyIteration
-from collections import deque
+from collections import deque 
 
 class CEM(policyIteration.PolicyIteration):
     displayName = 'CEM'
