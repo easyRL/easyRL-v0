@@ -68,6 +68,8 @@ class Model:
 
                     if self.environment.done or self.isHalted:
                         break
+                
+                self.agent.apply_hindsight()
 
                 message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
                 messageQueue.put(message)

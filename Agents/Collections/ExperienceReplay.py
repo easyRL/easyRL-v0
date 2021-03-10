@@ -1,9 +1,10 @@
 import numpy as np
 import random
 
-from Agents.Collections import TransitionFrame
+from Agents.Collections.TransitionFrame import TransitionFrame
 from collections import deque
 from collections.abc import Iterable
+from copy import deepcopy
 
 class ReplayBuffer:
     """
@@ -406,27 +407,35 @@ class PrioritizedReplayBuffer(ReplayBuffer):
    
 
 class HindsightReplayBuffer(ReplayBuffer):
-    def __init__(self,N):
-        self.buffer = deque()
-        self.N = N
+    """
+    
+    """
+    def __init__(self, learner, max_length, empty_trans, history_length: int = 1):
+        """
         
-    def reset(self):
-        self.buffer = deque()
+        """
+        super().__init__(learner, max_length, empty_trans, history_length)
+        self._hindsight_buffer = deque()
+    
+    def append_frame(self, transition_frame):
+        """
+        Appends a given framed to the buffer.
+        :param transition_frame: the transition frame to append to the end
+        of this buffer
+        :type transition_frame: TransitionFrame
+        """
+        # Add the transition_frame to the transitions array.
+        super().append_frame(transition_frame)
+        self._hindsight_buffer.append(transition_frame)
         
-    def keep(self,item):
-        self.buffer.append(item)
+    def apply_hindsight(self):
+        """
         
-    def backward(self):
-
-        new_buffer = copy.deepcopy(self.buffer)
-        num = len(new_buffer)
-        goal = self.buffer[-1][-2][0:self.N]
-        for i in range(num):
-            new_buffer[-1-i][2] = -1.0
-            new_buffer[-1-i][-2][self.N:] = goal
-            new_buffer[-1-i][0][self.N:] = goal
-            new_buffer[-1-i][4] = False
-            if (np.sum(np.abs((new_buffer[-1-i][-2][self.N:] - goal))) == 0):
-                new_buffer[-1-i][2] = 0.0
-                new_buffer[-1-i][4] = True
-        return new_buffer
+        """
+        goal = self._hindsight_buffer[-1].next_state
+        while self._hindsight_buffer:
+            current = self._hindsight_buffer.popleft()
+            if (np.sum(np.abs((current.state - goal))) == 0):
+                super().append_frame(TransitionFrame(goal, -1, 0.0, goal, True))
+            else:
+                super().append_frame(TransitionFrame(goal, -1, current.reward, goal, False))

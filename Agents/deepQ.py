@@ -43,6 +43,7 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
 
     def remember(self, state, action, reward, new_state, done=False):
         self.addToMemory(state, action, reward, new_state, done)
+        
         loss = 0
         if len(self.memory) < 2*self.batch_size:
             return loss
@@ -166,6 +167,13 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         # Calculate and return the loss (TD Error).
         loss = (q_target - q) ** 2
         return loss
+    
+    def apply_hindsight(self):
+        '''
+        
+        '''
+        if (isinstance(self.memory, ExperienceReplay.HindsightReplayBuffer)):
+            self.memory.apply_hindsight()
 
     def __deepcopy__(self, memodict={}):
         pass
@@ -204,16 +212,15 @@ class DeepQPrioritized(DeepQ):
         self.memory = ExperienceReplay.PrioritizedReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False), alpha = self.alpha)
         
         
- class DeepQHindsight(DeepQ):
+class DeepQHindsight(DeepQ):
     displayName = 'Deep Q Hindsight'
-    newParameters = [DeepQ.Parameter('Alpha', 0.00, 1.00, 0.001, 0.60, True, True, "The amount of Hindsight that gets used.")]
+    newParameters = []
     parameters = DeepQ.parameters + newParameters
 
     def __init__(self, *args):
         paramLen = len(DeepQHindsight.newParameters)
-        super().__init__(*args[:-paramLen])
-        self.alpha = float(args[-paramLen])
+        super().__init__(*args)
         empty_state = self.get_empty_state()
-        self.memory = ExperienceReplay.HindsightReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False), alpha = self.alpha)
+        self.memory = ExperienceReplay.HindsightReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
        
         
