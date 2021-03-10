@@ -109,6 +109,7 @@ class TRPO(PPO):
                 value_next = self.value_model.predict([next_states, self.allBatchMask])
                 value_next = np.average(value_next)
                 advantage = self.get_advantages(idx, goal, value_est, value_next)
+                print(str(advantage))
                 # Compute new probabilities 
                 new_probs = self.policy_model([states, self.allBatchMask], training=True)
                 new_probs = np.array(new_probs)
@@ -212,22 +213,31 @@ class TRPO(PPO):
         return (value_next - value_est - mean) / std
 
     def mse_loss(self, states, next_states):
-        return self.value_model.evaluate(x=states, y=next_states, batch_size=self.batch_size)
+        v_pred = self.value_model.predict([states, self.allBatchMask])
+        v_true = self.value_model.predict([next_states, self.allBatchMask])
+        #return self.value_model.evaluate(x=[states, self.allBatchMask], y=[next_states, self.allBatchMask], batch_size=self.batch_size)
+        return tf.reduce_sum(MSE(v_true, v_pred)).numpy()
 
     def clipped_loss(self, prob_ratio, advantage):
         epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * self.time_steps)
         #epsilon = 0.2
-        minimum = tf.minimum(prob_ratio * advantage, 1 - epsilon, 1 + epsilon)
+        minimum = min(prob_ratio * advantage, 1 - epsilon, 1 + epsilon).numpy()
         loss = minimum * advantage
         return loss
 
     def get_entropy(self, state):
         from scipy.stats import entropy
-        probabilities = self.get_action(state)
+        shape = (1,) + self.state_size
+        state = np.reshape(state, shape)
+        probabilities = self.policy_model.predict([state, self.allMask])
+        print("probabilities: " + str(probabilities))
         return entropy(probabilities)
 
     def agent_loss(self, value_loss, clip_loss, entropy):
-        return clip_loss + value_loss + self.c2 * entropy
+        print("value loss: " + str(value_loss))
+        print("clip loss: " + str(clip_loss))
+        print("entropy: " + str(entropy))
+        return int(clip_loss + value_loss + (self.c2 * entropy))
 
     '''def kl_divergence(self, states, new_states):
         kl = tf.keras.losses.KLDivergence()

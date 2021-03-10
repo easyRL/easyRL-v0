@@ -68,6 +68,7 @@ class PPO(DeepQ):
         state = np.reshape(state, shape)
         probabilities = self.policy_model.predict([state, self.allMask])
         action = int(np.mean(probabilities))
+        print("probabilities: " + str(probabilities))
         print("Action: " + str(action))
         return action
 
