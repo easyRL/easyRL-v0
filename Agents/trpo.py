@@ -157,7 +157,7 @@ class TRPO(PPO):
 
     def goal_idx(self, idx):
         transitions = self.memory._transitions
-        while idx < self.memory.max_length-1 and transitions[idx].is_done is False:
+        while transitions[idx] is not None and idx < self.memory.max_length-1 and transitions[idx].is_done is False:
             idx+=1
         return idx
 
@@ -239,7 +239,7 @@ class TRPO(PPO):
         shape = (1,) + self.state_size
         state = np.reshape(state, shape)
         probabilities = self.policy_model.predict([state, self.allMask])
-        return np.mean(np.array(entropy(probabilities)))
+        return tf.math.log(tf.reduce_sum((np.array(entropy(probabilities)))))
 
     def agent_loss(self, value_loss, clip_loss, entropy):
         '''print("value loss: " + str(value_loss))

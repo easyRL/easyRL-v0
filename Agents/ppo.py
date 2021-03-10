@@ -66,9 +66,8 @@ class PPO(DeepQ):
     def choose_action(self, state):
         shape = (1,) + self.state_size
         state = np.reshape(state, shape)
-        probabilities = self.policy_model.predict([state, self.allMask])
-        action = int(np.mean(probabilities))
-        print("probabilities: " + str(probabilities))
+        val = self.value_model.predict([state, self.allMask])
+        action = np.argmax(val)
         print("Action: " + str(action))
         return action
 
