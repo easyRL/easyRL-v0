@@ -39,7 +39,7 @@
           </li>
         </ul> 
       </div>
-      <div id="session-selector" class="from-control" style="width:9%; padding-top:15px; float:right; text-align:right">
+      <div id="session-selector" class="from-control" style="width:9%; padding-top:12px; float:right; text-align:right">
         <select name="Session" id="session-select">
           <option value="0" selected>Session A</option>
           <option value="1">Session B</option>
@@ -68,6 +68,7 @@
           <option value="24">Session Y</option>
           <option value="26">Session Z</option>
         </select>
+        <button type="button" id="btn-new-session" style="border:none; background: none; color:blue;"> + </button>
       </div>
         <div id="instance-state" style="width:21%; padding-top:15px; float:right; text-align:right">
           Instance State: Loading...
@@ -258,6 +259,13 @@
     setTimeout(function () {
       doPoll();
     }, 1000)
+
+    //Load Session data
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('session')) {
+      var session = urlParams.get('session')
+      document.getElementById('session-select').value = session;
+    }
   });
 
   $('#env-select').change(function () {
@@ -412,6 +420,16 @@
       }
     }
   }
+
+  $("#btn-new-session").click(function () {
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('session')) {
+      var session = Number(urlParams.get('session')) + 1
+      window.open(window.location.origin + window.location.pathname + "?session=" + session,'_blank');
+    } else {
+      window.open(window.location.origin + window.location.pathname + "?session=1",'_blank');
+    }
+  });
 
   // Train button - Start
   $("#btn-train").click(function () {
