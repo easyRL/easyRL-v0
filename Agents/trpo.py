@@ -115,7 +115,6 @@ class TRPO(PPO):
                 value_next = self.value_model.predict([next_state, self.allMask])
                 # value_next = np.average(value_next)
                 advantage = self.get_advantages(idx, goal, value_est, value_next)
-                print(str(advantage))
                 # Compute new probabilities 
                 new_probs = self.policy_model([states, self.allBatchMask], training=True)
                 new_probs = np.array(new_probs)
@@ -189,12 +188,12 @@ class TRPO(PPO):
             if transition.is_done:
                 Y_train[index_rep][transition.action] = transition.reward
             else:
-                Y_train[index_rep][transition.action] = transition.reward + vnext[index_rep] * (self.gamma ** index_rep)
+                Y_train[index_rep][transition.action] = transition.reward + vnext[index_rep] * (self.gamma ** (self.batch_size-index_rep))
         return X_train, Y_train
 
 
     def get_advantages(self, idx, goal, value_est, value_next):
-        print("Goal: " + str(goal))
+        #print("Goal: " + str(goal))
         transitions = self.memory.get_next_transitions(idx, goal)
         states = [transitions[i].state for i in range(idx, goal)]
         next_states = [transitions[i].next_state for i in range(idx, goal)]
@@ -228,7 +227,10 @@ class TRPO(PPO):
     def clipped_loss(self, prob_ratio, advantage):
         epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * self.time_steps)
         #epsilon = 0.2
-        minimum = min(prob_ratio * advantage, 1 - epsilon, 1 + epsilon).numpy()
+        clips = [prob_ratio*advantage, 1-epsilon, 1+epsilon]
+        clips = np.array(clips, dtype=float)
+        minimum = np.amin(clips, axis=0)
+        print("minimum: " + str(minimum))
         loss = minimum * advantage
         return loss
 
@@ -240,9 +242,9 @@ class TRPO(PPO):
         return np.mean(np.array(entropy(probabilities)))
 
     def agent_loss(self, value_loss, clip_loss, entropy):
-        print("value loss: " + str(value_loss))
+        '''print("value loss: " + str(value_loss))
         print("clip loss: " + str(clip_loss))
-        print("entropy: " + str(entropy))
+        print("entropy: " + str(entropy))'''
         return clip_loss + value_loss + (self.c2 * entropy)
 
     '''def kl_divergence(self, states, new_states):
@@ -252,6 +254,7 @@ class TRPO(PPO):
         return kl(new_states, states).numpy()'''
 
     def optimize_loss(self, loss, optimizer, tape):
+        loss = np.array(loss)
         loss = tf.convert_to_tensor(loss)
         grads = tape.gradient(loss, self.policy_model.trainable_variables)
         optimizer.apply_gradients(zip(grads, self.policy_model.trainable_variables))
