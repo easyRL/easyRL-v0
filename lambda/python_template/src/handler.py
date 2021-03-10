@@ -326,7 +326,7 @@ def createInstance(ec2Client, ec2Resource, jobID, arguments, inspector):
     #inspector.addAttribute("securityGroupId", str(security_group_id))
 
     instance = ec2Resource.create_instances(
-        ImageId='ami-01b4fa5b09c9741a8',
+        ImageId='ami-0bd8cfaa7944aedfe',
         MinCount=1,
         MaxCount=1,
         InstanceType=arguments['instanceType'],
