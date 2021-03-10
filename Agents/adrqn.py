@@ -148,6 +148,14 @@ class ADRQN(drqn.DRQN):
         # Calculate and return the loss (TD Error).
         loss = (q_target - q) ** 2
         return loss
+    
+    def apply_hindsight(self):
+        '''
+        Apply the hindsight replay buffer and check if its an instance if
+        yes add it to memory
+               '''
+        if (isinstance(self.memory, ExperienceReplay.HindsightReplayBuffer)):
+            self.memory.apply_hindsight()
 
 class ADRQNPrioritized(ADRQN):
     displayName = 'ADRQN Prioritized'
@@ -161,3 +169,15 @@ class ADRQNPrioritized(ADRQN):
         empty_state = self.get_empty_state()
         self.memory = ExperienceReplay.PrioritizedReplayBuffer(self, self.memory_size, ActionTransitionFrame(-1, empty_state, -1, 0, empty_state, False),
                                                                 history_length = self.historylength, alpha = self.alpha)
+        
+class ADRQNHindsight(ADRQN):
+    displayName = 'ADRQN Hindsight'
+    newParameters = []
+    parameters = ADRQN.parameters + newParameters
+
+    def __init__(self, *args):
+        paramLen = len(ADRQNHindsight.newParameters)
+        super().__init__(*args)
+        empty_state = self.get_empty_state()
+        self.memory = ExperienceReplay.HindsightReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))                                                                
+       
