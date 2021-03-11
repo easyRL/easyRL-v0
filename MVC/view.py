@@ -34,7 +34,7 @@ about = """
 
 
 class View:
-    agents = [deepQ.DeepQ, deepQ.DeepQPrioritized, deepQ.DeepQHindsight, qLearning.QLearning, drqn.DRQN, drqn.DRQNPrioritized, drqn.DRQNHindsight,adrqn.ADRQN, adrqn.ADRQNPrioritized,adrqn.ADRQNHindsight, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, drqnConvNative.DRQNConvNative, ppoNative.PPONative, reinforceNative.ReinforceNative, actorCriticNative.ActorCriticNative, sarsa, cem.CEM]
+    agents = [deepQ.DeepQ, deepQ.DeepQPrioritized, deepQ.DeepQHindsight, qLearning.QLearning, drqn.DRQN, drqn.DRQNPrioritized, drqn.DRQNHindsight, adrqn.ADRQN, adrqn.ADRQNPrioritized, adrqn.ADRQNHindsight, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, drqnConvNative.DRQNConvNative, ppoNative.PPONative, reinforceNative.ReinforceNative, actorCriticNative.ActorCriticNative, sarsa, cem.CEM]
     singleDimEnvs = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
                     pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv]
     environments = singleDimEnvs + atariEnv.AtariEnv.subEnvs
@@ -46,8 +46,10 @@ class View:
         qLearning.QLearning: [cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv],
         drqn.DRQN: environments,
         drqn.DRQNPrioritized: environments,
+        drqn.DRQNHindsight: environments,
         adrqn.ADRQN: environments,
         adrqn.ADRQNPrioritized: environments,
+        adrqn.ADRQNHindsight: environments,
         doubleDuelingQNative.DoubleDuelingQNative: singleDimEnvs,
         drqnNative.DRQNNative: singleDimEnvs,
         drqnConvNative.DRQNConvNative: atariEnv.AtariEnv.subEnvs,
