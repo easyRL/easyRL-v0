@@ -75,6 +75,13 @@ class CloudBridge:
     def submitStep(self, frame, epsilon, reward, loss):
         self.animationFrames.append(frame)
 
+        if epsilon is None:
+            epsilon = 0
+        if reward is None:
+            reward = 0
+        if loss is None:
+            loss = 0
+
         # Accumulate Step
         self.episodeAccEpsilon += epsilon
         self.episodeAccReward += reward

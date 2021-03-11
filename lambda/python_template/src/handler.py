@@ -20,116 +20,197 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 # @param context A platform specific object used to communicate with the cloud platform.
 # @returns A JSON object to use as a response.
 #
+agentList = [
+    {"name": "Q Learning", "description": "Basic Q Learning.", "index": "1", "supportedEnvs": ["singleDimDescrete"]},
+    {"name": "SARSA", "description": "State Action Reward State Action learning.", "index": "2", "supportedEnvs": ["singleDimDescrete"]},
+
+    {"name": "Deep Q (SRB)", "description": "Deep Q Learning using the standard replay buffer.", "index": "3", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
+    {"name": "Deep Q (PRB)", "description": "Deep Q Learning using a prioritized replay buffer.", "index": "4", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
+    {"name": "Deep Q (HER)", "description": "Deep Q Learning using a hindsight experience replay buffer.", "index": "5", "supportedEnvs": ["singleDim"]},
+
+    {"name": "DRQN (SRB)", "description": "Deep Recurrent Q-Network using the standard replay buffer.", "index": "6", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "DRQN (PRB)",  "description": "Deep Recurrent Q-Network using a prioritized replay buffer.", "index": "7", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "DRQN (HER)",  "description": "Deep Recurrent Q-Network using a hindsight experience replay buffer.", "index": "8", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+
+    {"name": "ADRQN (SRB)", "description": "Action-Specific Deep Recurrent Q-Network using the standard replay buffer.", "index": "9", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "ADRQN (PRB)", "description": "Action-Specific Deep Recurrent Q-Network using the standard replay buffer.", "index": "10", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "ADRQN (HER)", "description": "Action-Specific Deep Recurrent Q-Network using a hindsight experience replay buffer.", "index": "11", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+
+    {"name": "NPG", "description": "Natural Policy Gradient.", "index": "12", "supportedEnvs": ["singleDim"]},
+    {"name": "DDPG", "description": "Deep Deterministic Policy Gradient Learning.", "index": "13", "supportedEnvs": ["singleDim"]},
+
+    {"name": "CEM", "description": "Cross Entropy Method Learning.", "index": "14", "supportedEnvs": ["singleDim"]},
+
+    {"name": "SAC", "description": "Soft Actor Critic Learning.", "index": "15", "supportedEnvs": ["singleDim"]},
+    {"name": "TRPO", "description": "Trust Region Policy Optimization.", "index": "16", "supportedEnvs": ["singleDim"]},
+    {"name": "Rainbow", "description": "Reinforcement learning with the Rainbow agent.", "index": "17", "supportedEnvs": ["singleDim"]}
+
+]
 
 paraMap = {
-    '1': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval'],
-    '2': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
-    '3': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
-    '4': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
-    '5': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
+    '1': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'], # Q Learning
+    '2': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'], #SARSA
 
-    '6': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'alpha'],
-    '7': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength', 'alpha'],
-    '8': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength', 'alpha'],
+    '3': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval'], # Deep Q
+    '4': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'alpha'], # Deep Q
+    '5': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval'], # Deep Q
 
-    '9': ['episodes', 'steps', 'gamma', 'delta'],
-    '10': ['episodes', 'steps', 'gamma', 'sigma', 'population', 'elite']
+    '6': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'], # DRQN
+    '7': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength', 'alpha'], # DRQN
+    '8': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],  # DRQN
+
+    '9': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'], # ADRQN
+    '10': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength', 'alpha'],  # ARQN
+    '11': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],  # ADRQN
+
+    '12': ['episodes', 'steps', 'gamma', 'delta'], # NPG
+    '13': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'tau'], # DDPG
+    '14': ['episodes', 'steps', 'gamma', 'sigma', 'population', 'elite'], # CEM
+
+    '15': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'tau', 'temperature'], # SAC
+
+    '16': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'policyLearnRate', 'valueLearnRate', 'horizon', 'epochSize', 'ppoEpsilon', 'ppoLambda', 'valueLearnRatePlus'], # TRPO
+    '17': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'learningRate'] # Rainbow
 }
 
-instanceCosts = {
-    "c4.large": 0.1,
-    "c4.xlarge": 0.19,
-    "c4.2xlarge": 0.39,
-    "c4.4xlarge": 0.79,
-    "c4.8xlarge": 1.59,
+instanceInfo = {
+    "c4.large": {
+        "cost": 0.1,
+        "vcpus": 2,
+        "gpus": 0,
+        "ram": 3.75,
+        "network": "Moderate"
+    },
+    "c4.xlarge": {
+        "cost": 0.19,
+        "vcpus": 4,
+        "gpus": 0,
+        "ram": 7.5,
+        "network": "High"
+    },
+    "c4.2xlarge": {
+        "cost": 0.39,
+        "vcpus": 8,
+        "gpus": 0,
+        "ram": 15,
+        "network": "High"
+    },
+    "c4.4xlarge": {
+        "cost": 0.79,
+        "vcpus": 16,
+        "gpus": 0,
+        "ram": 30,
+        "network": "High"
+    },
+    "c4.8xlarge": {
+        "cost": 1.59,
+        "vcpus": 36,
+        "gpus": 0,
+        "ram": 60,
+        "network": "10 Gigabit"
+    },
+    "g4dn.xlarge": {
+        "cost": 0.52,
+        "vcpus": 4,
+        "gpus": 1,
+        "ram": 16,
+        "network": "25 Gigabit"
+    },
+    "g4dn.2xlarge": {
+        "cost": 0.75,
+        "vcpus": 8,
+        "gpus": 1,
+        "ram": 32,
+        "network": "25 Gigabit"
+    },
+    "g4dn.4xlarge": {
+        "cost": 1.20,
+        "vcpus": 16,
+        "gpus": 0,
+        "ram": 64,
+        "network": "25 Gigabit"
+    },
+    "g4dn.8xlarge": {
+        "cost": 2.17,
+        "vcpus": 32,
+        "gpus": 1,
+        "ram": 128,
+        "network": "50 Gigabit"
+    },
 }
 
-agentList = [
-    {"name": "Deep Q (SRB)", "description": "", "index": "1", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
-    {"name": "Q Learning", "description": "", "index": "2", "supportedEnvs": ["singleDimDescrete"]},
-    {"name": "DRQN (SRB)", "description": "", "index": "3", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "ADRQN (SRB)", "description": "", "index": "4", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "SARSA", "description": "", "index": "5", "supportedEnvs": ["singleDimDescrete"]},
-
-    {"name": "Deep Q (PRB)", "description": "", "index": "6", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
-    {"name": "DRQN (PRB)",  "description": "", "index": "7", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "ADRQN (PRB)", "description": "", "index": "8", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-
-    {"name": "NPG", "description": "", "index": "9", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "CEM", "description": "", "index": "10", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]}
-]
 agentMap = {}
 for aa in agentList:
     agentMap[aa['index']] = aa
 
 envList = [
-    {"name": "Cart Pole", "index": "1", "type": "singleDim"},
-    {"name": "Cart Pole Discrete", "index": "2", "type": "singleDimDescrete"},
-    {"name": "Frozen Lake", "index": "3", "type": "singleDimDescrete"},
-    {"name": "Pendulum", "index": "4", "type": "singleDim"},
-    {"name": "Acrobot", "index": "5", "type": "singleDim"},
-    {"name": "Mountain Car", "index": "6", "type": "singleDim"},
-    {"name": "Adventure", "index": "7", "type": "atari"},
-    {"name": "Air Raid", "index": "8", "type": "atari"},
-    {"name": "Alien", "index": "9", "type": "atari"},
-    {"name": "Amidar", "index": "10", "type": "atari"},
-    {"name": "Assault", "index": "11", "type": "atari"},
-    {"name": "Asterix", "index": "12", "type": "atari"},
-    {"name": "Asteroids", "index": "13", "type": "atari"},
-    {"name": "Atlantis", "index": "14", "type": "atari"},
-    {"name": "Bank Heist", "index": "15", "type": "atari"},
-    {"name": "Battle Zone", "index": "16", "type": "atari"},
-    {"name": "Beam Rider", "index": "17", "type": "atari"},
-    {"name": "Berzerk", "index": "18", "type": "atari"},
-    {"name": "Bowling", "index": "19", "type": "atari"},
-    {"name": "Boxing", "index": "20", "type": "atari"},
-    {"name": "Breakout", "index": "21", "type": "atari"},
-    {"name": "Carnival", "index": "22", "type": "atari"},
-    {"name": "Centipede", "index": "23", "type": "atari"},
-    {"name": "Chopper Command", "index": "24", "type": "atari"},
-    {"name": "Crazy Climber", "index": "25", "type": "atari"},
-    {"name": "Demon Attack", "index": "26", "type": "atari"},
-    {"name": "Double Dunk", "index": "27", "type": "atari"},
-    {"name": "Elevator Action", "index": "28", "type": "atari"},
-    {"name": "Enduro", "index": "29", "type": "atari"},
-    {"name": "Fishing Derby", "index": "30", "type": "atari"},
-    {"name": "Freeway", "index": "31", "type": "atari"},
-    {"name": "Frostbite", "index": "32", "type": "atari"},
-    {"name": "Gopher", "index": "33", "type": "atari"},
-    {"name": "Gravitar", "index": "34", "type": "atari"},
-    {"name": "Hero", "index": "35", "type": "atari"},
-    {"name": "Ice Hockey", "index": "36", "type": "atari"},
-    {"name": "Jamesbond", "index": "37", "type": "atari"},
-    {"name": "Journey Escape", "index": "38", "type": "atari"},
-    {"name": "Kangaroo", "index": "39", "type": "atari"},
-    {"name": "Krull", "index": "40", "type": "atari"},
-    {"name": "Kung Fu Master", "index": "41", "type": "atari"},
-    {"name": "Montezuma Revenge", "index": "42", "type": "atari"},
-    {"name": "Ms. Pacman", "index": "43", "type": "atari"},
-    {"name": "Name this Game", "index": "44", "type": "atari"},
-    {"name": "Phoenix", "index": "45", "type": "atari"},
-    {"name": "Pitfall", "index": "46", "type": "atari"},
-    {"name": "Pong", "index": "47", "type": "atari"},
-    {"name": "Pooyan", "index": "48", "type": "atari"},
-    {"name": "Private Eye", "index": "49", "type": "atari"},
-    {"name": "QBert", "index": "50", "type": "atari"},
-    {"name": "River Raid", "index": "51", "type": "atari"},
-    {"name": "Road Runner", "index": "52", "type": "atari"},
-    {"name": "RoboTank", "index": "53", "type": "atari"},
-    {"name": "SeaQuest", "index": "54", "type": "atari"},
-    {"name": "Skiing", "index": "55", "type": "atari"},
-    {"name": "Solaris", "index": "56", "type": "atari"},
-    {"name": "Space Invaders", "index": "57", "type": "atari"},
-    {"name": "Star Gunner", "index": "58", "type": "atari"},
-    {"name": "Tennis", "index": "59", "type": "atari"},
-    {"name": "Time Pilot", "index": "60", "type": "atari"},
-    {"name": "Tutankham", "index": "61", "type": "atari"},
-    {"name": "Up N Down", "index": "62", "type": "atari"},
-    {"name": "Venture", "index": "63", "type": "atari"},
-    {"name": "Video Pinball", "index": "64", "type": "atari"},
-    {"name": "Wizard of Wor", "index": "65", "type": "atari"},
-    {"name": "Yars Revenge", "index": "66", "type": "atari"},
-    {"name": "Zaxxon", "index": "67", "type": "atari"}
+    {"name": "Cart Pole", "description": "Gain reward by balancing the pole as long as possible.", "index": "1", "type": "singleDim"},
+    {"name": "Cart Pole Discrete", "description": "Balance the pole using descrete values instead.",  "index": "2", "type": "singleDimDescrete"},
+    {"name": "Frozen Lake", "description": "Navigate the frozen lake without falling in!",  "index": "3", "type": "singleDimDescrete"},
+    {"name": "Pendulum", "description": "Swing the pendulum to gain rewards.",  "index": "4", "type": "singleDim"},
+    {"name": "Acrobot", "description": "Swing the arm of the robot as high as possible to maximize rewards.",  "index": "5", "type": "singleDim"},
+    {"name": "Mountain Car", "description": "Drive the car up the mountains to gain reward.",  "index": "6", "type": "singleDim"},
+    {"name": "Adventure", "description": "A classic atari game. Score points to gain rewards.",  "index": "7", "type": "atari"},
+    {"name": "Air Raid", "description": "A classic atari game. Score points to gain rewards.",  "index": "8", "type": "atari"},
+    {"name": "Alien", "description": "A classic atari game. Score points to gain rewards.",  "index": "9", "type": "atari"},
+    {"name": "Amidar", "description": "A classic atari game. Score points to gain rewards.",  "index": "10", "type": "atari"},
+    {"name": "Assault", "description": "A classic atari game. Score points to gain rewards.",  "index": "11", "type": "atari"},
+    {"name": "Asterix", "description": "A classic atari game. Score points to gain rewards.",  "index": "12", "type": "atari"},
+    {"name": "Asteroids", "description": "A classic atari game. Score points to gain rewards.",  "index": "13", "type": "atari"},
+    {"name": "Atlantis", "description": "A classic atari game. Score points to gain rewards.",  "index": "14", "type": "atari"},
+    {"name": "Bank Heist", "description": "A classic atari game. Score points to gain rewards.",  "index": "15", "type": "atari"},
+    {"name": "Battle Zone", "description": "A classic atari game. Score points to gain rewards.",  "index": "16", "type": "atari"},
+    {"name": "Beam Rider", "description": "A classic atari game. Score points to gain rewards.",  "index": "17", "type": "atari"},
+    {"name": "Berzerk", "description": "A classic atari game. Score points to gain rewards.",  "index": "18", "type": "atari"},
+    {"name": "Bowling", "description": "A classic atari game. Score points to gain rewards.",  "index": "19", "type": "atari"},
+    {"name": "Boxing", "description": "A classic atari game. Score points to gain rewards.",  "index": "20", "type": "atari"},
+    {"name": "Breakout", "description": "A classic atari game. Score points to gain rewards.",  "index": "21", "type": "atari"},
+    {"name": "Carnival", "description": "A classic atari game. Score points to gain rewards.",  "index": "22", "type": "atari"},
+    {"name": "Centipede", "description": "A classic atari game. Score points to gain rewards.",  "index": "23", "type": "atari"},
+    {"name": "Chopper Command", "description": "A classic atari game. Score points to gain rewards.",  "index": "24", "type": "atari"},
+    {"name": "Crazy Climber", "description": "A classic atari game. Score points to gain rewards.",  "index": "25", "type": "atari"},
+    {"name": "Demon Attack", "description": "A classic atari game. Score points to gain rewards.",  "index": "26", "type": "atari"},
+    {"name": "Double Dunk", "description": "A classic atari game. Score points to gain rewards.",  "index": "27", "type": "atari"},
+    {"name": "Elevator Action", "description": "A classic atari game. Score points to gain rewards.",  "index": "28", "type": "atari"},
+    {"name": "Enduro", "description": "A classic atari game. Score points to gain rewards.",  "index": "29", "type": "atari"},
+    {"name": "Fishing Derby", "description": "A classic atari game. Score points to gain rewards.",  "index": "30", "type": "atari"},
+    {"name": "Freeway", "description": "A classic atari game. Score points to gain rewards.",  "index": "31", "type": "atari"},
+    {"name": "Frostbite", "description": "A classic atari game. Score points to gain rewards.",  "index": "32", "type": "atari"},
+    {"name": "Gopher", "description": "A classic atari game. Score points to gain rewards.",  "index": "33", "type": "atari"},
+    {"name": "Gravitar", "description": "A classic atari game. Score points to gain rewards.",  "index": "34", "type": "atari"},
+    {"name": "Hero", "index": "35", "description": "A classic atari game. Score points to gain rewards.",  "type": "atari"},
+    {"name": "Ice Hockey", "description": "A classic atari game. Score points to gain rewards.",  "index": "36", "type": "atari"},
+    {"name": "Jamesbond", "description": "A classic atari game. Score points to gain rewards.",  "index": "37", "type": "atari"},
+    {"name": "Journey Escape", "description": "A classic atari game. Score points to gain rewards.",  "index": "38", "type": "atari"},
+    {"name": "Kangaroo", "description": "A classic atari game. Score points to gain rewards.",  "index": "39", "type": "atari"},
+    {"name": "Krull", "description": "A classic atari game. Score points to gain rewards.",  "index": "40", "type": "atari"},
+    {"name": "Kung Fu Master", "description": "A classic atari game. Score points to gain rewards.",  "index": "41", "type": "atari"},
+    {"name": "Montezuma Revenge", "description": "A classic atari game. Score points to gain rewards.",  "index": "42", "type": "atari"},
+    {"name": "Ms. Pacman", "description": "A classic atari game. Score points to gain rewards.",  "index": "43", "type": "atari"},
+    {"name": "Name this Game", "description": "A classic atari game. Score points to gain rewards.",  "index": "44", "type": "atari"},
+    {"name": "Phoenix", "description": "A classic atari game. Score points to gain rewards.",  "index": "45", "type": "atari"},
+    {"name": "Pitfall", "description": "A classic atari game. Score points to gain rewards.",  "index": "46", "type": "atari"},
+    {"name": "Pong", "description": "A classic atari game. Score points to gain rewards.",  "index": "47", "type": "atari"},
+    {"name": "Pooyan", "description": "A classic atari game. Score points to gain rewards.",  "index": "48", "type": "atari"},
+    {"name": "Private Eye", "description": "A classic atari game. Score points to gain rewards.",  "index": "49", "type": "atari"},
+    {"name": "QBert", "description": "A classic atari game. Score points to gain rewards.",  "index": "50", "type": "atari"},
+    {"name": "River Raid", "description": "A classic atari game. Score points to gain rewards.",  "index": "51", "type": "atari"},
+    {"name": "Road Runner", "description": "A classic atari game. Score points to gain rewards.",  "index": "52", "type": "atari"},
+    {"name": "RoboTank", "description": "A classic atari game. Score points to gain rewards.",  "index": "53", "type": "atari"},
+    {"name": "SeaQuest", "description": "A classic atari game. Score points to gain rewards.",  "index": "54", "type": "atari"},
+    {"name": "Skiing", "description": "A classic atari game. Score points to gain rewards.",  "index": "55", "type": "atari"},
+    {"name": "Solaris", "description": "A classic atari game. Score points to gain rewards.",  "index": "56", "type": "atari"},
+    {"name": "Space Invaders", "description": "A classic atari game. Score points to gain rewards.",  "index": "57", "type": "atari"},
+    {"name": "Star Gunner", "description": "A classic atari game. Score points to gain rewards.",  "index": "58", "type": "atari"},
+    {"name": "Tennis", "description": "A classic atari game. Score points to gain rewards.",  "index": "59", "type": "atari"},
+    {"name": "Time Pilot", "description": "A classic atari game. Score points to gain rewards.",  "index": "60", "type": "atari"},
+    {"name": "Tutankham", "description": "A classic atari game. Score points to gain rewards.",  "index": "61", "type": "atari"},
+    {"name": "Up N Down", "description": "A classic atari game. Score points to gain rewards.",  "index": "62", "type": "atari"},
+    {"name": "Venture", "description": "A classic atari game. Score points to gain rewards.",  "index": "63", "type": "atari"},
+    {"name": "Video Pinball", "description": "A classic atari game. Score points to gain rewards.",  "index": "64", "type": "atari"},
+    {"name": "Wizard of Wor", "description": "A classic atari game. Score points to gain rewards.",  "index": "65", "type": "atari"},
+    {"name": "Yars Revenge", "description": "A classic atari game. Score points to gain rewards.",  "index": "66", "type": "atari"},
+    {"name": "Zaxxon", "description": "A classic atari game. Score points to gain rewards.",  "index": "67", "type": "atari"}
 ]
 envMap = {}
 for ev in envList:
@@ -138,7 +219,7 @@ for ev in envList:
 paramConditions = {
     "episodes": {
         "name": "Number of Episodes",
-        "description": "",
+        "description": "The number of episodes to train the agent.",
         "min": 1,
         "max": 1000000000,
         "default": 1000,
@@ -146,7 +227,7 @@ paramConditions = {
     },
     "steps": {
         "name": "Max Size",
-        "description": "",
+        "description": "The max number of timesteps permitted in an episode.",
         "min": 1,
         "max": 1000000000,
         "default": 200,
@@ -154,7 +235,7 @@ paramConditions = {
     },
     "gamma": {
         "name": "Gamma",
-        "description": "",
+        "description": "The factor by which to discount future rewards.",
         "min": 0,
         "max": 1,
         "default": 0.97,
@@ -163,7 +244,7 @@ paramConditions = {
     },
     "minEpsilon": {
         "name": "Min Epsilon",
-        "description": "",
+        "description": "The minimum probability that the model will select a random action over its desired one.",
         "min": 0,
         "max": 1,
         "default": 0.1,
@@ -172,7 +253,7 @@ paramConditions = {
     },
     "maxEpsilon": {
         "name": "Max Epsilon",
-        "description": "",
+        "description": "The maximum/starting probability that the model will select a random action over its desired one.",
         "min": 0,
         "max": 1,
         "default": 1,
@@ -181,7 +262,7 @@ paramConditions = {
     },
     "decayRate": {
         "name": "Decay Rate",
-        "description": "",
+        "description": "The amount to decrease epsilon by each timestep.",
         "min": 0,
         "max": 0.2,
         "default": 0.018,
@@ -190,7 +271,7 @@ paramConditions = {
     },
     "batchSize": {
         "name": "Batch Size",
-        "description": "",
+        "description": "The number of transitions to consider simultaneously when updating the agent.",
         "min": 1,
         "max": 256,
         "default": 32,
@@ -199,7 +280,7 @@ paramConditions = {
     },
     "memorySize": {
         "name": "Memory Size",
-        "description": "",
+        "description": "The maximum number of timestep transitions to keep stored.",
         "min": 1,
         "max": 655360,
         "default": 1000,
@@ -207,7 +288,7 @@ paramConditions = {
     },
     "targetInterval": {
         "name": "Target Update Interval",
-        "description": "",
+        "description": "The distance in timesteps between target model updates.",
         "min": 1,
         "max": 100000,
         "default": 200,
@@ -223,8 +304,8 @@ paramConditions = {
         "stepSize": 1
     },
     "alpha": {
-        "name": "Alpha",
-        "description": "",
+        "name": "Learning Rate",
+        "description": "The rate at which the parameters respond to environment observations.",
         "min": 0,
         "max": 1,
         "default": 0.18,
@@ -264,6 +345,96 @@ paramConditions = {
         "min": 0.001,
         "max": 1,
         "default": 0.2,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "tau": {
+        "name": "Tau",
+        "description": "",
+        "min": 0,
+        "max": 1,
+        "default": 0.97,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "temperature": {
+        "name": "Temperature",
+        "description": "",
+        "min": 0,
+        "max": 1,
+        "default": 0.97,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "learningRate": {
+        "name": "Learning Rate",
+        "description": "",
+        "min": 0.0001,
+        "max": 1,
+        "default": 0.001,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "policyLearnRate": {
+        "name": "Policy Learning Rate",
+        "description": "",
+        "min": 0.0001,
+        "max": 1,
+        "default": 0.001,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "valueLearnRate": {
+        "name": "Value Learning Rate",
+        "description": "",
+        "min": 0.0001,
+        "max": 1,
+        "default": 0.001,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "horizon": {
+        "name": "Horizon",
+        "description": "",
+        "min": 10,
+        "max": 10000,
+        "default": 50,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "epochSize": {
+        "name": "Epoch Size",
+        "description": "",
+        "min": 10,
+        "max": 100000,
+        "default": 500,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "ppoEpsilon": {
+        "name": "PPO Epsilon",
+        "description": "",
+        "min": 0.0001,
+        "max": 0.5,
+        "default": 0.2,
+        "showSlider": True,
+        "stepSize": 0.0001
+    },
+    "ppoLambda": {
+        "name": "PPO Lambda",
+        "description": "",
+        "min": 0.5,
+        "max": 1,
+        "default": 0.95,
+        "showSlider": True,
+        "stepSize": 0.01
+    },
+    "valueLearnRatePlus": {
+        "name": "Value Learning Rate+",
+        "description": "",
+        "min": 0.0001,
+        "max": 1,
+        "default": 0.001,
         "showSlider": True,
         "stepSize": 0.001
     }
@@ -326,7 +497,7 @@ def createInstance(ec2Client, ec2Resource, jobID, arguments, inspector):
     #inspector.addAttribute("securityGroupId", str(security_group_id))
 
     instance = ec2Resource.create_instances(
-        ImageId='ami-01b4fa5b09c9741a8',
+        ImageId='ami-0bd8cfaa7944aedfe',
         MinCount=1,
         MaxCount=1,
         InstanceType=arguments['instanceType'],
@@ -364,6 +535,9 @@ def yourFunction(request, context):
     task = request['task']
     arguments = request['arguments']
 
+    if ('episodes' in arguments):
+        arguments['episodes'] += 1
+
     instanceID = ""
     if ('instanceID' in arguments):
         instanceID = arguments['instanceID']
@@ -372,7 +546,7 @@ def yourFunction(request, context):
 
     if ('gitHubURL' not in arguments):
         arguments['gitHubURL'] = "https://github.com/RobertCordingly/easyRL-v0"
-        arguments['gitHubBranch'] = "dataExport"
+        arguments['gitHubBranch'] = "dev/rl"
 
     continuousTraining = False
     if ("continuousTraining" in arguments):
@@ -392,7 +566,8 @@ def yourFunction(request, context):
     inspector.addAttribute("instanceStateText", "Loading...")
 
     if 'instanceType' in arguments:
-        inspector.addAttribute("cost", instanceCosts[arguments['instanceType']])
+        inspector.addAttribute("cost", instanceInfo[arguments['instanceType']]['cost'])
+        inspector.addAttribute("info", instanceInfo[arguments['instanceType']])
 
     if (task == "poll"):
         ec2Client = botoSession.client('ec2')

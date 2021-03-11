@@ -26,28 +26,28 @@ sudo apt install -y build-essential
 sudo apt install -y libssl-dev 
 sudo apt install -y libffi-dev
 
-sudo python3.7 -m pip install pip --upgrade
-sudo python3.7 -m pip install pillow
-sudo python3.7 -m pip install gym
-sudo python3.7 -m pip install pandas
-sudo python3.7 -m pip install numpy
-sudo python3.7 -m pip install tensorflow
-sudo python3.7 -m pip install joblib
-sudo python3.7 -m pip install ttkthemes
-sudo python3.7 -m pip install ttkwidgets
-sudo python3.7 -m pip install opencv-python
-sudo python3.7 -m pip install cffi
-sudo python3.7 -m pip install gym[atari]
-sudo python3.7 -m pip install boto3
-sudo python3.7 -m pip install torch
-sudo python3.7 -m pip install --upgrade --force-reinstall pillow
+python3.7 -m pip install pip --upgrade
+python3.7 -m pip install pillow
+python3.7 -m pip install gym
+python3.7 -m pip install pandas
+python3.7 -m pip install numpy
+python3.7 -m pip install tensorflow
+python3.7 -m pip install joblib
+python3.7 -m pip install ttkthemes
+python3.7 -m pip install ttkwidgets
+python3.7 -m pip install opencv-python
+python3.7 -m pip install cffi
+python3.7 -m pip install gym[atari]
+python3.7 -m pip install boto3
+python3.7 -m pip install torch
+python3.7 -m pip install --upgrade --force-reinstall pillow
 
-wget https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-1.8.0%2Bcpu.zip
-rm libtorch-shared-with-deps-1.8.0+cpu.zip
-cd easyRL-v0/Agents/Native
-cmake -DCMAKE_PREFIX_PATH=~/libtorch .
+wget unzip libtorch-cxx11-abi-shared-with-deps-1.8.0+cpu.zip 
+rm libtorch-cxx11-abi-shared-with-deps-1.8.0+cpu.zip
+cd Agents/Native
+cmake -DCMAKE_PREFIX_PATH=~/easyRL-v0/libtorch .
 make
-cd ~
+cd ~/easyRL-v0
 
 
 #git clone https://github.com/easyRL/easyRL-v0
