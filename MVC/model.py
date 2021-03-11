@@ -180,7 +180,7 @@ class Model:
                     loss = self.agent.update(episode_trajectory)
                     
                 # Send the loss of this episode.
-                modelState = Model.State(None, None, None, loss)
+                modelState = Model.State(None, None, 0, loss)
                 message = Model.Message(Model.Message.STATE, modelState)
                 messageQueue.put(message)
                 
