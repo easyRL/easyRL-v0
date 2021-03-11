@@ -114,7 +114,11 @@ def logout(request):
             ,"sigma": get_safe_value(int, request.POST.get("sigma"), 0.5)
             ,"population": get_safe_value(int, request.POST.get("population"), 10)
             ,"elite": get_safe_value(int, request.POST.get("elite"), 0.2)
+
+            ,"tau": get_safe_value(int, request.POST.get("tau"), 0.97)
+            ,"temperature": get_safe_value(int, request.POST.get("temperature"), 0.97)
         } 
+
     )
     # clear up all sessions
     for key in keys:
@@ -155,6 +159,9 @@ def train(request):
             ,"sigma": get_safe_value(int, request.POST.get("sigma"), 0.5)
             ,"population": get_safe_value(int, request.POST.get("population"), 10)
             ,"elite": get_safe_value(int, request.POST.get("elite"), 0.2)
+
+            ,"tau": get_safe_value(int, request.POST.get("tau"), 0.97)
+            ,"temperature": get_safe_value(int, request.POST.get("temperature"), 0.97)
         } 
     ))
 
@@ -192,6 +199,11 @@ def test(request):
             ,"sigma": get_safe_value(int, request.POST.get("sigma"), 0.5)
             ,"population": get_safe_value(int, request.POST.get("population"), 10)
             ,"elite": get_safe_value(int, request.POST.get("elite"), 0.2)
+
+            ,"tau": get_safe_value(int, request.POST.get("tau"), 0.97)
+            ,"temperature": get_safe_value(int, request.POST.get("temperature"), 0.97)
+
+
         } 
     ))
 
@@ -230,6 +242,9 @@ def poll(request):
                 ,"sigma": get_safe_value(int, request.POST.get("sigma"), 0.5)
                 ,"population": get_safe_value(int, request.POST.get("population"), 10)
                 ,"elite": get_safe_value(int, request.POST.get("elite"), 0.2)
+
+                ,"tau": get_safe_value(int, request.POST.get("tau"), 0.97)
+                ,"temperature": get_safe_value(int, request.POST.get("temperature"), 0.97)
             }                
         ))
         return response
@@ -291,6 +306,9 @@ def export_model(request):
             ,"sigma": get_safe_value(int, request.POST.get("sigma"), 0.5)
             ,"population": get_safe_value(int, request.POST.get("population"), 10)
             ,"elite": get_safe_value(int, request.POST.get("elite"), 0.2)
+
+            ,"tau": get_safe_value(int, request.POST.get("tau"), 0.97)
+            ,"temperature": get_safe_value(int, request.POST.get("temperature"), 0.97)
         }
     ))
 
@@ -328,6 +346,9 @@ def halt(request):
             ,"sigma": get_safe_value(int, request.POST.get("sigma"), 0.5)
             ,"population": get_safe_value(int, request.POST.get("population"), 10)
             ,"elite": get_safe_value(int, request.POST.get("elite"), 0.2)
+
+            ,"tau": get_safe_value(int, request.POST.get("tau"), 0.97)
+            ,"temperature": get_safe_value(int, request.POST.get("temperature"), 0.97)
         }
     ))
 
