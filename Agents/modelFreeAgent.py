@@ -20,6 +20,9 @@ class ModelFreeAgent(agent.Agent, ABC):
         paramLen = len(ModelFreeAgent.newParameters)
         super().__init__(*args[:-paramLen])
         self.min_epsilon, self.max_epsilon, self.decay_rate = args[-paramLen:]
+    
+    def apply_hindsight(self):
+        pass
 
     @abstractmethod
     def remember(self, state, action, reward, new_state, done):
