@@ -27,7 +27,7 @@ import joblib
 
 class TRPO(PPO):
     displayName = 'TRPO Agent'
-    newParameters = [DeepQ.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001,
+    newParameters = [PPO.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001,
                                                              True, True,
                                                              "A learning rate that the Adam optimizer starts at")
                      ]
@@ -94,44 +94,44 @@ class TRPO(PPO):
         self.value_model.train_on_batch(X_train, Y_train)
         # Create optimizer for minimizing loss
         optimizer = GradientDescentOptimizer(learning_rate= 0.001)
-        for _ in range(self.N):
-             # Compute old probability
+        for idx, transition in enumerate(mini_batch):
+                # Compute old probability
             old_probs = self.get_probabilities(states)
             old_probs = np.array(old_probs)
             actions = np.array(actions)
             old_p = tf.math.log(tf.reduce_sum(np.multiply(old_probs, actions)))
             old_p = tf.stop_gradient(old_p)
-            for idx, transition in enumerate(mini_batch):
-                goal = self.goal_idx(idx)
-                # Compute value estimates and advantage
-                state = transition.state
-                next_state = transition.next_state
-                shape = (1,) + self.state_size
-                state = np.reshape(state, shape)
-                next_state = np.reshape(next_state, shape)
+            
+            goal = self.goal_idx(idx)
+            # Compute value estimates and advantage
+            state = transition.state
+            next_state = transition.next_state
+            shape = (1,) + self.state_size
+            state = np.reshape(state, shape)
+            next_state = np.reshape(next_state, shape)
 
-                value_est = self.value_model.predict([state, self.allMask])
-                # value_est = np.average(value_est)
-                value_next = self.value_model.predict([next_state, self.allMask])
-                # value_next = np.average(value_next)
-                advantage = self.get_advantages(idx, goal, value_est, value_next)
-                # Compute new probabilities 
-                new_probs = self.policy_model([states, self.allBatchMask], training=True)
-                new_probs = np.array(new_probs)
-                new_p = tf.math.log(tf.reduce_sum(np.multiply(new_probs, actions)))
-                # Compute probability ratio
-                prob_ratio = tf.math.exp(new_p - old_p)
-                # Run the policy under N timesteps using loss function
-                value_loss = self.c1 * self.mse_loss(states, next_states)
-                clip_loss = self.clipped_loss(prob_ratio, advantage)
-                entropy = self.get_entropy(state)
-                loss = self.train_policy(states, value_loss, clip_loss, entropy)
-                losses.append(loss)
-            loss = np.average(np.array(losses))
-            print("loss iteration: " + str(loss))
-            # apply gradient optimizer to optimize loss and policy network
-            with tf.GradientTape() as tape:
-                loss = self.optimize_loss(loss, optimizer, tape)
+            value_est = self.value_model.predict([state, self.allMask])
+            # value_est = np.average(value_est)
+            value_next = self.value_model.predict([next_state, self.allMask])
+            # value_next = np.average(value_next)
+            advantage = self.get_advantages(idx, goal, value_est, value_next)
+            # Compute new probabilities 
+            new_probs = self.policy_model([states, self.allBatchMask], training=True)
+            new_probs = np.array(new_probs)
+            new_p = tf.math.log(tf.reduce_sum(np.multiply(new_probs, actions)))
+            # Compute probability ratio
+            prob_ratio = tf.math.exp(new_p - old_p)
+            # Run the policy under N timesteps using loss function
+            value_loss = self.c1 * self.mse_loss(states, next_states)
+            clip_loss = self.clipped_loss(prob_ratio, advantage)
+            entropy = self.get_entropy(state)
+            loss = self.train_policy(states, value_loss, clip_loss, entropy)
+            losses.append(loss)
+        loss = np.average(np.array(losses))
+        print("loss iteration: " + str(loss))
+        # apply gradient optimizer to optimize loss and policy network
+        with tf.GradientTape() as tape:
+            loss = self.optimize_loss(loss, optimizer, tape)
         return loss
 
     def sample_trajectories(self, mini_batch):
@@ -227,7 +227,10 @@ class TRPO(PPO):
     def clipped_loss(self, prob_ratio, advantage):
         epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * self.time_steps)
         #epsilon = 0.2
-        clips = [prob_ratio*advantage, 1-epsilon, 1+epsilon]
+        clips = []
+        clips.append(prob_ratio*advantage)
+        clips.append(1-epsilon)
+        clips.append(1+epsilon)
         clips = np.array(clips, dtype=float)
         minimum = np.amin(clips, axis=0)
         print("minimum: " + str(minimum))

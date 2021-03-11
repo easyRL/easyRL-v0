@@ -46,9 +46,10 @@ class PPO(DeepQ):
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
-
-        self.policy_model = Actor(self.state_size, self.action_size, 0.001).policy_network()
-        self.value_model = Critic(self.state_size, self.action_size, 0.001).value_network()
+        self.policy_lr = 0.001
+        self.value_lr = 0.001
+        self.policy_model = Actor(self.state_size, self.action_size, self.policy_lr).policy_network()
+        self.value_model = Critic(self.state_size, self.action_size, self.value_lr).value_network()
 
     def sample(self):
         return self.memory.sample(self.batch_size)
