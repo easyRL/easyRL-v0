@@ -117,6 +117,15 @@ def logout(request):
 
             ,"tau": get_safe_value(int, request.POST.get("tau"), 0.97)
             ,"temperature": get_safe_value(int, request.POST.get("temperature"), 0.97)
+
+            ,"learningRate": get_safe_value(int, request.POST.get("learningRate"), 0.001)
+            ,"policyLearnRate": get_safe_value(int, request.POST.get("policyLearnRate"), 0.001)
+            ,"valueLearnRate": get_safe_value(int, request.POST.get("valueLearnRate"), 0.001)
+            ,"horizon": get_safe_value(int, request.POST.get("horizon"), 50)
+            ,"epochSize": get_safe_value(int, request.POST.get("epochSize"), 500)
+            ,"ppoEpsilon": get_safe_value(int, request.POST.get("ppoEpsilon"), 0.2)
+            ,"ppoLambda": get_safe_value(int, request.POST.get("ppoLambda"), 0.95)
+            ,"valueLearnRatePlus": get_safe_value(int, request.POST.get("valueLearnRatePlus"), 0.001)
         } 
 
     )
@@ -162,6 +171,15 @@ def train(request):
 
             ,"tau": get_safe_value(int, request.POST.get("tau"), 0.97)
             ,"temperature": get_safe_value(int, request.POST.get("temperature"), 0.97)
+
+            ,"learningRate": get_safe_value(int, request.POST.get("learningRate"), 0.001)
+            ,"policyLearnRate": get_safe_value(int, request.POST.get("policyLearnRate"), 0.001)
+            ,"valueLearnRate": get_safe_value(int, request.POST.get("valueLearnRate"), 0.001)
+            ,"horizon": get_safe_value(int, request.POST.get("horizon"), 50)
+            ,"epochSize": get_safe_value(int, request.POST.get("epochSize"), 500)
+            ,"ppoEpsilon": get_safe_value(int, request.POST.get("ppoEpsilon"), 0.2)
+            ,"ppoLambda": get_safe_value(int, request.POST.get("ppoLambda"), 0.95)
+            ,"valueLearnRatePlus": get_safe_value(int, request.POST.get("valueLearnRatePlus"), 0.001)
         } 
     ))
 
@@ -202,6 +220,15 @@ def test(request):
 
             ,"tau": get_safe_value(int, request.POST.get("tau"), 0.97)
             ,"temperature": get_safe_value(int, request.POST.get("temperature"), 0.97)
+
+            ,"learningRate": get_safe_value(int, request.POST.get("learningRate"), 0.001)
+            ,"policyLearnRate": get_safe_value(int, request.POST.get("policyLearnRate"), 0.001)
+            ,"valueLearnRate": get_safe_value(int, request.POST.get("valueLearnRate"), 0.001)
+            ,"horizon": get_safe_value(int, request.POST.get("horizon"), 50)
+            ,"epochSize": get_safe_value(int, request.POST.get("epochSize"), 500)
+            ,"ppoEpsilon": get_safe_value(int, request.POST.get("ppoEpsilon"), 0.2)
+            ,"ppoLambda": get_safe_value(int, request.POST.get("ppoLambda"), 0.95)
+            ,"valueLearnRatePlus": get_safe_value(int, request.POST.get("valueLearnRatePlus"), 0.001)
 
 
         } 
@@ -245,6 +272,15 @@ def poll(request):
 
                 ,"tau": get_safe_value(int, request.POST.get("tau"), 0.97)
                 ,"temperature": get_safe_value(int, request.POST.get("temperature"), 0.97)
+
+                ,"learningRate": get_safe_value(int, request.POST.get("learningRate"), 0.001)
+                ,"policyLearnRate": get_safe_value(int, request.POST.get("policyLearnRate"), 0.001)
+                ,"valueLearnRate": get_safe_value(int, request.POST.get("valueLearnRate"), 0.001)
+                ,"horizon": get_safe_value(int, request.POST.get("horizon"), 50)
+                ,"epochSize": get_safe_value(int, request.POST.get("epochSize"), 500)
+                ,"ppoEpsilon": get_safe_value(int, request.POST.get("ppoEpsilon"), 0.2)
+                ,"ppoLambda": get_safe_value(int, request.POST.get("ppoLambda"), 0.95)
+                ,"valueLearnRatePlus": get_safe_value(int, request.POST.get("valueLearnRatePlus"), 0.001)
             }                
         ))
         return response
@@ -309,6 +345,15 @@ def export_model(request):
 
             ,"tau": get_safe_value(int, request.POST.get("tau"), 0.97)
             ,"temperature": get_safe_value(int, request.POST.get("temperature"), 0.97)
+
+            ,"learningRate": get_safe_value(int, request.POST.get("learningRate"), 0.001)
+            ,"policyLearnRate": get_safe_value(int, request.POST.get("policyLearnRate"), 0.001)
+            ,"valueLearnRate": get_safe_value(int, request.POST.get("valueLearnRate"), 0.001)
+            ,"horizon": get_safe_value(int, request.POST.get("horizon"), 50)
+            ,"epochSize": get_safe_value(int, request.POST.get("epochSize"), 500)
+            ,"ppoEpsilon": get_safe_value(int, request.POST.get("ppoEpsilon"), 0.2)
+            ,"ppoLambda": get_safe_value(int, request.POST.get("ppoLambda"), 0.95)
+            ,"valueLearnRatePlus": get_safe_value(int, request.POST.get("valueLearnRatePlus"), 0.001)
         }
     ))
 
@@ -349,6 +394,15 @@ def halt(request):
 
             ,"tau": get_safe_value(int, request.POST.get("tau"), 0.97)
             ,"temperature": get_safe_value(int, request.POST.get("temperature"), 0.97)
+
+            ,"learningRate": get_safe_value(int, request.POST.get("learningRate"), 0.001)
+            ,"policyLearnRate": get_safe_value(int, request.POST.get("policyLearnRate"), 0.001)
+            ,"valueLearnRate": get_safe_value(int, request.POST.get("valueLearnRate"), 0.001)
+            ,"horizon": get_safe_value(int, request.POST.get("horizon"), 50)
+            ,"epochSize": get_safe_value(int, request.POST.get("epochSize"), 500)
+            ,"ppoEpsilon": get_safe_value(int, request.POST.get("ppoEpsilon"), 0.2)
+            ,"ppoLambda": get_safe_value(int, request.POST.get("ppoLambda"), 0.95)
+            ,"valueLearnRatePlus": get_safe_value(int, request.POST.get("valueLearnRatePlus"), 0.001)
         }
     ))
 
