@@ -1,9 +1,10 @@
 import numpy as np
 import random
 
-from Agents.Collections import TransitionFrame
+from Agents.Collections.TransitionFrame import TransitionFrame, ActionTransitionFrame
 from collections import deque
 from collections.abc import Iterable
+from copy import deepcopy
 
 class ReplayBuffer:
     """
@@ -403,3 +404,44 @@ class PrioritizedReplayBuffer(ReplayBuffer):
         :rtype: int
         """
         return idx + self.max_length - 1
+   
+
+class HindsightReplayBuffer(ReplayBuffer):
+    """
+    
+    """
+    def __init__(self, learner, max_length, empty_trans, history_length: int = 1):
+        """
+        
+        """
+        super().__init__(learner, max_length, empty_trans, history_length)
+        self._hindsight_buffer = deque()
+    
+    def append_frame(self, transition_frame):
+        """
+        Appends a given framed to the buffer.
+        :param transition_frame: the transition frame to append to the end
+        of this buffer
+        :type transition_frame: TransitionFrame
+        """
+        # Add the transition_frame to the transitions array.
+        super().append_frame(transition_frame)
+        self._hindsight_buffer.append(transition_frame)
+        
+    def apply_hindsight(self):
+        """
+        
+        """
+        goal = self._hindsight_buffer[-1].next_state
+        while self._hindsight_buffer:
+            current = self._hindsight_buffer.popleft()
+            reward = current.reward
+            is_done = False
+            if (np.sum(np.abs((current.state - goal))) == 0):
+                reward = 0.0
+                is_done = True
+            
+            if (isinstance(current, TransitionFrame)):
+                super().append_frame(TransitionFrame(goal, -1, reward, goal, is_done))
+            elif (isinstance(current, ActionTransitionFrame)):
+                super().append_frame(ActionTransitionFrame(-1, goal, -1, reward, goal, is_done))
