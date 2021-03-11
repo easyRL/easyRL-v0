@@ -31,18 +31,17 @@
               <button class="dropdown-item" id="btn-export">Export</button>
             </div>
           </li>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <button class="btn btn-primary" style="margin:5px;">Save Result</button>
-          </li>
+          </li> -->
           <li class="nav-item"><a href='/easyRL_app/logout'>
               <button class="btn btn-primary" style="margin:5px;">Sign out</button></a>
           </li>
         </ul> 
       </div>
 
-      <div id="session-selector"  style="width:9%; padding-top:12px; float:right; text-align:right ">
-        <button type="button" id="btn-new-session" style="border:none; background: none; color:blue;"> + </button>
-        <select name="Session" class="form-select" id="session-select">
+      <div id="session-selector"  style="width:170px; padding-top:12px; float:right; text-align:right ">
+        <select name="Session" class="form-select" style="width: 130px; float:left;" id="session-select">
           <option value="0" selected>Session A</option>
           <option value="1">Session B</option>
           <option value="2">Session C</option>
@@ -70,6 +69,7 @@
           <option value="24">Session Y</option>
           <option value="26">Session Z</option>
         </select>
+        <button type="button" id="btn-new-session" style="border:none; float:right; background: none; color:blue;"> + </button>
       </div>
 
       </div>
@@ -196,15 +196,16 @@
           </div>
           
           <br/>
-          <span><h1 class="card-title" style="display: inline-block;font-family: tahoma;" id="gpu">0</h1>GPUs</span>
-          <span> <h1 class="card-title" style="display: inline-block;font-family: tahoma;"id="cpu">0</h1>VCPUs</span>
-          <span><h1 class="card-title" style="display: inline-block;font-family: tahoma;"id="ram">0</h1>RAM</span>
+          <span><h1 class="card-title" style="display: inline-block;font-family: tahoma;" id="gpu">0</h1> GPUs</span>
+          <span> <h1 class="card-title" style="display: inline-block;font-family: tahoma;"id="cpu">0</h1> vCPUs</span>
+          <span><h1 class="card-title" style="display: inline-block;font-family: tahoma;"id="ram">0</h1> GiB RAM</span>
           <br/>
           <br/>
+          Lifespan:
           <select  class="form-select" id="lifespan-select">
-            <option value="600" >10 min</option>
+            <option value="600" selected>10 min</option>
             <option value="1800">30 min</option>
-            <option value="3600" selected>60 min</option>
+            <option value="3600">60 min</option>
             <option value="10800">3 hrs</option>
             <option value="21600">6 hrs</option>
             <option value="43200">12 hrs</option>
@@ -212,17 +213,16 @@
             <option value="172,800">48 hrs</option>
             <option value="31536000">1 yr</option>
           </select> 
-          <br/>
-          <br/>          
+          <br/>         
           <p id="cost">Session Cost: $0.00</p>
         </div>
       </div>
       <div class="card mb-3 col" style="margin-left: 2px;">
         <div class="card-header">Result</div>
         <div class="card-body"  style="">
-          <span>Rewards<h1 class="card-title"style="font-family: tahoma; "id="reward-episode-h1">0</h1></span>
-          <span>Episodes<h1 class="card-title"style="font-family: tahoma;" id="episodes-completed-h1">0</h1></span>
-          <span>Total Rewards<h1 class="card-title"style="font-family: tahoma;"id="total-reward-h1">0</h1></span>
+          <span>Reward per Episode<h1 class="card-title"style="font-family: tahoma; "id="reward-episode-h1">0</h1></span>
+          <span>Completed Episodes<h1 class="card-title"style="font-family: tahoma;" id="episodes-completed-h1">0</h1></span>
+          <span>Total Reward<h1 class="card-title"style="font-family: tahoma;"id="total-reward-h1">0</h1></span>
         </div>
       </div>
     </div>
@@ -320,7 +320,7 @@ info = {}
     var supEnv= info['agents'][index].supportedEnvs;
 
     var statusInfo = "<h5>Agent Name:</h5> " + name + "<br><br>"
-          + "<h5>Description:</h5> "+description+".<br><br>"
+          + "<h5>Description:</h5> "+description+"<br><br>"
           + "<h5>Supported Type(s):</h5> "+supEnv+"<br>";
     $('#agent-info').html(statusInfo);
   }
@@ -345,8 +345,8 @@ info = {}
     var description= info['environments'][$("#env-select option:selected").val()-1].description;
     var type= info['environments'][$("#env-select option:selected").val()-1].type;
     var statusInfo = "<h5>Environment Name:</h5> " + name + "<br><br>"
-          + "<h5>Description:</h5> "+description+".<br><br>"
-          + "<h5>Supported Type(s):</h5> "+type+"<br>";
+          + "<h5>Description:</h5> "+description+"<br><br>"
+          + "<h5>Environment Type:</h5> "+type+"<br>";
     $('#env-info').html(statusInfo);
   }
 
@@ -444,6 +444,10 @@ info = {}
       fieldNameElement.innerHTML = "<h5 style='display:inline-block'>Instance State:</h5> " + stateText;
     }
 
+    document.getElementById('gpu').innerHTML = result["info"]["gpus"];
+    document.getElementById('cpu').innerHTML = result["info"]["vcpus"];
+    document.getElementById('ram').innerHTML = result["info"]["ram"];
+
     if (state === "idle") {
       $('#trainCompleted').modal('show');
       isRunning = false;
@@ -470,10 +474,6 @@ info = {}
         document.getElementById('episodes-completed-h1').innerHTML = result["progress"]["episodesCompleted"];
         document.getElementById('total-reward-h1').innerHTML = result["progress"]["totalReward"];
         document.getElementById('reward-episode-h1').innerHTML = result["progress"]["avgReward"];
-
-        document.getElementById('gpu').innerHTML = result["info"]["gpus"];
-        document.getElementById('cpu').innerHTML = result["info"]["vcpus"];
-        document.getElementById('ram').innerHTML = result["info"]["ram"];
         //document.getElementById("status-info").innerHTML = statusInfo;
       }
 
