@@ -26,22 +26,22 @@ agentList = [
 
     {"name": "Deep Q (SRB)", "description": "Deep Q Learning using the standard replay buffer.", "index": "3", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
     {"name": "Deep Q (PRB)", "description": "Deep Q Learning using a prioritized replay buffer.", "index": "4", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
-    {"name": "Deep Q (HER)", "description": "Deep Q Learning using a hindsight experience replay buffer.", "index": "5", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
+    {"name": "Deep Q (HER)", "description": "Deep Q Learning using a hindsight experience replay buffer.", "index": "5", "supportedEnvs": ["singleDim"]},
 
     {"name": "DRQN (SRB)", "description": "Deep Recurrent Q-Network using the standard replay buffer.", "index": "6", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
     {"name": "DRQN (PRB)",  "description": "Deep Recurrent Q-Network using a prioritized replay buffer.", "index": "7", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "DRQN (HER)",  "description": "Deep Recurrent Q-Network using a hindsight experience replay buffer.", "index": "8", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "DRQN (HER)",  "description": "Deep Recurrent Q-Network using a hindsight experience replay buffer.", "index": "8", "supportedEnvs": ["singleDim", "atari"]},
 
     {"name": "ADRQN (SRB)", "description": "Action-Specific Deep Recurrent Q-Network using the standard replay buffer.", "index": "9", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
     {"name": "ADRQN (PRB)", "description": "Action-Specific Deep Recurrent Q-Network using the standard replay buffer.", "index": "10", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "ADRQN (HER)", "description": "Action-Specific Deep Recurrent Q-Network using a hindsight experience replay buffer.", "index": "11", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "ADRQN (HER)", "description": "Action-Specific Deep Recurrent Q-Network using a hindsight experience replay buffer.", "index": "11", "supportedEnvs": ["singleDim", "atari"]},
 
-    {"name": "NPG", "description": "Natural Policy Gradient.", "index": "12", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "DDPG", "description": "Deep Deterministic Policy Gradient Learning.", "index": "13", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "NPG", "description": "Natural Policy Gradient.", "index": "12", "supportedEnvs": ["singleDim"]},
+    {"name": "DDPG", "description": "Deep Deterministic Policy Gradient Learning.", "index": "13", "supportedEnvs": ["singleDim"]},
 
-    {"name": "CEM", "description": "Cross Entropy Method Learning.", "index": "14", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "CEM", "description": "Cross Entropy Method Learning.", "index": "14", "supportedEnvs": ["singleDim"]},
 
-    {"name": "SAC", "description": "Soft Actor Critic Learning.", "index": "15", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]}
+    {"name": "SAC", "description": "Soft Actor Critic Learning.", "index": "15", "supportedEnvs": ["singleDim"]}
 
 ]
 
