@@ -201,3 +201,4 @@ __pycache__/
 *.iml
 *.xml
 .idea/misc.xml
+lambda/python_template/deploy/config.json

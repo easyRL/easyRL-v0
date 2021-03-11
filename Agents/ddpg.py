@@ -10,10 +10,7 @@ from Agents import modelFreeAgent
 from Agents.Collections import ExperienceReplay
 from Agents.Collections.TransitionFrame import TransitionFrame
 
-
 tf.keras.backend.set_floatx('float64')
-
-
 
 class DDPG(modelFreeAgent.ModelFreeAgent):
     displayName = 'DDPG'
@@ -265,4 +262,3 @@ class DDPG(modelFreeAgent.ModelFreeAgent):
 
     def reset(self):
         pass
-

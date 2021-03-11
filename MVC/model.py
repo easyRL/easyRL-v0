@@ -3,6 +3,8 @@ import numpy as np
 from Agents import cem, drqn, modelBasedAgent, modelFreeAgent
 from Agents.Collections.TransitionFrame import TransitionFrame
 import cProfile
+from MVC import cloudBridge
+import os.path
 
 class Model:
     def __init__(self):
@@ -14,6 +16,13 @@ class Model:
         self.environment = None
         self.agent = None
         self.loadFilename = None
+        self.cloudBridge = None
+        
+
+    def createBridge(self, jobID, secretKey, accessKey, sessionToken):
+        print("Bridge Created")
+        if (self.cloudBridge is None):
+            self.cloudBridge = cloudBridge.CloudBridge(jobID, secretKey, accessKey, sessionToken, self)
 
     # def run_learning(self, messageQueue, total_episodes, max_steps, *model_args):
     #     cProfile.runctx('self.run_learning2(messageQueue, total_episodes, max_steps, *model_args)', globals(), locals(),
@@ -22,6 +31,10 @@ class Model:
     # def run_learning2(self, messageQueue, total_episodes, max_steps, *model_args):
     def run_learning(self, messageQueue, total_episodes, max_steps, *model_args):
         self.isRunning = True
+
+        if (self.cloudBridge is not None):
+            self.cloudBridge.refresh()
+            self.cloudBridge.setState("Training")
 
         if not self.environment:
             self.environment = self.environment_class()
@@ -61,8 +74,11 @@ class Model:
                     loss = self.agent.remember(old_state, action, reward, self.environment.state, self.environment.done)
 
                     frame = self.environment.render()
-                    modelState = Model.State(frame, epsilon, reward, loss)
 
+                    if (self.cloudBridge is not None):
+                        self.cloudBridge.submitStep(frame, epsilon, reward, loss)
+
+                    modelState = Model.State(frame, epsilon, reward, loss)
                     message = Model.Message(Model.Message.STATE, modelState)
                     messageQueue.put(message)
 
@@ -70,6 +86,9 @@ class Model:
                         break
                 
                 self.agent.apply_hindsight()
+                
+                if (self.cloudBridge is not None):
+                    self.cloudBridge.submitEpisode(episode, int(total_episodes))
 
                 message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
                 messageQueue.put(message)
@@ -110,6 +129,9 @@ class Model:
                             
                             # Render and save the step.
                             frame = self.environment.render()
+
+                            if (self.cloudBridge is not None):
+                                self.cloudBridge.submitStep(frame, epsilon, reward, loss)
                             
                             # Send the state from the step.
                             modelState = Model.State(frame, None, reward, None)
@@ -142,6 +164,9 @@ class Model:
                         
                         # Render and save the step.
                         frame = self.environment.render()
+
+                        if (self.cloudBridge is not None):
+                            self.cloudBridge.submitStep(frame, epsilon, reward, loss)
                         
                         # Send the state from the step.
                         modelState = Model.State(frame, None, reward, None)
@@ -158,6 +183,9 @@ class Model:
                 modelState = Model.State(None, None, None, loss)
                 message = Model.Message(Model.Message.STATE, modelState)
                 messageQueue.put(message)
+                
+                if (self.cloudBridge is not None):
+                    self.cloudBridge.submitEpisode(episode, int(total_episodes))
 
                 message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
                 messageQueue.put(message)
@@ -165,6 +193,9 @@ class Model:
                 if self.isHalted:
                     self.isHalted = False
                     break
+
+        if (self.cloudBridge is not None):
+            self.cloudBridge.submitTrainFinish()
 
         message = Model.Message(Model.Message.EVENT, Model.Message.TRAIN_FINISHED)
         messageQueue.put(message)
@@ -175,6 +206,10 @@ class Model:
         total_episodes = int(total_episodes+0.5)
         max_steps = int(max_steps+0.5)
         self.isRunning = True
+
+        if (self.cloudBridge is not None):
+            self.cloudBridge.refresh()
+            self.cloudBridge.setState("Testing")
 
         if not self.environment:
             self.environment = self.environment_class()
@@ -213,6 +248,9 @@ class Model:
                             self.agent.addToMemory(old_state, action, reward, self.environment.state, episode, self.environment.done)
 
                         frame = self.environment.render()
+                    
+                        if (self.cloudBridge is not None):
+                            self.cloudBridge.submitStep(frame, 0, reward, 0)
                         
                         # Send the state from the step.
                         modelState = Model.State(frame, None, reward, None)
@@ -222,6 +260,9 @@ class Model:
                         if self.environment.done or self.isHalted:
                             break
 
+                    if (self.cloudBridge is not None):
+                        self.cloudBridge.submitEpisode(episode, int(total_episodes))
+                    
                     message = Model.Message(Model.Message.EVENT, Model.Message.EPISODE)
                     messageQueue.put(message)
 
@@ -247,6 +288,9 @@ class Model:
                         
                         # Render the step
                         frame = self.environment.render()
+                    
+                        if (self.cloudBridge is not None):
+                            self.cloudBridge.submitStep(frame, 0, reward, 0)
                         
                         modelState = Model.State(frame, None, reward, None)
                         message = Model.Message(Model.Message.STATE, modelState)
@@ -261,6 +305,13 @@ class Model:
                     if self.isHalted:
                         self.isHalted = False
                         break
+                
+                if (self.cloudBridge is not None):
+                    self.cloudBridge.submitEpisode(episode, int(total_episodes))
+
+            if (self.cloudBridge is not None):
+                self.cloudBridge.submitTrainFinish()
+            
             message = Model.Message(Model.Message.EVENT, Model.Message.TEST_FINISHED)
             messageQueue.put(message)
             print('testing done')
@@ -269,6 +320,9 @@ class Model:
     def halt_learning(self):
         if self.isRunning:
             self.isHalted = True
+            if (self.cloudBridge is not None):
+                self.cloudBridge.setState("Halted")
+                self.cloudBridge.terminate()
 
     def reset(self):
         self.environment = None
