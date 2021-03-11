@@ -1,6 +1,8 @@
 .card-header > .card-header-custom {background: rgba(75, 46, 131, 1)  ; color: #b7a57a;}
 .carousel-inner img {margin: auto;}
-
+body {
+  height: 2400px;
+}
 .btn-secondary {
     color: #fff;
     background-color:  rgb(158, 157, 160);
@@ -8,16 +10,12 @@
 }
 .btn-secondary:hover, .btn-secondary:focus, .btn-secondary:active, .btn-secondary.active {
     color: #fff;
-    background-color:  rgb(86, 85, 88);;
     border-color: #b7a57a; /*set the color you want here*/
 }
 .carousel-control-next-icon, .carousel-control-prev-icon{
-    color: #fff ;
-    background-color: rgb(143, 143, 143);
-    border-color: #b7a57a ;
+    color: rgb(24, 24, 158) ;
+    border-color: #807ab7 ;
 }
-
-
 
 [contenteditable] {
     border: solid 1px lightgreen;
@@ -25,6 +23,34 @@
     border-radius: 3px;
 }
   .carousel-item img{
-      height: 20vw;
+      width: 200px;
+      height: 300px;
       object-fit: cover;
+  }
+
+  #training_image {
+
+    margin: auto;    
+    display: block;
+      object-fit: scale-down;
+  }
+
+  .image-container img {
+    width: 200px;
+    height: 300px;
+    object-fit: cover;
+  }
+
+  #btn-new-session{
+    width: 40px; 
+    height: 40px; 
+    line-height: 25px;  
+
+    overflow:hidden;
+    float:right;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    cursor: pointer;
   }
