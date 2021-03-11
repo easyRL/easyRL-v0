@@ -432,13 +432,14 @@ class HindsightReplayBuffer(ReplayBuffer):
         """
         
         """
-        goal = self._hindsight_buffer[-1].next_state
+        goal = np.asarray(self._hindsight_buffer[-1].next_state)
         while self._hindsight_buffer:
             current = self._hindsight_buffer.popleft()
+            state = np.asarray(current.state)
             reward = current.reward
             is_done = False
-            if (np.sum(np.abs((current.state - goal))) == 0):
-                reward = 0.0
+            if (np.sum(np.abs((state - goal))) == 0):
+                reward = 0
                 is_done = True
             
             if (isinstance(current, TransitionFrame)):
