@@ -114,7 +114,7 @@ class DDPG(modelFreeAgent.ModelFreeAgent):
 
         if len(self.memory) < 2*self.batch_size:
             return loss
-        mini_batch = self.sample()
+        _, mini_batch = self.sample()
         X_train, Y_train, states = self.learn(mini_batch)
 
         # Train critic

@@ -201,7 +201,7 @@ class SAC(modelFreeAgent.ModelFreeAgent):
 
         if len(self.memory) < 2 * self.batch_size:
             return loss
-        mini_batch = self.sample()
+        _, mini_batch = self.sample()
         states, actions, next_states, rewards, dones = self.learn(mini_batch)
         states = states.astype(float)
         next_states = next_states.astype(float)
@@ -265,7 +265,6 @@ class SAC(modelFreeAgent.ModelFreeAgent):
         return output
 
     def learn(self, mini_batch):
-
         states = (np.zeros((self.batch_size,) + self.state_size))
         actions = np.zeros((self.batch_size,) + (self.action_size,))
         next_states = (np.zeros((self.batch_size,) + self.state_size))
