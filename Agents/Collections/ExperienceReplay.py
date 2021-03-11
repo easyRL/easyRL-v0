@@ -437,6 +437,7 @@ class HindsightReplayBuffer(ReplayBuffer):
             current = self._hindsight_buffer.popleft()
             reward = current.reward
             is_done = False
+            
             if (np.sum(np.abs((current.state - goal))) == 0):
                 reward = 0.0
                 is_done = True
