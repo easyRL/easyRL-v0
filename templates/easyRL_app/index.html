@@ -40,7 +40,7 @@
         </ul> 
       </div>
 
-      <div id="session-selector"  style="width:170px; padding-top:12px; float:right; text-align:right ">
+      <div id="session-selector"  style="width:170px; padding-top:5px; float:right; ">
         <select name="Session" class="form-select" style="width: 130px; float:left;" id="session-select">
           <option value="0" selected>Session A</option>
           <option value="1">Session B</option>
@@ -69,7 +69,7 @@
           <option value="24">Session Y</option>
           <option value="26">Session Z</option>
         </select>
-        <button type="button" id="btn-new-session" style="border:none; float:right; background: none; color:blue;"> + </button>
+        <button type="button" id="btn-new-session" style=" box-shadow: 1px 1px 1px #999;border: .5px solid blue; border-radius: 35px; line-height: 15px; font-family: Impact; vertical-align: middle;text-align: center; margin: auto; height: 35px; width: 35px; float:right;  color:blue;"> + </button>
       </div>
 
       </div>
@@ -203,9 +203,9 @@
           <br/>
           Lifespan:
           <select  class="form-select" id="lifespan-select">
-            <option value="600" selected>10 min</option>
+            <option value="600">10 min</option>
             <option value="1800">30 min</option>
-            <option value="3600">60 min</option>
+            <option value="3600" selected>60 min</option>
             <option value="10800">3 hrs</option>
             <option value="21600">6 hrs</option>
             <option value="43200">12 hrs</option>
@@ -218,7 +218,7 @@
         </div>
       </div>
       <div class="card mb-3 col" style="margin-left: 2px;">
-        <div class="card-header">Result</div>
+        <div class="card-header">Results</div>
         <div class="card-body"  style="">
           <span>Reward per Episode<h1 class="card-title"style="font-family: tahoma; "id="reward-episode-h1">0</h1></span>
           <span>Completed Episodes<h1 class="card-title"style="font-family: tahoma;" id="episodes-completed-h1">0</h1></span>
@@ -332,7 +332,7 @@ info = {}
   function handleEnvChange(){
     var index = $("#env-select option:selected").val();
     updateSelect(index);
-    $('#agent-select').val(3);
+    $('#agent-select').val(6);
     var text = parseInt($("#env-select option:selected").val()) - 1;
     if (text >= 0) {
       $('#carouselExampleControlsNoTouching').carousel(text)
@@ -643,7 +643,7 @@ info = {}
   }
 
   function resetDropDowns() {
-    $('#agent-select').val(3);
+    $('#agent-select').val(6);
     $('#environment-select').val(1);
   }
 
