@@ -3,7 +3,6 @@ import numpy as np
 from Agents import drqn
 from Agents.Collections import ExperienceReplay
 from Agents.Collections.TransitionFrame import ActionTransitionFrame
-from Agents.Collections.TransitionFrame import TransitionFrame
 
 class ADRQN(drqn.DRQN):
     displayName = 'ADRQN'
@@ -180,6 +179,7 @@ class ADRQNHindsight(ADRQN):
         paramLen = len(ADRQNHindsight.newParameters)
         super().__init__(*args)
         empty_state = self.get_empty_state()
-        self.memory = ExperienceReplay.HindsightReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False), history_length = self.historylength))
+        self.memory = ExperienceReplay.HindsightReplayBuffer(self, self.memory_size, ActionTransitionFrame(-1, empty_state, -1, 0, empty_state, False),
+                                                                history_length = self.historylength)
                                                               
        

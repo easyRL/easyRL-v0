@@ -1,7 +1,7 @@
 import numpy as np
 import random
 
-from Agents.Collections.TransitionFrame import TransitionFrame
+from Agents.Collections.TransitionFrame import TransitionFrame, ActionTransitionFrame
 from collections import deque
 from collections.abc import Iterable
 from copy import deepcopy
@@ -435,7 +435,13 @@ class HindsightReplayBuffer(ReplayBuffer):
         goal = self._hindsight_buffer[-1].next_state
         while self._hindsight_buffer:
             current = self._hindsight_buffer.popleft()
+            reward = current.reward
+            is_done = False
             if (np.sum(np.abs((current.state - goal))) == 0):
-                super().append_frame(TransitionFrame(goal, -1, 0.0, goal, True))
-            else:
-                super().append_frame(TransitionFrame(goal, -1, current.reward, goal, False))
+                reward = 0.0
+                is_done = True
+            
+            if (isinstance(current, TransitionFrame)):
+                super().append_frame(TransitionFrame(goal, -1, reward, goal, is_done))
+            elif (isinstance(current, ActionTransitionFrame)):
+                super().append_frame(ActionTransitionFrame(-1, goal, -1, reward, goal, is_done))

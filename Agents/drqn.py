@@ -159,7 +159,8 @@ class DRQNHindsight(DRQN):
         paramLen = len(DRQNHindsight.newParameters)
         super().__init__(*args)
         empty_state = self.get_empty_state()
-        self.memory = ExperienceReplay.HindsightReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False),history_length = self.historylength)  
+        self.memory = ExperienceReplay.HindsightReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False),
+                                                                history_length = self.historylength)  
     
     
         
