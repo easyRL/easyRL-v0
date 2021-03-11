@@ -94,7 +94,7 @@ def logout(request):
         {
             "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
             ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
-            ,"killTime": get_safe_value(int, 600, 600)
+            ,"killTime": get_safe_value(int, request.POST.get("killTime"), 600)
             ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
             ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
             ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
@@ -130,7 +130,7 @@ def train(request):
         {
             "instanceType": get_safe_value(str, request.POST.get("c4.xlarge"), "c4.xlarge")
             ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
-            ,"killTime": get_safe_value(int, 600, 600)
+            ,"killTime": get_safe_value(int, request.POST.get("killTime"), 600)
             ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
             ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
             ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
@@ -162,7 +162,7 @@ def test(request):
         {
             "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
             ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
-            ,"killTime": get_safe_value(int, 600, 600)
+            ,"killTime": get_safe_value(int, request.POST.get("killTime"), 600)
             ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
             ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
             ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
@@ -195,7 +195,7 @@ def poll(request):
             {
                 "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
                 ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
-                ,"killTime": get_safe_value(int, 600, 600)
+                ,"killTime": get_safe_value(int, request.POST.get("killTime"), 600)
                 ,"continuousTraining" : get_safe_value(int, request.POST.get("continuousTraining"), 0)
                 ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
                 ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
@@ -251,7 +251,7 @@ def export_model(request):
         {
             "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
             ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
-            ,"killTime": get_safe_value(int, 600, 600)
+            ,"killTime": get_safe_value(int, request.POST.get("killTime"), 600)
             ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
             ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
             ,"agent": get_safe_value(int, request.POST.get("agent"), 1)
@@ -283,7 +283,7 @@ def halt(request):
         {
             "instanceType": get_safe_value(str, request.POST.get("instanceType"), "c4.xlarge")
             ,"instanceID": get_safe_value(str, request.POST.get("instanceID"), "")
-            ,"killTime": get_safe_value(int, 600, 600)
+            ,"killTime": get_safe_value(int, request.POST.get("killTime"), 600)
             ,"environment": get_safe_value(int, request.POST.get("environment"), 1)
             ,"continuousTraining" : get_safe_value(str, request.POST.get("continuousTraining"), "False")
             ,"agent": get_safe_value(int, request.POST.get("agent"), 1)

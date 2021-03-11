@@ -39,8 +39,10 @@
           </li>
         </ul> 
       </div>
-      <div id="session-selector" class="from-control" style="width:9%; padding-top:12px; float:right; text-align:right">
-        <select name="Session" id="session-select">
+
+      <div id="session-selector"  style="width:9%; padding-top:12px; float:right; text-align:right ">
+        <button type="button" id="btn-new-session" style="border:none; background: none; color:blue;"> + </button>
+        <select name="Session" class="form-select" id="session-select">
           <option value="0" selected>Session A</option>
           <option value="1">Session B</option>
           <option value="2">Session C</option>
@@ -68,11 +70,8 @@
           <option value="24">Session Y</option>
           <option value="26">Session Z</option>
         </select>
-        <button type="button" id="btn-new-session" style="border:none; background: none; color:blue;"> + </button>
       </div>
-        <div id="instance-state" style="width:21%; padding-top:15px; float:right; text-align:right">
-          Instance State: Loading...
-        </div>
+
       </div>
       <!-- Drop downs -->
       <div class="row" id="select-containers" style="margin: 100px 0px 20px 0px;">
@@ -176,36 +175,54 @@
     </div>
     <div class="row">
       <div class="card mb-3 col" >
-        <div class="card-header">Status</div>
+        <div class="card-header">Agent</div>
         <div class="card-body">
-          <h5 class="card-title">Warning card title</h5>
-          <p class="card-text" id="status-info" style="font-size:small">
-            Here is some text.<br>
-            Here is some more.<br>
-            This explains something.<br>
-            Look how cool is this.
+          <p class="card-text" id="agent-info">
           </p>
         </div>
       </div>
       <div class="card  mb-3 col" style="margin-left: 2px;">
-        <div class="card-header">Episodes Completed</div>
+        <div class="card-header">Environment</div>
         <div class="card-body">
-          <h1 class="card-title"style="font-family: tahoma; text-align: center" id="episodes-completed-h1">0</h1>
-
+          <p class="card-text" id="env-info">
+          </p>
         </div>
       </div>
       <div class="card mb-3 col" style="margin-left: 2px;">
-        <div class="card-header">Total Reward</div>
-        <div class="card-body">
-          <h1 class="card-title"style="font-family: tahoma; text-align: center"id="total-reward-h1">0</h1>
-
+        <div class="card-header">Instance</div>
+        <div class="card-body" >
+          <div id="instance-state">
+            <h5>Instance State: Loading...</h5>
+          </div>
+          
+          <br/>
+          <span><h1 class="card-title" style="display: inline-block;font-family: tahoma;" id="gpu">0</h1>GPUs</span>
+          <span> <h1 class="card-title" style="display: inline-block;font-family: tahoma;"id="cpu">0</h1>VCPUs</span>
+          <span><h1 class="card-title" style="display: inline-block;font-family: tahoma;"id="ram">0</h1>RAM</span>
+          <br/>
+          <br/>
+          <select  class="form-select" id="lifespan-select">
+            <option value="600" >10 min</option>
+            <option value="1800">30 min</option>
+            <option value="3600" selected>60 min</option>
+            <option value="10800">3 hrs</option>
+            <option value="21600">6 hrs</option>
+            <option value="43200">12 hrs</option>
+            <option value="86400">24 hrs</option>
+            <option value="172,800">48 hrs</option>
+            <option value="31536000">1 yr</option>
+          </select> 
+          <br/>
+          <br/>          
+          <p id="cost">Session Cost: $0.00</p>
         </div>
       </div>
       <div class="card mb-3 col" style="margin-left: 2px;">
-        <div class="card-header">Reward/Episode</div>
-        <div class="card-body">
-          <h1 class="card-title"style="font-family: tahoma; text-align: center"id="reward-episode-h1">0</h1>
-
+        <div class="card-header">Result</div>
+        <div class="card-body"  style="">
+          <span>Rewards<h1 class="card-title"style="font-family: tahoma; "id="reward-episode-h1">0</h1></span>
+          <span>Episodes<h1 class="card-title"style="font-family: tahoma;" id="episodes-completed-h1">0</h1></span>
+          <span>Total Rewards<h1 class="card-title"style="font-family: tahoma;"id="total-reward-h1">0</h1></span>
         </div>
       </div>
     </div>
@@ -229,37 +246,36 @@
     </div>
   </div>
 </div>
-</div>
-</br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br></br>
-</br>
 
 <script src="{% static 'easyRL_app/scripts/jquery-3.5.1.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
   integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
+</script>
+<script type="text/javascript">
 
-  info = {}
-  $.post('/easyRL_app/info/', {}, function (result) {
-    info = JSON.parse(result)
-    var str = $("#agent-select option:selected").text();
-
-    html = renderOptions(str);
-
-    $("#form-div").html(html);
-
-    var index = $("#env-select option:selected").val();
-    updateSelect(index);
-  })
-
+info = {}
+    $.ajax({
+      type: 'POST',
+      url: '/easyRL_app/info/',
+      data: {},
+      success: function(result) {
+        info = JSON.parse(result)
+        var str = $("#agent-select option:selected").text();
+        html = renderOptions(str);
+        $("#form-div").html(html);
+        var index = $("#env-select option:selected").val();
+        updateSelect(index);
+      },
+      async:false
+    });
 
   $(document).ready(function () {
 
     updateEnvironmentLabel();
     resetFormDropDownsButtons();
-    //$('html, body').animate({ scrollTop: 0 }, 800);
     google.charts.load('current', { 'packages': ['corechart'] }).then(draw_graph);
-
     setTimeout(function () {
       doPoll();
     }, 1000)
@@ -270,9 +286,50 @@
       var session = urlParams.get('session')
       document.getElementById('session-select').value = session;
     }
+    handleAgentChange();
+    handleEnvChange();
   });
 
+  $("#agent-select").change(function () {
+    handleAgentChange();
+  });
+
+  
+  function handleAgentChange(){
+    var str = $("#agent-select option:selected").text();
+    html = renderOptions(str);
+    $("#form-div").html(html);
+    
+    // // This set he agent for the model.
+    var selectedVal = $("#agent-select option:selected").val();
+    $("#agent-hidden").val(selectedVal);
+    
+    // // This sets the environment of the model. 
+    var selectedEnvironment = $("#env-select option:selected").val();
+    $("#env-hidden").val(selectedEnvironment);
+    $('#btn-train').removeAttr("disabled");
+    $('#btn-test').removeAttr("disabled");
+    $("#form-div").focus();
+    fillAgentCard();
+  }
+
+  function fillAgentCard(){
+    var index = $("#agent-select option:selected").val()-1
+    var name = info['agents'][index].name;
+    var description= info['agents'][index].description;
+    var supEnv= info['agents'][index].supportedEnvs;
+
+    var statusInfo = "<h5>Agent Name:</h5> " + name + "<br><br>"
+          + "<h5>Description:</h5> "+description+".<br><br>"
+          + "<h5>Supported Type(s):</h5> "+supEnv+"<br>";
+    $('#agent-info').html(statusInfo);
+  }
+  
   $('#env-select').change(function () {
+    handleEnvChange();
+  });
+
+  function handleEnvChange(){
     var index = $("#env-select option:selected").val();
     updateSelect(index);
     $('#agent-select').val(3);
@@ -280,20 +337,26 @@
     if (text >= 0) {
       $('#carouselExampleControlsNoTouching').carousel(text)
     }
-  });
+    fillEnvironmentCard();
+  }
+
+  function fillEnvironmentCard(){
+    var name = info['environments'][$("#env-select option:selected").val()-1].name;
+    var description= info['environments'][$("#env-select option:selected").val()-1].description;
+    var type= info['environments'][$("#env-select option:selected").val()-1].type;
+    var statusInfo = "<h5>Environment Name:</h5> " + name + "<br><br>"
+          + "<h5>Description:</h5> "+description+".<br><br>"
+          + "<h5>Supported Type(s):</h5> "+type+"<br>";
+    $('#env-info').html(statusInfo);
+  }
 
   $('#btn-con-train').change(function () {
     if ($('#btn-con-train').is(":checked")) {
       $('#btn-train').attr("disabled", "true");
       $('#btn-test').attr("disabled", "true");
     } else {
-      //$('#btn-train').attr("disabled", "false");
       $("#btn-train").removeAttr("disabled");
       $("#btn-test").removeAttr("disabled");
-      //if ($("#btn-train").is(":disabled") === false) {
-      //$("#btn-halt").removeAttr("disabled");
-
-      //}
     }
   });
 
@@ -316,11 +379,9 @@
   $("#btn-export").click(function () {
     $.post('/easyRL_app/export/', getData(), function (result, status, jqxhr) {
         if (result == "") {
-          //alert("The response is empty");
           return;
         }
         result = JSON.parse(result);
-        //window.open(result['url'], '_blank');
         window.location.href = result['url'];
       });
   });
@@ -380,7 +441,7 @@
     var fieldNameElement = document.getElementById('instance-state');
 
     if (fieldNameElement) {
-      fieldNameElement.innerHTML = "Instance State: " + stateText;
+      fieldNameElement.innerHTML = "<h5 style='display:inline-block'>Instance State:</h5> " + stateText;
     }
 
     if (state === "idle") {
@@ -404,12 +465,17 @@
           + "Here is some more.<br>"
           + "This explains something.<br>"
           + "Session Cost: $" + (uptime).toFixed(2);
+
+        document.getElementById('cost').innerHTML = "Session Cost: $"+(uptime).toFixed(2);
         document.getElementById('episodes-completed-h1').innerHTML = result["progress"]["episodesCompleted"];
         document.getElementById('total-reward-h1').innerHTML = result["progress"]["totalReward"];
         document.getElementById('reward-episode-h1').innerHTML = result["progress"]["avgReward"];
-        document.getElementById("status-info").innerHTML = statusInfo;
-      }
 
+        document.getElementById('gpu').innerHTML = result["info"]["gpus"];
+        document.getElementById('cpu').innerHTML = result["info"]["vcpus"];
+        document.getElementById('ram').innerHTML = result["info"]["ram"];
+        //document.getElementById("status-info").innerHTML = statusInfo;
+      }
 
       if (isRunning === false) {
         clearInterval(interval);
@@ -510,27 +576,6 @@
     //resetFormDropDownsButtons();
   });
 
-  $("#agent-select").change(function () {
-    var str = $("#agent-select option:selected").text();
-
-    html = renderOptions(str);
-
-    $("#form-div").html(html);
-
-    $('#modelName').modal('show');
-
-    // // This set he agent for the model.
-    var selectedVal = $("#agent-select option:selected").val();
-    $("#agent-hidden").val(selectedVal);
-
-    // // This sets the environment of the model. 
-    var selectedEnvironment = $("#env-select option:selected").val();
-    $("#env-hidden").val(selectedEnvironment);
-    $('#btn-train').removeAttr("disabled");
-    $('#btn-test').removeAttr("disabled");
-    $("#form-div").focus();
-    //$('html, body').animate({ scrollTop: 1000}, 800);
-  }).change();
 
   function renderOptions(agent) {
     $("#form-div").html("Loading...");
@@ -613,7 +658,7 @@
       , "instanceID": $("#session-select option:selected").val()
       , "continuousTraining": $('#btn-con-train').is(":checked") ? 1 : 0
       , "agent": $("#agent-select option:selected").val()
-      , "killTime": 600
+      , "killTime": $("#lifespan-select option:selected").val()
     };
 
     var selectedVal = $("#agent-select option:selected").val();

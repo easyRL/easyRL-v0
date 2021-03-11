@@ -1,6 +1,8 @@
 .card-header > .card-header-custom {background: rgba(75, 46, 131, 1)  ; color: #b7a57a;}
 .carousel-inner img {margin: auto;}
-
+body {
+  height: 2400px;
+}
 .btn-secondary {
     color: #fff;
     background-color:  rgb(158, 157, 160);
@@ -39,3 +41,16 @@
     object-fit: cover;
   }
 
+  #btn-new-session{
+    width: 40px; 
+    height: 40px; 
+    line-height: 25px;  
+
+    overflow:hidden;
+    float:right;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+  }
