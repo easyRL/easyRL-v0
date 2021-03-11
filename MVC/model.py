@@ -131,7 +131,7 @@ class Model:
                             frame = self.environment.render()
 
                             if (self.cloudBridge is not None):
-                                self.cloudBridge.submitStep(frame, epsilon, reward, loss)
+                                self.cloudBridge.submitStep(frame, 0, reward, 0)
                             
                             # Send the state from the step.
                             modelState = Model.State(frame, None, reward, None)
@@ -166,7 +166,7 @@ class Model:
                         frame = self.environment.render()
 
                         if (self.cloudBridge is not None):
-                            self.cloudBridge.submitStep(frame, epsilon, reward, loss)
+                            self.cloudBridge.submitStep(frame, 0, reward, 0)
                         
                         # Send the state from the step.
                         modelState = Model.State(frame, None, reward, None)
