@@ -25,13 +25,8 @@ import random
 import joblib
 
 class TRPO(PPO):
-<<<<<<< HEAD
-    displayName = 'TRPO Agent'
-    newParameters = [PPO.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001,
-=======
     displayName = 'TRPO'
     newParameters = [DeepQ.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001,
->>>>>>> 8be47f634e6dd0cd0d9cd0dc24f0c697c82ab338
                                                              True, True,
                                                              "A learning rate that the Adam optimizer starts at")
                      ]
