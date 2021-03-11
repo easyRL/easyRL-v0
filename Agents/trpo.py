@@ -104,8 +104,10 @@ class TRPO(PPO):
             next_state = np.reshape(next_state, shape)
 
             value_est = self.value_model.predict([state, self.allMask])
+            value_est = np.mean(value_est)
             # value_est = np.average(value_est)
             value_next = self.value_model.predict([next_state, self.allMask])
+            value_next = np.mean(value_next)
             # value_next = np.average(value_next)
             advantage = self.get_advantages(idx, goal, value_est, value_next)
             # Compute new probabilities 
@@ -117,10 +119,9 @@ class TRPO(PPO):
             # Run the policy under N timesteps using loss function
             value_loss = self.c1 * self.mse_loss(states, next_states)
             clip_loss = self.clipped_loss(prob_ratio, advantage)
-            entropy = self.get_entropy(state)
-            loss = self.train_policy(states, value_loss, clip_loss, entropy)
+            #entropy = self.get_entropy(state)
+            loss = self.agent_loss(value_loss, clip_loss, 0)
             losses.append(loss)
-            print("loss: " + str(loss))
         loss = np.mean(np.array(losses))
         print("loss iteration: " + str(loss))
         # apply gradient optimizer to optimize loss and policy network
@@ -187,23 +188,22 @@ class TRPO(PPO):
         next_states = [transitions[i].next_state for i in range(goal-idx)]
         rewards = [transitions[i].reward for i in range(goal-idx)]
         advantages = []
-        for _ in range(idx, goal):
-            advantage = 0
-            k = 0
-            total_gamma = 0
-            for j in range(goal-idx):
-                total_gamma = (self.gamma * self.Lambda) ** j
-                # discouNnted_rewards += total_gamma * rewards[j]
-                shape = (1,) + self.state_size
-                state = np.reshape(states[j], shape)
-                next_state = np.reshape(next_states[j], shape)
-                v = self.value_model.predict([state, self.allMask])
-                v_next = self.value_model.predict([next_state, self.allMask])
-                advantage += (total_gamma * v_next) - v + rewards[j]
-            advantages.append(advantage)
-        mean = np.average(np.array(advantages))
-        std = np.std(np.array(advantages))
-        return (value_next - value_est - mean) / std
+        advantage = 0
+        total_gamma = 0
+        for j in range(goal-idx):
+            total_gamma = (self.gamma * self.Lambda) ** j
+            # discouNnted_rewards += total_gamma * rewards[j]
+            shape = (1,) + self.state_size
+            state = np.reshape(states[j], shape)
+            next_state = np.reshape(next_states[j], shape)
+            v = self.value_model.predict([state, self.allMask])
+            v = np.mean(v)
+            v_next = self.value_model.predict([next_state, self.allMask])
+            v_next = np.mean(v_next)
+            advantage += (total_gamma * v_next) - v + rewards[j]
+        advantages.append(advantage)
+        mean = np.mean(np.array(advantages), axis=0)
+        return (value_next - value_est - mean) / value_next
 
     def mse_loss(self, states, next_states):
         v_pred = self.value_model.predict([states, self.allBatchMask])
@@ -222,7 +222,6 @@ class TRPO(PPO):
         clips.append(1+epsilon)
         minimum = math.inf
         for clip in clips:
-            print("clip: " + str(clip))
             minimum = min(minimum, clip)
         loss = minimum * advantage
         return loss
@@ -235,9 +234,6 @@ class TRPO(PPO):
         return tf.math.log(tf.reduce_sum((np.array(entropy(probabilities)))))
 
     def agent_loss(self, value_loss, clip_loss, entropy):
-        print("value loss: " + str(value_loss))
-        print("clip loss: " + str(clip_loss))
-        print("entropy: " + str(entropy))
         return clip_loss + value_loss + (self.c2 * entropy)
 
     '''def kl_divergence(self, states, new_states):
