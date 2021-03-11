@@ -11,9 +11,9 @@
             </div>
             <div class="card-body ">
                 <div id="payment" style="display: none; border: 1px solid red; border-radius: 10px; margin-bottom: 20px;">
-                    <p style="padding: 10px;">This application requires an active AWS. Any use will result in charges directly to your amazon account.
+                    <p style="padding: 10px;">The EasyRL application requires an active AWS account. To execute RL workloads EC2 instances will be created on your account. Any use will result in charges directly to your AWS account.
                          By logging in to this app you are agreeing to all charges to your account and we are not liable for any of 
-                         said charges.
+                         said charges. Please verify that all EasyRL EC2 instances have been terminated when finished.
                     </p>
                 </div>
                 <form method="post" action="">{% csrf_token %}
