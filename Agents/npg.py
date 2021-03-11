@@ -43,19 +43,18 @@ class NPG(policyIteration.PolicyIteration):
         # Baseline approximator to approximate the value function. MUST USE PYTORCH!
         self._value_fn = approximator.DeepApproximator(self.state_size, 1, [16], library = 'torch')
         
-    def choose_action(self, state: np.ndarray):
+    def choose_action(self, state):
         """
         Chooses an action given the state and, if given, a policy. The
         policy p parameter is optional. If p is None, then the current
         policy of the agent will be used. Otherwise, the given policy p is
         used.
         :param state: is the current state of the environment
-        :type state: numpy.ndarray
         :return: the chosen action
         :rtype: int
         """
         # Choose and return an action using the current policy.
-        return self._policy.choose_action(state)
+        return self._policy.choose_action(np.asarray(state))
         
     def update(self, trajectory: Iterable):
         """
@@ -69,7 +68,7 @@ class NPG(policyIteration.PolicyIteration):
         if (not isinstance(trajectory, Iterable)):
             raise ValueError("trajectory must be an Iterable.")
         # Consolidate the state in the trajectory into an array.
-        states = np.array([transition.state for transition in trajectory])
+        states = np.array([np.asarray(transition.state) for transition in trajectory])
         
         '''
         Compute the loss as the log-likelihood of the returns.
@@ -81,7 +80,7 @@ class NPG(policyIteration.PolicyIteration):
         # Calculate the advantage using the returns and the values.
         advantages = returns - values
         # Compute the loss of the trajectory.
-        logits = torch.stack([self._policy.logit(transition.state, transition.action, detach = False) for transition in trajectory]).view(-1)
+        logits = torch.stack([self._policy.logit(np.asarray(transition.state), transition.action, detach = False) for transition in trajectory]).view(-1)
         loss = (-logits * advantages).mean()
         
         '''

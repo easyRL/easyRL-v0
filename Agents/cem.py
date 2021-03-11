@@ -50,7 +50,6 @@ class CEM(policyIteration.PolicyIteration):
         policy of the agent will be used. Otherwise, the given policy p is
         used.
         :param state: is the current state of the environment
-        :type state: numpy.ndarray
         :param policy: is the policy to use
         :type policy: Agents.Policy.policy.Policy
         :return: the chosen action
@@ -61,6 +60,9 @@ class CEM(policyIteration.PolicyIteration):
             
         # Initialize the action to -1.
         action = -1
+        
+        # Convert the state to a numpy array.
+        state = np.asarray(state)
         
         # Choose an action.
         if (p is None):
