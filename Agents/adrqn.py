@@ -151,8 +151,8 @@ class ADRQN(drqn.DRQN):
     
     def apply_hindsight(self):
         '''
-        Apply the hindsight replay buffer and check if its an instance if
-        yes add it to memory
+       The hindsight replay buffer method checks for 
+       the instance, if instance found add to the memory
                '''
         if (isinstance(self.memory, ExperienceReplay.HindsightReplayBuffer)):
             self.memory.apply_hindsight()
