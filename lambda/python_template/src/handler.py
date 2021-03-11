@@ -30,18 +30,20 @@ agentList = [
 
     {"name": "DRQN (SRB)", "description": "Deep Recurrent Q-Network using the standard replay buffer.", "index": "6", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
     {"name": "DRQN (PRB)",  "description": "Deep Recurrent Q-Network using a prioritized replay buffer.", "index": "7", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "DRQN (HER)",  "description": "Deep Recurrent Q-Network using a hindsight experience replay buffer.", "index": "8", "supportedEnvs": ["singleDim", "atari"]},
+    {"name": "DRQN (HER)",  "description": "Deep Recurrent Q-Network using a hindsight experience replay buffer.", "index": "8", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
 
     {"name": "ADRQN (SRB)", "description": "Action-Specific Deep Recurrent Q-Network using the standard replay buffer.", "index": "9", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
     {"name": "ADRQN (PRB)", "description": "Action-Specific Deep Recurrent Q-Network using the standard replay buffer.", "index": "10", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "ADRQN (HER)", "description": "Action-Specific Deep Recurrent Q-Network using a hindsight experience replay buffer.", "index": "11", "supportedEnvs": ["singleDim", "atari"]},
+    {"name": "ADRQN (HER)", "description": "Action-Specific Deep Recurrent Q-Network using a hindsight experience replay buffer.", "index": "11", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
 
     {"name": "NPG", "description": "Natural Policy Gradient.", "index": "12", "supportedEnvs": ["singleDim"]},
     {"name": "DDPG", "description": "Deep Deterministic Policy Gradient Learning.", "index": "13", "supportedEnvs": ["singleDim"]},
 
     {"name": "CEM", "description": "Cross Entropy Method Learning.", "index": "14", "supportedEnvs": ["singleDim"]},
 
-    {"name": "SAC", "description": "Soft Actor Critic Learning.", "index": "15", "supportedEnvs": ["singleDim"]}
+    {"name": "SAC", "description": "Soft Actor Critic Learning.", "index": "15", "supportedEnvs": ["singleDim"]},
+    {"name": "TRPO", "description": "Trust Region Policy Optimization.", "index": "16", "supportedEnvs": ["singleDim"]},
+    {"name": "Rainbow", "description": "Reinforcement learning with the Rainbow agent.", "index": "17", "supportedEnvs": ["singleDim"]}
 
 ]
 
@@ -65,7 +67,9 @@ paraMap = {
     '13': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'tau'], # DDPG
     '14': ['episodes', 'steps', 'gamma', 'sigma', 'population', 'elite'], # CEM
 
-    '15': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'tau', 'temperature'] # SAC
+    '15': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'tau', 'temperature'], # SAC
+    '16': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'tau', 'temperature'], # TRPO
+    '17': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'tau', 'temperature'] # TRPO
 }
 
 instanceInfo = {
