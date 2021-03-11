@@ -68,8 +68,9 @@ paraMap = {
     '14': ['episodes', 'steps', 'gamma', 'sigma', 'population', 'elite'], # CEM
 
     '15': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'tau', 'temperature'], # SAC
-    '16': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'tau', 'temperature'], # TRPO
-    '17': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'tau', 'temperature'] # TRPO
+
+    '16': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'policyLearnRate', 'valueLearnRate', 'horizon', 'epochSize', 'ppoEpsilon', 'ppoLambda', 'valueLearnRatePlus'], # TRPO
+    '17': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'learningRate'] # Rainbow
 }
 
 instanceInfo = {
@@ -349,7 +350,7 @@ paramConditions = {
     },
     "tau": {
         "name": "Tau",
-        "description": "The proportion of the elite to consider for policy improvement.",
+        "description": "",
         "min": 0,
         "max": 1,
         "default": 0.97,
@@ -358,10 +359,82 @@ paramConditions = {
     },
     "temperature": {
         "name": "Temperature",
-        "description": "The proportion of the elite to consider for policy improvement.",
+        "description": "",
         "min": 0,
         "max": 1,
         "default": 0.97,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "learningRate": {
+        "name": "Learning Rate",
+        "description": "",
+        "min": 0.0001,
+        "max": 1,
+        "default": 0.001,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "policyLearnRate": {
+        "name": "Policy Learning Rate",
+        "description": "",
+        "min": 0.0001,
+        "max": 1,
+        "default": 0.001,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "valueLearnRate": {
+        "name": "Value Learning Rate",
+        "description": "",
+        "min": 0.0001,
+        "max": 1,
+        "default": 0.001,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "horizon": {
+        "name": "Horizon",
+        "description": "",
+        "min": 10,
+        "max": 10000,
+        "default": 50,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "epochSize": {
+        "name": "Epoch Size",
+        "description": "",
+        "min": 10,
+        "max": 100000,
+        "default": 500,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "ppoEpsilon": {
+        "name": "PPO Epsilon",
+        "description": "",
+        "min": 0.0001,
+        "max": 0.5,
+        "default": 0.2,
+        "showSlider": True,
+        "stepSize": 0.0001
+    },
+    "ppoLambda": {
+        "name": "PPO Lambda",
+        "description": "",
+        "min": 0.5,
+        "max": 1,
+        "default": 0.95,
+        "showSlider": True,
+        "stepSize": 0.01
+    },
+    "valueLearnRatePlus": {
+        "name": "Value Learning Rate+",
+        "description": "",
+        "min": 0.0001,
+        "max": 1,
+        "default": 0.001,
         "showSlider": True,
         "stepSize": 0.001
     }
