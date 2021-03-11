@@ -119,7 +119,7 @@ class DDPG(modelFreeAgent.ModelFreeAgent):
 
         # Train critic
         with tf.GradientTape() as tape:
-            critic_value = self.critic_model([X_train, self.allBatchMask])
+            critic_value = self.critic_model([X_train])
             critic_loss = tf.math.reduce_mean(tf.math.square(Y_train - critic_value))
         critic_grad = tape.gradient(critic_loss, self.critic_model.trainable_variables)
         self.critic_optimizer.apply_gradients(zip(critic_grad, self.critic_model.trainable_variables))
