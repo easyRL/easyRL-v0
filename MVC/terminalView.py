@@ -1,11 +1,11 @@
-from Agents import agent, qLearning, qTable, drqn, deepQ, adrqn
+from Agents import agent, qLearning, qTable, drqn, deepQ, adrqn, ddpg, sac
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, mountainCarEnv
 from MVC.model import Model
 from Agents.sarsa import sarsa
 import time, os
 
 class View:
-    agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, sarsa, deepQ.DeepQPrioritized, drqn.DRQNPrioritized, adrqn.ADRQNPrioritized]
+    agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, sarsa, deepQ.DeepQPrioritized, drqn.DRQNPrioritized, adrqn.ADRQNPrioritized, ddpg.DDPG, sac.SAC]
     environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
                     pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv]
     environments += atariEnv.AtariEnv.subEnvs
