@@ -109,6 +109,11 @@ def logout(request):
             ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
             ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
             ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
+
+            ,"delta": get_safe_value(int, request.POST.get("delta"), 0.001)
+            ,"sigma": get_safe_value(int, request.POST.get("sigma"), 0.5)
+            ,"population": get_safe_value(int, request.POST.get("population"), 10)
+            ,"elite": get_safe_value(int, request.POST.get("elite"), 0.2)
         } 
     )
     # clear up all sessions
@@ -210,6 +215,11 @@ def poll(request):
                 ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
                 ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
                 ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
+
+                ,"delta": get_safe_value(int, request.POST.get("delta"), 0.001)
+                ,"sigma": get_safe_value(int, request.POST.get("sigma"), 0.5)
+                ,"population": get_safe_value(int, request.POST.get("population"), 10)
+                ,"elite": get_safe_value(int, request.POST.get("elite"), 0.2)
             }                
         ))
         return response
@@ -266,6 +276,11 @@ def export_model(request):
             ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
             ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
             ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
+
+            ,"delta": get_safe_value(int, request.POST.get("delta"), 0.001)
+            ,"sigma": get_safe_value(int, request.POST.get("sigma"), 0.5)
+            ,"population": get_safe_value(int, request.POST.get("population"), 10)
+            ,"elite": get_safe_value(int, request.POST.get("elite"), 0.2)
         }
     ))
 
@@ -298,6 +313,11 @@ def halt(request):
             ,"targetInterval": get_safe_value(int, request.POST.get("targetInterval"), 10)
             ,"alpha": get_safe_value(float, request.POST.get("alpha"), 0.9)
             ,"historyLength": get_safe_value(int, request.POST.get("historyLength"), 10)
+
+            ,"delta": get_safe_value(int, request.POST.get("delta"), 0.001)
+            ,"sigma": get_safe_value(int, request.POST.get("sigma"), 0.5)
+            ,"population": get_safe_value(int, request.POST.get("population"), 10)
+            ,"elite": get_safe_value(int, request.POST.get("elite"), 0.2)
         }
     ))
 
