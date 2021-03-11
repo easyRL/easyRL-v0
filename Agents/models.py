@@ -41,8 +41,7 @@ class Actor(DeepQ):
     x = Flatten()(inputA)
     x = Dense(24, input_dim=self.state_size, activation='relu')(x)  # fully connected
     x = Dense(24, activation='relu')(x)
-    x = Dense(self.action_size, activation='softmax')(x)
-    outputs = multiply([x, inputB])
+    outputs = Dense(self.action_size, activation='softmax')(x)
     model = Model(inputs=[inputA, inputB], outputs=outputs)
     kl = tf.keras.losses.KLDivergence()
     model.compile(loss=kl, optimizer=Adam(lr=self.policy_lr))

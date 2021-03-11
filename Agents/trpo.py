@@ -62,8 +62,6 @@ class TRPO(PPO):
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
         
         # Initialize the actors and critics
-        self.value_model = super().value_network()
-        self.policy_model = super().policy_network()
         self.N = 10
         self.T = 10
 
