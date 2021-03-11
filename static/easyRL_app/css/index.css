@@ -41,16 +41,4 @@ body {
     object-fit: cover;
   }
 
-  #btn-new-session{
-    width: 40px; 
-    height: 40px; 
-    line-height: 25px;  
-
-    overflow:hidden;
-    float:right;
-    border-radius: 50%;
-    background-color: #4CAF50;
-    color: white;
-    text-align: center;
-    cursor: pointer;
-  }
+ 
