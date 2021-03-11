@@ -61,7 +61,7 @@ class Model:
                     action = self.agent.choose_action(old_state)
                 else:
                     action = self.environment.sample_action()
-
+                
                 reward = self.environment.step(action)
 
                 loss = self.agent.remember(old_state, action, reward, self.environment.state, self.environment.done)

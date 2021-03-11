@@ -24,7 +24,6 @@ class Rainbow(DeepQ):
     def __init__(self, *args): 
         paramLen = len(Rainbow.newParameters)
         super().__init__(*args[:-paramLen])
-        print("Stuff Rainbow: " + str(args))
 
         Qparams = []
         for i in range(3):
