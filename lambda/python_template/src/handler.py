@@ -20,20 +20,52 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 # @param context A platform specific object used to communicate with the cloud platform.
 # @returns A JSON object to use as a response.
 #
+agentList = [
+    {"name": "Q Learning", "description": "Basic Q Learning.", "index": "1", "supportedEnvs": ["singleDimDescrete"]},
+    {"name": "SARSA", "description": "State Action Reward State Action learning.", "index": "2", "supportedEnvs": ["singleDimDescrete"]},
+
+    {"name": "Deep Q (SRB)", "description": "Deep Q Learning using the standard replay buffer.", "index": "3", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
+    {"name": "Deep Q (PRB)", "description": "Deep Q Learning using a prioritized replay buffer.", "index": "4", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
+    {"name": "Deep Q (HER)", "description": "Deep Q Learning using a hindsight experience replay buffer.", "index": "5", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
+
+    {"name": "DRQN (SRB)", "description": "Deep Recurrent Q-Network using the standard replay buffer.", "index": "6", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "DRQN (PRB)",  "description": "Deep Recurrent Q-Network using a prioritized replay buffer.", "index": "7", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "DRQN (HER)",  "description": "Deep Recurrent Q-Network using a hindsight experience replay buffer.", "index": "8", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+
+    {"name": "ADRQN (SRB)", "description": "Action-Specific Deep Recurrent Q-Network using the standard replay buffer.", "index": "9", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "ADRQN (PRB)", "description": "Action-Specific Deep Recurrent Q-Network using the standard replay buffer.", "index": "10", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "ADRQN (HER)", "description": "Action-Specific Deep Recurrent Q-Network using a hindsight experience replay buffer.", "index": "11", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+
+    {"name": "NPG", "description": "Natural Policy Gradient.", "index": "12", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+    {"name": "DDPG", "description": "Deep Deterministic Policy Gradient Learning.", "index": "13", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+
+    {"name": "CEM", "description": "Cross Entropy Method Learning.", "index": "14", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
+
+    {"name": "SAC", "description": "Soft Actor Critic Learning.", "index": "15", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]}
+
+]
 
 paraMap = {
-    '1': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval'],
-    '2': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
-    '3': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
-    '4': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],
-    '5': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'],
+    '1': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'], # Q Learning
+    '2': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'alpha'], #SARSA
 
-    '6': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'alpha'],
-    '7': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength', 'alpha'],
-    '8': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength', 'alpha'],
+    '3': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval'], # Deep Q
+    '4': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'alpha'], # Deep Q
+    '5': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval'], # Deep Q
 
-    '9': ['episodes', 'steps', 'gamma', 'delta'],
-    '10': ['episodes', 'steps', 'gamma', 'sigma', 'population', 'elite']
+    '6': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'], # DRQN
+    '7': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength', 'alpha'], # DRQN
+    '8': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],  # DRQN
+
+    '9': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'], # ADRQN
+    '10': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength', 'alpha'],  # ARQN
+    '11': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'historyLength'],  # ADRQN
+
+    '12': ['episodes', 'steps', 'gamma', 'delta'], # NPG
+    '13': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'tau'], # DDPG
+    '14': ['episodes', 'steps', 'gamma', 'sigma', 'population', 'elite'], # CEM
+
+    '15': ['episodes', 'steps', 'gamma', 'minEpsilon', 'maxEpsilon', 'decayRate', 'batchSize', 'memorySize', 'targetInterval', 'tau', 'temperature'] # SAC
 }
 
 instanceInfo = {
@@ -102,20 +134,6 @@ instanceInfo = {
     },
 }
 
-agentList = [
-    {"name": "Deep Q (SRB)", "description": "Deep Q Learning using the standard replay buffer.", "index": "1", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
-    {"name": "Q Learning", "description": "Basic Q Learning.", "index": "2", "supportedEnvs": ["singleDimDescrete"]},
-    {"name": "DRQN (SRB)", "description": "Deep Recurrent Q-Network using the standard replay buffer.", "index": "3", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "ADRQN (SRB)", "description": "Action-Specific Deep Recurrent Q-Network using the standard replay buffer.", "index": "4", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "SARSA", "description": "State Action Reward State Action learning.", "index": "5", "supportedEnvs": ["singleDimDescrete"]},
-
-    {"name": "Deep Q (PRB)", "description": "Deep Q Learning using a prioritized replay buffer.", "index": "6", "supportedEnvs": ["singleDim", "singleDimDescrete"]},
-    {"name": "DRQN (PRB)",  "description": "Deep Recurrent Q-Network using a prioritized replay buffer.", "index": "7", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "ADRQN (PRB)", "description": "Action-Specific Deep Recurrent Q-Network using the standard replay buffer.", "index": "8", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-
-    {"name": "NPG", "description": "Natural Policy Gradient.", "index": "9", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]},
-    {"name": "CEM", "description": "Cross Entropy Method Learning.", "index": "10", "supportedEnvs": ["singleDim", "singleDimDescrete", "atari"]}
-]
 agentMap = {}
 for aa in agentList:
     agentMap[aa['index']] = aa
@@ -324,6 +342,24 @@ paramConditions = {
         "default": 0.2,
         "showSlider": True,
         "stepSize": 0.001
+    },
+    "tau": {
+        "name": "Tau",
+        "description": "The proportion of the elite to consider for policy improvement.",
+        "min": 0,
+        "max": 1,
+        "default": 0.97,
+        "showSlider": True,
+        "stepSize": 0.001
+    },
+    "temperature": {
+        "name": "Temperature",
+        "description": "The proportion of the elite to consider for policy improvement.",
+        "min": 0,
+        "max": 1,
+        "default": 0.97,
+        "showSlider": True,
+        "stepSize": 0.001
     }
 }
 
@@ -433,7 +469,7 @@ def yourFunction(request, context):
 
     if ('gitHubURL' not in arguments):
         arguments['gitHubURL'] = "https://github.com/RobertCordingly/easyRL-v0"
-        arguments['gitHubBranch'] = "dataExport"
+        arguments['gitHubBranch'] = "dev/rl"
 
     continuousTraining = False
     if ("continuousTraining" in arguments):
