@@ -88,7 +88,7 @@ class NPG(policyIteration.PolicyIteration):
         '''
         # Calculate the gradient of the log likelihood loss.
         gradient = self._compute_gradient(loss)
-        gradient = parameters_to_vector(gradient).detach().numpy()
+        gradient = parameters_to_vector(gradient).detach().numpy() + 1e-5
         
         # Calculate the natural policy gradient.
         npg = self._compute_npg(gradient, states)
