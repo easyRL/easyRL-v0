@@ -23,6 +23,7 @@ import torch
 import torch.nn as nn
 import random
 import joblib
+import math
 
 class TRPO(PPO):
     displayName = 'TRPO'
@@ -119,11 +120,12 @@ class TRPO(PPO):
             entropy = self.get_entropy(state)
             loss = self.train_policy(states, value_loss, clip_loss, entropy)
             losses.append(loss)
-        loss = np.average(np.array(losses))
+            print("loss: " + str(loss))
+        loss = np.mean(np.array(losses))
         print("loss iteration: " + str(loss))
         # apply gradient optimizer to optimize loss and policy network
-        with tf.GradientTape() as tape:
-            loss = self.optimize_loss(loss, optimizer, tape)
+        '''with tf.GradientTape() as tape:
+            loss = self.optimize_loss(loss, optimizer, tape)'''
         return loss
 
     def sample_trajectories(self, mini_batch):
@@ -143,7 +145,7 @@ class TRPO(PPO):
 
     def goal_idx(self, idx):
         transitions = self.memory._transitions
-        while transitions[idx] is not None and idx < self.memory.max_length-1 and transitions[idx].is_done is False:
+        while idx < len(self.memory._transitions)-1 and transitions[idx] is not None and transitions[idx].is_done is False:
             idx+=1
         return idx
 
@@ -181,18 +183,17 @@ class TRPO(PPO):
     def get_advantages(self, idx, goal, value_est, value_next):
         #print("Goal: " + str(goal))
         transitions = self.memory.get_next_transitions(idx, goal)
-        states = [transitions[i].state for i in range(idx, goal)]
-        next_states = [transitions[i].next_state for i in range(idx, goal)]
-        rewards = [transitions[i].reward for i in range(idx, goal)]
+        states = [transitions[i].state for i in range(goal-idx)]
+        next_states = [transitions[i].next_state for i in range(goal-idx)]
+        rewards = [transitions[i].reward for i in range(goal-idx)]
         advantages = []
         for _ in range(idx, goal):
             advantage = 0
             k = 0
             total_gamma = 0
-            for j in range(idx, goal):
-                total_gamma = (self.gamma * self.Lambda) ** k
+            for j in range(goal-idx):
+                total_gamma = (self.gamma * self.Lambda) ** j
                 # discouNnted_rewards += total_gamma * rewards[j]
-                k += 1
                 shape = (1,) + self.state_size
                 state = np.reshape(states[j], shape)
                 next_state = np.reshape(next_states[j], shape)
@@ -214,12 +215,15 @@ class TRPO(PPO):
         epsilon = self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * self.time_steps)
         #epsilon = 0.2
         clips = []
-        clips.append(prob_ratio*advantage)
+        adv_ratio = (prob_ratio*advantage).numpy()
+        adv_ratio = np.mean(adv_ratio)
+        clips.append(adv_ratio)
         clips.append(1-epsilon)
         clips.append(1+epsilon)
-        clips = np.array(clips, dtype=float)
-        minimum = np.amin(clips, axis=0)
-        print("minimum: " + str(minimum))
+        minimum = math.inf
+        for clip in clips:
+            print("clip: " + str(clip))
+            minimum = min(minimum, clip)
         loss = minimum * advantage
         return loss
 
@@ -231,9 +235,9 @@ class TRPO(PPO):
         return tf.math.log(tf.reduce_sum((np.array(entropy(probabilities)))))
 
     def agent_loss(self, value_loss, clip_loss, entropy):
-        '''print("value loss: " + str(value_loss))
+        print("value loss: " + str(value_loss))
         print("clip loss: " + str(clip_loss))
-        print("entropy: " + str(entropy))'''
+        print("entropy: " + str(entropy))
         return clip_loss + value_loss + (self.c2 * entropy)
 
     '''def kl_divergence(self, states, new_states):
@@ -252,8 +256,9 @@ class TRPO(PPO):
     def train_policy(self, states, value_loss, clip_loss, entropy):
         with tf.GradientTape() as tape:
             self.policy_model([states, self.allBatchMask], training=True)
-            loss = np.array(self.agent_loss(value_loss, clip_loss, entropy))
-            loss = tf.convert_to_tensor(loss)
+            #loss = np.array(self.agent_loss(value_loss, clip_loss, entropy))
+            #loss = tf.convert_to_tensor(loss)
+            loss = self.agent_loss(value_loss, clip_loss, entropy)
             tape.gradient(loss, self.policy_model.trainable_variables)
             return loss
 
