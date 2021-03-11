@@ -170,7 +170,9 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
     
     def apply_hindsight(self):
         '''
-        
+        The hindsight replay buffer method checks for 
+        the instance, if instance found add to the memory
+     
         '''
         if (isinstance(self.memory, ExperienceReplay.HindsightReplayBuffer)):
             self.memory.apply_hindsight()
