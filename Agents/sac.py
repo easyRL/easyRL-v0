@@ -294,6 +294,7 @@ class SAC(modelFreeAgent.ModelFreeAgent):
         return result1
 
     def save(self, filename):
+        self.actor_network(np.reshape(self.get_empty_state(), (-1,) + self.state_size))
         act_mem = self.actor_network.get_weights()
         s0_mem = self.soft_Q_targetnetwork.get_weights()
         s1_mem = self.soft_Q_targetnetwork1.get_weights()
@@ -313,6 +314,7 @@ class SAC(modelFreeAgent.ModelFreeAgent):
 
 
     def memsave(self):
+        self.actor_network(np.reshape(self.get_empty_state(), (-1,) + self.state_size))
         actor_weights = self.actor_network.get_weights()
         soft0_weights = self.soft_Q_targetnetwork.get_weights()
         soft1_weights = self.soft_Q_targetnetwork1.get_weights()
