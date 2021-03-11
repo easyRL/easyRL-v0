@@ -15,10 +15,7 @@ from Agents.Collections.TransitionFrame import TransitionFrame
 
 class Rainbow(DeepQ):
     displayName = 'Rainbow'
-    newParameters = [DeepQ.Parameter('Batch Size', 1, 256, 1, 32, True, True, "The number of transitions to consider simultaneously when updating the agent"),
-                     DeepQ.Parameter('Memory Size', 1, 655360, 1, 1000, True, True, "The maximum number of timestep transitions to keep stored"),
-                     DeepQ.Parameter('Target Update Interval', 1, 100000, 1, 200, True, True, "The distance in timesteps between target model updates"),
-                     DeepQ.Parameter('Learning Rate', 0.00001, 100, 0.00001, 0.001, True, True, "The rate at which the parameters respond to environment observations")]
+    newParameters = [DeepQ.Parameter('Learning Rate', 0.00001, 100, 0.00001, 0.001, True, True, "The rate at which the parameters respond to environment observations")]
     parameters = DeepQ.parameters + newParameters
 
     def __init__(self, *args): 
