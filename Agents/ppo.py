@@ -36,8 +36,6 @@ class PPO(DeepQ):
     parameters = DeepQ.parameters + newParameters
 
     def __init__(self, *args):
-        print("Stuff PPO:")
-        print(str(args))
         paramLen = len(PPO.newParameters)
         super().__init__(*args[:-paramLen])
         empty_state = self.get_empty_state()
@@ -67,8 +65,7 @@ class PPO(DeepQ):
         shape = (1,) + self.state_size
         state = np.reshape(state, shape)
         val = self.value_model.predict([state, self.allMask])
-        action = np.argmax(val)
-        print("Action: " + str(action))
+        action = int(np.argmax(val))
         return action
 
     def get_probabilities(self, states):

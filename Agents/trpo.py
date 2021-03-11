@@ -24,9 +24,8 @@ import torch.nn as nn
 import random
 import joblib
 
-
 class TRPO(PPO):
-    displayName = 'TRPO Agent'
+    displayName = 'TRPO'
     newParameters = [DeepQ.Parameter('Value learning rate+', 0.00001, 1, 0.00001, 0.001,
                                                              True, True,
                                                              "A learning rate that the Adam optimizer starts at")
@@ -35,8 +34,6 @@ class TRPO(PPO):
 
     #Invoke constructor
     def __init__(self, *args):
-        print("Stuff TRPO:")
-        print(str(args))
         paramLen = len(TRPO.newParameters)
         super().__init__(*args[:-paramLen])
         self.gamma = 0.99
@@ -69,9 +66,6 @@ class TRPO(PPO):
         self.policy_model = super().policy_network()
         self.N = 10
         self.T = 10
-
-    def get_empty_state(self):
-        return super().get_empty_state()
 
     def sample(self):
         return self.memory.sample(self.batch_size)
@@ -148,12 +142,6 @@ class TRPO(PPO):
             next_states[index, :] = next_state
             dones.append(done)
         return states, actions, rewards, next_states, dones
-
-    def choose_action(self, state):
-        super().choose_action(state)
-
-    def get_probabilities(self, states):
-        return super().get_probabilities(states)
 
     def goal_idx(self, idx):
         transitions = self.memory._transitions

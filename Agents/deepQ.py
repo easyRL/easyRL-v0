@@ -15,8 +15,6 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
 
     def __init__(self, *args):
         paramLen = len(DeepQ.newParameters)
-        print("Stuff DEEPQ:")
-        print(str(args))
         super().__init__(*args[:-paramLen])
         self.batch_size, self.memory_size, self.target_update_interval = [int(arg) for arg in args[-paramLen:]]
         self.model = self.buildQNetwork()
