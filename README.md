@@ -5,6 +5,8 @@ This application uses Django as a webserver to host the interface. To run the se
 - django
 - boto3
 
+`python3.7 -m pip install django boto3`
+
 Once setup, start the server by running manage.py:
 
 `python3.7 manage.py runserver`
