@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.cache import caches
 from django.http import HttpResponse, HttpResponseRedirect
 
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.shortcuts import render, redirect
 
 from django.views.decorators.csrf import csrf_exempt
@@ -17,6 +17,7 @@ from easyRL_app.utilities import get_aws_s3, get_aws_lambda,\
 from easyRL_app import apps
 import core
 from builtins import format
+from core.storage import MediaStorage
 
 DEBUG_JOB_ID = generate_jobID()
 
@@ -28,7 +29,7 @@ def index(request):
     # send the user back to the login form if the user did not sign in or session expired
     debug_sessions(request)
     if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
-         return HttpResponseRedirect("/easyRL_app/login/")
+        return HttpResponseRedirect("/easyRL_app/login/")
 
     index_dict = {}
     files = os.listdir(os.path.join(settings.BASE_DIR, "static/easyRL_app/images"))
@@ -39,7 +40,7 @@ def index(request):
         request.session['aws_secret_key'],
         request.session['aws_security_token'],
         request.session['job_id'],{})
-   
+
     index_dict['info'] = add_file_to_info(info, files)
 
     if request.method == "GET":
@@ -229,8 +230,6 @@ def test(request):
             ,"ppoEpsilon": get_safe_value(int, request.POST.get("ppoEpsilon"), 0.2)
             ,"ppoLambda": get_safe_value(int, request.POST.get("ppoLambda"), 0.95)
             ,"valueLearnRatePlus": get_safe_value(int, request.POST.get("valueLearnRatePlus"), 0.001)
-
-
         } 
     ))
 
@@ -304,9 +303,162 @@ def info(request):
         {}                
     ))
 
-@csrf_exempt
-def import_model(request):
-    return HttpResponse({"data": "pass"})
+from django.views.generic.edit import CreateView
+from django.db import models
+from django.urls import reverse_lazy
+from .models import Document
+class import_model(CreateView):
+    model = Document
+    fields = ['upload', ]
+    success_url = reverse_lazy('import_model')
+    
+    def get(self, request):
+        
+#         bucket = request.session['job_id']
+        bucket = "tesst123123"
+        
+#         Document.save_get(
+#             '', # assume that model file uploaded to same level with GIF files
+#             request.session['aws_access_key'],
+#             request.session['aws_secret_key'],
+#             request.session['job_id']
+#         )
+        
+        print("BUCKET", bucket)
+        Document.upload = models.FileField(
+            verbose_name="", 
+            storage=MediaStorage('', # assume that model file uploaded to same level with GIF files
+            request.session['aws_access_key'],
+            request.session['aws_secret_key'],
+            request.session['job_id']))
+         
+        self.model = Document
+#         
+# #         for item in Document.objects.all():
+# #             print(str(item))
+#         select_item = Document.objects.all()[len(Document.objects.all())-1]
+#         upload_item = select_item.upload
+#         #storage_item = select_item.upload.storage
+        print("STORAGE", dir(self.model.upload.storage))
+
+        #print(request.session['job_id'])
+        #print(dir(self.model.upload))
+        
+#         doc = Document.objects.get(id=1)
+#         print("TTTTTTTTT", doc.upload)
+#         doc.upload.storage = MediaStorage()
+#         doc.save()
+#         self.model = Document()
+        
+#         self.model = Document(
+#             '', # assume that model file uploaded to same level with GIF files
+#             request.session['aws_access_key'],
+#             request.session['aws_secret_key'],
+#             request.session['job_id']
+#         )
+#django.db.models.fields.files.FileDescriptor
+#         print("TTTTTTTTT", self.model.upload)
+#         self.model.upload.storage = MediaStorage()
+#         self.model.upload = models.FileField(verbose_name="", storage=MediaStorage())
+        
+        #self.model.save(self.model, update_fields=['upload'])
+        return super(import_model, self).get(request)
+
+#     def post(self, request):
+# #         bucket = request.session['job_id']
+#         bucket = "tesst123123"
+#         
+# #         self.model.save_post(
+# #             '', # assume that model file uploaded to same level with GIF files
+# #             request.session['aws_access_key'],
+# #             request.session['aws_secret_key'],
+# #             request.session['job_id']
+# #         )
+#         
+#         print("BUCKET", bucket)
+#         Document.upload = models.FileField(
+#             verbose_name="", 
+#             storage=MediaStorage('', # assume that model file uploaded to same level with GIF files
+#             request.session['aws_access_key'],
+#             request.session['aws_secret_key'],
+#             request.session['job_id']))
+#          
+#         self.model = Document
+#         print("STORAGE", dir(self.model.upload.storage))
+#         #self.model.save(self.model, update_fields=['upload'])
+#         return super(import_model, self).post(request)
+#     def post(self, request):
+#         self.model.upload = models.FileField(verbose_name="", storage=MediaStorage())
+#         self.model.save(self.model)
+#         return super(import_model, self).get(request)
+    
+#     def get(self, request):
+#         self.model = Document().upload = models.FileField(
+#             verbose_name="",
+#             storage=MediaStorage(
+#                 '', # assume that model file uploaded to same level with GIF files
+#                 request.session['aws_access_key'],
+#                 request.session['aws_secret_key'],
+#                 request.session['job_id']
+#             )
+#         )
+#         self.model = Document(
+#             '', # assume that model file uploaded to same level with GIF files
+#             request.session['aws_access_key'],
+#             request.session['aws_secret_key'],
+#             request.session['job_id']
+#         )
+#         return super(import_model, self).get(request)
+     
+#     def post(self, request):
+#         self.model.upload = models.FileField(
+#             verbose_name="",
+#             storage=MediaStorage(
+#                 '', # assume that model file uploaded to same level with GIF files
+#                 request.session['aws_access_key'],
+#                 request.session['aws_secret_key'],
+#                 request.session['job_id']
+#             )
+#         )
+#         response = super(import_model, self).post(request)
+#         return response
+#         response = super(CreateView, self).post(request)
+# 
+#         if 'id' in request.session:
+#             del request.session['id']
+#         if self.object != None:
+#             request.session['id'] = self.object.id
+# 
+#         return response
+#         print("TTTTTTTTTTTTTTTTTTTTTTTTTTTT", request.session['aws_access_key'])
+#         return super(CreateView, self).get(request)
+    
+#     class Document(models.Model):
+#         def create_components(self, ):
+#             uploaded_at = models.DateTimeField(auto_now_add=True)
+#             upload = models.FileField(
+#                 verbose_name="",
+#                 storage=MediaStorage(
+#                     '',
+#                     request.session['aws_access_key'],
+#                     request.session['aws_secret_key'],
+#                     
+#                 ))
+#     
+#     def __init__(self):
+#         uploaded_at = models.DateTimeField(auto_now_add=True)
+#         upload = models.FileField(verbose_name="",storage=MediaStorage())
+
+# @csrf_exempt
+# def import_model(request):
+#     if request.method == "POST":
+#         media = MediaStorage()
+#         media.set_location('model')
+#         media.set_access_key(request.session['aws_access_key'])
+#         media.set_secret_key(request.session['aws_secret_key'])
+#         media.set_bucket_name(request.session['job_id'])
+#         media.set_custom_domain('easyrl-{}.s3.amazonaws.com'.format(request.session['job_id']))
+#     return HttpResponse('easyrl-{}.s3.amazonaws.com'.format(request.session['job_id']))
 
 @csrf_exempt
 def export_model(request):

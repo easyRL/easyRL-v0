@@ -1,6 +1,7 @@
 from django import forms
 
 import uuid
+from django.db import models
 
 class AwsCredentialForm(forms.Form):
     aws_access_key = forms.CharField(label="AWS Access Key", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
@@ -8,6 +9,7 @@ class AwsCredentialForm(forms.Form):
     aws_security_token = forms.CharField(label="AWS Security Token",widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
 
 class HyperParameterBase(forms.Form):
+    
     max_size  = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"max-size","name":"max-size","value":"200" }))    
     num_episodes = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"num-episodes","name":"num-episodes","value":"1000" }))
     gamma = forms.CharField(widget=forms.TextInput(attrs={'type': 'range', 'min': 0, 'max': 1, "step":0.001, 'class': 'col-md-4 form-range slider', 'id':'gamma-slider', 'name':'gamma-slider','value': '0.970'}))

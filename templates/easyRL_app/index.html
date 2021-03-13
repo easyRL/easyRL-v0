@@ -27,6 +27,11 @@
               aria-expanded="false" style="margin:5px;">Model </a>
             <div class="dropdown-menu">
               <a class="dropdown-item" id="btn-import" href="import/" disabled>Import</a>
+			  <form method="post" enctype="multipart/form-data">
+				{% csrf_token %}
+			    {{ form.upload }}
+			    <button type="submit">Submit</button>
+			  </form>
               <div class="dropdown-divider btn"></div>
               <button class="dropdown-item" id="btn-export">Export</button>
             </div>
