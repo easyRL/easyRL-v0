@@ -26,7 +26,16 @@
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
               aria-expanded="false" style="margin:5px;">Model </a>
             <div class="dropdown-menu">
-              <a class="dropdown-item" id="btn-import" href="import/" disabled>Import</a>
+              <a class="dropdown-item" id="btn-import" onclick="document.getElementById('btn_upload').click()" disabled>Import</a>
+			  <form id="upload_form" action="/easyRL_app/upload/" method="post" enctype="multipart/form-data">
+			    {% csrf_token %}
+				<input style="display:none" type="text" id="session" name="session" />
+				<button style="display:none" class="btn btn-primary" id="btn_submit" type="submit">Submit</button>
+			    <input style="display:none" type="file" id="btn_upload" name="upload" required id="id_upload"
+					onchange="
+					document.getElementById('session').value = document.getElementById('session-select').value;
+					document.getElementById('btn_submit').click();">
+			  </form>
               <div class="dropdown-divider btn"></div>
               <button class="dropdown-item" id="btn-export">Export</button>
             </div>
