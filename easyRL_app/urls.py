@@ -14,4 +14,5 @@ urlpatterns = [
     ,path('export/', view.export_model, name="export_model")
     ,path('import/',views.import_model.as_view(), name="import_model")
     ,path('upload/',views.file_upload.as_view(), name="upload")
+    ,path('imported/file/',view.import_model_lambda, name="import_model_lambda")
 ]

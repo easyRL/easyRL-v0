@@ -9,6 +9,7 @@ TASK_POLL = "poll"
 TASK_IS_JOB_RUNNING = "isRunning"
 TASK_HALT_JOB = "haltJob"
 TASK_INFO = "info"
+TASK_IMPORT = "import"
 
 ERROR_NONE = 0
 ERROR_UNAUTHENTICATED = 1
