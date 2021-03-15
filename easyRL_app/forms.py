@@ -1,6 +1,4 @@
 from django import forms
-
-import uuid
 from django.db import models
 
 class AwsCredentialForm(forms.Form):
@@ -9,7 +7,7 @@ class AwsCredentialForm(forms.Form):
     aws_security_token = forms.CharField(label="AWS Security Token",widget=forms.PasswordInput(attrs={'class': 'form-control'}), required=False)
 
 class HyperParameterBase(forms.Form):
-    
+    upload = models.FileField(verbose_name="")
     max_size  = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"max-size","name":"max-size","value":"200" }))    
     num_episodes = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"num-episodes","name":"num-episodes","value":"1000" }))
     gamma = forms.CharField(widget=forms.TextInput(attrs={'type': 'range', 'min': 0, 'max': 1, "step":0.001, 'class': 'col-md-4 form-range slider', 'id':'gamma-slider', 'name':'gamma-slider','value': '0.970'}))
@@ -40,9 +38,7 @@ class HyperParameterSARSA(HyperParameterBase):
     alpha_text = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "id":'alpha-text','class':'form-control','readonly':'','value': '0.018'}))
 
 class HyperParameterFormDeepQ(HyperParameterBase):
-
     target_update =forms.CharField(label="Update",widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"target-update","name":"target-update","value":"200" }))
-   
     max_memory = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"max-memory","name":"max-memory","value":"1000" }))
     num_episodes = forms.CharField(widget=forms.TextInput(attrs={"type":"text", "class":"form-control form-text-box","id":"num-episodes","name":"num-episodes","value":"1000" }))
     batch = forms.CharField(widget=forms.TextInput(attrs={'type': 'range', 'min': 0, 'max': 256, 'class': "form-range slider", 'id':'batch-slider', 'name':'batch-slider','value': '32'}))
