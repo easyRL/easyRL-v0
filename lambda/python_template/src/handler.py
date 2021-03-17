@@ -552,10 +552,7 @@ def yourFunction(request, context):
     if ("continuousTraining" in arguments):
         continuousTraining = arguments["continuousTraining"]
 
-    modelName = "trainedAgent.bin"
-    if continuousTraining:
-        modelName = "continuousTraining.bin"
-    modelName = "continuousTraining.bin"
+    modelName = "model.bin"
 
     botoSession = boto3.Session(
         aws_access_key_id=accessKey,
