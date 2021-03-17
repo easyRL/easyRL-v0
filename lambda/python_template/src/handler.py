@@ -552,10 +552,7 @@ def yourFunction(request, context):
     if ("continuousTraining" in arguments):
         continuousTraining = arguments["continuousTraining"]
 
-    modelName = "trainedAgent.bin"
-    if continuousTraining:
-        modelName = "continuousTraining.bin"
-    modelName = "continuousTraining.bin"
+    modelName = "model.bin"
 
     botoSession = boto3.Session(
         aws_access_key_id=accessKey,
@@ -968,6 +965,31 @@ def yourFunction(request, context):
             ssh.close()
         else:
             inspector.addAttribute("error", "Instance not found.")
+
+    if (task == "import"):
+        ec2Client = botoSession.client('ec2')
+        ec2Resource = botoSession.resource('ec2')
+
+        ourInstance = findOurInstance(ec2Client, jobID, inspector)
+        if (ourInstance is not None):
+            ip = ourInstance['PublicIpAddress']
+
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(ip, username='tcss556', password='secretPassword')
+     
+            if (sessionToken == ""):
+                command = "python3.7 easyRL-v0/lambda/download.py " + modelName + " " + jobID + " " + accessKey + " " + secretKey 
+            else:
+                command = "python3.7 easyRL-v0/lambda/download.py " + modelName + " " + jobID + " " + accessKey + " " + secretKey + " " + sessionToken 
+
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+            stdout = ssh_stdout.readlines()
+
+            ssh.close()
+        else:
+            inspector.addAttribute("error", "Instance not found.")
+
 
     if (task == "jobLog"):
         ec2Client = botoSession.client('ec2')

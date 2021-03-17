@@ -120,7 +120,7 @@ class CloudBridge:
             self.lastSave = currentTime
 
             if (self.state == "Training" and self.uploadModels):
-                self.model.save("continuousTraining.bin")
+                self.model.save("model.bin")
 
             # Render Gif
             if (len(self.animationFrames) > 0):
