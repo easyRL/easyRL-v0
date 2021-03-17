@@ -624,7 +624,9 @@ class file_upload(View):
         file_obj = request.FILES.get('upload', 'EMPTY')
         aws_access_key = request.session['aws_access_key']
         aws_secret_key = request.session['aws_secret_key']
-        bucket = "easyrl-{}{}".format(request.session['job_id'], request.POST.get('session', '0'))
+        aws_security_token = request.session['aws_security_token']
+        job_id = request.session['job_id']
+        bucket = "easyrl-{}{}".format(job_id, request.POST.get('session', '0'))
 
         media_storage = S3Boto3Storage()
         media_storage.location = ''
@@ -642,7 +644,9 @@ class file_upload(View):
         )
 
         media_storage.save(s3_file_path, file_obj)
+
+        
         #file_url = media_storage.url(s3_file_path) # direct path of uploaded file on s3
-        return HttpResponseRedirect('/easyRL_app/imported/file/')
+        return HttpResponse(lambda_import(aws_access_key, aws_secret_key, aws_security_token, job_id, {}), status=200)
   
     

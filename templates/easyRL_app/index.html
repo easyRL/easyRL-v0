@@ -303,6 +303,22 @@ info = {}
     handleAgentChange();
   });
 
+  $('#upload_form').on('submit', function (e) {
+        e.preventDefault();
+        var fd = new FormData(this);   
+        
+        $.ajax({
+            type: 'POST',
+            url: '/easyRL_app/upload/',
+            data: fd,
+            processData: false,
+            contentType: false,
+            error: function () {
+                alert("Error!")
+            }
+          });
+  });
+
   
   function handleAgentChange(){
     var str = $("#agent-select option:selected").text();
