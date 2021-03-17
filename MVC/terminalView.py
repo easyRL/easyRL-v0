@@ -5,7 +5,7 @@ from Agents.sarsa import sarsa
 import time, os
 
 class View:
-    agents = [qLearning.QLearning, sarsa, deepQ.DeepQ, deepQ.DeepQPrioritized, deepQ.DeepQHindsight, drqn.DRQN, drqn.DRQNPrioritized, drqn.DRQNHindsight, adrqn.ADRQN, adrqn.ADRQNPrioritized, adrqn.ADRQNHindsight, npg.NPG, ddpg.DDPG, cem.CEM, sac.SAC, sac.SAC, rainbow.Rainbow]
+    agents = [qLearning.QLearning, sarsa, deepQ.DeepQ, deepQ.DeepQPrioritized, deepQ.DeepQHindsight, drqn.DRQN, drqn.DRQNPrioritized, drqn.DRQNHindsight, adrqn.ADRQN, adrqn.ADRQNPrioritized, adrqn.ADRQNHindsight, npg.NPG, ddpg.DDPG, cem.CEM, sac.SAC, trpo.TRPO, rainbow.Rainbow]
     environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
                     pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv]
     environments += atariEnv.AtariEnv.subEnvs
