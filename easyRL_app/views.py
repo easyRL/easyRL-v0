@@ -4,7 +4,7 @@ from django.shortcuts import render
 
 from django.views.decorators.csrf import csrf_exempt
 from . import forms
-
+import time
 import json
 import boto3
 import os
@@ -642,7 +642,7 @@ class file_upload(View):
             media_storage.location,
             'model.bin'
         )
-
+        
         media_storage.save(s3_file_path, file_obj)
 
         

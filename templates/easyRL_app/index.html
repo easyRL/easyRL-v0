@@ -263,25 +263,22 @@
 <script type="text/javascript">
 </script>
 <script type="text/javascript">
+  info = {};
+  $(document).ready(async function () {  
+      const result = await $.ajax({
+        type: 'POST',
+        url: '/easyRL_app/info/',
+        data: {},
+        success: function(result) {
 
-info = {}
-    $.ajax({
-      type: 'POST',
-      url: '/easyRL_app/info/',
-      data: {},
-      success: function(result) {
         info = JSON.parse(result)
         var str = $("#agent-select option:selected").text();
         html = renderOptions(str);
         $("#form-div").html(html);
         var index = $("#env-select option:selected").val();
         updateSelect(index);
-      },
-      async:false
+      }     
     });
-
-  $(document).ready(function () {
-
     updateEnvironmentLabel();
     resetFormDropDownsButtons();
     google.charts.load('current', { 'packages': ['corechart'] }).then(draw_graph);
@@ -303,20 +300,25 @@ info = {}
     handleAgentChange();
   });
 
-  $('#upload_form').on('submit', function (e) {
+  $('#upload_form').on('submit', async function (e) {
         e.preventDefault();
-        var fd = new FormData(this);   
-        
-        $.ajax({
+        let fd = new FormData(this);   
+        let url = '/easyRL_app/upload/'
+          let upload = await $.ajax({
             type: 'POST',
-            url: '/easyRL_app/upload/',
+            url: url,
             data: fd,
             processData: false,
             contentType: false,
+            success : function(result) {
+                alert("Success");
+            }, 
             error: function () {
-                alert("Error!")
+                alert("Error!");
             }
-          });
+        });
+      
+        
   });
 
   
