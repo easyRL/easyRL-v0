@@ -90,7 +90,7 @@ From the root project directory
 
 # Other Depdendencies
 <details>
-  <summary>requirements.txt</summary>
+  <summary>Click to expand...</summary>
   
   Here are the required dependencies:
   
@@ -169,24 +169,27 @@ From the root project directory
  </details>
 
 # Types of inbuild agents:
-
-```
-Q-Table SARSA/Q-Learning
-deep Q-learning
-deep recurrent Q-learning
-action deep recurrent Q-learning
-double, dueling deep q native
-drqn native
-conv drqn native
-ppo native
-reinforce native
-actorcritic native
-trpo
-sac
-npg
-ddpg
-cem
-```
+<details>
+  <summary>Click to expand...</summary>
+  Currently available agents:
+  ```
+  Q-Table SARSA/Q-Learning
+  deep Q-learning
+  deep recurrent Q-learning
+  action deep recurrent Q-learning
+  double, dueling deep q native
+  drqn native
+  conv drqn native
+  ppo native
+  reinforce native
+  actorcritic native
+  trpo
+  sac
+  npg
+  ddpg
+  cem
+  ```
+</details>
 
 # Setting Up Easy-RL Cloud:
 
