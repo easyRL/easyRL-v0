@@ -23,9 +23,39 @@ If you are manually setting up the environment install the following dependencie
 To setup, first install the required pip packages using these commands
 in a Python 3.7 environment:
 
+For Ubuntu 20.04 install the following packages. 
+
+```
+sudo apt update
+sudo apt upgrade
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt install -y software-properties-common 
+sudo apt install -y git 
+sudo apt install -y python3.7 
+sudo apt install -y python3-pip 
+sudo apt install -y python3.7-tk 
+sudo apt install -y ffmpeg 
+sudo apt install -y libsm6 
+sudo apt install -y libxext6
+sudo apt install -y unzip
+sudo apt install -y gcc 
+sudo apt install -y g++
+sudo apt install -y cmake
+sudo apt install -y python3.7-dev
+sudo apt install -y libxml2-dev 
+sudo apt install -y libxslt1-dev
+sudo apt install -y build-essential 
+sudo apt install -y libssl-dev 
+sudo apt install -y libffi-dev
+```
+
+Using Pip, install the follow Pyton dependencies:
+
 ```
 python3.7 -m pip install pillow
 python3.7 -m pip install gym
+python3.7 -m pip install gym[atari]
+python3.7 -m pip install atari-py
 python3.7 -m pip install pandas
 python3.7 -m pip install numpy
 python3.7 -m pip install tensorflow
@@ -40,6 +70,7 @@ python3.7 -m pip install boto3
 python3.7 -m pip install paramiko
 python3.7 -m pip install django
 python3.7 -m pip install django-storages
+python3.7 -m pip install --upgrade --force-reinstall pillow
 ```
 
 (if not on Windows):
@@ -172,6 +203,7 @@ From the root project directory
 <details>
   <summary>Click to expand...</summary>
   Currently available agents:
+  
   ```
   Q-Table SARSA/Q-Learning
   deep Q-learning
