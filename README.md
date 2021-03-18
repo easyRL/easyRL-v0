@@ -1,7 +1,7 @@
 # EasyRL-Framework - WEB
 
 # Installation for Windows x64 (releases):
-  
+
 ----> Download the latest installer executable from https://github.com/easyRL/easyRL-v0/releases/
 
 ----> Run installer executable and follow directions
@@ -11,7 +11,9 @@
 ----> See https://youtu.be/Jaa9TG3-F2c for EasyRL Cloud functionalities
 
 # Building from source for Windows/MacOS/Linux (master branch):
+
 For easy installation onto Ubuntu 20.04 the install.sh script can be used to automatically download all the dependencies.
+
 ```
 ./install.sh
 ```
@@ -19,7 +21,8 @@ For easy installation onto Ubuntu 20.04 the install.sh script can be used to aut
 If you are manually setting up the environment install the following dependencies:
 
 To setup, first install the required pip packages using these commands
- in a Python 3.7 environment:
+in a Python 3.7 environment:
+
 ```
 python3.7 -m pip install pillow
 python3.7 -m pip install gym
@@ -39,11 +42,14 @@ python3.7 -m pip install django
 python3.7 -m pip install django-storages
 ```
 
-(if not on Windows): 
+(if not on Windows):
+
 ```
 pip (or pip3) install gym[atari]
 ```
+
 (OR if on Windows with the Visual C++ Build Tools installed):
+
 ```
 pip install atari-py
 ```
@@ -53,14 +59,15 @@ Download the appropriate LibTorch C++ Release package from https://pytorch.org/ 
 Ensure that the Microsoft Visual C++ compiler is installed.
 
 Inside Agents/Native directory, run
+
 ```
 cmake -DCMAKE_PREFIX_PATH=/path/to/libtorch .
 ```
 
 and build from the build files generated in Agents/Native using the MSVC compiler.
 
-
 # Running the Program:
+
 If installed from the installer, run EasyRL.exe
 
 If built from source, run
@@ -68,9 +75,11 @@ If built from source, run
 ```
 python3.7 EasyRL.py
 ```
+
 From the root project directory
 
 # other dependencies requirements.txt
+
 ```
 -- visual c++ installation
 -- compile native agents (cmake list)
@@ -144,8 +153,8 @@ From the root project directory
 -- interval~=1.0.0
 ```
 
+# Types of inbuild agents:
 
-# Types of inbuild agents: 
 ```
 Q-Table SARSA/Q-Learning
 deep Q-learning
@@ -165,6 +174,7 @@ cem
 ```
 
 # Setting Up Easy-RL Cloud:
+
 The first step is to deploy the AWS Lambda function. This can be easily done by configuring the AWS CLI and running the publish.sh script below. First modify /lambda/python_template/deploy/config.json and enter a valid AWS ARN for the lambda security role. Then run:
 
 ```
@@ -174,6 +184,7 @@ The first step is to deploy the AWS Lambda function. This can be easily done by 
 This will deploy the function as cloudBridge. The lambda function defined the AWS AMI used for the backend, modify /lambda/python_template/scr/handler.py if you would like to use a different AMI or Github repository for the backend. Once the function is deployed the front end must be deployed to any webserver with both django, python, boto3, and the AWS CLI configured to call the lambda function. This should be all the configuration needed. Source code for the web server and GUI is available in the separate EasyRL-Web repository.
 
 ### Easy-RL Contributors:
+
 * Neil Hulbert
 * James Haines-Temons
 * Brandon Francis
@@ -186,6 +197,7 @@ This will deploy the function as cloudBridge. The lambda function defined the AW
 * Athirai A. Irissappane
 
 ### Easy-RL Cloud Contributors:
+
 * Robert Cordingly
 * Tucker Stewart
 * Varik Hoang
@@ -194,3 +206,48 @@ This will deploy the function as cloudBridge. The lambda function defined the AW
 * Nazim Zerrouki
 * Shrustishree Sumanth
 * Egor Maksimenka
+
+# How to Run EasyRL Cloud
+
+This application uses Django as a webserver to host the interface. To run the server you must have Python with the following packages installed:
+
+- django
+- django storage
+- boto3
+- botocore
+
+```
+python3.7 -m pip install django boto3 botocore django-storages
+```
+
+Before starting the server, we need to set up the environment variables for the WebGUI (The key must be the same as the one using AWS Lambda)
+
+```
+export AWS_ACCESS_KEY_ID=AKIAXXXXXXXXXXXXXXXX
+export AWS_SECRET_ACCESS_KEY=xXxXXxxXxXxxXXXxXxxXXxxXXXxxxXxXxxxxxxX
+```
+
+Make migration and migrate project relative to the model modification (required only when the code in models.py changed)
+
+```
+python3 manage.py makemigrations
+python3 manage.py migrate
+```
+
+Once setup, start the server by running manage.py This will default to port 8000:
+
+```
+python3.7 manage.py runserver [optional port number]
+```
+
+Once the server is running, open the webpage below in your browser and log in with AWS credentials to begin!
+
+```
+http://SERVER_IP:SERVER_PORT/easyRL_app/
+```
+
+![](./webpage/login.png)
+
+After successfully logging into the system using the credentials, the webpage redirects to the main dashboard as follow:
+
+![](./webpage/app.png)

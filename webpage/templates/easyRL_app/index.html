@@ -1,0 +1,703 @@
+{% extends "easyRL_app/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container-fluid " style="padding: 0px">
+  <div class="row">
+    <div class="card ">
+      <div class="card-header fixed-top" style="margin-bottom: 100px; z-index:100; background-color: #fff">
+        <div class="instance-constrols" style="width:70%; float:left">
+        <ul class="nav nav-pills card-header-pills">
+          <li class="nav-item">
+            <input type="checkbox" class="btn-check" id="btn-con-train" autocomplete="off" aria-checked checked>
+            <label class="btn btn-outline-primary" for="btn-con-train" style="margin: 5px;"
+              title="Continuous Training is Enabled.">Continuous Train</label>
+          </li>
+          <li class="nav-item">
+            <button id="btn-train" class="btn btn-primary" style="margin:5px;" title="This trains the model"
+              disabled>Train</button>
+          </li>
+          <li class="nav-item">
+            <button id="btn-halt" class="btn btn-primary" style="margin:5px;">Halt</button>
+          </li>
+          <li class="nav-item">
+            <a id="btn-test" class="btn btn-primary" style="margin:5px;" disabled>Test</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+              aria-expanded="false" style="margin:5px;">Model </a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" id="btn-import" onclick="document.getElementById('btn_upload').click()" disabled>Import</a>
+			  <form id="upload_form" action="/easyRL_app/upload/" method="post" enctype="multipart/form-data">
+			    {% csrf_token %}
+				<input style="display:none" type="text" id="session" name="session" />
+				<button style="display:none" class="btn btn-primary" id="btn_submit" type="submit">Submit</button>
+			    <input style="display:none" type="file" id="btn_upload" name="upload" required id="id_upload"
+					onchange="
+					document.getElementById('session').value = document.getElementById('session-select').value;
+					document.getElementById('btn_submit').click();">
+			  </form>
+              <div class="dropdown-divider btn"></div>
+              <button class="dropdown-item" id="btn-export">Export</button>
+            </div>
+          </li>
+          <!-- <li class="nav-item">
+            <button class="btn btn-primary" style="margin:5px;">Save Result</button>
+          </li> -->
+          <li class="nav-item"><a href='/easyRL_app/logout'>
+              <button class="btn btn-primary" style="margin:5px;">Sign out</button></a>
+          </li>
+        </ul> 
+      </div>
+
+      <div id="session-selector"  style="width:170px; padding-top:5px; float:right; ">
+        <select name="Session" class="form-select" style="width: 130px; float:left;" id="session-select">
+          <option value="0" selected>Session A</option>
+          <option value="1">Session B</option>
+          <option value="2">Session C</option>
+          <option value="3">Session D</option>
+          <option value="4">Session E</option>
+          <option value="5">Session F</option>
+          <option value="6">Session G</option>
+          <option value="7">Session H</option>
+          <option value="8">Session I</option>
+          <option value="9">Session J</option>
+          <option value="10">Session K</option>
+          <option value="11">Session L</option>
+          <option value="12">Session M</option>
+          <option value="13">Session N</option>
+          <option value="14">Session O</option>
+          <option value="15">Session P</option>
+          <option value="16">Session Q</option>
+          <option value="17">Session R</option>
+          <option value="18">Session S</option>
+          <option value="19">Session T</option>
+          <option value="20">Session U</option>
+          <option value="21">Session V</option>
+          <option value="22">Session W</option>
+          <option value="23">Session X</option>
+          <option value="24">Session Y</option>
+          <option value="26">Session Z</option>
+        </select>
+        <button type="button" id="btn-new-session" style=" box-shadow: 1px 1px 1px #999;border: .5px solid blue; border-radius: 35px; line-height: 15px; font-family: Impact; vertical-align: middle;text-align: center; margin: auto; height: 35px; width: 35px; float:right;  color:blue;"> + </button>
+      </div>
+
+      </div>
+      <!-- Drop downs -->
+      <div class="row" id="select-containers" style="margin: 100px 0px 20px 0px;">
+        <div class="card text-left">
+          <div class="card-header" style=" background-color: #fff;"><span><i class="bi bi-sliders"
+                style="font-size:  1.5em; color: cornflowerblue; vertical-align: top; margin-right:10px;"></i></span>
+            <h2 style="display: inline-block; vertical-align: middle;"> Configuration</h2>
+          </div>
+        </div>
+        <br />
+        <div class="col" style="margin-top: 10px">
+          <center>Environment:</center>
+          <select id="env-select" class="form-select" size="4">
+            <!-- <option>--Set Environment--</option> -->
+            {% for file in info.environments %}
+            {% if file.index == "1" %}
+            <option value='{{ file.index }}' selected> {{ file.name}}</option>
+            {% else %}
+            <option value='{{ file.index }}'> {{ file.name}}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col" style="margin-top: 10px">
+          <center>Agent:</center>
+          <select class="form-select" id="agent-select" size="4" aria-label="Default select example">
+            <!-- <option value="0">--Select Agent--</option> -->
+            {% for agent in info.agents %}
+            {% if agent.index == "3" %}
+            <option value='{{ agent.index }}' selected> {{ agent.name}}</option>
+            {% else %}
+            <option value='{{ agent.index }}'> {{ agent.name}}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col" style="margin-top: 10px">
+          <center> Instance:</center>
+          <select id="host-select" class="form-select" size="4" aria-label="Default select example">
+            <!-- <option value="0">--Select Host Environment--</option> -->
+            <option value="c4.large">c4.large ($0.10/hr)</option>
+            <option value="c4.xlarge" selected>c4.xlarge ($0.19/hr)</option>
+            <option value="c4.2xlarge">c4.2xlarge ($0.39/hr)</option>
+            <option value="c4.4xlarge">c4.4xlarge ($0.79/hr)</option>
+            <option value="c4.8xlarge">c4.8xlarge ($1.59/hr)</option>
+            <option value="g4dn.xlarge">g4dn.xlarge ($0.52/hr)</option>
+            <option value="g4dn.2xlarge">g4dn.2xlarge ($0.75/hr)</option>
+            <option value="g4dn.4xlarge">g4dn.4xlarge ($1.20/hr)</option>
+            <option value="g4dn.8xlarge">g4dn.8xlarge ($2.17/hr)</option>
+          </select>
+          <!-- <select id="buffer-select" class="form-select" size="4" aria-label="Default select example">
+            <option value="0" selected>None</option>
+            <option value="1">Hindsight Replay Buffer</option>
+            <option value="0">Prioritize Replay Buffer</option>
+          </select> -->
+        </div>
+      </div>
+      <br />
+    </div>
+    <div class="card-body row">
+      <div id="carouselExampleControlsNoTouching" class="carousel mbr-slider slide col-md-3" data-bs-touch="false"
+        data-bs-interval="false">
+        <div class="carousel-inner">
+          {% for env in info.environments %}
+          {% if env.file == 'Cart Pole.jpg' %}
+          <div class="carousel-item active">
+            <div class="d-flex justify-content-center w-100 h-100">
+              <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}" data-index={{env.index}}
+                alt="...">
+            </div>
+          </div>
+        
+        {% else %}
+        <div class="carousel-item">
+          <div class="d-flex justify-content-center w-100 h-100">
+            <img src="{% static 'easyRL_app/images/'%}{{env.file}}" data-name="{{env.name}}" data-index={{env.index}}
+              alt="...">
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControlsNoTouching"
+          data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControlsNoTouching"
+          data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+        <center><label id="file-name"></label></center>
+      </div>
+      <div class="image-container col-md-3" style="justify-content: center">
+        <img id="training_image" src="../static/easyRL_app/assets/iu.gif" onerror="this.onerror=null; this.src='../static/easyRL_app/assets/iu.gif'" />
+      </div>
+      <div class="graph-container col-md-6">
+        <div id="training_graph" style="width: 100%; height: 400px;"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="card mb-3 col" >
+        <div class="card-header">Agent</div>
+        <div class="card-body">
+          <p class="card-text" id="agent-info">
+          </p>
+        </div>
+      </div>
+      <div class="card  mb-3 col" style="margin-left: 2px;">
+        <div class="card-header">Environment</div>
+        <div class="card-body">
+          <p class="card-text" id="env-info">
+          </p>
+        </div>
+      </div>
+      <div class="card mb-3 col" style="margin-left: 2px;">
+        <div class="card-header">Instance</div>
+        <div class="card-body" >
+          <div id="instance-state">
+            <h5>Instance State: Loading...</h5>
+          </div>
+          
+          <br/>
+          <span><h1 class="card-title" style="display: inline-block;font-family: tahoma;" id="gpu">0</h1> GPUs</span>
+          <span> <h1 class="card-title" style="display: inline-block;font-family: tahoma;"id="cpu">0</h1> vCPUs</span>
+          <span><h1 class="card-title" style="display: inline-block;font-family: tahoma;"id="ram">0</h1> GiB RAM</span>
+          <br/>
+          <br/>
+          Lifespan:
+          <select  class="form-select" id="lifespan-select">
+            <option value="600">10 min</option>
+            <option value="1800">30 min</option>
+            <option value="3600" selected>60 min</option>
+            <option value="10800">3 hrs</option>
+            <option value="21600">6 hrs</option>
+            <option value="43200">12 hrs</option>
+            <option value="86400">24 hrs</option>
+            <option value="172,800">48 hrs</option>
+            <option value="31536000">1 yr</option>
+          </select> 
+          <br/>         
+          <p id="cost">Session Cost: $0.00</p>
+        </div>
+      </div>
+      <div class="card mb-3 col" style="margin-left: 2px;">
+        <div class="card-header">Results</div>
+        <div class="card-body"  style="">
+          <span>Reward per Episode<h1 class="card-title"style="font-family: tahoma; "id="reward-episode-h1">0</h1></span>
+          <span>Completed Episodes<h1 class="card-title"style="font-family: tahoma;" id="episodes-completed-h1">0</h1></span>
+          <span>Total Reward<h1 class="card-title"style="font-family: tahoma;"id="total-reward-h1">0</h1></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br />
+  <br />
+  <div class="row">
+    <div class="card">
+      <div class="card-header" style=" background-color: #fff"><span><i class="bi bi-sliders"
+            style="font-size:  1.5em; color: cornflowerblue; vertical-align: top; margin-right:10px;"></i></span>
+        <h2 style="display: inline-block; vertical-align: middle;"> Hyperparameters</h2>
+      </div>
+      <div class="card-body">
+        <form method="post" style="margin-top: 15px; min-width: 550px;">{% csrf_token %}
+          <div id="form-div" class="container-fluid">
+          </div>
+          <input type="hidden" id="env-hidden" class="form-control">
+          <input type="hidden" id="agent-hidden" class="form-control">
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'easyRL_app/scripts/jquery-3.5.1.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+</script>
+<script type="text/javascript">
+  info = {};
+  $(document).ready(async function () {  
+      const result = await $.ajax({
+        type: 'POST',
+        url: '/easyRL_app/info/',
+        data: {},
+        success: function(result) {
+
+        info = JSON.parse(result)
+        var str = $("#agent-select option:selected").text();
+        html = renderOptions(str);
+        $("#form-div").html(html);
+        var index = $("#env-select option:selected").val();
+        updateSelect(index);
+      }     
+    });
+    updateEnvironmentLabel();
+    resetFormDropDownsButtons();
+    google.charts.load('current', { 'packages': ['corechart'] }).then(draw_graph);
+    setTimeout(function () {
+      doPoll();
+    }, 1000)
+
+    //Load Session data
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('session')) {
+      var session = urlParams.get('session')
+      document.getElementById('session-select').value = session;
+    }
+    handleAgentChange();
+    handleEnvChange();
+  });
+
+  $("#agent-select").change(function () {
+    handleAgentChange();
+  });
+
+  $('#upload_form').on('submit', async function (e) {
+        e.preventDefault();
+        let fd = new FormData(this);   
+        let url = '/easyRL_app/upload/'
+          let upload = await $.ajax({
+            type: 'POST',
+            url: url,
+            data: fd,
+            processData: false,
+            contentType: false,
+            success : function(result) {
+                alert("Success");
+            }, 
+            error: function () {
+                alert("Error!");
+            }
+        });
+      
+        
+  });
+
+  
+  function handleAgentChange(){
+    var str = $("#agent-select option:selected").text();
+    html = renderOptions(str);
+    $("#form-div").html(html);
+    
+    // // This set he agent for the model.
+    var selectedVal = $("#agent-select option:selected").val();
+    $("#agent-hidden").val(selectedVal);
+    
+    // // This sets the environment of the model. 
+    var selectedEnvironment = $("#env-select option:selected").val();
+    $("#env-hidden").val(selectedEnvironment);
+    $('#btn-train').removeAttr("disabled");
+    $('#btn-test').removeAttr("disabled");
+    $("#form-div").focus();
+    fillAgentCard();
+  }
+
+  function fillAgentCard(){
+    var index = $("#agent-select option:selected").val()-1
+    var name = info['agents'][index].name;
+    var description= info['agents'][index].description;
+    var supEnv= info['agents'][index].supportedEnvs;
+
+    var statusInfo = "<h5>Agent Name:</h5> " + name + "<br><br>"
+          + "<h5>Description:</h5> "+description+"<br><br>"
+          + "<h5>Supported Type(s):</h5> "+supEnv+"<br>";
+    $('#agent-info').html(statusInfo);
+  }
+  
+  $('#env-select').change(function () {
+    handleEnvChange();
+  });
+
+  function handleEnvChange(){
+    var index = $("#env-select option:selected").val();
+    updateSelect(index);
+    $('#agent-select').val(6);
+    var text = parseInt($("#env-select option:selected").val()) - 1;
+    if (text >= 0) {
+      $('#carouselExampleControlsNoTouching').carousel(text)
+    }
+    fillEnvironmentCard();
+  }
+
+  function fillEnvironmentCard(){
+    var name = info['environments'][$("#env-select option:selected").val()-1].name;
+    var description= info['environments'][$("#env-select option:selected").val()-1].description;
+    var type= info['environments'][$("#env-select option:selected").val()-1].type;
+    var statusInfo = "<h5>Environment Name:</h5> " + name + "<br><br>"
+          + "<h5>Description:</h5> "+description+"<br><br>"
+          + "<h5>Environment Type:</h5> "+type+"<br>";
+    $('#env-info').html(statusInfo);
+  }
+
+  $('#btn-con-train').change(function () {
+    if ($('#btn-con-train').is(":checked")) {
+      $('#btn-train').attr("disabled", "true");
+      $('#btn-test').attr("disabled", "true");
+    } else {
+      $("#btn-train").removeAttr("disabled");
+      $("#btn-test").removeAttr("disabled");
+    }
+  });
+
+  function doPoll() {
+    try {
+      $.post('/easyRL_app/poll/', getData(), function (result, status, jqxhr) {
+        // process results here
+        try {
+          ReloadImageHelper(result);
+          setTimeout(doPoll, 1000);
+        } catch (e) {
+          setTimeout(doPoll, 1000);
+        }
+      });
+    } catch (e) {
+      setTimeout(doPoll, 5000);
+    }
+  }
+
+  $("#btn-export").click(function () {
+    $.post('/easyRL_app/export/', getData(), function (result, status, jqxhr) {
+        if (result == "") {
+          return;
+        }
+        result = JSON.parse(result);
+        window.location.href = result['url'];
+      });
+  });
+
+  function draw_graph(episodes) {
+    var length = episodes.length;
+    var array = [];
+    array.push(['Episode', 'Loss', 'Epsilon', 'Reward']);
+
+    for (var index = 0; index < length; index++) {
+      array.push([
+        episodes[index]["e"],
+        episodes[index]["l"],
+        episodes[index]["p"],
+        episodes[index]["r"],
+      ]);
+    }
+
+    var data = google.visualization.arrayToDataTable(array);
+    var options =
+    {
+      title: 'Results',
+      curveType: 'function',
+      legend: { position: 'bottom' },
+      vAxes: {
+        0: { logScale: false },
+        1: { logScale: false, maxValue: 1 }
+      },
+      series: {
+        0: { targetAxisIndex: 1 },
+        1: { targetAxisIndex: 1 },
+        2: { targetAxisIndex: 0 }
+      }
+    };
+    var chart = new google.visualization.LineChart(document.getElementById('training_graph'));
+    chart.draw(data, options);
+  }
+  // end function draw_graph()
+  function ReloadImageHelper(result) {
+    let gifs = "";
+    let episodes = "";
+    let isRunning = true;
+    if (result == "") {
+      alert("The response is empty");
+    }
+
+    result = JSON.parse(result)
+    if (result["error"] !== null) {
+      // keep this line for debugging purpose
+      //alert("There is no poll");
+    }
+    // assume that cloudBridge won't remove the key [instanceState]
+    state = result["instanceState"]
+    stateText = result["instanceStateText"]
+
+
+    var fieldNameElement = document.getElementById('instance-state');
+
+    if (fieldNameElement) {
+      fieldNameElement.innerHTML = "<h5 style='display:inline-block'>Instance State:</h5> " + stateText;
+    }
+
+    document.getElementById('gpu').innerHTML = result["info"]["gpus"];
+    document.getElementById('cpu').innerHTML = result["info"]["vcpus"];
+    document.getElementById('ram').innerHTML = result["info"]["ram"];
+
+    if (state === "idle") {
+      $('#trainCompleted').modal('show');
+      isRunning = false;
+    }
+    if (state === "booting" || state === "updated") {
+      // keep this line for debugging purpose
+      //alert("Booting or updated");
+    }
+    else if (state === "runningJob") {
+      // loading data
+      // data["jobArguments"]["environment"] -> 5
+      // alert(data["progress"]);
+      if (result["progress"] != "waiting") {
+        gifs = result["progress"]["gifs"];
+        episodes = result["progress"]["episodes"];
+        uptime = result["progress"]["uptime"] / 1000 / 60 / 60 * result["cost"]
+
+        statusInfo = "Here is some text.<br>"
+          + "Here is some more.<br>"
+          + "This explains something.<br>"
+          + "Session Cost: $" + (uptime).toFixed(2);
+
+        document.getElementById('cost').innerHTML = "Session Cost: $"+(uptime).toFixed(2);
+        document.getElementById('episodes-completed-h1').innerHTML = result["progress"]["episodesCompleted"];
+        document.getElementById('total-reward-h1').innerHTML = result["progress"]["totalReward"];
+        document.getElementById('reward-episode-h1').innerHTML = result["progress"]["avgReward"];
+        //document.getElementById("status-info").innerHTML = statusInfo;
+      }
+
+      if (isRunning === false) {
+        clearInterval(interval);
+        // $("#training_summary").html("<button id='btn_reload' class='btn btn-primary' onclick='reload_image()' style='margin:5px;'>Reload</button>");
+        return;
+      }
+
+      // $("#training_image").attr("src", '/easyRL_app/image/?' + (new Date()).getTime());
+      if (gifs.length > 0) {
+        $("#training_image").attr("src", gifs[gifs.length - 1]);
+        draw_graph(episodes);
+      }
+    }
+  }
+
+  $("#btn-new-session").click(function () {
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('session')) {
+      var session = Number(urlParams.get('session')) + 1
+      window.open(window.location.origin + window.location.pathname + "?session=" + session,'_blank');
+    } else {
+      window.open(window.location.origin + window.location.pathname + "?session=1",'_blank');
+    }
+  });
+
+  // Train button - Start
+  $("#btn-train").click(function () {
+    // get values from sliders
+    //$('#btn-halt').removeAttr("disabled");
+    var data = getData();
+
+    $.post('/easyRL_app/train/', data, function (result) {
+      if (result == "") {
+        //alert("The response is empty");
+        return;
+      }
+      result = JSON.parse(result);
+      if (result["error"] !== null) {
+        //alert("Could not start the training"); // instance not found
+        return;
+      }
+
+      // alert("The training in progress");
+    });
+    //resetFormDropDownsButtons();
+    //reload_image();
+  }); // Train Button - End
+
+  // Train button - Start
+  $("#btn-test").click(function () {
+    // get values from sliders
+    //$('#btn-halt').removeAttr("disabled");
+    var data = getData();
+
+    $.post('/easyRL_app/test/', data, function (result) {
+      if (result == "") {
+        //alert("The response is empty");
+        return;
+      }
+      result = JSON.parse(result);
+      if (result["error"] !== null) {
+        //alert("Could not start the training"); // instance not found
+        return;
+      }
+
+      // alert("The training in progress");
+    });
+    //resetFormDropDownsButtons();
+    //reload_image();
+  }); // Train Button - End
+
+  $('#btn-ok').click(function () {
+    //$('#btn-train').attr("disabled", true);
+    //$('#btn-test').removeAttr("disabled");
+    //$('#btn-save').removeAttr("disabled");
+  });
+
+  $(".btn-close").click(function () {
+    resetFormDropDownsButtons();
+  });
+
+  $('#save-model-name').click(function () {
+  });
+
+  $('#btn-halt').click(function () {
+    var data = getData();
+    document.getElementById("btn-con-train").checked = false;
+    $("#btn-train").removeAttr("disabled");
+    $("#btn-test").removeAttr("disabled");
+    $.post('/easyRL_app/halt/', data, function (result, status, jqxhr) {
+      // do something
+    })
+  });
+
+  $('#carouselExampleControlsNoTouching').on('slid.bs.carousel', function (e) {
+    //var c = $("div > .active", e.target).index();
+    updateEnvironmentLabel();
+    //resetFormDropDownsButtons();
+  });
+
+
+  function renderOptions(agent) {
+    $("#form-div").html("Loading...");
+
+    //$.post('/easyRL_app/info/', {}, function (result) {
+    var selectedVal = $("#agent-select option:selected").val();
+    html = ""
+    myAgent = info.agentsMap[selectedVal]
+
+    parameters = myAgent.parameters
+    for (var i = 0, size = parameters.length; i < size; i++) {
+      parameter = parameters[i]
+      parameterData = info.parameters[parameter]
+      if ((i) % 4 === 0) {
+        html += '<div class="row" style="margin-top: 20px;">'
+      }
+      if (parameterData.showSlider) {
+        html +=
+          '<div class="slider-container col-md-3">' +
+          '<label>' + parameterData.name + '</label>' +
+          '<div class=""><input type="range" id="' + parameter + 'Slider" class="form-range" name="' + parameter + 'Slider" min="' + parameterData.min + '" max="' + parameterData.max + '"' +
+          'step="' + parameterData.stepSize + '" value="' + parameterData.default + '" oninput="' + parameter + 'Text.value =' + parameter + 'Slider.value"></div>' +
+          '<center><input type="number" class="form-control" id="' + parameter + 'Text"  min="' + parameterData.min + '" max="' + parameterData.max + '" step="' + parameterData.stepSize + '"  ' +
+          'value="' + parameterData.default + '" oninput="' + parameter + 'Slider.value =' + parameter + 'Text.value" style="width: 120px"></center>' +
+          '</div>';
+
+
+      } else {
+        html +=
+          '<div class="col-md-3">' +
+          '<label>' + parameterData.name + '</label>' +
+          '<div class="col-md-12"><input type="number" id="' + parameter + 'Text" value="' + parameterData.default + '"  min="' + parameterData.min + '" max="' + parameterData.max + '" step="' + parameterData.stepSize + '"  class="form-control" value=""></div>' +
+          '</div>';
+      }
+
+
+    }
+    $("#form-div").html(html);
+
+  }
+
+  function updateSelect(envIndex) {
+    environmentType = info.environmentsMap[envIndex].type
+
+    $("#agent-select > option").each(function () {
+      if (this.value > 0) {
+        var supportedList = info.agentsMap[this.value].supportedEnvs
+        if (supportedList.indexOf(environmentType) !== -1) {
+          this.disabled = false;
+        } else {
+          this.disabled = true;
+        }
+      }
+    });
+  }
+
+  function updateEnvironmentLabel() {
+    var src = $('.active').find('img').attr('data-name');
+    $("#file-name").html(src);
+  }
+
+  function resetFormDropDownsButtons() {
+    resetDropDowns();
+    resetEnvironment();
+  }
+
+  function resetDropDowns() {
+    $('#agent-select').val(6);
+    $('#environment-select').val(1);
+  }
+
+  function resetEnvironment() {
+    $('#env-hidden').val(1);
+  }
+
+  function getData() {
+    var data = {
+      "environment": $("#env-select option:selected").val()
+      , "instanceType": $("#host-select option:selected").val()
+      , "instanceID": $("#session-select option:selected").val()
+      , "continuousTraining": $('#btn-con-train').is(":checked") ? 1 : 0
+      , "agent": $("#agent-select option:selected").val()
+      , "killTime": $("#lifespan-select option:selected").val()
+    };
+
+    var selectedVal = $("#agent-select option:selected").val();
+    myAgent = info.agentsMap[selectedVal];
+    parameters = myAgent.parameters;
+    for (var i = 0, size = parameters.length; i < size; i++) {
+      parameter = parameters[i];
+      data[parameter] = !!$('#' + parameter + 'Text').val() ? $('#' + parameter + 'Text').val() : info.parameters[parameter].default;
+    }
+
+    return data;
+  }
+
+</script>
+{%endblock%}
