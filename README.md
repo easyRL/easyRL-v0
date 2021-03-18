@@ -70,10 +70,20 @@ and build from the build files generated in Agents/Native using the MSVC compile
 
 If installed from the installer, run EasyRL.exe
 
-If built from source, run
+If built from source, run for the desktop GUI application.
 
 ```
 python3.7 EasyRL.py
+```
+
+To run the application in terminal view mode add the terminal flag:
+```
+python3.7 EasyRL.py --terminal
+```
+
+To run the application in cloud mode (where data is saved locally and submitted to S3) add keys and a jobID:
+```
+python3.7 EasyRL.py --terminal --secretKey {KEY} --accessKey {KEY} --jobID {UUID} --sessionToken {OPTIONAL}
 ```
 
 From the root project directory
@@ -183,30 +193,6 @@ The first step is to deploy the AWS Lambda function. This can be easily done by 
 
 This will deploy the function as cloudBridge. The lambda function defined the AWS AMI used for the backend, modify /lambda/python_template/scr/handler.py if you would like to use a different AMI or Github repository for the backend. Once the function is deployed the front end must be deployed to any webserver with both django, python, boto3, and the AWS CLI configured to call the lambda function. This should be all the configuration needed. Source code for the web server and GUI is available in the separate EasyRL-Web repository.
 
-### Easy-RL Contributors:
-
-* Neil Hulbert
-* James Haines-Temons
-* Brandon Francis
-* Sam Spillers
-* Ken Gil Romero
-* Benjamin De Jager
-* Sam Wong
-* Bowei Huang
-* Kevin Flora
-* Athirai A. Irissappane
-
-### Easy-RL Cloud Contributors:
-
-* Robert Cordingly
-* Tucker Stewart
-* Varik Hoang
-* Rashad Hatchett
-* Maham Rashid
-* Nazim Zerrouki
-* Shrustishree Sumanth
-* Egor Maksimenka
-
 # How to Run EasyRL Cloud
 
 This application uses Django as a webserver to host the interface. To run the server you must have Python with the following packages installed:
@@ -251,3 +237,28 @@ http://SERVER_IP:SERVER_PORT/easyRL_app/
 After successfully logging into the system using the credentials, the webpage redirects to the main dashboard as follow:
 
 ![](./webpage/app.png)
+
+
+### Easy-RL Contributors:
+
+* Neil Hulbert
+* James Haines-Temons
+* Brandon Francis
+* Sam Spillers
+* Ken Gil Romero
+* Benjamin De Jager
+* Sam Wong
+* Bowei Huang
+* Kevin Flora
+* Athirai A. Irissappane
+
+### Easy-RL Cloud Contributors:
+
+* Robert Cordingly
+* Tucker Stewart
+* Varik Hoang
+* Rashad Hatchett
+* Maham Rashid
+* Nazim Zerrouki
+* Shrustishree Sumanth
+* Egor Maksimenka
