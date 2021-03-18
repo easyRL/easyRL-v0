@@ -80,7 +80,6 @@ class TRPO(PPO):
         X_train, Y_train = self.calculateTargetValues(mini_batch)
         self.value_model.train_on_batch(X_train, Y_train)
         # Create optimizer for minimizing loss
-        print("mini batch: " + str(mini_batch))
         optimizer = GradientDescentOptimizer(learning_rate= 0.001)
         for idx, transition in enumerate(mini_batch):
             state = transition.state 
@@ -106,13 +105,13 @@ class TRPO(PPO):
             # Run the policy under N timesteps using loss function
             value_loss = self.c1 * self.mse_loss(state, next_state)
             clip_loss = self.clipped_loss(prob_ratio, advantage)
-            self.train_policy(states, value_loss)
+            self.train_policy(states, clip_loss)
             entropy = self.get_entropy(state)
             loss = self.agent_loss(value_loss, clip_loss, entropy)
             losses.append(loss)
-            self.updateTarget()
         loss = np.mean(np.array(losses))
         print("loss iteration: " + str(loss))
+        self.updateTarget()
         # apply gradient optimizer to optimize loss and policy network
         '''with tf.GradientTape() as tape:
             loss = self.optimize_loss(loss, optimizer, tape)'''
