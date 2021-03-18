@@ -91,6 +91,9 @@ From the root project directory
 # Other Depdendencies
 <details>
   <summary>requirements.txt</summary>
+  
+  Here are the required dependencies:
+  
   ```
   -- visual c++ installation
   -- compile native agents (cmake list)
