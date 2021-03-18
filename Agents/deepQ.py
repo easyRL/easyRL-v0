@@ -71,7 +71,6 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         self.total_steps += 1
 
     def predict(self, state, isTarget):
-        import tensorflow as tf
 
         shape = (1,) + self.state_size
         state = np.reshape(state, shape)
@@ -114,6 +113,8 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         next_states = np.zeros((self.batch_size,) + self.state_size)
 
         for index_rep, transition in enumerate(mini_batch):
+            states, actions, rewards, _, dones = transition
+            
             X_train[0][index_rep] = transition.state
             X_train[1][index_rep] = self.create_one_hot(self.action_size, transition.action)
             next_states[index_rep] = transition.next_state
@@ -127,6 +128,10 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
                 Y_train[index_rep][transition.action] = transition.reward
             else:
                 Y_train[index_rep][transition.action] = transition.reward + qnext[index_rep] * self.gamma
+
+        print("X train: " + str(X_train))
+        print("Y train: " + str(Y_train))
+
         return X_train, Y_train
     
     def compute_loss(self, mini_batch, q_target: list = None):

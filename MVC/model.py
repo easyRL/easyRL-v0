@@ -17,7 +17,6 @@ class Model:
         self.agent = None
         self.loadFilename = None
         self.cloudBridge = None
-        
 
     def createBridge(self, jobID, secretKey, accessKey, sessionToken):
         print("Bridge Created")

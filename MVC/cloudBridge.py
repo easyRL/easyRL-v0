@@ -9,6 +9,7 @@ import requests
 class CloudBridge:
 
     def __init__(self, jobID, secretKey, accessKey, sessionToken, model):
+
         self.animationFrames = []
         self.jobID = jobID
         self.secretKey = secretKey
