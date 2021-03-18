@@ -246,8 +246,8 @@ Once the server is running, open the webpage below in your browser and log in wi
 http://SERVER_IP:SERVER_PORT/easyRL_app/
 ```
 
-![](./login.png)
+![](./webpage/login.png)
 
 After successfully logging into the system using the credentials, the webpage redirects to the main dashboard as follow:
 
-![](./app.png)
+![](./webpage/app.png)
