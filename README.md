@@ -188,6 +188,13 @@ cem
 The first step is to deploy the AWS Lambda function. This can be easily done by configuring the AWS CLI and running the publish.sh script below. First modify /lambda/python_template/deploy/config.json and enter a valid AWS ARN for the lambda security role. Then run:
 
 ```
+# Configure AWS CLI to deploy lambda functions to us-east-1
+aws configure
+
+# Add AWS ARN to config.json for deployment in lambdaRoleARN value.
+nano lambda/python_template/deploy/config.json
+
+# Run publish script to automatically deploy and test function.
 ./lambda/python_template/deploy/publish.sh 1 0 0 0 512
 ```
 
@@ -216,8 +223,8 @@ export AWS_SECRET_ACCESS_KEY=xXxXXxxXxXxxXXXxXxxXXxxXXXxxxXxXxxxxxxX
 Make migration and migrate project relative to the model modification (required only when the code in models.py changed)
 
 ```
-python3 manage.py makemigrations
-python3 manage.py migrate
+python3.7 manage.py makemigrations
+python3.7 manage.py migrate
 ```
 
 Once setup, start the server by running manage.py This will default to port 8000:
