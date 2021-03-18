@@ -1,7 +1,6 @@
-from django.contrib import admin
 from django.urls import path
-from django.conf.urls import include
 from . import  views as view
+from easyRL_app import views
 
 urlpatterns = [
     path('', view.index, name="index")
@@ -13,5 +12,7 @@ urlpatterns = [
     ,path('poll/', view.poll, name='poll')
     ,path('info/', view.info, name='info')
     ,path('export/', view.export_model, name="export_model")
-    ,path('import/',view.import_model, name="import_model")
+    ,path('import/',views.import_model.as_view(), name="import_model")
+    ,path('upload/',views.file_upload.as_view(), name="upload")
+    ,path('imported/file/',view.import_model_lambda, name="import_model_lambda")
 ]

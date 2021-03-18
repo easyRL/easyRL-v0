@@ -1,34 +1,26 @@
 from django.conf import settings
-from django.core.cache import caches
 from django.http import HttpResponse, HttpResponseRedirect
-
-from django.shortcuts import redirect, render
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
 from django.views.decorators.csrf import csrf_exempt
 from . import forms
-
+import time
 import json
 import boto3
 import os
-from easyRL_app.utilities import get_aws_s3, get_aws_lambda,\
-    invoke_aws_lambda_func, is_valid_aws_credential, generate_jobID,\
-    download_item_in_bucket#, get_recent_training_data
+from easyRL_app.utilities import get_aws_lambda,\
+    invoke_aws_lambda_func, is_valid_aws_credential, generate_jobID
 from easyRL_app import apps
-import core
-from builtins import format
 
 DEBUG_JOB_ID = generate_jobID()
-
 session = boto3.session.Session()
 
 # Create your views here.
-
 def index(request):
     # send the user back to the login form if the user did not sign in or session expired
     debug_sessions(request)
     if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
-         return HttpResponseRedirect("/easyRL_app/login/")
+        return HttpResponseRedirect("/easyRL_app/login/")
 
     index_dict = {}
     files = os.listdir(os.path.join(settings.BASE_DIR, "static/easyRL_app/images"))
@@ -39,18 +31,18 @@ def index(request):
         request.session['aws_secret_key'],
         request.session['aws_security_token'],
         request.session['job_id'],{})
-   
+
     index_dict['info'] = add_file_to_info(info, files)
 
     if request.method == "GET":
         index_dict['form'] = form
         return render(request, "easyRL_app/index.html", context=index_dict)
-    
+
     elif request.method == "POST":
         form = forms.HyperParameterFormDeepQ(request.POST)
         if form.is_valid():
             index_dict['form'] = form
-            
+
         return render(request, "easyRL_app/index.html", context=index_dict)
 
 def login(request):
@@ -229,8 +221,6 @@ def test(request):
             ,"ppoEpsilon": get_safe_value(int, request.POST.get("ppoEpsilon"), 0.2)
             ,"ppoLambda": get_safe_value(int, request.POST.get("ppoLambda"), 0.95)
             ,"valueLearnRatePlus": get_safe_value(int, request.POST.get("valueLearnRatePlus"), 0.001)
-
-
         } 
     ))
 
@@ -305,8 +295,18 @@ def info(request):
     ))
 
 @csrf_exempt
-def import_model(request):
-    return HttpResponse({"data": "pass"})
+def import_model_lambda(request):
+    debug_sessions(request)
+    if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
+        return HttpResponse(apps.ERROR_UNAUTHENTICATED)
+    print("{}request_parameters{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, debug_parameters(request)))
+    return HttpResponseRedirect('/easyRL_app/',lambda_import(
+        request.session['aws_access_key'],
+        request.session['aws_secret_key'],
+        request.session['aws_security_token'],
+        request.session['job_id'],
+        {}                
+    ))
 
 @csrf_exempt
 def export_model(request):
@@ -425,6 +425,24 @@ def lambda_create_instance(aws_access_key, aws_secret_key, aws_security_token, j
         return True
     return False
 '''
+def lambda_import(aws_access_key, aws_secret_key, aws_security_token, job_id,arguments):
+    lambdas = get_aws_lambda(os.getenv("AWS_ACCESS_KEY_ID"), os.getenv("AWS_SECRET_ACCESS_KEY"))
+    data = {
+        "accessKey": aws_access_key,
+        "secretKey": aws_secret_key,
+        "sessionToken": aws_security_token,
+        "jobID": job_id,
+        "task": apps.TASK_IMPORT,
+        "arguments": arguments,
+    }
+    
+    response = invoke_aws_lambda_func(lambdas, str(data).replace('\'','"'))
+    print("{}lambda_terminate_instance{}={}".format(apps.FORMAT_RED, apps.FORMAT_RESET, response['Payload'].read()))
+    if response['StatusCode'] == 200:
+        streambody = response['Payload'].read().decode()
+        print("{}stream_body{}={}".format(apps.FORMAT_BLUE, apps.FORMAT_RESET, streambody))
+        return True
+    return False
 
 def lambda_terminate_instance(aws_access_key, aws_secret_key, aws_security_token, job_id, arguments):
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/lambda.html
@@ -535,8 +553,8 @@ def lambda_test_job(aws_access_key, aws_secret_key, aws_security_token, job_id, 
     else:
         return ""
 
-def get_safe_value_bool(str):
-    if str == 'True':
+def get_safe_value_bool(boolean_val):
+    if boolean_val == 'True':
         return True
     else:
         return False
@@ -588,5 +606,47 @@ def add_file_to_info(payload, files):
 
     return result
     
+from django.views.generic.edit import CreateView
+from django.urls import reverse_lazy
+from .models import Document
+class import_model(CreateView):
+    model = Document
+    fields = ['upload', ]
+    success_url = reverse_lazy('upload')
+
+from django.views import View
+from storages.backends.s3boto3 import S3Boto3Storage
+class file_upload(View):
+    def post(self, request, **kwargs):
+        debug_sessions(request)
+        if 'aws_succeed' not in request.session or not request.session['aws_succeed']:
+            return HttpResponseRedirect("/easyRL_app/login/")
+        file_obj = request.FILES.get('upload', 'EMPTY')
+        aws_access_key = request.session['aws_access_key']
+        aws_secret_key = request.session['aws_secret_key']
+        aws_security_token = request.session['aws_security_token']
+        job_id = request.session['job_id']
+        bucket = "easyrl-{}{}".format(job_id, request.POST.get('session', '0'))
+
+        media_storage = S3Boto3Storage()
+        media_storage.location = ''
+        media_storage.file_overwrite = True
+        media_storage.access_key = aws_access_key
+        media_storage.secret_key = aws_secret_key
+        media_storage.bucket_name = bucket
+
+
+        # os.rename(os.path.join(media_storage.location,file_obj.name),os.path.join(media_storage.location,'model.bin'))
+        # file_obj.name = 'model.bin'
+        s3_file_path = os.path.join(
+            media_storage.location,
+            'model.bin'
+        )
+        
+        media_storage.save(s3_file_path, file_obj)
+
+        
+        #file_url = media_storage.url(s3_file_path) # direct path of uploaded file on s3
+        return HttpResponse(lambda_import(aws_access_key, aws_secret_key, aws_security_token, job_id, {}), status=200)
   
     
