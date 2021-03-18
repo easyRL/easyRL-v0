@@ -1,9 +1,10 @@
 import numpy as np
 import random
 
-from Agents.Collections import TransitionFrame
+from Agents.Collections.TransitionFrame import TransitionFrame, ActionTransitionFrame
 from collections import deque
 from collections.abc import Iterable
+from copy import deepcopy
 
 class ReplayBuffer:
     """
@@ -140,6 +141,7 @@ class ReplayBuffer:
         for i in range(start, end):
             result.append(self._transitions[i])
         return result
+
     
     def is_empty(self):
         """
@@ -148,7 +150,7 @@ class ReplayBuffer:
         :rtype: int
         """
         return self._size == 0
-    
+
     def is_full(self):
         """
         Checks whether this replay buffer has reached the max length.
@@ -156,7 +158,7 @@ class ReplayBuffer:
         :rtype: int
         """
         return self._size == self.max_length
-    
+
     def _pad(self, transitions):
         """
         Adds padding to the beginning of the given list of transitions.
@@ -406,22 +408,43 @@ class PrioritizedReplayBuffer(ReplayBuffer):
         :type idx: int
         :return: the index for the tree node that corresponds to that
         transition.
+        """
+    
+    def _to_transition_idx(self, tree_idx: int):
+        """
+        Calculates the corresponding transition index of the given tree
+        index.
+        :param tree_idx: is the index for a node in this SumTree
+        :type tree_idx: int
+        :return: the index for the transition that corresponds to given
+        tree node.
+        :rtype: int
+        """
+        return tree_idx - self.max_length + 1
+    
+    def _to_tree_idx(self, idx: int):
+        """
+        Calculates the corresponding tree index of the given transition
+        index.
+        :param idx: is the index for a transition stored in this buffer.
+        :type idx: int
+        :return: the index for the tree node that corresponds to that
+        transition.
         :rtype: int
         """
         return idx + self.max_length - 1
+   
 
 class HindsightReplayBuffer(ReplayBuffer):
     """
-    An Experience Replay Buffer for looking back and resampling transitions
-    using a prioritized sampling technique based on loss.
     
-    Requires the agent to have a compute_loss function. The agent needs to
-    compute the loss of a sample and call either update_error or
-    update_priority to update the sample's priority.
     """
-    def __init__(self, learner, max_length, empty_trans, history_length: int = 1, alpha: float = 0.6):
+    def __init__(self, learner, max_length, empty_trans, history_length: int = 1):
+        """
+        
+        """
         super().__init__(learner, max_length, empty_trans, history_length)
-        self.goal = []
+        self._hindsight_buffer = deque()
     
     def append_frame(self, transition_frame):
         """
@@ -432,3 +455,23 @@ class HindsightReplayBuffer(ReplayBuffer):
         """
         # Add the transition_frame to the transitions array.
         super().append_frame(transition_frame)
+        self._hindsight_buffer.append(transition_frame)
+        
+    def apply_hindsight(self):
+        """
+        
+        """
+        goal = np.asarray(self._hindsight_buffer[-1].next_state)
+        while self._hindsight_buffer:
+            current = self._hindsight_buffer.popleft()
+            state = np.asarray(current.state)
+            reward = current.reward
+            is_done = False
+            if (np.sum(np.abs((state - goal))) == 0):
+                reward = 0
+                is_done = True
+            
+            if (isinstance(current, TransitionFrame)):
+                super().append_frame(TransitionFrame(goal, -1, reward, goal, is_done))
+            elif (isinstance(current, ActionTransitionFrame)):
+                super().append_frame(ActionTransitionFrame(-1, goal, -1, reward, goal, is_done))

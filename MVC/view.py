@@ -10,7 +10,8 @@ from PIL import ImageTk
 from PIL.ImageTk import PhotoImage
 import ttkwidgets
 
-from Agents import qLearning, qTable, drqn, deepQ, adrqn, agent, doubleDuelingQNative, drqnNative, drqnConvNative, ppoNative, reinforceNative, actorCriticNative, ppo, trpo, rainbow
+from Agents import qLearning, drqn, deepQ, adrqn, agent, doubleDuelingQNative, drqnNative, drqnConvNative, ppoNative, reinforceNative, actorCriticNative, cem, npg, ddpg, sac, ppo, trpo, rainbow
+from Agents.Collections import qTable
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, \
     mountainCarEnv
 from MVC import helptext
@@ -33,16 +34,22 @@ about = """
 
 
 class View:
-    agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, drqnConvNative.DRQNConvNative, ppoNative.PPONative, reinforceNative.ReinforceNative, actorCriticNative.ActorCriticNative, sarsa, ppo.PPO, trpo.TRPO, rainbow.Rainbow]
+    agents = [deepQ.DeepQ, deepQ.DeepQPrioritized, deepQ.DeepQHindsight, qLearning.QLearning, drqn.DRQN, drqn.DRQNPrioritized, drqn.DRQNHindsight, adrqn.ADRQN, adrqn.ADRQNPrioritized, adrqn.ADRQNHindsight, doubleDuelingQNative.DoubleDuelingQNative, drqnNative.DRQNNative, drqnConvNative.DRQNConvNative, ppoNative.PPONative, reinforceNative.ReinforceNative, actorCriticNative.ActorCriticNative, sarsa, cem.CEM, npg.NPG, ddpg.DDPG, sac.SAC, ppo.PPO, trpo.TRPO, rainbow.Rainbow]
     singleDimEnvs = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
                     pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv]
     environments = singleDimEnvs + atariEnv.AtariEnv.subEnvs
 
     allowedEnvs = {
         deepQ.DeepQ: singleDimEnvs,
+        deepQ.DeepQPrioritized: singleDimEnvs,
+        deepQ.DeepQHindsight: singleDimEnvs,
         qLearning.QLearning: [cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv],
         drqn.DRQN: environments,
+        drqn.DRQNPrioritized: environments,
+        drqn.DRQNHindsight: environments,
         adrqn.ADRQN: environments,
+        adrqn.ADRQNPrioritized: environments,
+        adrqn.ADRQNHindsight: environments,
         doubleDuelingQNative.DoubleDuelingQNative: singleDimEnvs,
         drqnNative.DRQNNative: singleDimEnvs,
         drqnConvNative.DRQNConvNative: atariEnv.AtariEnv.subEnvs,
@@ -52,7 +59,11 @@ class View:
         sarsa: [cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv],
         ppo.PPO: singleDimEnvs,
         trpo.TRPO: singleDimEnvs,
-        rainbow.Rainbow: singleDimEnvs
+        rainbow.Rainbow: singleDimEnvs,
+        cem.CEM: environments,
+        npg.NPG: environments,
+        ddpg.DDPG: environments,
+        sac.SAC: environments
     }
 
     allowedEnvs = {agent.displayName:[env.displayName for env in envs] for (agent, envs) in allowedEnvs.items()}
