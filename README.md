@@ -156,7 +156,12 @@ drqn native
 conv drqn native
 ppo native
 reinforce native
-actorcritic native. 
+actorcritic native
+trpo
+sac
+npg
+ddpg
+cem
 ```
 
 # Setting Up Easy-RL Cloud:
@@ -189,4 +194,3 @@ This will deploy the function as cloudBridge. The lambda function defined the AW
 * Nazim Zerrouki
 * Shrustishree Sumanth
 * Egor Maksimenka
-* 
