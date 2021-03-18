@@ -1,6 +1,3 @@
-import torch.nn as nn
-import torch.nn.functional as F
-
 from Agents import agent, modelFreeAgent
 from Agents.deepQ import DeepQ
 import tensorflow as tf

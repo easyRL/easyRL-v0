@@ -42,6 +42,7 @@ class PPO(DeepQ):
         # Initialize parameters
         self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
         self.total_steps = 0
+        self.actorIts = 2
         self.allMask = np.full((1, self.action_size), 1)
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
         self.policy_lr = 0.001
@@ -50,8 +51,7 @@ class PPO(DeepQ):
         self.value_model = Critic(self.state_size, self.action_size, self.value_lr).value_network()
 
     def sample(self):
-        return self.memory.sample(self.batch_size)
-
+        return self.memory.sample(self.actorIts)
 
     def policy_network(self):
         return self.policy_model
@@ -66,7 +66,8 @@ class PPO(DeepQ):
         shape = (1,) + self.state_size
         state = np.reshape(state, shape)
         val = self.value_model.predict([state, self.allMask])
-        action = int(np.argmax(val))
+        action = np.argmax(val)
+        print("action: " + str(action))
         return action
 
     def get_probabilities(self, states):
