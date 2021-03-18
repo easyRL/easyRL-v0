@@ -8,20 +8,35 @@
 
 ----> See https://youtu.be/Sc5phA_TR_o for EasyRL functionalities
 
+----> See https://youtu.be/Jaa9TG3-F2c for EasyRL Cloud functionalities
+
 # Building from source for Windows/MacOS/Linux (master branch):
+For easy installation onto Ubuntu 20.04 the install.sh script can be used to automatically download all the dependencies.
+```
+./install.sh
+```
+
+If you are manually setting up the environment install the following dependencies:
+
 To setup, first install the required pip packages using these commands
  in a Python 3.7 environment:
 ```
-pip install pillow
-pip install gym
-pip install pandas
-pip install numpy
-pip install tensorflow
-pip install joblib
-pip install ttkthemes
-pip install ttkwidgets
-pip install opencv-python
-pip install cffi
+python3.7 -m pip install pillow
+python3.7 -m pip install gym
+python3.7 -m pip install pandas
+python3.7 -m pip install numpy
+python3.7 -m pip install tensorflow
+python3.7 -m pip install joblib
+python3.7 -m pip install ttkthemes
+python3.7 -m pip install ttkwidgets
+python3.7 -m pip install opencv-python
+python3.7 -m pip install cffi
+python3.7 -m pip install torch
+python3.7 -m pip install botocore
+python3.7 -m pip install boto3
+python3.7 -m pip install paramiko
+python3.7 -m pip install django
+python3.7 -m pip install django-storages
 ```
 
 (if not on Windows): 
@@ -51,9 +66,9 @@ If installed from the installer, run EasyRL.exe
 If built from source, run
 
 ```
-python EasyRL.py
+python3.7 EasyRL.py
 ```
-from the root project directory
+From the root project directory
 
 # other dependencies requirements.txt
 ```
@@ -126,7 +141,6 @@ from the root project directory
 -- XlsxWriter==1.2.9
 -- xlutils==2.0.0
 -- xlwt==1.3.0
-
 -- interval~=1.0.0
 ```
 
@@ -145,7 +159,16 @@ reinforce native
 actorcritic native. 
 ```
 
-###Contributors:
+# Setting Up Easy-RL Cloud:
+The first step is to deploy the AWS Lambda function. This can be easily done by configuring the AWS CLI and running the publish.sh script below. First modify /lambda/python_template/deploy/config.json and enter a valid AWS ARN for the lambda security role. Then run:
+
+```
+./lambda/python_template/deploy/publish.sh 1 0 0 0 512
+```
+
+This will deploy the function as cloudBridge. The lambda function defined the AWS AMI used for the backend, modify /lambda/python_template/scr/handler.py if you would like to use a different AMI or Github repository for the backend. Once the function is deployed the front end must be deployed to any webserver with both django, python, boto3, and the AWS CLI configured to call the lambda function. This should be all the configuration needed. Source code for the web server and GUI is available in the separate EasyRL-Web repository.
+
+### Easy-RL Contributors:
 * Neil Hulbert
 * James Haines-Temons
 * Brandon Francis
@@ -156,3 +179,14 @@ actorcritic native.
 * Bowei Huang
 * Kevin Flora
 * Athirai A. Irissappane
+
+### Easy-RL Cloud Contributors:
+* Robert Cordingly
+* Tucker Stewart
+* Varik Hoang
+* Rashad Hatchett
+* Maham Rashid
+* Nazim Zerrouki
+* Shrustishree Sumanth
+* Egor Maksimenka
+* 
