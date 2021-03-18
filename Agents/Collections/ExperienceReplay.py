@@ -135,6 +135,13 @@ class ReplayBuffer:
                 
         # Pad and return the transitions.
         return self._pad(results)
+
+    def get_next_transitions(self, start, end):
+        result = []
+        for i in range(start, end):
+            result.append(self._transitions[i])
+        return result
+
     
     def is_empty(self):
         """
@@ -143,7 +150,7 @@ class ReplayBuffer:
         :rtype: int
         """
         return self._size == 0
-    
+
     def is_full(self):
         """
         Checks whether this replay buffer has reached the max length.
@@ -151,7 +158,7 @@ class ReplayBuffer:
         :rtype: int
         """
         return self._size == self.max_length
-    
+
     def _pad(self, transitions):
         """
         Adds padding to the beginning of the given list of transitions.
@@ -380,6 +387,28 @@ class PrioritizedReplayBuffer(ReplayBuffer):
             return self._sample_helper(idx_left, s)
         else:
             return self._sample_helper(idx_left + 1, s - self._priority_tree[idx_left])
+    
+    def _to_transition_idx(self, tree_idx: int):
+        """
+        Calculates the corresponding transition index of the given tree
+        index.
+        :param tree_idx: is the index for a node in this SumTree
+        :type tree_idx: int
+        :return: the index for the transition that corresponds to given
+        tree node.
+        :rtype: int
+        """
+        return tree_idx - self.max_length + 1
+    
+    def _to_tree_idx(self, idx: int):
+        """
+        Calculates the corresponding tree index of the given transition
+        index.
+        :param idx: is the index for a transition stored in this buffer.
+        :type idx: int
+        :return: the index for the tree node that corresponds to that
+        transition.
+        """
     
     def _to_transition_idx(self, tree_idx: int):
         """
