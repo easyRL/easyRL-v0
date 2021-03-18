@@ -1,5 +1,4 @@
-# This is just to support Azure.
-# If you are not deploying there this can be removed.
+
 import paramiko
 import boto3
 import time
@@ -11,15 +10,19 @@ import sys
 import random
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
 
+#
+# Configure options here..
+#
+awsRegion = 'us-east-1'
+backendAMI = 'ami-0bd8cfaa7944aedfe'
+githubDefaultRepo = "https://github.com/RobertCordingly/easyRL-v0"
+githubDefaultBranch = "dev/rl"
 
 #
-# Define your FaaS Function here.
-# Each platform handler will call and pass parameters to this function.
-#
-# @param request A JSON object provided by the platform handler.
-# @param context A platform specific object used to communicate with the cloud platform.
-# @returns A JSON object to use as a response.
-#
+# To add a new agent define the information for it here. The index value must corespond to the index used in
+# terminal view. After added to agentList, define agent hyper parameter order in paraMap and if there are new
+# hyper parameter values add them to paramConditions.
+#   
 agentList = [
     {"name": "Q Learning", "description": "Basic Q Learning.", "index": "1", "supportedEnvs": ["singleDimDescrete"]},
     {"name": "SARSA", "description": "State Action Reward State Action learning.", "index": "2", "supportedEnvs": ["singleDimDescrete"]},
@@ -497,7 +500,7 @@ def createInstance(ec2Client, ec2Resource, jobID, arguments, inspector):
     #inspector.addAttribute("securityGroupId", str(security_group_id))
 
     instance = ec2Resource.create_instances(
-        ImageId='ami-0bd8cfaa7944aedfe',
+        ImageId=backendAMI,
         MinCount=1,
         MaxCount=1,
         InstanceType=arguments['instanceType'],
@@ -545,8 +548,8 @@ def yourFunction(request, context):
         jobID += str(instanceID)
 
     if ('gitHubURL' not in arguments):
-        arguments['gitHubURL'] = "https://github.com/RobertCordingly/easyRL-v0"
-        arguments['gitHubBranch'] = "dev/rl"
+        arguments['gitHubURL'] = githubDefaultRepo
+        arguments['gitHubBranch'] = githubDefaultBranch
 
     continuousTraining = False
     if ("continuousTraining" in arguments):
@@ -558,7 +561,7 @@ def yourFunction(request, context):
         aws_access_key_id=accessKey,
         aws_secret_access_key=secretKey,
         aws_session_token=sessionToken,
-        region_name='us-east-1'
+        region_name=awsRegion
     )
     inspector.addAttribute("instanceStateText", "Loading...")
 
@@ -985,6 +988,7 @@ def yourFunction(request, context):
 
             ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
             stdout = ssh_stdout.readlines()
+            inspector.addAttribute("error", stdout)
 
             ssh.close()
         else:

@@ -49,7 +49,6 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
             return loss
         batch_idxes, mini_batch = self.sample()
 
-
         X_train, Y_train = self.calculateTargetValues(mini_batch)
         loss = self.model.train_on_batch(X_train, Y_train)
         '''
@@ -129,8 +128,10 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
                 Y_train[index_rep][transition.action] = transition.reward
             else:
                 Y_train[index_rep][transition.action] = transition.reward + qnext[index_rep] * self.gamma
+
         print("X train: " + str(X_train))
         print("Y train: " + str(Y_train))
+
         return X_train, Y_train
     
     def compute_loss(self, mini_batch, q_target: list = None):

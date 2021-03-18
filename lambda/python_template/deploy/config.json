@@ -18,17 +18,18 @@
 	"azureRuntime": "python",
 
 	"test": {
-		"accessKey": "",
-		"secretKey": "",
+		"accessKey": "INSERT AWS ACCESS KEY",
+		"secretKey": "INSERT AWS SECRET KEY",
 		"sessionToken": "",
-		"jobID": "bingusmingus32",
-		"task": "createInstance",
+		"jobID": "RANDOM JOB ID",
+		"task": "poll",
 		"arguments": {
 			"instanceType": "c4.xlarge",
+			"killTime": 600,
 			"environment": 1,
 			"agent": 1,
 			"episodes": 50,
-			"steps": 200,
+			"steps": 250,
 			"gamma": 0.97,
 			"minEpsilon": 0.1,
 			"maxEpsilon": 1.0,
@@ -36,7 +37,11 @@
 			"batchSize": 32,
 			"memorySize": 1000,
 			"targetInterval": 200,
-			"path": "./easyRL-v0/data.json"
+			"alpha": 0.18,
+			"historyLength": 10,
+			"continuousTraining": true,
+			"gitHubURL": "https://github.com/RobertCordingly/easyRL-v0",
+			"gitHubBranch": "dev/rl"
 		}
 	}
 }
