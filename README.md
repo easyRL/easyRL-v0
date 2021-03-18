@@ -1,4 +1,4 @@
-# EasyRL-Framework - WEB
+# EasyRL-Framework - Desktop and Cloud Application
 
 # Installation for Windows x64 (releases):
 
@@ -223,7 +223,7 @@ From the root project directory
   ```
 </details>
 
-# Setting Up Easy-RL Cloud:
+# Setting Up EasyRL Cloud:
 
 The first step is to deploy the AWS Lambda function. This can be easily done by configuring the AWS CLI and running the publish.sh script below. First modify /lambda/python_template/deploy/config.json and enter a valid AWS ARN for the lambda security role. Then run:
 
@@ -286,7 +286,7 @@ After successfully logging into the system using the credentials, the webpage re
 ![](./webpage/app.png)
 
 
-### Easy-RL Contributors:
+### EasyRL Contributors:
 
 * Neil Hulbert
 * James Haines-Temons
@@ -299,7 +299,7 @@ After successfully logging into the system using the credentials, the webpage re
 * Kevin Flora
 * Athirai A. Irissappane
 
-### Easy-RL Cloud Contributors:
+### EasyRL Cloud Contributors:
 
 * Robert Cordingly
 * Tucker Stewart
