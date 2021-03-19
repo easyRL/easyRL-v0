@@ -566,8 +566,11 @@ def yourFunction(request, context):
     inspector.addAttribute("instanceStateText", "Loading...")
 
     if 'instanceType' in arguments:
-        inspector.addAttribute("cost", instanceInfo[arguments['instanceType']]['cost'])
-        inspector.addAttribute("info", instanceInfo[arguments['instanceType']])
+        try:
+            inspector.addAttribute("cost", instanceInfo[arguments['instanceType']]['cost'])
+            inspector.addAttribute("info", instanceInfo[arguments['instanceType']])
+        except:
+            pass
 
     if (task == "poll"):
         ec2Client = botoSession.client('ec2')
