@@ -225,10 +225,16 @@ From the root project directory
 
 # Setting Up EasyRL Cloud:
 
-The first step is to deploy the AWS Lambda function. This can be easily done by configuring the AWS CLI and running the publish.sh script below. First modify /lambda/python_template/deploy/config.json and enter a valid AWS ARN for the lambda security role. Then run:
+The first step is to deploy the AWS Lambda function. This can be easily done by configuring the AWS CLI and running the publish.sh script. For an interactive tutorial for installing the AWS CLI and all dependencies needed for SAAF simply run:
 
 ```
-# Configure AWS CLI to deploy lambda functions to us-east-1
+./lambda/install.sh
+```
+
+Now that the AWS CLI has been configured, modify /lambda/python_template/deploy/config.json and enter a valid AWS ARN for the lambda security role. Then run:
+
+```
+# Configure AWS CLI to deploy lambda functions to us-east-1. Skip if used install script.
 aws configure
 
 # Add AWS ARN to config.json for deployment in lambdaRoleARN value.
