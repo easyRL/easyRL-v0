@@ -37,7 +37,7 @@ class Rainbow(DeepQ):
         self.model = self.buildQNetwork()
         self.target = self.buildQNetwork()
         self.lr = 0.001
-        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
+        self.memory = ExperienceReplay.PrioritizedReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
 
         # Parameters used for Bellman Distribution
         self.num_atoms = 51
