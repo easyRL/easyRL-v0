@@ -1,0 +1,47 @@
+{
+	"README": "See ./deploy/README.md for help!",
+
+	"functionName": "cloudBridge",
+
+	"lambdaHandler": "lambda_function.lambda_handler",
+	"lambdaRoleARN": "arn:aws:iam::267356239361:role/service-role/fullAccess",
+	"lambdaSubnets": "",
+	"lambdaSecurityGroups": "",
+	"lambdaEnvironment": "Variables={}",
+	"lambdaRuntime": "python3.7",
+
+	"googleHandler": "hello_world2",
+	"googleRuntime": "python37",
+
+	"ibmRuntime": "python:3",
+
+	"azureRuntime": "python",
+
+	"test": {
+		"accessKey": "INSERT AWS ACCESS KEY",
+		"secretKey": "INSERT AWS SECRET KEY",
+		"sessionToken": "",
+		"jobID": "RANDOM JOB ID",
+		"task": "poll",
+		"arguments": {
+			"instanceType": "c4.xlarge",
+			"killTime": 600,
+			"environment": 1,
+			"agent": 1,
+			"episodes": 50,
+			"steps": 250,
+			"gamma": 0.97,
+			"minEpsilon": 0.1,
+			"maxEpsilon": 1.0,
+			"decayRate": 0.018,
+			"batchSize": 32,
+			"memorySize": 1000,
+			"targetInterval": 200,
+			"alpha": 0.18,
+			"historyLength": 10,
+			"continuousTraining": true,
+			"gitHubURL": "https://github.com/RobertCordingly/easyRL-v0",
+			"gitHubBranch": "dev/rl"
+		}
+	}
+}

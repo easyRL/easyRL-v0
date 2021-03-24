@@ -1,9 +1,10 @@
-from Agents import modelFreeAgent
-import numpy as np
-from collections import deque
-import random
 import joblib
+import numpy as np
+import random
 
+from Agents import modelFreeAgent
+from Agents.Collections import ExperienceReplay
+from Agents.Collections.TransitionFrame import TransitionFrame
 
 class DeepQ(modelFreeAgent.ModelFreeAgent):
     displayName = 'Deep Q'
@@ -18,7 +19,8 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         self.batch_size, self.memory_size, self.target_update_interval = [int(arg) for arg in args[-paramLen:]]
         self.model = self.buildQNetwork()
         self.target = self.buildQNetwork()
-        self.memory = deque(maxlen=self.memory_size)
+        empty_state = self.get_empty_state()
+        self.memory = ExperienceReplay.ReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
         self.total_steps = 0
         self.allMask = np.full((1, self.action_size), 1)
         self.allBatchMask = np.full((self.batch_size, self.action_size), 1)
@@ -34,20 +36,31 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         return action
 
     def sample(self):
-        return random.sample(self.memory, self.batch_size)
+        return self.memory.sample(self.batch_size)
 
     def addToMemory(self, state, action, reward, new_state, done):
-        self.memory.append((state, action, reward, new_state, done))
+        self.memory.append_frame(TransitionFrame(state, action, reward, new_state, done))
 
     def remember(self, state, action, reward, new_state, done=False):
         self.addToMemory(state, action, reward, new_state, done)
+        
         loss = 0
         if len(self.memory) < 2*self.batch_size:
             return loss
-        mini_batch = self.sample()
+        batch_idxes, mini_batch = self.sample()
 
         X_train, Y_train = self.calculateTargetValues(mini_batch)
         loss = self.model.train_on_batch(X_train, Y_train)
+        '''
+        If the memory is PrioritiedReplayBuffer then calculate the loss and
+        update the priority of the sampled transitions
+        '''
+        if (isinstance(self.memory, ExperienceReplay.PrioritizedReplayBuffer)):
+            # Calculate the loss of the batch as the TD error
+            td_errors = self.compute_loss(mini_batch, np.amax(Y_train, axis = 1))
+            # Update the priorities.
+            for idx, td_error in zip(batch_idxes, td_errors):
+                self.memory.update_error(idx, td_error)
         self.updateTarget()
         return loss
 
@@ -58,7 +71,6 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         self.total_steps += 1
 
     def predict(self, state, isTarget):
-        import tensorflow as tf
 
         shape = (1,) + self.state_size
         state = np.reshape(state, shape)
@@ -100,21 +112,75 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
         X_train = [np.zeros((self.batch_size,) + self.state_size), np.zeros((self.batch_size,) + (self.action_size,))]
         next_states = np.zeros((self.batch_size,) + self.state_size)
 
-        for index_rep, (state, action, reward, next_state, isDone) in enumerate(mini_batch):
-            X_train[0][index_rep] = state
-            X_train[1][index_rep] = self.create_one_hot(self.action_size, action)
-            next_states[index_rep] = next_state
+        for index_rep, transition in enumerate(mini_batch):
+            states, actions, rewards, _, dones = transition
+            
+            X_train[0][index_rep] = transition.state
+            X_train[1][index_rep] = self.create_one_hot(self.action_size, transition.action)
+            next_states[index_rep] = transition.next_state
 
         Y_train = np.zeros((self.batch_size,) + (self.action_size,))
         qnext = self.target.predict([next_states, self.allBatchMask])
         qnext = np.amax(qnext, 1)
 
-        for index_rep, (state, action, reward, next_state, isDone) in enumerate(mini_batch):
-            if isDone:
-                Y_train[index_rep][action] = reward
+        for index_rep, transition in enumerate(mini_batch):
+            if transition.is_done:
+                Y_train[index_rep][transition.action] = transition.reward
             else:
-                Y_train[index_rep][action] = reward + qnext[index_rep] * self.gamma
+                Y_train[index_rep][transition.action] = transition.reward + qnext[index_rep] * self.gamma
+
+        print("X train: " + str(X_train))
+        print("Y train: " + str(Y_train))
+
         return X_train, Y_train
+    
+    def compute_loss(self, mini_batch, q_target: list = None):
+        """
+        Computes the loss of each sample in the mini_batch. The loss is
+        calculated as the TD Error of the Q-Network Will use the given
+        list of q_target value if provided instead of calculating.
+        :param mini_batch: is the mini batch to compute the loss of.
+        :param q_target: is a list of q_target values to use in the
+        calculation of the loss. This is optional. The q_target values
+        will be calculated if q_target is not provided.
+        :type q_target: list
+        """
+        # Get the states from the batch.
+        states = np.zeros((self.batch_size,) + self.state_size)
+        for batch_idx, transition in enumerate(mini_batch):
+            states[batch_idx] = transition.state
+        # Get the actions from the batch.
+        actions = [transition.action for transition in mini_batch]
+        
+        '''
+        If the q_target is None then calculate the target q-value using the
+        target QNetwork.
+        '''
+        if (q_target is None):
+            next_states = np.zeros((self.batch_size,) + self.state_size)
+            for batch_idx, transition in enumerate(mini_batch):
+                next_states[batch_idx] = transition.next_state
+            rewards = [transition.reward for transition in mini_batch]
+            is_dones = np.array([transition.is_done for transition in mini_batch]).astype(float)
+            q_target = self.target.predict([next_states, self.allBatchMask])
+            q_target = rewards + (1 - is_dones) * self.gamma * np.amax(q_target, 1)
+        
+        # Get from the current q-values from the QNetwork.
+        q = self.model.predict([states, self.allBatchMask])
+        q = np.choose(actions, q.T)
+        
+        # Calculate and return the loss (TD Error).
+        loss = (q_target - q) ** 2
+        return loss
+    
+    def apply_hindsight(self):
+        '''
+        The hindsight replay buffer method checks for 
+        the instance, if instance found add to the memory
+     
+        '''
+        if (isinstance(self.memory, ExperienceReplay.HindsightReplayBuffer)):
+            self.memory.apply_hindsight()
 
     def __deepcopy__(self, memodict={}):
         pass
@@ -137,3 +203,31 @@ class DeepQ(modelFreeAgent.ModelFreeAgent):
     def memload(self, mem):
         self.model.set_weights(mem)
         self.target.set_weights(mem)
+
+
+
+class DeepQPrioritized(DeepQ):
+    displayName = 'Deep Q Prioritized'
+    newParameters = [DeepQ.Parameter('Alpha', 0.00, 1.00, 0.001, 0.60, True, True, "The amount of prioritization that gets used.")]
+    parameters = DeepQ.parameters + newParameters
+
+    def __init__(self, *args):
+        paramLen = len(DeepQPrioritized.newParameters)
+        super().__init__(*args[:-paramLen])
+        self.alpha = float(args[-paramLen])
+        empty_state = self.get_empty_state()
+        self.memory = ExperienceReplay.PrioritizedReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False), alpha = self.alpha)
+        
+        
+class DeepQHindsight(DeepQ):
+    displayName = 'Deep Q Hindsight'
+    newParameters = []
+    parameters = DeepQ.parameters + newParameters
+
+    def __init__(self, *args):
+        paramLen = len(DeepQHindsight.newParameters)
+        super().__init__(*args)
+        empty_state = self.get_empty_state()
+        self.memory = ExperienceReplay.HindsightReplayBuffer(self, self.memory_size, TransitionFrame(empty_state, -1, 0, empty_state, False))
+       
+        

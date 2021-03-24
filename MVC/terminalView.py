@@ -1,11 +1,11 @@
-from Agents import agent, qLearning, qTable, drqn, deepQ, adrqn
+from Agents import qLearning, drqn, deepQ, adrqn, agent, doubleDuelingQNative, drqnNative, drqnConvNative, ppoNative, reinforceNative, actorCriticNative, cem, npg, ddpg, sac, trpo, rainbow
 from Environments import cartPoleEnv, cartPoleEnvDiscrete, atariEnv, frozenLakeEnv, pendulumEnv, acrobotEnv, mountainCarEnv
 from MVC.model import Model
 from Agents.sarsa import sarsa
 import time, os
 
 class View:
-    agents = [deepQ.DeepQ, qLearning.QLearning, drqn.DRQN, adrqn.ADRQN, sarsa]
+    agents = [qLearning.QLearning, sarsa, deepQ.DeepQ, deepQ.DeepQPrioritized, deepQ.DeepQHindsight, drqn.DRQN, drqn.DRQNPrioritized, drqn.DRQNHindsight, adrqn.ADRQN, adrqn.ADRQNPrioritized, adrqn.ADRQNHindsight, npg.NPG, ddpg.DDPG, cem.CEM, sac.SAC, trpo.TRPO, rainbow.Rainbow]
     environments = [cartPoleEnv.CartPoleEnv, cartPoleEnvDiscrete.CartPoleEnvDiscrete, frozenLakeEnv.FrozenLakeEnv,
                     pendulumEnv.PendulumEnv, acrobotEnv.AcrobotEnv, mountainCarEnv.MountainCarEnv]
     environments += atariEnv.AtariEnv.subEnvs
@@ -136,7 +136,7 @@ class View:
             while not loaded:
                 text = 'Type the filename of the agent to load:\n'
                 filename = input(text)
-                fullpath = workingDir + '\\' + filename
+                fullpath = workingDir + '/' + filename
                 try:
                     self.listener.load(fullpath, 0)
                     loaded = True
@@ -155,7 +155,7 @@ class View:
             text = 'Type the filename to save the agent as:\n'
             workingDir = os.getcwd()
             filename = input(text)
-            fullpath = workingDir + '\\' + filename
+            fullpath = workingDir + '/' + filename
             self.listener.save(fullpath, 0)
 
 
